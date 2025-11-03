@@ -1,4 +1,4 @@
-/* $Id: SUPR3HardenedMain-win.cpp 107180 2024-11-26 14:50:02Z knut.osmundsen@oracle.com $ */
+/* $Id: SUPR3HardenedMain-win.cpp 111535 2025-11-03 22:59:00Z knut.osmundsen@oracle.com $ */
 /** @file
  * VirtualBox Support Library - Hardened main(), windows bits.
  */
@@ -5277,7 +5277,7 @@ static void supR3HardenedWinOpenStubDevice(void)
     {
         /*
          * Report trouble (fatal).  For some errors codes we try gather some
-         * extra information that goes into VBoxStartup.log so that we stand a
+         * extra information that goes into VBoxHardening.log so that we stand a
          * better chance resolving the issue.
          */
         char szErrorInfo[16384];
@@ -5313,7 +5313,7 @@ static void supR3HardenedWinOpenStubDevice(void)
                                       "Error getting %s\\ApiPort in the driver from vboxsup.\n"
                                       "\n"
                                       "Could be due to security software is redirecting access to it, so please include full "
-                                      "details of such software in a bug report. VBoxStartup.log may contain details important "
+                                      "details of such software in a bug report. VBoxHardening.log may contain details important "
                                       "to resolving the issue.%s"
                                       , s_wszName, szDir,
                                       supR3HardenedWinReadErrorInfoDevice(szErrorInfo, sizeof(szErrorInfo),
