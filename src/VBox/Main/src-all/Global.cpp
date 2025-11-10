@@ -1,4 +1,4 @@
-/* $Id: Global.cpp 111096 2025-09-23 10:04:39Z brent.paulson@oracle.com $ */
+/* $Id: Global.cpp 111589 2025-11-10 08:35:43Z alexander.eichner@oracle.com $ */
 /** @file
  * VirtualBox COM global definitions
  *
@@ -191,7 +191,7 @@ const Global::OSType Global::sOSTypes[] =
 
     { "Windows", "Microsoft Windows", "",               GUEST_OS_ID_STR_X86("Windows10"),       "Windows 10 (32-bit)", VBOX_GUEST_ADDITIONS_NAME_WIN,
       VBOXOSTYPE_Win10,           VBOXOSHINT_X86_HWVIRTEX | VBOXOSHINT_X86_IOAPIC | VBOXOSHINT_USBTABLET | VBOXOSHINT_X86_PAE | VBOXOSHINT_USB3 | VBOXOSHINT_WDDM_GRAPHICS,
-      1, 1024, 128, 50 * _1G64, GraphicsControllerType_VBoxSVGA, NetworkAdapterType_I82540EM, 0, StorageControllerType_IntelAhci, StorageBus_SATA,
+      1, 2048, 128, 50 * _1G64, GraphicsControllerType_VBoxSVGA, NetworkAdapterType_I82540EM, 0, StorageControllerType_IntelAhci, StorageBus_SATA,
       StorageControllerType_IntelAhci, StorageBus_SATA, ChipsetType_PIIX3, IommuType_None, AudioControllerType_HDA, AudioCodecType_STAC9221  },
 
     { "Windows", "Microsoft Windows", "",               GUEST_OS_ID_STR_X64("Windows10"),       "Windows 10 (64-bit)", VBOX_GUEST_ADDITIONS_NAME_WIN,
