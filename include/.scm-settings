@@ -1,4 +1,4 @@
-# $Id: .scm-settings 106320 2024-10-15 12:08:41Z klaus.espenlaub@oracle.com $
+# $Id: .scm-settings 111681 2025-11-12 14:30:19Z dmitrii.grigorev@oracle.com $
 ## @file
 # Source code massager settings for the includes.
 #
@@ -82,6 +82,8 @@
 /VBox/VBoxGuest.h:                      --license-mit
 /VBox/VBoxGuestCoreTypes.h:             --license-mit
 /VBox/VBoxGuestLib.h:                   --license-mit
+/VBox/VBoxGuestLibHGCMInline.h:         --license-mit
+/VBox/VBoxGuestLibGuestProp.h:          --license-mit
 /VBox/VBoxGuestLibSharedFolders.h:      --license-mit
 /VBox/VBoxGuestLibSharedFoldersInline.h: --license-mit
 /VBox/VBoxLnxModInline.h:               --license-mit

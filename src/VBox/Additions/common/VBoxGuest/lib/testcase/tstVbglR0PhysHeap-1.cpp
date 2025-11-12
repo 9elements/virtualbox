@@ -1,4 +1,4 @@
-/* $Id: tstVbglR0PhysHeap-1.cpp 106320 2024-10-15 12:08:41Z klaus.espenlaub@oracle.com $ */
+/* $Id: tstVbglR0PhysHeap-1.cpp 111681 2025-11-12 14:30:19Z dmitrii.grigorev@oracle.com $ */
 /** @file
  * IPRT Testcase - Offset Based Heap.
  */
@@ -52,8 +52,11 @@
 
 #define IN_TESTCASE
 #define IN_RING0 /* pretend we're in ring-0 so we get access to the functions */
+#undef  IN_RING3
 #include <iprt/memobj.h>
 #include "../VBoxGuestR0LibInternal.h"
+#define  IN_RING3
+
 
 
 /*********************************************************************************************************************************
