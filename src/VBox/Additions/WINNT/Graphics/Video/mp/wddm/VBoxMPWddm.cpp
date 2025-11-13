@@ -1,4 +1,4 @@
-/* $Id: VBoxMPWddm.cpp 110828 2025-08-27 18:00:01Z dmitrii.grigorev@oracle.com $ */
+/* $Id: VBoxMPWddm.cpp 111693 2025-11-13 10:29:23Z dmitrii.grigorev@oracle.com $ */
 /** @file
  * VBox WDDM Miniport driver
  */
@@ -5344,7 +5344,7 @@ DriverEntry(
         || !ARGUMENT_PRESENT(RegistryPath))
         return STATUS_INVALID_PARAMETER;
 
-    vboxWddmLoggerCreate(RegistryPath);
+    vboxWddmLoggerCreate();
     vboxWddmDrvCfgInit(RegistryPath);
 
     ULONG major, minor, build;

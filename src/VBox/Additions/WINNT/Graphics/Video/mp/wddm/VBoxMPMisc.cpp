@@ -1,4 +1,4 @@
-/* $Id: VBoxMPMisc.cpp 109967 2025-06-25 16:24:55Z dmitrii.grigorev@oracle.com $ */
+/* $Id: VBoxMPMisc.cpp 111693 2025-11-13 10:29:23Z dmitrii.grigorev@oracle.com $ */
 /** @file
  * VBox WDDM Miniport driver
  */
@@ -1276,17 +1276,20 @@ NTSTATUS vboxWddmDrvCfgInit(PUNICODE_STRING pRegStr)
     return Status;
 }
 
-NTSTATUS vboxWddmLoggerCreate(PUNICODE_STRING pRegStr)
+NTSTATUS vboxWddmLoggerCreate()
 {
     HANDLE hKey;
     OBJECT_ATTRIBUTES ObjAttr;
+    UNICODE_STRING SysEnvRegPath;
 
-    InitializeObjectAttributes(&ObjAttr, pRegStr, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, NULL, NULL);
+    RtlInitUnicodeString(&SysEnvRegPath, VBOXWDDM_REG_SYSTEM_ENVIRONMENT);
+
+    InitializeObjectAttributes(&ObjAttr, &SysEnvRegPath, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, NULL, NULL);
 
     NTSTATUS Status = ZwOpenKey(&hKey, GENERIC_READ, &ObjAttr);
     if (!NT_SUCCESS(Status))
     {
-        WARN(("ZwOpenKey for settings key failed, Status 0x%x", Status));
+        WARN(("ZwOpenKey for system environment key failed, Status 0x%x", Status));
         return Status;
     }
 
@@ -1303,16 +1306,11 @@ NTSTATUS vboxWddmLoggerCreate(PUNICODE_STRING pRegStr)
     RtlInitUnicodeString(&ValueName, L"VBOXWDDM_RELEASE_LOG");
     Status = ZwQueryValueKey(hKey, &ValueName, KeyValuePartialInformation, &uBuf, sizeof(uBuf) - sizeof(WCHAR), &cbActual);
 
-    if (!NT_SUCCESS(Status))
-    {
-        ZwClose(hKey);
-        return Status;
-    }
+    ZwClose(hKey);
 
-    if (uBuf.PartialInfo.Type != REG_SZ)
+    if (!NT_SUCCESS(Status) || uBuf.PartialInfo.Type != REG_SZ)
     {
-        ZwClose(hKey);
-        return Status;
+        return VERR_INVALID_STATE;
     }
 
     UNICODE_STRING Value;
@@ -1330,17 +1328,16 @@ NTSTATUS vboxWddmLoggerCreate(PUNICODE_STRING pRegStr)
     if (Status == STATUS_SUCCESS)
     {
         static const char * const s_apszGroups[] = VBOX_LOGGROUP_NAMES;
-        PRTLOGGER pRelLogger; // +drv_miniport.e.l.l2 is expected
-        int rc = RTLogCreate(&pRelLogger, 0 /*fFlags*/, ansiValue.Buffer, "VBOXWDDM_RELEASE_LOG", RT_ELEMENTS(s_apszGroups), s_apszGroups,
+        PRTLOGGER pRelLogger; // The ansiValue.Buffer like all.e.l1.l2 or drv_miniport.e.l1.l2 is expected
+        int rc = RTLogCreate(&pRelLogger, 0 /*fFlags*/, ansiValue.Buffer, "VBOXWDDM_RELEASE_LOG" /* ignored in R0 */, RT_ELEMENTS(s_apszGroups), s_apszGroups,
                         RTLOGDEST_USER, NULL);
+        RTLogBackdoorPrintf("VBoxMP:: Release logger config '%s'\n", ansiValue.Buffer);
 
         if (RT_SUCCESS(rc))
             RTLogRelSetDefaultInstance(pRelLogger);
 
         RtlFreeAnsiString(&ansiValue);
     }
-
-    ZwClose(hKey);
 
     return Status;
 }
