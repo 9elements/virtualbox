@@ -98,7 +98,7 @@ Rules for adding a changelog entry to make them look more uniform:
 
       <listitem>
         <para>VMM: Fixed running VirtualBox on Windows with Hyper-V enabled and
-          older Intel CPUs (github:GH-85)</para>
+          older Intel CPUs (github:gh-85)</para>
       </listitem>
 
       <listitem>
@@ -113,37 +113,37 @@ Rules for adding a changelog entry to make them look more uniform:
 
       <listitem>
         <para>Audio: Fixed a crash on Windows hosts when a host device has been
-          changed and failed to reset (github:GH-72)</para>
+          changed and failed to reset (github:gh-72)</para>
       </listitem>
 
       <listitem>
         <para>VBoxManage: Fixed issue when two or more parallel "import" commands
-          were failing (github:GH-80)</para>
+          were failing (github:gh-80)</para>
       </listitem>
 
       <listitem>
         <para>Main: Added support for including the NVRAM file when exporting
-          and importing EFI-based VMs (bug #22370, github:GH-62)</para>
+          and importing EFI-based VMs (bug #22370, github:gh-62)</para>
       </listitem>
 
       <listitem>
         <para>Main: Improved Vorbis check when building VirtualBox from
-          source code (github:GH-94)</para>
+          source code (github:gh-94)</para>
       </listitem>
 
       <listitem>
-        <para>Main: Fixed issue when some snapshots could not be deleted (github:GH-75)</para>
+        <para>Main: Fixed issue when some snapshots could not be deleted (github:gh-75)</para>
       </listitem>
 
       <listitem>
         <para>Main: Fixed issue when it was not possible to run more than 61 VMs
-          in parallel (github:GH-111)</para>
+          in parallel (github:gh-111)</para>
       </listitem>
 
       <listitem>
         <para>Linux Guest and Host: Fixed issue when kernel modules could not be
           compiled once kernel was configured with CONFIG_OBJTOOL_WERROR=y
-          option (github:GH-28, github:GH-93, github:GH-116)</para>
+          option (github:gh-28, github:gh-93, github:gh-116)</para>
       </listitem>
 
       <listitem>
@@ -152,7 +152,7 @@ Rules for adding a changelog entry to make them look more uniform:
 
       <listitem>
         <para>Linux Guest Additions: Introduced additional fixes for RHEL 9.6
-          and 9.7 kernels (github:GH-12)</para>
+          and 9.7 kernels (github:gh-12)</para>
       </listitem>
 
       <listitem>
@@ -162,12 +162,12 @@ Rules for adding a changelog entry to make them look more uniform:
 
       <listitem>
         <para>OS/2 Guest Additions: Fixed issue when some files could not be
-          copied from guest to host (github:GH-98)</para>
+          copied from guest to host (github:gh-98)</para>
       </listitem>
 
       <listitem>
         <para>Windows Guest Additions: Fixed issue when Guest Additions could not be
-          installed on Windows XP guest (github:GH-115)</para>
+          installed on Windows XP guest (github:gh-115)</para>
       </listitem>
 
     </itemizedlist>
@@ -189,7 +189,7 @@ Rules for adding a changelog entry to make them look more uniform:
 
       <listitem>
         <para>NAT: Fixed issue when VMs with long names were
-          unable to start (github:GH-16)</para>
+          unable to start (github:gh-16)</para>
       </listitem>
 
       <listitem>
@@ -199,7 +199,7 @@ Rules for adding a changelog entry to make them look more uniform:
 
       <listitem>
         <para>Windows Host: Fixed issue resulting in BSOD upon closing
-          VirtualBox GUI after host package uninstall (github:GH-38)</para>
+          VirtualBox GUI after host package uninstall (github:gh-38)</para>
       </listitem>
 
       <listitem>
@@ -208,7 +208,7 @@ Rules for adding a changelog entry to make them look more uniform:
 
       <listitem>
         <para>Windows Host: Implement support for exposing AVX/AVX2 to the guest
-          when Hyper-V is used (github:GH-36)</para>
+          when Hyper-V is used (github:gh-36)</para>
       </listitem>
 
       <listitem>
