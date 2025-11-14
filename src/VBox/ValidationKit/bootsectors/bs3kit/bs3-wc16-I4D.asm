@@ -1,4 +1,4 @@
-; $Id: bs3-wc16-I4D.asm 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $
+; $Id: bs3-wc16-I4D.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 ;; @file
 ; BS3Kit - 16-bit Watcom C/C++, 32-bit signed integer division.
 ;

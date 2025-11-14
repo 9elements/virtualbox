@@ -1,4 +1,4 @@
-' $Id: helpers.vbs 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $
+' $Id: helpers.vbs 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 '' @file
 ' Common VBScript helpers used by configure.vbs and later others.
 '

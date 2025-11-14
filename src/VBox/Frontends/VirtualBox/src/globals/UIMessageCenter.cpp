@@ -1,4 +1,4 @@
-/* $Id: UIMessageCenter.cpp 111525 2025-11-03 11:50:44Z serkan.bayraktar@oracle.com $ */
+/* $Id: UIMessageCenter.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMessageCenter class implementation.
  */

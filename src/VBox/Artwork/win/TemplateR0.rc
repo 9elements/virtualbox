@@ -1,4 +1,4 @@
-/* $Id: TemplateR0.rc 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $ */
+/* $Id: TemplateR0.rc 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * Resource file template for a ring-0 module.
  */

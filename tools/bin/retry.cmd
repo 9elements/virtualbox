@@ -1,5 +1,5 @@
 @echo off
-rem $Id: retry.cmd 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $
+rem $Id: retry.cmd 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 rem rem @file
 rem Windows NT batch script that retries a command 5 times.
 rem

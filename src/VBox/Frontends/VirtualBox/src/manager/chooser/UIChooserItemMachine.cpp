@@ -1,4 +1,4 @@
-/* $Id: UIChooserItemMachine.cpp 111152 2025-09-29 08:43:08Z sergey.dubov@oracle.com $ */
+/* $Id: UIChooserItemMachine.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIChooserItemMachine class implementation.
  */

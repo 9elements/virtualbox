@@ -1,4 +1,4 @@
-/* $Id: DevE1000.cpp 110954 2025-09-10 16:19:36Z alexander.eichner@oracle.com $ */
+/* $Id: DevE1000.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * DevE1000 - Intel 82540EM Ethernet Controller Emulation.
  *

@@ -1,4 +1,4 @@
-/* $Id: UITools.cpp 111227 2025-10-03 10:54:20Z sergey.dubov@oracle.com $ */
+/* $Id: UITools.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Qt GUI - UITools class implementation.
  */

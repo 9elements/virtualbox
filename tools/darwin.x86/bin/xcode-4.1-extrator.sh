@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: xcode-4.1-extrator.sh 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $
+# $Id: xcode-4.1-extrator.sh 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 ## @file
 # Extracts the necessary bits from the Xcode 4.1 lion package (inside installercode_41_lion.dmg).
 

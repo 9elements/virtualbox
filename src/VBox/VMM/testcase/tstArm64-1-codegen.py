@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# $Id: tstArm64-1-codegen.py 111138 2025-09-27 02:26:39Z knut.osmundsen@oracle.com $
+# $Id: tstArm64-1-codegen.py 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 # pylint: disable=invalid-name
 
 """
@@ -31,7 +31,7 @@ along with this program; if not, see <https://www.gnu.org/licenses>.
 
 SPDX-License-Identifier: GPL-3.0-only
 """
-__version__ = "$Revision: 111138 $"
+__version__ = "$Revision: 111747 $"
 
 # pylint: enable=invalid-name
 

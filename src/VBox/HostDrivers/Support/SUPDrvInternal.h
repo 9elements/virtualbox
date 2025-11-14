@@ -1,4 +1,4 @@
-/* $Id: SUPDrvInternal.h 111133 2025-09-26 07:01:31Z ramshankar.venkataraman@oracle.com $ */
+/* $Id: SUPDrvInternal.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VirtualBox Support Driver - Internal header.
  */

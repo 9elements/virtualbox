@@ -1,4 +1,4 @@
-/* $Id: UILanguageSettingsEditor.h 111391 2025-10-14 15:12:22Z sergey.dubov@oracle.com $ */
+/* $Id: UILanguageSettingsEditor.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Qt GUI - UILanguageSettingsEditor class declaration.
  */

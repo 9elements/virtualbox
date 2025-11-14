@@ -1,4 +1,4 @@
-/* $Id: VBoxService-win.cpp 111627 2025-11-11 11:40:30Z knut.osmundsen@oracle.com $ */
+/* $Id: VBoxService-win.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBoxService - Guest Additions Service Skeleton, Windows Specific Parts.
  */

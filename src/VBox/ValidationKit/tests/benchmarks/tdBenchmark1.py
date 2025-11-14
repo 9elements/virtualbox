@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# $Id: tdBenchmark1.py 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $
+# $Id: tdBenchmark1.py 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 
 """
 VirtualBox Validation Kit - Test that runs various benchmarks.
@@ -37,7 +37,7 @@ terms and conditions of either the GPL or the CDDL or both.
 
 SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 """
-__version__ = "$Revision: 110684 $"
+__version__ = "$Revision: 111747 $"
 
 
 # Standard Python imports.

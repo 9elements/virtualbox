@@ -1,4 +1,4 @@
-/* $Id: keyboard-layouts.h 110858 2025-09-02 07:54:56Z bela.lubkin@oracle.com $ */
+/* $Id: keyboard-layouts.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox/Frontends/Common - X11 keyboard driver translation tables (keyboard layouts).
  *

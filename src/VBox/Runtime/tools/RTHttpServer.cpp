@@ -1,4 +1,4 @@
-/* $Id: RTHttpServer.cpp 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $ */
+/* $Id: RTHttpServer.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * IPRT - Utility for running a (simple) HTTP server.
  *
@@ -813,7 +813,7 @@ int main(int argc, char **argv)
                 return RTEXITCODE_SUCCESS;
 
             case 'V':
-                RTPrintf("$Revision: 110684 $\n");
+                RTPrintf("$Revision: 111747 $\n");
                 return RTEXITCODE_SUCCESS;
 
             default:

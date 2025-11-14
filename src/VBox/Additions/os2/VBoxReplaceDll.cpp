@@ -1,4 +1,4 @@
-/** $Id: VBoxReplaceDll.cpp 110685 2025-08-11 18:54:52Z klaus.espenlaub@oracle.com $ */
+/** $Id: VBoxReplaceDll.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBoxReplaceDll - helper for replacing a dll when it's in use by the system
  */
@@ -79,7 +79,7 @@ int main(int argc, char **argv)
             else if (   !strcmp(argv[i], "--version")
                      || !strcmp(argv[i], "-V") )
             {
-                printf("$Revision: 110685 $\n");
+                printf("$Revision: 111747 $\n");
                 return 0;
             }
             else

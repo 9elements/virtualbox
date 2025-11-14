@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: vboxadd-service.sh 111516 2025-10-29 15:12:17Z vadim.galitsyn@oracle.com $
+# $Id: vboxadd-service.sh 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 ## @file
 # Linux Additions Guest Additions service daemon init script.
 #

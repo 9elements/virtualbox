@@ -1,4 +1,4 @@
-/* $Id: QIListWidget.cpp 111466 2025-10-20 17:13:18Z sergey.dubov@oracle.com $ */
+/* $Id: QIListWidget.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Qt GUI - Qt extensions: QIListWidget class implementation.
  */

@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA3d-dx-shader.cpp 110769 2025-08-20 10:29:00Z alexander.eichner@oracle.com $ */
+/* $Id: DevVGA-SVGA3d-dx-shader.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * DevVMWare - VMWare SVGA device - VGPU10+ (DX) shader utilities.
  */

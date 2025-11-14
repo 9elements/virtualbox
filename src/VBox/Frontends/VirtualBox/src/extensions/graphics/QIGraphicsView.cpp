@@ -1,4 +1,4 @@
-/* $Id: QIGraphicsView.cpp 111007 2025-09-16 12:51:23Z sergey.dubov@oracle.com $ */
+/* $Id: QIGraphicsView.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Qt GUI - Qt extensions: QIGraphicsView class implementation.
  */

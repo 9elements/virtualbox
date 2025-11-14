@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: vboxweb-service.sh 111742 2025-11-14 14:38:51Z vadim.galitsyn@oracle.com $
+# $Id: vboxweb-service.sh 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 ## @file
 # VirtualBox web service API daemon init script.
 #

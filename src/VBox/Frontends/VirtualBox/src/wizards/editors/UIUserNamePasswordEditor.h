@@ -1,4 +1,4 @@
-/* $Id: UIUserNamePasswordEditor.h 110731 2025-08-15 12:38:57Z serkan.bayraktar@oracle.com $ */
+/* $Id: UIUserNamePasswordEditor.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIUserNamePasswordEditor class declaration.
  */

@@ -1,4 +1,4 @@
-/* $Id: asn1-safer-allocator.cpp 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $ */
+/* $Id: asn1-safer-allocator.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * IPRT - ASN.1, Safer Allocator, for sensitive data.
  */

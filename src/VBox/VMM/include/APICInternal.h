@@ -1,4 +1,4 @@
-/* $Id: APICInternal.h 111243 2025-10-06 06:36:18Z ramshankar.venkataraman@oracle.com $ */
+/* $Id: APICInternal.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * APIC - Advanced Programmable Interrupt Controller, Internal header.
  */

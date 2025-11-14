@@ -1,4 +1,4 @@
-/* $Id: GICR3-armv8.cpp 111707 2025-11-13 14:58:37Z knut.osmundsen@oracle.com $ */
+/* $Id: GICR3-armv8.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * GIC - Generic Interrupt Controller Architecture (GIC).
  */

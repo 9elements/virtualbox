@@ -1,4 +1,4 @@
-/* $Id: HostWebcam-win.cpp 110884 2025-09-04 08:20:42Z alexander.eichner@oracle.com $ */
+/* $Id: HostWebcam-win.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * DrvHostWebcam - Windows host webcam backend.
  */

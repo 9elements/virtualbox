@@ -1,4 +1,4 @@
-' $Id: configure.vbs 111745 2025-11-14 15:47:54Z andreas.loeffler@oracle.com $
+' $Id: configure.vbs 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 '' @file
 ' The purpose of this script is to check for all external tools, headers, and
 ' libraries VBox OSE depends on.

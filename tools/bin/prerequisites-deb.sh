@@ -1,6 +1,6 @@
 #!/bin/sh
 # @file
-## $Id: prerequisites-deb.sh 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $
+## $Id: prerequisites-deb.sh 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 # Fetches prerequisites for Debian based GNU/Linux systems.
 #
 

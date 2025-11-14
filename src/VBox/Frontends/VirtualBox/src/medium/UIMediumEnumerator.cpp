@@ -1,4 +1,4 @@
-/* $Id: UIMediumEnumerator.cpp 110732 2025-08-15 13:08:06Z sergey.dubov@oracle.com $ */
+/* $Id: UIMediumEnumerator.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMediumEnumerator class implementation.
  */

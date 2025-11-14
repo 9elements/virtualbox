@@ -1,4 +1,4 @@
-/* $Id: acpi-ns.cpp 110615 2025-08-07 13:26:43Z alexander.eichner@oracle.com $ */
+/* $Id: acpi-ns.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * IPRT - Advanced Configuration and Power Interface (ACPI) namespace handling.
  */

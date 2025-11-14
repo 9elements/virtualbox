@@ -1,4 +1,4 @@
-/* $Id: APICAllCommon.cpp.h 111255 2025-10-06 11:48:07Z ramshankar.venkataraman@oracle.com $ */
+/* $Id: APICAllCommon.cpp.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * APIC - Advanced Programmable Interrupt Controller - All-context and R3-context common code.
  */

@@ -1,4 +1,4 @@
-/* $Id: UIVMActivityOverviewModelView.cpp 111205 2025-10-01 13:08:24Z serkan.bayraktar@oracle.com $ */
+/* $Id: UIVMActivityOverviewModelView.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVMActivityOverviewModelView class implementation.
  */

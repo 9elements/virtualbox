@@ -1,4 +1,4 @@
-/* $Id: git.cpp 111660 2025-11-12 11:58:30Z alexander.eichner@oracle.com $ */
+/* $Id: git.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * svn2git - Convert a svn repository to git.
  */

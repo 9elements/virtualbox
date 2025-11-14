@@ -1,4 +1,4 @@
-/* $Id: SUPR3HardenedMain-win.cpp 111548 2025-11-05 09:17:06Z knut.osmundsen@oracle.com $ */
+/* $Id: SUPR3HardenedMain-win.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VirtualBox Support Library - Hardened main(), windows bits.
  */

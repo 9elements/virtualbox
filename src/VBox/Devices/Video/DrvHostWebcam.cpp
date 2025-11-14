@@ -1,4 +1,4 @@
-/* $Id: DrvHostWebcam.cpp 110881 2025-09-04 06:41:15Z alexander.eichner@oracle.com $ */
+/* $Id: DrvHostWebcam.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * DrvHostWebcam - the host webcam as the emulated USB webcam backend.
  */

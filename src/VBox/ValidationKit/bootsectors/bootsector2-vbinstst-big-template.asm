@@ -1,4 +1,4 @@
-; $Id: bootsector2-vbinstst-big-template.asm 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $
+; $Id: bootsector2-vbinstst-big-template.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 ;; @file
 ; Boot Sector 2 with big instruction test image template.  For use with
 ; bootsector2-vbinstst-kernel.asm.  Requires:

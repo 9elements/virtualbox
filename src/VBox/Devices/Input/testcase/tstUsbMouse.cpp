@@ -1,4 +1,4 @@
-/* $Id: tstUsbMouse.cpp 110728 2025-08-15 06:13:23Z alexander.eichner@oracle.com $ */
+/* $Id: tstUsbMouse.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * tstUsbMouse.cpp - testcase USB mouse and tablet devices.
  */

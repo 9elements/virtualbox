@@ -1,4 +1,4 @@
-/* $Id: xpidl_idl.c 108540 2025-02-25 07:41:51Z alexander.eichner@oracle.com $ */
+/* $Id: xpidl_idl.c 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox xpidl clone - IDL parsing.
  */

@@ -1,4 +1,4 @@
-/* $Id: UsbTestService.cpp 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $ */
+/* $Id: UsbTestService.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * UsbTestService - Remote USB test configuration and execution server.
  */
@@ -1561,7 +1561,7 @@ static RTEXITCODE utsParseArgv(int argc, char **argv, bool *pfExit)
             }
 
             case 'V':
-                RTPrintf("$Revision: 110684 $\n");
+                RTPrintf("$Revision: 111747 $\n");
                 *pfExit = true;
                 return RTEXITCODE_SUCCESS;
 

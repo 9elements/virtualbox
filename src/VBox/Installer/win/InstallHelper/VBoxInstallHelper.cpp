@@ -1,4 +1,4 @@
-/* $Id: VBoxInstallHelper.cpp 111703 2025-11-13 14:37:41Z andreas.loeffler@oracle.com $ */
+/* $Id: VBoxInstallHelper.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBoxInstallHelper - Various helper routines for Windows host installer.
  */

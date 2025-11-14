@@ -1,4 +1,4 @@
-/* $Id: display-svga-x11.cpp 111519 2025-10-29 15:20:50Z vadim.galitsyn@oracle.com $ */
+/* $Id: display-svga-x11.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * X11 guest client - VMSVGA emulation resize event pass-through to X.Org
  * guest driver.

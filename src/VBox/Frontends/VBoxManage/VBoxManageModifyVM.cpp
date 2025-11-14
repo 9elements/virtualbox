@@ -1,4 +1,4 @@
-/* $Id: VBoxManageModifyVM.cpp 110930 2025-09-08 16:34:44Z aleksey.ilyushin@oracle.com $ */
+/* $Id: VBoxManageModifyVM.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBoxManage - Implementation of modifyvm command.
  */

@@ -1,4 +1,4 @@
-/* $Id: EMInternal.h 111176 2025-09-30 07:36:29Z knut.osmundsen@oracle.com $ */
+/* $Id: EMInternal.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * EM - Internal header file.
  */

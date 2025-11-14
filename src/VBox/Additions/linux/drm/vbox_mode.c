@@ -1,4 +1,4 @@
-/* $Id: vbox_mode.c 111097 2025-09-23 10:57:19Z vadim.galitsyn@oracle.com $ */
+/* $Id: vbox_mode.c 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VirtualBox Additions Linux kernel video driver
  */

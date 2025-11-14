@@ -1,4 +1,4 @@
-/* $Id: UIToolsItem.h 111238 2025-10-03 13:07:59Z sergey.dubov@oracle.com $ */
+/* $Id: UIToolsItem.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIToolsItem class declaration.
  */

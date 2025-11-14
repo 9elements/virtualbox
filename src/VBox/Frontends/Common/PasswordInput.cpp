@@ -1,4 +1,4 @@
-/* $Id: PasswordInput.cpp 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $ */
+/* $Id: PasswordInput.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * Frontend shared bits - Password file and console input helpers.
  */

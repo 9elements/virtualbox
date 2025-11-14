@@ -17,7 +17,7 @@
  *
  * Original version by James Carlson
  *
- * $Id: eap.h 109528 2025-05-14 11:41:31Z alexander.eichner@oracle.com $
+ * $Id: eap.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
  */
 
 #include "netif/ppp/ppp_opts.h"

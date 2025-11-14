@@ -1,4 +1,4 @@
-/* $Id: VBoxDbgConsole.cpp 110792 2025-08-22 15:30:51Z knut.osmundsen@oracle.com $ */
+/* $Id: VBoxDbgConsole.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Debugger GUI - Console.
  */

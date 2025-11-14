@@ -1,4 +1,4 @@
-/* $Id: IEMAllN8veRecompFuncs-x86.h 111484 2025-10-24 07:19:03Z alexander.eichner@oracle.com $ */
+/* $Id: IEMAllN8veRecompFuncs-x86.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * IEM - Native Recompiler - Inlined Bits, x86 target.
  */

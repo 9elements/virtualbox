@@ -1,4 +1,4 @@
-/* $Id: d3d11screen.hlsl 110764 2025-08-19 17:40:32Z vitali.pelenjow@oracle.com $ */
+/* $Id: d3d11screen.hlsl 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /*
  * Screen updates.
  *

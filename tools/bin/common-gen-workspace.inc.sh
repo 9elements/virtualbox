@@ -1,5 +1,5 @@
 #!/usr/bin/env kmk_ash
-# $Id: common-gen-workspace.inc.sh 111736 2025-11-14 13:20:35Z knut.osmundsen@oracle.com $
+# $Id: common-gen-workspace.inc.sh 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 ## @file
 # Script for generating a SlickEdit workspace.
 #

@@ -1,4 +1,4 @@
-/* $Id: UIChooserNodeMachine.cpp 111301 2025-10-09 11:43:53Z sergey.dubov@oracle.com $ */
+/* $Id: UIChooserNodeMachine.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIChooserNodeMachine class implementation.
  */

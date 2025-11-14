@@ -1,4 +1,4 @@
-/* $Id: UIChooserNodeGroup.cpp 111298 2025-10-09 11:15:07Z sergey.dubov@oracle.com $ */
+/* $Id: UIChooserNodeGroup.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIChooserNodeGroup class implementation.
  */

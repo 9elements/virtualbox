@@ -1,4 +1,4 @@
-/* $Id: openssl-mangling.h 109305 2025-04-22 13:23:25Z aleksey.ilyushin@oracle.com $ */
+/* $Id: openssl-mangling.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * Autogenerate symbol mangling header for openssl.
  */

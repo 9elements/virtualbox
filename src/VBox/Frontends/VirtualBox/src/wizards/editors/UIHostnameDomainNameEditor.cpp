@@ -1,4 +1,4 @@
-/* $Id: UIHostnameDomainNameEditor.cpp 111530 2025-11-03 18:49:54Z serkan.bayraktar@oracle.com $ */
+/* $Id: UIHostnameDomainNameEditor.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIHostnameDomainNameEditor class implementation.
  */

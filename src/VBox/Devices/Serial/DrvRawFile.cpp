@@ -1,4 +1,4 @@
-/* $Id: DrvRawFile.cpp 111256 2025-10-06 11:59:23Z alexander.eichner@oracle.com $ */
+/* $Id: DrvRawFile.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox stream drivers - Raw file output.
  */

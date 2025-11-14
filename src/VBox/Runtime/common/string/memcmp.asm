@@ -1,4 +1,4 @@
-; $Id: memcmp.asm 110694 2025-08-12 14:01:24Z knut.osmundsen@oracle.com $
+; $Id: memcmp.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 ;; @file
 ; IPRT - No-CRT memcmp - AMD64 & X86.
 ;

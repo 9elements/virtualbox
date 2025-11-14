@@ -1,4 +1,4 @@
-/* $Id: vbox-gtk.h 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $ */
+/* $Id: vbox-gtk.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * Guest Additions - Definitions from Gtk 3.24.38 and Glib 2.17 libraries.
  */

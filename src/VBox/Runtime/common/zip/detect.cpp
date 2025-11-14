@@ -1,4 +1,4 @@
-/* $Id: detect.cpp 111666 2025-11-12 12:14:43Z knut.osmundsen@oracle.com $ */
+/* $Id: detect.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * IPRT - Compression Detection.
  */

@@ -1,5 +1,5 @@
 @echo off
-rem $Id: Combined-0-Additions.cmd 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $
+rem $Id: Combined-0-Additions.cmd 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 rem rem @file
 rem Windows NT batch script for attestation signing both amd64 and x86.
 rem

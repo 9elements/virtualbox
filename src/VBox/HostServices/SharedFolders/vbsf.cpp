@@ -1,4 +1,4 @@
-/* $Id: vbsf.cpp 111242 2025-10-05 17:10:45Z alexander.eichner@oracle.com $ */
+/* $Id: vbsf.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * Shared Folders - VBox Shared Folders.
  */

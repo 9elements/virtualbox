@@ -1,4 +1,4 @@
-/* $Id: VBoxGuestLibGuestProp.cpp 111599 2025-11-10 14:48:52Z knut.osmundsen@oracle.com $ */
+/* $Id: VBoxGuestLibGuestProp.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBoxGuestLib - Support Library for VirtualBox guest additions, guest properties.
  *

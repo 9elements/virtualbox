@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# $Id: ArmBsdSpec.py 110919 2025-09-05 21:22:50Z knut.osmundsen@oracle.com $
+# $Id: ArmBsdSpec.py 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 
 """
 ARM BSD / OpenSource specification reader.
@@ -30,7 +30,7 @@ along with this program; if not, see <https://www.gnu.org/licenses>.
 
 SPDX-License-Identifier: GPL-3.0-only
 """
-__version__ = "$Revision: 110919 $"
+__version__ = "$Revision: 111747 $"
 
 # Standard python imports.
 import collections;

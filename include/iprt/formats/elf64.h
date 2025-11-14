@@ -1,4 +1,4 @@
-/* $Id: elf64.h 110876 2025-09-03 15:38:09Z alexander.eichner@oracle.com $ */
+/* $Id: elf64.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * IPRT - ELF 64-bit header.
  */

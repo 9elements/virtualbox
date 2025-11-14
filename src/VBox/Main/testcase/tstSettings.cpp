@@ -1,4 +1,4 @@
-/* $Id: tstSettings.cpp 110736 2025-08-15 14:28:01Z knut.osmundsen@oracle.com $ */
+/* $Id: tstSettings.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * Settings testcases - No Main API involved.
  */

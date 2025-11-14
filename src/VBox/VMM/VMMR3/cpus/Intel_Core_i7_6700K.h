@@ -1,4 +1,4 @@
-/* $Id: Intel_Core_i7_6700K.h 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $ */
+/* $Id: Intel_Core_i7_6700K.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * CPU database entry "Intel Core i7-6700K".
  * Generated at 2015-11-04T14:22:26Z by VBoxCpuReport v5.0.51r103906 on win.amd64.

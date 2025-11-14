@@ -1,4 +1,4 @@
-/* $Id: DrvDirectCardReader2.cpp 111612 2025-11-11 07:09:27Z alexander.eichner@oracle.com $ */
+/* $Id: DrvDirectCardReader2.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * DrvDirectCardReader - Test USB Card Reader Driver allowing access
  *                       direct to the device attached to the host.

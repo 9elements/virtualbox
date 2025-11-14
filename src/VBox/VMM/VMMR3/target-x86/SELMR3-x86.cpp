@@ -1,4 +1,4 @@
-/* $Id: SELMR3-x86.cpp 111696 2025-11-13 13:39:50Z knut.osmundsen@oracle.com $ */
+/* $Id: SELMR3-x86.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * SELM - The Selector Manager.
  */

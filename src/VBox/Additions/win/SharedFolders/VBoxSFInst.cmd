@@ -1,5 +1,5 @@
 @echo off
-rem $Id: VBoxSFInst.cmd 111731 2025-11-14 12:02:32Z knut.osmundsen@oracle.com $
+rem $Id: VBoxSFInst.cmd 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 rem rem @file
 rem Windows NT batch script for manually installing the shared folders guest addition driver.
 rem

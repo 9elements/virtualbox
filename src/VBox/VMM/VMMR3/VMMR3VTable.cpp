@@ -1,4 +1,4 @@
-/* $Id: VMMR3VTable.cpp 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $ */
+/* $Id: VMMR3VTable.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VM - The Virtual Machine Monitor, Ring-3 API VTable Definitions.
  */

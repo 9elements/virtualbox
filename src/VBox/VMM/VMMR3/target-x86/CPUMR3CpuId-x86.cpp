@@ -1,4 +1,4 @@
-/* $Id: CPUMR3CpuId-x86.cpp 110755 2025-08-18 21:01:55Z knut.osmundsen@oracle.com $ */
+/* $Id: CPUMR3CpuId-x86.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * CPUM - CPU ID part.
  */

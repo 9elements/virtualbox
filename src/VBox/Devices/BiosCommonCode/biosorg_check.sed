@@ -1,4 +1,4 @@
-# $Id: biosorg_check.sed 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $
+# $Id: biosorg_check.sed 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 ## @file
 # For converting biosorg_check_<addr> lines in a wlink mapfile
 # to kmk_expr checks.

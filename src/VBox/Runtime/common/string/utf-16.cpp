@@ -1,4 +1,4 @@
-/* $Id: utf-16.cpp 111219 2025-10-02 18:19:29Z knut.osmundsen@oracle.com $ */
+/* $Id: utf-16.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * IPRT - UTF-16.
  */

@@ -1,4 +1,4 @@
-/* $Id: alloc-1.c 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $ */
+/* $Id: alloc-1.c 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * Allocate lots of memory, portable ANSI C code.
  */

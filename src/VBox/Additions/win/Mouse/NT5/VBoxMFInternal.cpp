@@ -1,4 +1,4 @@
-/* $Id: VBoxMFInternal.cpp 111731 2025-11-14 12:02:32Z knut.osmundsen@oracle.com $ */
+/* $Id: VBoxMFInternal.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Mouse Filter Driver - Internal functions.
  *

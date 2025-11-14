@@ -1,4 +1,4 @@
-# $Id: Config.kmk 110751 2025-08-18 18:14:03Z alexander.eichner@oracle.com $
+# $Id: Config.kmk 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 ## @file
 # kBuild configuration for the VBox EFI firmware.
 #

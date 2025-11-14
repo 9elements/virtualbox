@@ -1,4 +1,4 @@
-/* $Id: DevVGA.cpp 111728 2025-11-14 10:50:48Z michal.necasek@oracle.com $ */
+/* $Id: DevVGA.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * DevVGA - VBox VGA/VESA device.
  */

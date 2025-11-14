@@ -1,4 +1,4 @@
-/* $Id: VBoxMPLegacy.cpp 111731 2025-11-14 12:02:32Z knut.osmundsen@oracle.com $ */
+/* $Id: VBoxMPLegacy.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox WDDM Miniport driver. The legacy VBoxVGA adapter support with 2D software unaccelerated
  * framebuffer operations.

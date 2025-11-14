@@ -1,4 +1,4 @@
-/* $Id: UIMachineView.cpp 111057 2025-09-19 11:27:45Z sergey.dubov@oracle.com $ */
+/* $Id: UIMachineView.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMachineView class implementation.
  */

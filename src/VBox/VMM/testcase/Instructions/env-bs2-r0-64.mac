@@ -1,4 +1,4 @@
-; $Id: env-bs2-r0-64.mac 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $
+; $Id: env-bs2-r0-64.mac 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 ;; @file
 ; Instruction Test Environment - Boot Sector Type 2, Ring-0, 64-Bit.
 ;

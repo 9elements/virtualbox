@@ -1,4 +1,4 @@
-/* $Id: VBoxServiceUtils.cpp 111635 2025-11-11 13:27:52Z knut.osmundsen@oracle.com $ */
+/* $Id: VBoxServiceUtils.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBoxServiceUtils - Some utility functions.
  */

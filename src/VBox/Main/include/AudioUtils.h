@@ -1,4 +1,4 @@
-/* $Id: AudioUtils.h 110348 2025-07-22 15:04:28Z andreas.loeffler@oracle.com $ */
+/* $Id: AudioUtils.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VirtualBox audio utility functions for Main.
  */

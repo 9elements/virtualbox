@@ -1,4 +1,4 @@
-# $Id: VirtualBox.tmpl.spec 111654 2025-11-12 10:37:35Z alexander.eichner@oracle.com $
+# $Id: VirtualBox.tmpl.spec 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 ## @file
 # Spec file for creating VirtualBox rpm packages
 #

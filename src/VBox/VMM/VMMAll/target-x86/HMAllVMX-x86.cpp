@@ -1,4 +1,4 @@
-/* $Id: HMAllVMX-x86.cpp 111701 2025-11-13 14:05:10Z knut.osmundsen@oracle.com $ */
+/* $Id: HMAllVMX-x86.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * HM VMX (VT-x) - All contexts.
  */

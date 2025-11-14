@@ -1,4 +1,4 @@
-/* $Id: tstRTAcpi.cpp 110613 2025-08-07 12:45:53Z alexander.eichner@oracle.com $ */
+/* $Id: tstRTAcpi.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * IPRT Testcase - ACPI API.
  */

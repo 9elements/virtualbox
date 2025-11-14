@@ -1,4 +1,4 @@
-/* $Id: VBoxWinDrvDefs.h 111683 2025-11-12 14:38:46Z andreas.loeffler@oracle.com $ */
+/* $Id: VBoxWinDrvDefs.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBoxWinDrvDefs - Common definitions for Windows driver installation functions.
  */

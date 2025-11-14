@@ -1,4 +1,4 @@
-/* $Id: UIToolPane.h 109666 2025-05-26 15:10:02Z sergey.dubov@oracle.com $ */
+/* $Id: UIToolPane.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIToolPane class declaration.
  */

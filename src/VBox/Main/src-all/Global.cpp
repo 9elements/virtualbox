@@ -1,4 +1,4 @@
-/* $Id: Global.cpp 111148 2025-09-29 05:43:49Z alexander.eichner@oracle.com $ */
+/* $Id: Global.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VirtualBox COM global definitions
  *

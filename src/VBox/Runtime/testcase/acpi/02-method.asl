@@ -1,4 +1,4 @@
-/* $Id: 02-method.asl 110586 2025-08-06 12:33:22Z alexander.eichner@oracle.com $ */
+/* $Id: 02-method.asl 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * Runtime ACPI testcase - Simple method declaration.
  */

@@ -1,4 +1,4 @@
-/* $Id: vboxweb.cpp 111722 2025-11-13 21:13:44Z klaus.espenlaub@oracle.com $ */
+/* $Id: vboxweb.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * vboxweb.cpp:
  *      hand-coded parts of the webservice server. This is linked with the

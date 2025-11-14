@@ -1,4 +1,4 @@
-# $Id: vbox-pragma-once.sed 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $
+# $Id: vbox-pragma-once.sed 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 ## @file
 # Wraps #pragma once up in #ifndef RT_WITHOUT_PRAGMA_ONCE...#endif.
 #

@@ -1,4 +1,4 @@
-/* $Id: bs3-cpu-decoding-1.c32 111344 2025-10-13 12:05:44Z ramshankar.venkataraman@oracle.com $ */
+/* $Id: bs3-cpu-decoding-1.c32 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * BS3Kit - bs3-cpu-decoding-1, 32-bit C code.
  */

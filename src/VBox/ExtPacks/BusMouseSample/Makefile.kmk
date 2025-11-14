@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 111649 2025-11-12 09:45:14Z knut.osmundsen@oracle.com $
+# $Id: Makefile.kmk 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 ## @file
 # Sub-Makefile for the Bus Mouse Extension Pack Sample.
 #

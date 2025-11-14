@@ -1,4 +1,4 @@
-/* $Id: ARM_Apple_M1.h 109589 2025-05-16 17:58:52Z knut.osmundsen@oracle.com $ */
+/* $Id: ARM_Apple_M1.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * CPU database entry "Apple M1".
  * Generated at 2025-05-01T02:17:14Z by VBoxCpuReport v7.1.97r168636 on darwin.arm64.

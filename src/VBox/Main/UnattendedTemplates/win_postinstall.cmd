@@ -1,5 +1,5 @@
 @echo off
-rem $Id: win_postinstall.cmd 111059 2025-09-19 13:48:08Z alexander.eichner@oracle.com $
+rem $Id: win_postinstall.cmd 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 rem rem @file
 rem Post installation script template for Windows.
 rem

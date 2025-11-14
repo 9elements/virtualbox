@@ -4,7 +4,7 @@ Prism2 NIC driver for Etherboot
 Wrapper for prism2_pci
 
 Written by Michael Brown of Fen Systems Ltd
-$Id: prism2_pci.c 95666 2022-07-15 18:50:58Z alexander.eichner@oracle.com $
+$Id: prism2_pci.c 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 ***************************************************************************/
 
 /*

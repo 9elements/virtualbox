@@ -1,4 +1,4 @@
-/* $Id: UIApplianceImportEditorWidget.cpp 111182 2025-09-30 09:38:54Z sergey.dubov@oracle.com $ */
+/* $Id: UIApplianceImportEditorWidget.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIApplianceImportEditorWidget class implementation.
  */

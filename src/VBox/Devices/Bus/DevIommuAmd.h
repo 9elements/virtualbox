@@ -1,4 +1,4 @@
-/* $Id: DevIommuAmd.h 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $ */
+/* $Id: DevIommuAmd.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * DevIommuAmd - I/O Memory Management Unit (AMD), header shared with the IOMMU, ACPI, chipset/firmware code.
  */

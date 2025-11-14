@@ -1,4 +1,4 @@
-/* $Id: VBoxNSISTool.cpp 111731 2025-11-14 12:02:32Z knut.osmundsen@oracle.com $ */
+/* $Id: VBoxNSISTool.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBoxNSISTool - Utility program for NSIS-based tasks.
  */

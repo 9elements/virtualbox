@@ -1,4 +1,4 @@
-/* $Id: acpi-compiler.cpp 109427 2025-05-06 06:29:02Z alexander.eichner@oracle.com $ */
+/* $Id: acpi-compiler.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * IPRT - Advanced Configuration and Power Interface (ACPI) Table generation API.
  */

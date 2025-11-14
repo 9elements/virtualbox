@@ -1,4 +1,4 @@
-/* $Id: GITSInternal.h 110333 2025-07-21 09:37:13Z ramshankar.venkataraman@oracle.com $ */
+/* $Id: GITSInternal.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * GITS - Generic Interrupt Controller Interrupt Translation Service - Internal.
  */

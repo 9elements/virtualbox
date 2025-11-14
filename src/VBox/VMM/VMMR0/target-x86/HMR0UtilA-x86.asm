@@ -1,4 +1,4 @@
-; $Id: HMR0UtilA-x86.asm 111701 2025-11-13 14:05:10Z knut.osmundsen@oracle.com $
+; $Id: HMR0UtilA-x86.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 ;; @file
 ; HM - Ring-0 VMX & SVM Helpers.
 ;

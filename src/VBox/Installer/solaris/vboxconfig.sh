@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: vboxconfig.sh 110752 2025-08-18 19:58:46Z brent.paulson@oracle.com $
+# $Id: vboxconfig.sh 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 ## @file
 # VirtualBox Configuration Script, Solaris host.
 #

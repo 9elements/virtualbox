@@ -1,4 +1,4 @@
-/* $Id: UIVirtualBoxManager.cpp 111240 2025-10-03 14:48:29Z sergey.dubov@oracle.com $ */
+/* $Id: UIVirtualBoxManager.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVirtualBoxManager class implementation.
  */

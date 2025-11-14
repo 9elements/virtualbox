@@ -1,4 +1,4 @@
-/* $Id: VBoxAutostartStart.cpp 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $ */
+/* $Id: VBoxAutostartStart.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBoxAutostart - VirtualBox Autostart service, start machines during system boot.
  */

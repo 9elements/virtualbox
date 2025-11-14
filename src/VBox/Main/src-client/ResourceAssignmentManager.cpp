@@ -1,4 +1,4 @@
-/* $Id: ResourceAssignmentManager.cpp 111106 2025-09-25 11:56:14Z dmitrii.grigorev@oracle.com $ */
+/* $Id: ResourceAssignmentManager.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VirtualBox bus slots assignment manager
  */

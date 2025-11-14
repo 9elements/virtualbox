@@ -1,4 +1,4 @@
-/* $Id: SUPLib.cpp 111076 2025-09-22 08:10:34Z ramshankar.venkataraman@oracle.com $ */
+/* $Id: SUPLib.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VirtualBox Support Library - Common code.
  */

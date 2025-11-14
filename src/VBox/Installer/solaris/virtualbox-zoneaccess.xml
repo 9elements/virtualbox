@@ -2,7 +2,7 @@
 <!DOCTYPE service_bundle SYSTEM "/usr/share/lib/xml/dtd/service_bundle.dtd.1">
 <!--
 # Solaris SMF service manifest for Solaris Zone Access.
-# $Id: virtualbox-zoneaccess.xml 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $
+# $Id: virtualbox-zoneaccess.xml 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 -->
 <!--
     Copyright (C) 2008-2025 Oracle and/or its affiliates.

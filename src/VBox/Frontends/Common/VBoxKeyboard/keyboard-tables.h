@@ -1,4 +1,4 @@
-/* $Id: keyboard-tables.h 40392 2012-03-07 14:16:40Z noreply@oracle.com $ */
+/* $Id: keyboard-tables.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox/Frontends/Common - X11 keyboard driver translation tables.
  */

@@ -1,4 +1,4 @@
-/* $Id: acpi-ast.cpp 110666 2025-08-11 10:34:07Z alexander.eichner@oracle.com $ */
+/* $Id: acpi-ast.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * IPRT - Advanced Configuration and Power Interface (ACPI) AST handling.
  */

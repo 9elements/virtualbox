@@ -1,4 +1,4 @@
-/* $Id: UITranslationEventListener.h 110837 2025-08-28 12:44:55Z sergey.dubov@oracle.com $ */
+/* $Id: UITranslationEventListener.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Qt GUI - UITranslationEventListener class declaration.
  */

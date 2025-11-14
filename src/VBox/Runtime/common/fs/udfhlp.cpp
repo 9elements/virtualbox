@@ -1,4 +1,4 @@
-/* $Id: udfhlp.cpp 111468 2025-10-20 18:33:59Z knut.osmundsen@oracle.com $ */
+/* $Id: udfhlp.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * IPRT - ISO 9660 and UDF Virtual Filesystem (read only).
  */

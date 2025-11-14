@@ -1,5 +1,5 @@
 #!/usr/bin/env kmk_ash
-# $Id: docbook-changelog-to-manual-dita.sh 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $
+# $Id: docbook-changelog-to-manual-dita.sh 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 ## @file
 # Helper script for converting the changelog into a ditamap and a topic
 # file per version.

@@ -1,4 +1,4 @@
-/* $Id: utf-8-case2.cpp 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $ */
+/* $Id: utf-8-case2.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * IPRT - UTF-8 Case Sensitivity and Folding, Part 2 (requires unidata-flags.cpp).
  */

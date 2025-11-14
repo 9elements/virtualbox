@@ -1,4 +1,4 @@
-/* $Id: QIRichTextLabel.h 111185 2025-09-30 10:53:21Z sergey.dubov@oracle.com $ */
+/* $Id: QIRichTextLabel.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Qt GUI - Qt extensions: QIRichTextLabel class declaration.
  */

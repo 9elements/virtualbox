@@ -1,4 +1,4 @@
-/* $Id: VBoxEditElf-template.cpp.h 111729 2025-11-14 11:01:44Z alexander.eichner@oracle.com $ */
+/* $Id: VBoxEditElf-template.cpp.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBoxEditElf - Simple ELF binary file editor, templated code.
  */

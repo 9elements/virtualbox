@@ -1,4 +1,4 @@
-/* $Id: path-posix.cpp 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $ */
+/* $Id: path-posix.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * IPRT - Path Manipulation, POSIX, Part 1.
  */

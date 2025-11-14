@@ -1,4 +1,4 @@
-/* $Id: bs3-cmn-TrapRmV86Init.c 111193 2025-10-01 08:52:30Z knut.osmundsen@oracle.com $ */
+/* $Id: bs3-cmn-TrapRmV86Init.c 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * BS3Kit - Bs3TrapRmV86Init
  */

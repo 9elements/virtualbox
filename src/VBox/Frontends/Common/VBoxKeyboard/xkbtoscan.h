@@ -1,4 +1,4 @@
-/* $Id: xkbtoscan.h 109777 2025-06-04 13:00:54Z serkan.bayraktar@oracle.com $ */
+/* $Id: xkbtoscan.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox/Frontends/Common - X11 keyboard driver translation tables (XT scan
  *                         code mappings for XKB key names).

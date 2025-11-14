@@ -1,4 +1,4 @@
-/* $Id: VMInternal.h 110749 2025-08-18 14:53:14Z alexander.eichner@oracle.com $ */
+/* $Id: VMInternal.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VM - Internal header file.
  */

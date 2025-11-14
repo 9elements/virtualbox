@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 110812 2025-08-25 18:50:11Z klaus.espenlaub@oracle.com $
+# $Id: Makefile.kmk 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 ## @file
 # Sub-Makefile for Python bindings
 #

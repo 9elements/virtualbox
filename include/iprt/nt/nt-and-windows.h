@@ -1,4 +1,4 @@
-/* $Id: nt-and-windows.h 111627 2025-11-11 11:40:30Z knut.osmundsen@oracle.com $ */
+/* $Id: nt-and-windows.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * IPRT - Header for code using both NT native and Windows APIs.
  */

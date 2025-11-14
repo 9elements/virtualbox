@@ -1,4 +1,4 @@
-/** $Id: VBoxSFFind.cpp 110701 2025-08-12 23:01:49Z knut.osmundsen@oracle.com $ */
+/** $Id: VBoxSFFind.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBoxSF - OS/2 Shared Folders, Find File IFS EPs.
  */

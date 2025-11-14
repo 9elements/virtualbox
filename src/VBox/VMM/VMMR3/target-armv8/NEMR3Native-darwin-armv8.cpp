@@ -1,4 +1,4 @@
-/* $Id: NEMR3Native-darwin-armv8.cpp 111706 2025-11-13 14:54:45Z knut.osmundsen@oracle.com $ */
+/* $Id: NEMR3Native-darwin-armv8.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * NEM - Native execution manager, native ring-3 macOS backend using Hypervisor.framework, ARMv8 variant.
  *

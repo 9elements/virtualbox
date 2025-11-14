@@ -1,4 +1,4 @@
-/** $Id: DevE1000Phy.h 110930 2025-09-08 16:34:44Z aleksey.ilyushin@oracle.com $ */
+/** $Id: DevE1000Phy.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * DevE1000Phy - Intel 82540EM Ethernet Controller Internal PHY Emulation, Header.
  */

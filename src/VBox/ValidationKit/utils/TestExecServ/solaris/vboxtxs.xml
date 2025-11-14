@@ -1,7 +1,7 @@
 <?xml version='1.0'?>
 <!--
  Solaris SMF service manifest for the VirtualBox Test eXecution Service.
- $Id: vboxtxs.xml 111324 2025-10-10 13:26:37Z alexander.eichner@oracle.com $
+ $Id: vboxtxs.xml 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 -->
 <!--
     Copyright (C) 2010-2025 Oracle and/or its affiliates.

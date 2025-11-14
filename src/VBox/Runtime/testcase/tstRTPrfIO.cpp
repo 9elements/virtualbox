@@ -1,4 +1,4 @@
-/* $Id: tstRTPrfIO.cpp 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $ */
+/* $Id: tstRTPrfIO.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * IPRT Testcase - Profile IPRT I/O APIs.
  */
@@ -221,7 +221,7 @@ int main(int argc, char **argv)
                 break;
 
             case 'V':
-                RTTestPrintf(g_hTest, RTTESTLVL_ALWAYS, "$Revision: 110684 $\n");
+                RTTestPrintf(g_hTest, RTTESTLVL_ALWAYS, "$Revision: 111747 $\n");
                 return RTTestSummaryAndDestroy(g_hTest);
 
             case 'h':

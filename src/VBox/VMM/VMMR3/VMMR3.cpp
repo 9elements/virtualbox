@@ -1,4 +1,4 @@
-/* $Id: VMMR3.cpp 111713 2025-11-13 15:27:35Z knut.osmundsen@oracle.com $ */
+/* $Id: VMMR3.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VMM - The Virtual Machine Monitor Core.
  */

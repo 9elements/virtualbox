@@ -1,5 +1,5 @@
 #!/usr/bin/env kmk_ash
-# $Id: RemoveDirFromPath.sh 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $
+# $Id: RemoveDirFromPath.sh 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 ## @file
 # Shell (bash + kmk_ash) function for removing a directory from the PATH.
 #

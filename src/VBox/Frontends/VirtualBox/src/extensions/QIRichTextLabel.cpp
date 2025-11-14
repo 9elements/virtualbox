@@ -1,4 +1,4 @@
-/* $Id: QIRichTextLabel.cpp 111186 2025-09-30 11:07:37Z sergey.dubov@oracle.com $ */
+/* $Id: QIRichTextLabel.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Qt GUI - Qt extensions: QIRichTextLabel class implementation.
  */

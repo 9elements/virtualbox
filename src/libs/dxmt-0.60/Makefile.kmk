@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 110444 2025-07-28 15:48:35Z alexander.eichner@oracle.com $
+# $Id: Makefile.kmk 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 ## @file
 # Sub-Makefile for the DXMT library.
 #

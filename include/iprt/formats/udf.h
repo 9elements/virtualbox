@@ -1,4 +1,4 @@
-/* $Id: udf.h 111403 2025-10-14 23:04:01Z knut.osmundsen@oracle.com $ */
+/* $Id: udf.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * IPRT, Universal Disk Format (UDF).
  */

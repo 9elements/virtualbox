@@ -1,4 +1,4 @@
-/* $Id: utils.c 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $ */
+/* $Id: utils.c 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * vboxsf - VBox Linux Shared Folders VFS, utility functions.
  *

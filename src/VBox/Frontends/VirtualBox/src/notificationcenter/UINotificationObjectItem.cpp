@@ -1,4 +1,4 @@
-/* $Id: UINotificationObjectItem.cpp 111103 2025-09-24 12:21:36Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationObjectItem.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationObjectItem class implementation.
  */

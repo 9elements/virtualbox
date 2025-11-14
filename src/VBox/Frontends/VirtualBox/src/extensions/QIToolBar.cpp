@@ -1,4 +1,4 @@
-/* $Id: QIToolBar.cpp 110386 2025-07-23 13:20:48Z sergey.dubov@oracle.com $ */
+/* $Id: QIToolBar.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Qt GUI - QIToolBar class implementation.
  */

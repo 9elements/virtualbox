@@ -1,4 +1,4 @@
-/* $Id: avl_GetBestFit.cpp.h 111291 2025-10-08 20:29:56Z knut.osmundsen@oracle.com $ */
+/* $Id: avl_GetBestFit.cpp.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * kAVLGetBestFit - Get Best Fit routine for AVL trees.
  *                  Intended specially on heaps. The tree should allow duplicate keys.

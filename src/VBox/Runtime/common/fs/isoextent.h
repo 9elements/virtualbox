@@ -1,4 +1,4 @@
-/* $Id: isoextent.h 111334 2025-10-12 01:13:33Z knut.osmundsen@oracle.com $ */
+/* $Id: isoextent.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * IPRT - Allocation Extent structure shared by various ISO & UDF code.
  */

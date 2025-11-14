@@ -1,4 +1,4 @@
-/* $Id: semevent-nt.cpp 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $ */
+/* $Id: semevent-nt.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * IPRT -  Single Release Event Semaphores, Ring-0 Driver & Ring-3 Userland, NT.
  */

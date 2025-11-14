@@ -1,4 +1,4 @@
-/* $Id: VBoxCryptoVfs.cpp 111613 2025-11-11 07:37:07Z alexander.eichner@oracle.com $ */
+/* $Id: VBoxCryptoVfs.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VirtualBox Cryptographic support module (for full VM encryption).
  */

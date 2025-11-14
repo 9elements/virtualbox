@@ -1,4 +1,4 @@
-/* $Id: RTWatcomUInt64Div.c 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $ */
+/* $Id: RTWatcomUInt64Div.c 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * BS3Kit - Unsigned 64-bit division (compiler support routine helper).
  */

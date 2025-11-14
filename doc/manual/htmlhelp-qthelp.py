@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-# $Id: htmlhelp-qthelp.py 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $
+# $Id: htmlhelp-qthelp.py 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 
 """
 A python script to create a .qhp file out of a given htmlhelp

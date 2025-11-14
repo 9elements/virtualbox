@@ -1,4 +1,4 @@
-/* $Id: tstDeviceStructSize.cpp 111698 2025-11-13 13:43:25Z knut.osmundsen@oracle.com $ */
+/* $Id: tstDeviceStructSize.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * tstDeviceStructSize - testcase for check structure sizes/alignment
  *                       and to verify that HC and RC uses the same

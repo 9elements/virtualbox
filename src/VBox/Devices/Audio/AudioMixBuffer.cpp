@@ -1,4 +1,4 @@
-/* $Id: AudioMixBuffer.cpp 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $ */
+/* $Id: AudioMixBuffer.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * Audio mixing buffer for converting reading/writing audio data.
  */

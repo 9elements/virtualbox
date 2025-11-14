@@ -1,4 +1,4 @@
-/* $Id: digest-vfs.cpp 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $ */
+/* $Id: digest-vfs.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * IPRT - Crypto - Cryptographic Hash / Message Digest API, VFS related interfaces
  */

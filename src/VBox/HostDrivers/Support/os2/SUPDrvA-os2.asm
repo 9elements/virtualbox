@@ -1,4 +1,4 @@
-; $Id: SUPDrvA-os2.asm 69249 2017-10-24 19:05:34Z knut.osmundsen@oracle.com $
+; $Id: SUPDrvA-os2.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 ;; @file
 ; VBoxDrv - OS/2 assembly file, the first file in the link.
 ;

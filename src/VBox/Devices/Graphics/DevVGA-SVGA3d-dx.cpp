@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA3d-dx.cpp 111724 2025-11-14 09:27:54Z alexander.eichner@oracle.com $ */
+/* $Id: DevVGA-SVGA3d-dx.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * DevSVGA3d - VMWare SVGA device, 3D parts - Common code for DX backend interface.
  */

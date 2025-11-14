@@ -1,4 +1,4 @@
-/* $Id: hostversion.cpp 111555 2025-11-06 09:49:17Z knut.osmundsen@oracle.com $ */
+/* $Id: hostversion.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * X11 guest client - Host version check.
  */

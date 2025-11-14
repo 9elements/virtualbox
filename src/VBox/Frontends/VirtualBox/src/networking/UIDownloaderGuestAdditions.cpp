@@ -1,4 +1,4 @@
-/* $Id: UIDownloaderGuestAdditions.cpp 111624 2025-11-11 10:28:33Z vadim.galitsyn@oracle.com $ */
+/* $Id: UIDownloaderGuestAdditions.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIDownloaderGuestAdditions class implementation.
  */

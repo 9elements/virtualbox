@@ -1,4 +1,4 @@
-; $Id: bs3-mode-SwitchToPE16_V86.asm 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $
+; $Id: bs3-mode-SwitchToPE16_V86.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 ;; @file
 ; BS3Kit - Bs3SwitchToPE16_V86
 ;

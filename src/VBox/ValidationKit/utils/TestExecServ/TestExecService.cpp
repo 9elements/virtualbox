@@ -1,4 +1,4 @@
-/* $Id: TestExecService.cpp 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $ */
+/* $Id: TestExecService.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * TestExecServ - Basic Remote Execution Service.
  */
@@ -3777,7 +3777,7 @@ static RTEXITCODE txsParseArgv(int argc, char **argv, bool *pfExit)
                 break;
 
             case 'V':
-                RTPrintf("$Revision: 110684 $\n");
+                RTPrintf("$Revision: 111747 $\n");
                 *pfExit = true;
                 return RTEXITCODE_SUCCESS;
 

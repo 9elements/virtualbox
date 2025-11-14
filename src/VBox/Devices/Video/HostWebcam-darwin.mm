@@ -1,4 +1,4 @@
-/* $Id: HostWebcam-darwin.mm 110890 2025-09-04 10:04:32Z alexander.eichner@oracle.com $ */
+/* $Id: HostWebcam-darwin.mm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * DrvHostWebcam - Mac host webcam backend. Uses AVFoundation framework.
  */

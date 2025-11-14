@@ -1,4 +1,4 @@
-; $Id: VBoxGuestAdditionsNT4.nsh 111731 2025-11-14 12:02:32Z knut.osmundsen@oracle.com $
+; $Id: VBoxGuestAdditionsNT4.nsh 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 ;; @file
 ; VBoxGuestAdditionsNT4.nsh - Guest Additions installation for NT4.
 ;

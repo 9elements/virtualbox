@@ -1,4 +1,4 @@
-/* $Id: IEMAllN8veEmit-x86.h 111487 2025-10-24 07:45:23Z alexander.eichner@oracle.com $ */
+/* $Id: IEMAllN8veEmit-x86.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * IEM - Native Recompiler, x86 Target - Code Emitters.
  */

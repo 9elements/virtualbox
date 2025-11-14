@@ -1,4 +1,4 @@
-/* $Id: VUSBUrb.cpp 111380 2025-10-14 13:16:28Z michal.necasek@oracle.com $ */
+/* $Id: VUSBUrb.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * Virtual USB - URBs.
  */

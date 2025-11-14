@@ -1,4 +1,4 @@
-; $Id: fesetx87precision.asm 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $
+; $Id: fesetx87precision.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 ;; @file
 ; IPRT - No-CRT fesetx87precision - AMD64 & X86.
 ;

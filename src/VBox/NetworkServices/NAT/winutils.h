@@ -1,4 +1,4 @@
-/* $Id: winutils.h 110691 2025-08-12 05:42:14Z alexander.eichner@oracle.com $ */
+/* $Id: winutils.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * NAT Network - winsock compatibility shim.
  */

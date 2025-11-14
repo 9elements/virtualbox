@@ -1,4 +1,4 @@
-/* $Id: APICAll-x86.cpp 111699 2025-11-13 13:47:40Z knut.osmundsen@oracle.com $ */
+/* $Id: APICAll-x86.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * APIC - Advanced Programmable Interrupt Controller - All Contexts.
  */

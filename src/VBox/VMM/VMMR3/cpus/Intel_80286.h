@@ -1,4 +1,4 @@
-/* $Id: Intel_80286.h 111009 2025-09-16 13:43:45Z michal.necasek@oracle.com $ */
+/* $Id: Intel_80286.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * CPU database entry "Intel 80286".
  * Handcrafted.

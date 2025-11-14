@@ -1,4 +1,4 @@
-/* $Id: UIChooserItem.cpp 111165 2025-09-29 11:42:05Z sergey.dubov@oracle.com $ */
+/* $Id: UIChooserItem.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIChooserItem class definition.
  */

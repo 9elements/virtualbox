@@ -1,4 +1,4 @@
-/* $Id: pdmaudiohostenuminline.h 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $ */
+/* $Id: pdmaudiohostenuminline.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * PDM - Audio Helpers for host audio device enumeration, Inlined Code. (DEV,++)
  *

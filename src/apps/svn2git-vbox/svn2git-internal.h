@@ -1,4 +1,4 @@
-/* $Id: svn2git-internal.h 110523 2025-08-04 09:34:22Z alexander.eichner@oracle.com $ */
+/* $Id: svn2git-internal.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * IPRT - Internal svn2git header.
  */

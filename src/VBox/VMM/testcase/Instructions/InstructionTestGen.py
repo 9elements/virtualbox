@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# $Id: InstructionTestGen.py 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $
+# $Id: InstructionTestGen.py 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 
 """
 Instruction Test Generator.
@@ -30,7 +30,7 @@ along with this program; if not, see <https://www.gnu.org/licenses>.
 
 SPDX-License-Identifier: GPL-3.0-only
 """
-__version__ = "$Revision: 110684 $";
+__version__ = "$Revision: 111747 $";
 
 
 # pylint: disable=C0103,R0913
@@ -1723,7 +1723,7 @@ class InstructionTestGen(object): # pylint: disable=R0902
         Writes the file header.
         Raises exception on trouble.
         """
-        self.write('; $Id: InstructionTestGen.py 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $\n'
+        self.write('; $Id: InstructionTestGen.py 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $\n'
                    ';; @file %s\n'
                    '; Autogenerate by %s %s. DO NOT EDIT\n'
                    ';\n'

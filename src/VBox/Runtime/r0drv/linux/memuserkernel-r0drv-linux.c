@@ -1,4 +1,4 @@
-/* $Id: memuserkernel-r0drv-linux.c 110875 2025-09-03 14:24:18Z knut.osmundsen@oracle.com $ */
+/* $Id: memuserkernel-r0drv-linux.c 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * IPRT - User & Kernel Memory, Ring-0 Driver, Linux.
  */

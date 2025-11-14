@@ -1,4 +1,4 @@
-/* $Id: isovfs.cpp 111469 2025-10-21 07:52:21Z knut.osmundsen@oracle.com $ */
+/* $Id: isovfs.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * IPRT - ISO 9660 and UDF Virtual Filesystem (read only).
  */

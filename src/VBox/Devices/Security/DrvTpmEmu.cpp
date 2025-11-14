@@ -1,4 +1,4 @@
-/* $Id: DrvTpmEmu.cpp 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $ */
+/* $Id: DrvTpmEmu.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * TPM emulator using a TCP/socket interface to talk to swtpm (https://github.com/stefanberger/swtpm).
  */

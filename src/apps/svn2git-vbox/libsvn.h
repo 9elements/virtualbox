@@ -1,4 +1,4 @@
-/* $Id: libsvn.h 109867 2025-06-16 09:40:54Z alexander.eichner@oracle.com $ */
+/* $Id: libsvn.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * IPRT - Internal svn2git header.
  */

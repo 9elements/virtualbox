@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# $Id: tdAddBasic1.py 111326 2025-10-10 13:33:54Z alexander.eichner@oracle.com $
+# $Id: tdAddBasic1.py 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 
 """
 VirtualBox Validation Kit - Additions Basics #1.
@@ -37,7 +37,7 @@ terms and conditions of either the GPL or the CDDL or both.
 
 SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 """
-__version__ = "$Revision: 111326 $"
+__version__ = "$Revision: 111747 $"
 
 # Standard Python imports.
 import os;

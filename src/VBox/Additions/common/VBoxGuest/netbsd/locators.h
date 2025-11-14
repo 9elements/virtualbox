@@ -1,4 +1,4 @@
-/* $Id: locators.h 70835 2018-01-31 14:49:25Z knut.osmundsen@oracle.com $ */
+/* $Id: locators.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * Placeholder "locators.h" that wsmousevar.h needs (bad hygiene).
  *

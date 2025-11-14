@@ -1,4 +1,4 @@
-/* $Id: PGMAllBth-x86.cpp.h 111740 2025-11-14 13:56:38Z knut.osmundsen@oracle.com $ */
+/* $Id: PGMAllBth-x86.cpp.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox - Page Manager, Shadow+Guest Paging Template - All context code.
  *

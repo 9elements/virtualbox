@@ -18,7 +18,7 @@ Author: Martin Renters.
 
 3c509 support added by Serge Babkin (babkin@hq.icb.chel.su)
 
-$Id: 3c5x9.c 95666 2022-07-15 18:50:58Z alexander.eichner@oracle.com $
+$Id: 3c5x9.c 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 
 ***************************************************************************/
 

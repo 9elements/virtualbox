@@ -1,4 +1,4 @@
-/* $Id: d3d11main.cpp 111731 2025-11-14 12:02:32Z knut.osmundsen@oracle.com $ */
+/* $Id: d3d11main.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * D3D testcase. Win32 application to run D3D11 tests.
  */

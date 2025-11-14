@@ -1,7 +1,7 @@
 #! /bin/sh
-# $Id: vboxadd-x11.sh 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $
+# $Id: vboxadd-x11.sh 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 ## @file
-# Linux Additions X11 setup init script ($Revision: 110684 $)
+# Linux Additions X11 setup init script ($Revision: 111747 $)
 #
 
 #

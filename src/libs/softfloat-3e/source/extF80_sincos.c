@@ -1,4 +1,4 @@
-/* $Id: extF80_sincos.c 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $ */
+/* $Id: extF80_sincos.c 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * SoftFloat - VBox Extension - extF80_sin, extF80_cos, extF80_sincos, extF80_atan2.
  */

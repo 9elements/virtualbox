@@ -1,4 +1,4 @@
-/* $Id: UIGlobalToolsWidget.cpp 111197 2025-10-01 11:07:45Z sergey.dubov@oracle.com $ */
+/* $Id: UIGlobalToolsWidget.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIGlobalToolsWidget class implementation.
  */

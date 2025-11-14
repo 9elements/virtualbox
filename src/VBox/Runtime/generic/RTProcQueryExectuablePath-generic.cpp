@@ -1,4 +1,4 @@
-/* $Id: RTProcQueryExectuablePath-generic.cpp 111214 2025-10-02 11:41:06Z alexander.eichner@oracle.com $ */
+/* $Id: RTProcQueryExectuablePath-generic.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * IPRT - RTProcQueryExecutablePath, generic.
  */

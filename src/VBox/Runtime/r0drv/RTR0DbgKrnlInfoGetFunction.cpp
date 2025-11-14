@@ -1,4 +1,4 @@
-/* $Id: RTR0DbgKrnlInfoGetFunction.cpp 109383 2025-05-01 00:26:03Z knut.osmundsen@oracle.com $ */
+/* $Id: RTR0DbgKrnlInfoGetFunction.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * IPRT - RTR0DbgKrnlInfoGetFunction, ring-0 drivers.
  */

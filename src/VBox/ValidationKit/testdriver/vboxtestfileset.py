@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# $Id: vboxtestfileset.py 111259 2025-10-06 12:09:03Z alexander.eichner@oracle.com $
+# $Id: vboxtestfileset.py 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 # pylint: disable=too-many-lines
 
 """
@@ -37,7 +37,7 @@ terms and conditions of either the GPL or the CDDL or both.
 
 SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 """
-__version__ = "$Revision: 111259 $"
+__version__ = "$Revision: 111747 $"
 
 
 # Standard Python imports.

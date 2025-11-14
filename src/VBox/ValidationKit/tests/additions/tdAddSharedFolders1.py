@@ -36,7 +36,7 @@ terms and conditions of either the GPL or the CDDL or both.
 
 SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 """
-__version__ = "$Revision: 111319 $"
+__version__ = "$Revision: 111747 $"
 
 # Standard Python imports.
 import os

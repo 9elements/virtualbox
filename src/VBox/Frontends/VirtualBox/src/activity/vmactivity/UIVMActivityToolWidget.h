@@ -1,4 +1,4 @@
-/* $Id: UIVMActivityToolWidget.h 111557 2025-11-06 11:34:59Z serkan.bayraktar@oracle.com $ */
+/* $Id: UIVMActivityToolWidget.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVMActivityToolWidget class declaration.
  */

@@ -1,4 +1,4 @@
-; $Id: memrchr.asm 110694 2025-08-12 14:01:24Z knut.osmundsen@oracle.com $
+; $Id: memrchr.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 ;; @file
 ; IPRT - No-CRT memrchr - AMD64 & X86.
 ;

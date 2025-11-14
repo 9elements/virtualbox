@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!-- $Id: xpidl.xsl 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $ -->
+<!-- $Id: xpidl.xsl 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ -->
 
 <!--
  *  A template to generate a XPCOM IDL compatible interface definition file

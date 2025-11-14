@@ -1,4 +1,4 @@
-/* $Id: getopt.cpp 111597 2025-11-10 14:34:11Z knut.osmundsen@oracle.com $ */
+/* $Id: getopt.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * IPRT - Command Line Parsing
  */

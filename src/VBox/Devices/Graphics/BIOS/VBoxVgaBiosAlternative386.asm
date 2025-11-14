@@ -1,4 +1,4 @@
-; $Id: VBoxVgaBiosAlternative386.asm 111436 2025-10-17 08:46:53Z vadim.galitsyn@oracle.com $ 
+; $Id: VBoxVgaBiosAlternative386.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ 
 ;; @file
 ; Auto Generated source file. Do not edit.
 ;

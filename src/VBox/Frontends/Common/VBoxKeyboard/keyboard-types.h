@@ -1,4 +1,4 @@
-/* $Id: keyboard-types.h 44789 2013-02-21 17:10:48Z noreply@oracle.com $ */
+/* $Id: keyboard-types.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox/Frontends/Common - X11 keyboard driver translation tables (PC scan code
  *                         mappings for known keyboard maps).

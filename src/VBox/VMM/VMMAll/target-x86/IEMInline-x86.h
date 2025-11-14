@@ -1,4 +1,4 @@
-/* $Id: IEMInline-x86.h 110741 2025-08-15 22:48:13Z knut.osmundsen@oracle.com $ */
+/* $Id: IEMInline-x86.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * IEM - Interpreted Execution Manager - Inlined Functions, x86 target.
  */

@@ -1,4 +1,4 @@
-; $Id: x86-allmul.asm 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $
+; $Id: x86-allmul.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 ;; @file
 ; IPRT - Visual C++ Compiler - 64-bit multiplication support, x86.
 ;

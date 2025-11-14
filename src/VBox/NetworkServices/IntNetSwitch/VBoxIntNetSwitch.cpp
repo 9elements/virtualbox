@@ -1,4 +1,4 @@
-/* $Id: VBoxIntNetSwitch.cpp 110745 2025-08-18 10:38:34Z alexander.eichner@oracle.com $ */
+/* $Id: VBoxIntNetSwitch.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * Internal networking - Wrapper for the R0 network service.
  *

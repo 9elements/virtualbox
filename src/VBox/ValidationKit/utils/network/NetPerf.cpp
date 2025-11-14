@@ -1,4 +1,4 @@
-/* $Id: NetPerf.cpp 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $ */
+/* $Id: NetPerf.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * NetPerf - Network Performance Benchmark.
  */
@@ -1934,7 +1934,7 @@ int main(int argc, char *argv[])
                 return RTEXITCODE_SUCCESS;
 
             case 'V':
-                RTPrintf("$Revision: 110684 $\n");
+                RTPrintf("$Revision: 111747 $\n");
                 return RTEXITCODE_SUCCESS;
 
             case 'w':

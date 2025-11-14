@@ -1,4 +1,4 @@
-/* $Id: keyboard-list.h 107971 2025-01-20 23:44:35Z klaus.espenlaub@oracle.com $ */
+/* $Id: keyboard-list.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox/Frontends/Common - X11 keyboard driver translation tables (keyboard layouts)
  *

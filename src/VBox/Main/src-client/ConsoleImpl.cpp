@@ -1,4 +1,4 @@
-/* $Id: ConsoleImpl.cpp 111604 2025-11-10 16:25:29Z alexander.eichner@oracle.com $ */
+/* $Id: ConsoleImpl.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Console COM Class implementation
  */

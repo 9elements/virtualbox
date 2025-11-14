@@ -39,7 +39,7 @@
  * AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING
  * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *
- * $Id: lcp.h 109528 2025-05-14 11:41:31Z alexander.eichner@oracle.com $
+ * $Id: lcp.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
  */
 
 #include "netif/ppp/ppp_opts.h"

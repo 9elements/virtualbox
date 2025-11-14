@@ -1,4 +1,4 @@
-/* $Id: tstVDResize.vd 111338 2025-10-13 11:55:25Z alexander.eichner@oracle.com $ */
+/* $Id: tstVDResize.vd 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /**
  * Storage: Resize testing for VDI.
  */

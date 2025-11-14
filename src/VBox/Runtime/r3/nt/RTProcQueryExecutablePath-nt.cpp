@@ -1,4 +1,4 @@
-/* $Id: RTProcQueryExecutablePath-nt.cpp 111220 2025-10-02 18:21:05Z knut.osmundsen@oracle.com $ */
+/* $Id: RTProcQueryExecutablePath-nt.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * IPRT - RTProcQueryExecutablePath, Native NT.
  */

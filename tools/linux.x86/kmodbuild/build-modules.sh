@@ -1,5 +1,5 @@
 #!/bin/bash -x
-# $Id: build-modules.sh 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $
+# $Id: build-modules.sh 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 ## @file
 # Script for test building the VirtualBox kernel modules against a kernel.
 #

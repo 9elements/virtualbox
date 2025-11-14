@@ -1,4 +1,4 @@
-/* $Id: UIMiniToolBar.cpp 111483 2025-10-23 14:08:21Z sergey.dubov@oracle.com $ */
+/* $Id: UIMiniToolBar.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMiniToolBar class implementation.
  */

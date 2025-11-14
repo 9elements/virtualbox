@@ -1,4 +1,4 @@
-/* $Id: UIMediumSearchWidget.h 111171 2025-09-29 15:51:40Z sergey.dubov@oracle.com $ */
+/* $Id: UIMediumSearchWidget.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMediumSearchWidget class declaration.
  */

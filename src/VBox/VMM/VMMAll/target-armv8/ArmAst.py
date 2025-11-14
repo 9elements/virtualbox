@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# $Id: ArmAst.py 110969 2025-09-13 01:39:40Z knut.osmundsen@oracle.com $
+# $Id: ArmAst.py 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 
 """
 ARM BSD / OpenSource specification reader - AST related bits.
@@ -30,7 +30,7 @@ along with this program; if not, see <https://www.gnu.org/licenses>.
 
 SPDX-License-Identifier: GPL-3.0-only
 """
-__version__ = "$Revision: 110969 $"
+__version__ = "$Revision: 111747 $"
 
 # Standard python imports.
 import re;

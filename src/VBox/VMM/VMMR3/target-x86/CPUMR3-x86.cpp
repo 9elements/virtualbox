@@ -1,4 +1,4 @@
-/* $Id: CPUMR3-x86.cpp 110758 2025-08-19 08:30:02Z ramshankar.venkataraman@oracle.com $ */
+/* $Id: CPUMR3-x86.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * CPUM - CPU Monitor / Manager.
  */

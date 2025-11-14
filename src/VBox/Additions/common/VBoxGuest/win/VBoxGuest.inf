@@ -1,4 +1,4 @@
-; $Id: VBoxGuest.inf 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $
+; $Id: VBoxGuest.inf 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 ;; @file
 ; INF file for installing the VirtualBox Windows guest driver, XP and later.
 ;

@@ -1,4 +1,4 @@
-/* $Id: nt.h 111583 2025-11-09 03:44:00Z knut.osmundsen@oracle.com $ */
+/* $Id: nt.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * IPRT - Header for code using the Native NT API.
  */

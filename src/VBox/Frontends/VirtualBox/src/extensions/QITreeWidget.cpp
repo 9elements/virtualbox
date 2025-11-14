@@ -1,4 +1,4 @@
-/* $Id: QITreeWidget.cpp 111679 2025-11-12 14:17:11Z sergey.dubov@oracle.com $ */
+/* $Id: QITreeWidget.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Qt GUI - Qt extensions: QITreeWidget class implementation.
  */

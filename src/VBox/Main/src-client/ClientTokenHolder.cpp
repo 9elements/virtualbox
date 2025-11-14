@@ -1,4 +1,4 @@
-/* $Id: ClientTokenHolder.cpp 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $ */
+/* $Id: ClientTokenHolder.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  *
  * VirtualBox API client session token holder (in the client process)

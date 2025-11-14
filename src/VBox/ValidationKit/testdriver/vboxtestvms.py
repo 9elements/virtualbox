@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# $Id: vboxtestvms.py 111323 2025-10-10 13:24:36Z alexander.eichner@oracle.com $
+# $Id: vboxtestvms.py 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 
 """
 VirtualBox Test VMs
@@ -36,7 +36,7 @@ terms and conditions of either the GPL or the CDDL or both.
 
 SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 """
-__version__ = "$Revision: 111323 $"
+__version__ = "$Revision: 111747 $"
 
 # Standard Python imports.
 import copy;

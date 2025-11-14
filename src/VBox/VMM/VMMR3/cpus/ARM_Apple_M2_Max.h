@@ -1,4 +1,4 @@
-/* $Id: ARM_Apple_M2_Max.h 109589 2025-05-16 17:58:52Z knut.osmundsen@oracle.com $ */
+/* $Id: ARM_Apple_M2_Max.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * CPU database entry "Apple M2 Max".
  * Generated at 2025-04-22T09:46:58Z by VBoxCpuReport v7.1.97r168579 on linux.arm64.

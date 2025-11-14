@@ -1,4 +1,4 @@
-/* $Id: UIUpdateManager.cpp 110718 2025-08-13 17:00:05Z sergey.dubov@oracle.com $ */
+/* $Id: UIUpdateManager.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIUpdateManager class implementation.
  */

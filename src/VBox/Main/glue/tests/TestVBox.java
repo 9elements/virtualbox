@@ -1,4 +1,4 @@
-/* $Id: TestVBox.java 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $ */
+/* $Id: TestVBox.java 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /*! file
  * Small sample/testcase which demonstrates that the same source code can
  * be used to connect to the webservice and (XP)COM APIs.

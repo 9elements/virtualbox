@@ -1,4 +1,4 @@
-/* $Id: VBoxServiceCpuHotPlug.cpp 111598 2025-11-10 14:35:00Z knut.osmundsen@oracle.com $ */
+/* $Id: VBoxServiceCpuHotPlug.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBoxService - Guest Additions CPU Hot-Plugging Service.
  */

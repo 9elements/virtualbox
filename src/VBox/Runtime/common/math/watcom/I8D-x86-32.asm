@@ -1,4 +1,4 @@
-; $Id: I8D-x86-32.asm 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $
+; $Id: I8D-x86-32.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 ;; @file
 ; BS3Kit - 32-bit Watcom C/C++, 64-bit signed integer division.
 ;

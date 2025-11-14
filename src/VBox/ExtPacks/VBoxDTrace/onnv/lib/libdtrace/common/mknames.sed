@@ -1,4 +1,4 @@
-#$Id: mknames.sed 62835 2016-08-01 16:41:36Z knut.osmundsen@oracle.com $
+#$Id: mknames.sed 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 ## @file
 # pure sed version of mknames.sh.
 #

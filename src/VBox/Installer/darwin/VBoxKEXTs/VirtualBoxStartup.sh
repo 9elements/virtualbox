@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: VirtualBoxStartup.sh 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $
+# $Id: VirtualBoxStartup.sh 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 ## @file
 # Startup service for loading the kernel extensions and select the set of VBox
 # binaries that matches the kernel architecture.

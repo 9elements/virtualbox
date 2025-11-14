@@ -1,4 +1,4 @@
-/* $Id: rtStrFormatKernelAddress-r0drv-darwin.cpp 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $ */
+/* $Id: rtStrFormatKernelAddress-r0drv-darwin.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * IPRT - IPRT String Formatter, ring-0 addresses.
  */

@@ -1,4 +1,4 @@
-/* $Id: avl_RemoveNode.cpp.h 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $ */
+/* $Id: avl_RemoveNode.cpp.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * kAVLRemove2 - Remove specific node (by pointer) from an AVL tree.
  */

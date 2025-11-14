@@ -1,4 +1,4 @@
-/* $Id: UISettingsPage.h 110990 2025-09-15 14:47:46Z sergey.dubov@oracle.com $ */
+/* $Id: UISettingsPage.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Qt GUI - UISettingsPage class declaration.
  */

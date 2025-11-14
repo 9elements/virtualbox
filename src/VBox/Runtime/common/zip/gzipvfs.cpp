@@ -1,4 +1,4 @@
-/* $Id: gzipvfs.cpp 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $ */
+/* $Id: gzipvfs.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * IPRT - GZIP Compressor and Decompressor I/O Stream.
  */

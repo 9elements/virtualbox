@@ -1,4 +1,4 @@
-/* $Id: UISoftKeyboard.cpp 111064 2025-09-19 15:25:32Z serkan.bayraktar@oracle.com $ */
+/* $Id: UISoftKeyboard.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Qt GUI - UISoftKeyboard class implementation.
  */

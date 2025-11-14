@@ -1,5 +1,5 @@
 #!/usr/bin/make -f
-# $Id: rules 111654 2025-11-12 10:37:35Z alexander.eichner@oracle.com $
+# $Id: rules 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 ## @file
 # VirtualBox rules.
 #

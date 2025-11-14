@@ -1,4 +1,4 @@
-/* $Id: QITreeView.h 111739 2025-11-14 13:37:06Z sergey.dubov@oracle.com $ */
+/* $Id: QITreeView.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Qt GUI - Qt extensions: QITreeView class declaration.
  */

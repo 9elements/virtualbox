@@ -1,4 +1,4 @@
-/* $Id: UIToolsView.h 111228 2025-10-03 11:08:48Z sergey.dubov@oracle.com $ */
+/* $Id: UIToolsView.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIToolsView class declaration.
  */

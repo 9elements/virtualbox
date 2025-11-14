@@ -1,4 +1,4 @@
-/* $Id: RTPathQueryProcessesUsing-nt.cpp 111215 2025-10-02 12:25:10Z knut.osmundsen@oracle.com $ */
+/* $Id: RTPathQueryProcessesUsing-nt.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * IPRT - RTPathQueryProcessesUsing, Native NT.
  */

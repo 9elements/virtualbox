@@ -1,4 +1,4 @@
-/* $Id: UIChooser.h 109350 2025-04-28 16:05:10Z sergey.dubov@oracle.com $ */
+/* $Id: UIChooser.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIChooser class declaration.
  */

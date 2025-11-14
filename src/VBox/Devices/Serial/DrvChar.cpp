@@ -1,4 +1,4 @@
-/* $Id: DrvChar.cpp 111257 2025-10-06 11:59:52Z alexander.eichner@oracle.com $ */
+/* $Id: DrvChar.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * Driver that adapts PDMISTREAM into PDMISERIALCONNECTOR / PDMISERIALPORT.
  */

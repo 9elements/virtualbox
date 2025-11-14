@@ -1,4 +1,4 @@
-# $Id: VBoxGuiNLS.sed 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $
+# $Id: VBoxGuiNLS.sed 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 ## @file
 # VBox Installer - SED script for converting the VirtualBox GUI NLS file list
 #                  to the WiX include file

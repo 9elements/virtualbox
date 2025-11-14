@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# $Id: gen-sql-comments.py 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $
+# $Id: gen-sql-comments.py 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 
 """
 Converts doxygen style comments in SQL script to COMMENT ON statements.

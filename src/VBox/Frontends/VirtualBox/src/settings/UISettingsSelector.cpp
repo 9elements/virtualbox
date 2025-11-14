@@ -1,4 +1,4 @@
-/* $Id: UISettingsSelector.cpp 111331 2025-10-10 14:32:33Z sergey.dubov@oracle.com $ */
+/* $Id: UISettingsSelector.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Qt GUI - UISettingsSelector class implementation.
  */

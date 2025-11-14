@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 111617 2025-11-11 08:26:46Z alexander.eichner@oracle.com $
+# $Id: Makefile.kmk 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 ## @file
 # Makefile for jpegtest - not for general consumption, see OTHERS.
 #

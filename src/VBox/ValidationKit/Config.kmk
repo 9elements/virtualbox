@@ -1,4 +1,4 @@
-# $Id: Config.kmk 110754 2025-08-18 20:31:07Z knut.osmundsen@oracle.com $
+# $Id: Config.kmk 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 ## @file
 # kBuild Configuration file for the VirtualBox Validation Kit.
 #

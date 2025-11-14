@@ -1,4 +1,4 @@
-/* $Id: cpu-alloc-all-mem.cpp 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $ */
+/* $Id: cpu-alloc-all-mem.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * Allocate all memory we can get and then quit.
  */

@@ -1,4 +1,4 @@
-/* $Id: UICloudNetworkingStuff.cpp 110838 2025-08-28 16:36:44Z sergey.dubov@oracle.com $ */
+/* $Id: UICloudNetworkingStuff.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Qt GUI - UICloudNetworkingStuff namespace implementation.
  */

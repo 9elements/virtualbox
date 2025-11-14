@@ -1,4 +1,4 @@
-/* $Id: main.cpp 110791 2025-08-22 15:14:50Z serkan.bayraktar@oracle.com $ */
+/* $Id: main.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Qt GUI - The main() function.
  */

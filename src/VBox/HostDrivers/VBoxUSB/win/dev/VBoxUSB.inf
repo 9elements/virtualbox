@@ -1,4 +1,4 @@
-; $Id: VBoxUSB.inf 111174 2025-09-29 16:57:21Z klaus.espenlaub@oracle.com $
+; $Id: VBoxUSB.inf 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
 ;; @file
 ; VBox host drivers - USB drivers - Win32 USB device
 ;

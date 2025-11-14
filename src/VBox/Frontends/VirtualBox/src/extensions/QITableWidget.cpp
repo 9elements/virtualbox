@@ -1,4 +1,4 @@
-/* $Id: QITableWidget.cpp 111465 2025-10-20 17:12:01Z sergey.dubov@oracle.com $ */
+/* $Id: QITableWidget.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Qt GUI - Qt extensions: QITableWidget class implementation.
  */

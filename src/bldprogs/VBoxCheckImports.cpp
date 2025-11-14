@@ -1,4 +1,4 @@
-/* $Id: VBoxCheckImports.cpp 110684 2025-08-11 17:18:47Z klaus.espenlaub@oracle.com $ */
+/* $Id: VBoxCheckImports.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
 /** @file
  * IPRT - Checks that a windows image only imports from a given set of DLLs.
  */
@@ -337,7 +337,7 @@ int main(int argc, char **argv)
             else if (   !strcmp(psz, "--version")
                      || !strcmp(psz, "-V"))
             {
-                printf("$Revision: 110684 $\n");
+                printf("$Revision: 111747 $\n");
                 return RTEXITCODE_SUCCESS;
             }
             else
