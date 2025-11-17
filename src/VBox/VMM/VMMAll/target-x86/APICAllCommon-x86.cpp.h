@@ -1,4 +1,4 @@
-/* $Id: APICAllCommon.cpp.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: APICAllCommon-x86.cpp.h 111756 2025-11-17 13:12:23Z ramshankar.venkataraman@oracle.com $ */
 /** @file
  * APIC - Advanced Programmable Interrupt Controller - All-context and R3-context common code.
  */
@@ -26,8 +26,8 @@
  */
 
 
-#ifndef VMM_INCLUDED_SRC_VMMAll_APICAllCommon_cpp_h
-#define VMM_INCLUDED_SRC_VMMAll_APICAllCommon_cpp_h
+#ifndef VMM_INCLUDED_SRC_VMMAll_APICAllCommon_x86_cpp_h
+#define VMM_INCLUDED_SRC_VMMAll_APICAllCommon_x86_cpp_h
 #ifndef RT_WITHOUT_PRAGMA_ONCE
 # pragma once
 #endif
@@ -869,5 +869,5 @@ static void apicR3CommonDbgInfo(PVMCPUCC pVCpu, PCDBGFINFOHLP pHlp, uint64_t uBa
 #endif /* IN_RING3 && VMM_APIC_TEMPLATE_R3_COMMON */
 
 
-#endif /* VMM_INCLUDED_SRC_VMMAll_APICAllCommon_cpp_h */
+#endif /* VMM_INCLUDED_SRC_VMMAll_APICAllCommon_x86_cpp_h */
 

@@ -1,4 +1,4 @@
-/* $Id: APICAll-x86.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: APICAll-x86.cpp 111756 2025-11-17 13:12:23Z ramshankar.venkataraman@oracle.com $ */
 /** @file
  * APIC - Advanced Programmable Interrupt Controller - All Contexts.
  */
@@ -86,7 +86,7 @@ static const uint32_t g_au32LvtExtValidMask[] =
 #if defined(RT_STRICT) || defined(LOG_ENABLED)
 # define VMM_APIC_TEMPLATE_GET_DELIVERY_MODE_NAME
 #endif
-#include "../VMMAll/APICAllCommon.cpp.h"
+#include "APICAllCommon-x86.cpp.h"
 #undef VMM_APIC_TEMPLATE_GET_MODE_NAME
 #undef VMM_APIC_TEMPLATE_GET_DEST_MODE_NAME
 #undef VMM_APIC_TEMPLATE_GET_TRIGGER_MODE_NAME

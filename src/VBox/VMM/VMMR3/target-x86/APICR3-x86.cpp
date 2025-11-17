@@ -1,4 +1,4 @@
-/* $Id: APICR3-x86.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: APICR3-x86.cpp 111756 2025-11-17 13:12:23Z ramshankar.venkataraman@oracle.com $ */
 /** @file
  * APIC - Advanced Programmable Interrupt Controller.
  */
@@ -189,7 +189,7 @@ static const SSMFIELD g_aX2ApicPageFields[] =
  * Instantiate the APIC R3-context common code.
  */
 #define VMM_APIC_TEMPLATE_R3_COMMON
-#include "../VMMAll/APICAllCommon.cpp.h"
+#include "../VMMAll/target-x86/APICAllCommon-x86.cpp.h"
 #undef VMM_APIC_TEMPLATE_R3_COMMON
 
 
