@@ -1,4 +1,4 @@
-; $Id: testInstallDefaultInstallButNoModelSection.inf 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+; $Id: testInstallDefaultInstallButNoModelSection.inf 111786 2025-11-18 10:33:09Z andreas.loeffler@oracle.com $
 ;; @file
 ; VirtualBox Windows Driver Installation - Test INF file.
 ;
@@ -36,6 +36,9 @@ DriverPackageType=PlugAndPlay
 
 [DefaultInstall]
 %ORACLE%=VBoxTest,NtAmd64
+
+[DefaultInstall.Services]
+AddService=VBoxTest,0x00000002,NonExist_Service
 
 [Strings]
 ORACLE = "Oracle Corporation"
