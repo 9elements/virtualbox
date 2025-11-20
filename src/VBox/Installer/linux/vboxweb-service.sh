@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: vboxweb-service.sh 106320 2024-10-15 12:08:41Z klaus.espenlaub@oracle.com $
+# $Id: vboxweb-service.sh 111829 2025-11-20 15:46:16Z vadim.galitsyn@oracle.com $
 ## @file
 # VirtualBox web service API daemon init script.
 #
@@ -85,7 +85,7 @@ fail_msg()
 start_daemon() {
     usr="$1"
     shift
-    su - $usr -c "$*"
+    runuser -u $usr -- $*
 }
 
 killproc() {
@@ -181,8 +181,13 @@ stop() {
         begin_msg "Stopping VirtualBox web service" console;
         killproc $binary
         RETVAL=$?
-        # Be careful: wait 1 second, making sure that everything is cleaned up.
-        sleep 1
+
+        # Be careful: wait 10 seconds, making sure that everything is cleaned up.
+        for i in 1 2 3 4 5 6 7 8 9 10 ; do
+            pidof "$binary" 2> /dev/null 2>&1 || break
+            sleep 1;
+        done
+
         if ! pidof $binary > /dev/null 2>&1; then
             rm -f $PIDFILE
             succ_msg "VirtualBox web service stopped"

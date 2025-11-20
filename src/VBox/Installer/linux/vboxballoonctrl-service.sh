@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: vboxballoonctrl-service.sh 106320 2024-10-15 12:08:41Z klaus.espenlaub@oracle.com $
+# $Id: vboxballoonctrl-service.sh 111829 2025-11-20 15:46:16Z vadim.galitsyn@oracle.com $
 ## @file
 # VirtualBox watchdog daemon init script.
 #
@@ -82,7 +82,7 @@ fail_msg()
 start_daemon() {
     usr="$1"
     shift
-    su - $usr -c "$*"
+    runuser -u $usr -- $*
 }
 
 killproc() {

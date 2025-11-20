@@ -1,4 +1,4 @@
-/* $Id: vboxweb.cpp 106320 2024-10-15 12:08:41Z klaus.espenlaub@oracle.com $ */
+/* $Id: vboxweb.cpp 111829 2025-11-20 15:46:16Z vadim.galitsyn@oracle.com $ */
 /** @file
  * vboxweb.cpp:
  *      hand-coded parts of the webservice server. This is linked with the
@@ -913,7 +913,7 @@ static void doQueuesLoop()
     }
 #endif /* WITH_OPENSSL */
 
-    soap.accept_timeout = 60;
+    soap.accept_timeout = 1;
     soap.bind_flags |= SO_REUSEADDR;
             // avoid EADDRINUSE on bind()
 
@@ -944,7 +944,11 @@ static void doQueuesLoop()
             s = soap_accept(&soap);
             if (!soap_valid_socket(s))
             {
-                if (soap.errnum != SOAP_EINTR)
+                if (   soap.errnum != SOAP_EINTR
+                    && (   soap.error != SOAP_TCP_ERROR
+                        || soap_fault_string(&soap) == NULL
+                        || strcmp(soap_fault_string(&soap), "Timeout") != 0)
+                   )
                     WebLogSoapError(&soap);
                 continue;
             }
