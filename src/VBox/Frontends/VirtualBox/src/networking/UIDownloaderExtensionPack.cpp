@@ -1,4 +1,4 @@
-/* $Id: UIDownloaderExtensionPack.cpp 106320 2024-10-15 12:08:41Z klaus.espenlaub@oracle.com $ */
+/* $Id: UIDownloaderExtensionPack.cpp 111830 2025-11-20 15:47:27Z vadim.galitsyn@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIDownloaderExtensionPack class implementation.
  */
@@ -55,7 +55,7 @@ UIDownloaderExtensionPack::UIDownloaderExtensionPack()
     const QString strSourceName = QString("%1-%2.vbox-extpack").arg(strUnderscoredName, strVersion);
     const QString strSourcePath = QString("https://download.virtualbox.org/virtualbox/%1/").arg(strVersion);
     const QString strSource = strSourcePath + strSourceName;
-    const QString strPathSHA256SumsFile = QString("https://www.virtualbox.org/download/hashes/%1/SHA256SUMS").arg(strVersion);
+    const QString strPathSHA256SumsFile = QString("https://download.virtualbox.org/virtualbox/%1/SHA256SUMS").arg(strVersion);
     const QString strTarget = QDir(gpGlobalSession->homeFolder()).absoluteFilePath(strSourceName);
 
     /* Set source/target: */
