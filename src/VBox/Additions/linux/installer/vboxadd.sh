@@ -1,7 +1,7 @@
 #! /bin/sh
-# $Id: vboxadd.sh 110056 2025-07-01 06:33:07Z vadim.galitsyn@oracle.com $
+# $Id: vboxadd.sh 111823 2025-11-20 14:59:53Z vadim.galitsyn@oracle.com $
 ## @file
-# Linux Additions kernel module init script ($Revision: 110056 $)
+# Linux Additions kernel module init script ($Revision: 111823 $)
 #
 
 #
@@ -176,7 +176,11 @@ VBOX_REVISION="r`"$VBOXCONTROL" --version | cut -d r -f2`"
 running_module()
 {
     mod="$1"
-    [ -d "/sys/module/$mod" ]
+    if [ -d "/sys/module" ]; then
+        [ -d "/sys/module/$mod" ]
+    else
+        lsmod | grep "$mod" >/dev/null 2>&1
+    fi
 }
 
 # Returns the version string of a currently running kernel module.
@@ -205,12 +209,19 @@ running_module_version()
 check_running_module_version()
 {
     mod=$1
-    expected="$VBOX_VERSION $VBOX_REVISION"
 
-    [ -n "$mod" ] || return
-    [ -n "$expected" ] || return
+    if [ -d "/sys/module" ]; then
 
-    [ "$expected" = "$(running_module_version "$mod")" ] || return
+        expected="$VBOX_VERSION $VBOX_REVISION"
+
+        [ -n "$mod" ] || return
+        [ -n "$expected" ] || return
+
+        [ "$expected" = "$(running_module_version "$mod")" ] || return
+
+    else
+        running_module "$mod"
+    fi
 }
 
 do_vboxguest_non_udev()
