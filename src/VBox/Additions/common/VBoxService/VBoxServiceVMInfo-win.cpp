@@ -1,4 +1,4 @@
-/* $Id: VBoxServiceVMInfo-win.cpp 106320 2024-10-15 12:08:41Z klaus.espenlaub@oracle.com $ */
+/* $Id: VBoxServiceVMInfo-win.cpp 111825 2025-11-20 15:08:34Z knut.osmundsen@oracle.com $ */
 /** @file
  * VBoxService - Virtual Machine Information for the Host, Windows specifics.
  */
@@ -56,7 +56,7 @@
 #include "VBoxServiceInternal.h"
 #include "VBoxServiceUtils.h"
 #include "VBoxServiceVMInfo.h"
-#include "../../WINNT/VBoxTray/VBoxTrayMsg.h" /* For IPC. */
+#include "../../win/VBoxTray/VBoxTrayMsg.h" /* For IPC. */
 
 
 /*********************************************************************************************************************************

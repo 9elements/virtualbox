@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 106320 2024-10-15 12:08:41Z klaus.espenlaub@oracle.com $
+# $Id: Makefile.kmk 111825 2025-11-20 15:08:34Z knut.osmundsen@oracle.com $
 ## @file
 # Sub-Makefile for VBoxGL OpenGL state tracker.
 #
@@ -54,7 +54,7 @@ VBoxGL_INCS     = \
 	$(VBOX_PATH_MESA)/src/gallium/frontends/wgl \
 	$(VBOX_PATH_MESA)/src/gallium/winsys/sw \
 	$(VBOX_PATH_MESA)/src/gallium/drivers \
-	$(PATH_ROOT)/src/VBox/Additions/WINNT/Graphics/Video \
+	$(PATH_ROOT)/src/VBox/Additions/win/Graphics/Video \
 	$(PATH_ROOT)/src/VBox/Runtime/common/table \
 	$(VBOX_PATH_VMSVGA_INC) \
 	$(VBOX_GRAPHICS_INCS)

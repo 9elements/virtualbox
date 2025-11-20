@@ -1,4 +1,4 @@
-# $Id: Config.kmk 106320 2024-10-15 12:08:41Z klaus.espenlaub@oracle.com $
+# $Id: Config.kmk 111825 2025-11-20 15:08:34Z knut.osmundsen@oracle.com $
 ## @file
 # kBuild Configuration file for the Mesa3D.
 #
@@ -44,7 +44,7 @@ endif
 VBOX_MESA            := mesa-$(VBOX_MESA_VERSION)
 VBOX_PATH_3D         := $(PATH_ROOT)/src/VBox/Additions/3D
 VBOX_PATH_MESA       := $(PATH_ROOT)/src/VBox/Additions/3D/mesa/$(VBOX_MESA)
-VBOX_PATH_WDDM       := $(PATH_ROOT)/src/VBox/Additions/WINNT/Graphics/Video
+VBOX_PATH_WDDM       := $(PATH_ROOT)/src/VBox/Additions/win/Graphics/Video
 VBOX_PATH_VMSVGA_INC := $(VBOX_PATH_MESA)/src/gallium/drivers/svga/include
 
 
