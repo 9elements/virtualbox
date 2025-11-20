@@ -1,4 +1,4 @@
-/* $Id: VBoxGuestR3LibDrmClient.cpp 106320 2024-10-15 12:08:41Z klaus.espenlaub@oracle.com $ */
+/* $Id: VBoxGuestR3LibDrmClient.cpp 111827 2025-11-20 15:14:12Z vadim.galitsyn@oracle.com $ */
 /** @file
  * VBoxGuestR3Lib - Ring-3 Support Library for VirtualBox guest additions, DRM client handling.
  */
@@ -45,7 +45,9 @@
 #include <iprt/process.h>
 
 #if defined(RT_OS_LINUX)
+# include <signal.h>
 # include <VBox/HostServices/GuestPropertySvc.h>
+# include <iprt/file.h>
 
 /** Defines the DRM client executable (image). */
 # define VBOX_DRMCLIENT_EXECUTABLE           "/usr/bin/VBoxDRMClient"
@@ -64,14 +66,13 @@
 static bool vbglR3DrmClientCheckProp(const char *pszPropName, uint32_t fPropFlags)
 {
     bool fExist = false;
-# if defined(VBOX_WITH_GUEST_PROPS)
-    uint32_t idClient;
 
+# if defined(VBOX_WITH_GUEST_PROPS)
+    uint32_t idClient = 0;
     int rc = VbglR3GuestPropConnect(&idClient);
     if (RT_SUCCESS(rc))
     {
         char *pcszFlags = NULL;
-
         rc = VbglR3GuestPropReadEx(idClient, pszPropName, NULL /* ppszValue */, &pcszFlags, NULL);
         if (RT_SUCCESS(rc))
         {
@@ -79,9 +80,8 @@ static bool vbglR3DrmClientCheckProp(const char *pszPropName, uint32_t fPropFlag
             if (fPropFlags)
             {
                 uint32_t fFlags = 0;
-
                 rc = GuestPropValidateFlags(pcszFlags, &fFlags);
-                fExist = RT_SUCCESS(rc) && (fFlags == fPropFlags);
+                fExist = RT_SUCCESS(rc) && fFlags == fPropFlags;
             }
             else
                 fExist = true;
@@ -162,6 +162,121 @@ VBGLR3DECL(int) VbglR3DrmClientStart(void)
 #if defined(RT_OS_LINUX)
     const char *apszArgs[2] = { VBOX_DRMCLIENT_EXECUTABLE, NULL }; /** @todo r=andy Pass path + process name as argv0? */
     return VbglR3DrmStart(VBOX_DRMCLIENT_EXECUTABLE, apszArgs);
+#else
+    return VERR_NOT_SUPPORTED;
+#endif
+}
+
+#if defined(RT_OS_LINUX)
+/**
+ * Checks if given PID corresponds to running DRM resizing client process ("VBoxDRMClient").
+ *
+ * @returns true if the PID matches VBoxDRMClient, false if not.
+ * @param   pid     Process ID.
+ */
+static bool vbglR3DrmClientCheckPid(int32_t pid)
+{
+    /** @todo r=bird: should try use /proc/PID/exe first (symlink),
+     *        as /proc/PID/cmdline is potentially unreliable (it's the argv[0] value
+     *        given to execve). */
+
+    /* Open /proc/PID/cmdline. */
+    if (pid > 0)
+    {
+        char szPath[256];
+        AssertCompile(sizeof(szPath) >= sizeof(VBOX_DRMCLIENT_EXECUTABLE));
+        AssertCompile(sizeof(szPath) >= sizeof("/proc/0123456789012345678901234567890123456789/cmdline"));
+
+        /* Read content of /proc/PID/cmdline and verify if it
+         * matches to expected hardened path of VBoxDRMClient. */
+        RTFILE hFile = NIL_RTFILE;
+        RTStrPrintf(szPath, sizeof(szPath), "/proc/%d/cmdline", pid);
+        int rc = RTFileOpen(&hFile, szPath, RTFILE_O_OPEN | RTFILE_O_READ | RTFILE_O_DENY_NONE);
+        if (RT_SUCCESS(rc))
+        {
+            size_t cbRead = 0;
+            rc = RTFileRead(hFile, szPath, sizeof(szPath) - 1, &cbRead);
+
+            RTFileClose(hFile);
+
+            if (   RT_SUCCESS(rc)
+                && cbRead > 0)
+            {
+                szPath[cbRead] = '\0';
+                return RTStrCmp(szPath, VBOX_DRMCLIENT_EXECUTABLE) == 0; /* Note! szPath isn't necessarily UTF-8, but it's ok. */
+            }
+        }
+    }
+
+    return false;
+
+}
+#endif
+
+/**
+ * Stops the DRM resizing client process ("VBoxDRMClient").
+ *
+ * @returns VBox status code.
+ */
+VBGLR3DECL(int) VbglR3DrmClientStop(void)
+{
+#if defined(RT_OS_LINUX)
+/** @todo r=bird: the first half should be in a VbglR3PidFileRead() function. */
+    /* Try open the PID file. */
+    RTFILE hFile = NIL_RTFILE;
+    int rc = RTFileOpen(&hFile, VBGLR3DRMPIDFILE, RTFILE_O_OPEN | RTFILE_O_READ | RTFILE_O_DENY_NONE);
+    if (RT_SUCCESS(rc))
+    {
+        /* Read the entire file.  The file is written by VbglR3PidFile and
+           shall only contain the numerical PID and a newline, so small enough
+           to safely use a fixed sized buffer.  */
+        uint64_t cbFile = 0;
+        rc = RTFileQuerySize(hFile, &cbFile);
+        if (RT_SUCCESS(rc))
+        {
+            char szPid[128] = {0};
+            if (cbFile >= 1 && cbFile < sizeof(szPid) - 1)
+            {
+                rc = RTFileRead(hFile, szPid, cbFile, NULL);
+                if (RT_SUCCESS(rc))
+                {
+                    int32_t pid = RTStrToInt32(RTStrStrip(szPid));
+                    if (pid > 0)
+                    {
+                        /* Make sure PID corresponds to running VBoxDRMClient
+                         * process (do not kill random process). */
+                        if (vbglR3DrmClientCheckPid(pid))
+                        {
+                            /* Send SIGTERM to the process. */
+                            if (kill(pid, SIGTERM) == 0)
+                            {
+                                /* Wait until process terminated. */
+                                RTFILE hFileNew = NIL_RTFILE;
+                                /** @todo r=bird: s/VbglR3PidfileWait/VbglR3PidFileWait/g  */
+                                /** @todo r=bird: This will write our process ID to the pid file on
+                                 *        success... Also, we still have that file open. */
+                                rc = VbglR3PidfileWait(VBGLR3DRMPIDFILE, &hFileNew, 5000);
+                                if (RT_SUCCESS(rc))
+                                    VbglR3ClosePidFile(VBGLR3DRMPIDFILE, hFileNew);
+                            }
+                            else
+                                rc = VERR_INVALID_PARAMETER;
+                        }
+                        else
+                            rc = VERR_INVALID_PARAMETER;
+                    }
+                    else
+                        rc = VERR_INVALID_PARAMETER;
+                }
+            }
+            else
+                rc = VERR_INVALID_PARAMETER;
+        }
+
+        RTFileClose(hFile);
+    }
+
+    return rc;
 #else
     return VERR_NOT_SUPPORTED;
 #endif

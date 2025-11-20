@@ -1,4 +1,4 @@
-/* $Id: display-drm.cpp 106320 2024-10-15 12:08:41Z klaus.espenlaub@oracle.com $ */
+/* $Id: display-drm.cpp 111827 2025-11-20 15:14:12Z vadim.galitsyn@oracle.com $ */
 /** @file
  * Guest Additions - VMSVGA guest screen resize service.
  *
@@ -245,7 +245,7 @@ unsigned g_cRespawn = 0;
 unsigned g_cVerbosity = 0;
 
 /** Path to the PID file. */
-static const char *g_pszPidFile = "/var/run/VBoxDRMClient";
+static const char *g_pszPidFile = VBGLR3DRMPIDFILE;
 
 /** Global flag which is triggered when service requested to shutdown. */
 static bool volatile g_fShutdown;
