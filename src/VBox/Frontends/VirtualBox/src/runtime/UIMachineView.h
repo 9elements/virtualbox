@@ -1,4 +1,4 @@
-/* $Id: UIMachineView.h 106320 2024-10-15 12:08:41Z klaus.espenlaub@oracle.com $ */
+/* $Id: UIMachineView.h 111842 2025-11-21 15:02:40Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMachineView class declaration.
  */
@@ -273,8 +273,9 @@ protected:
     UIActionPool* actionPool() const;
     QSize sizeHint() const RT_OVERRIDE;
 
-    /** Retrieves the last guest-screen size-hint from extra-data. */
-    QSize storedGuestScreenSizeHint() const;
+    /** Retrieves stored guest-screen size-hint from extra-data.
+      * @param  fFailsafe  Pass true to ensure valid hint is returned. */
+    QSize storedGuestScreenSizeHint(bool fFailsafe = true) const;
     /** Stores a guest-screen @a sizeHint to extra-data. */
     void setStoredGuestScreenSizeHint(const QSize &sizeHint);
 

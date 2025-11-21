@@ -1,4 +1,4 @@
-/* $Id: UIMachineView.cpp 108920 2025-03-24 16:24:14Z sergey.dubov@oracle.com $ */
+/* $Id: UIMachineView.cpp 111842 2025-11-21 15:02:40Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMachineView class implementation.
  */
@@ -1519,14 +1519,25 @@ QSize UIMachineView::sizeHint() const
     return QSize(size.width() + frameWidth() * 2, size.height() + frameWidth() * 2);
 }
 
-QSize UIMachineView::storedGuestScreenSizeHint() const
+QSize UIMachineView::storedGuestScreenSizeHint(bool fFailsafe /* = true */) const
 {
     /* Load guest-screen size-hint: */
     QSize sizeHint = gEDataManager->lastGuestScreenSizeHint(m_uScreenId, uiCommon().managedVMUuid());
 
-    /* Invent the default if necessary: */
+    /* If there is no hint currently set: */
     if (!sizeHint.isValid())
+    {
+        /* Exit prematurelly if fallback hint wasn't requested: */
+        if (!fFailsafe)
+        {
+            LogRel2(("GUI: UIMachineView::storedGuestScreenSizeHint: No guest-screen size-hint present for screen %d\n",
+                     (int)screenId()));
+            return QSize();
+        }
+
+        /* Invent new default hint: */
         sizeHint = QSize(800, 600);
+    }
 
     /* Take the scale-factor(s) into account: */
     sizeHint = scaledForward(sizeHint);
