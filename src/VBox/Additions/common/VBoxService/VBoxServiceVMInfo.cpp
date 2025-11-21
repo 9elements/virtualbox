@@ -1,4 +1,4 @@
-/* $Id: VBoxServiceVMInfo.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: VBoxServiceVMInfo.cpp 111836 2025-11-21 08:37:59Z alexander.eichner@oracle.com $ */
 /** @file
  * VBoxService - Virtual Machine Information for the Host.
  */
@@ -1578,6 +1578,15 @@ static int vgsvcVMInfoWriteNetwork(void)
 
             RTStrPrintf(szPropPath, sizeof(szPropPath), "/VirtualBox/GuestInfo/Net/%RU32/Status", cIfsReported);
             VGSvcPropCacheUpdate(&g_VMInfoPropCache, szPropPath, pIfCurr->ifa_flags & IFF_UP ? "Up" : "Down");
+
+# ifdef RT_OS_FREEBSD /** @todo Check the other guests. */
+            RTStrPrintf(szPropPath, sizeof(szPropPath), "/VirtualBox/GuestInfo/Net/%RU32/Name", cIfsReported);
+            int rc2 = RTStrValidateEncoding(pIfCurr->ifa_name);
+            if (RT_SUCCESS(rc2))
+                VGSvcPropCacheUpdate(&g_VMInfoPropCache, szPropPath, "%s", pIfCurr->ifa_name);
+            else
+                VGSvcPropCacheUpdate(&g_VMInfoPropCache, szPropPath, NULL);
+# endif
 
             cIfsReported++;
         }
