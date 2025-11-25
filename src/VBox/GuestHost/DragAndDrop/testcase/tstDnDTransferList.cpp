@@ -1,4 +1,4 @@
-/* $Id: tstDnDTransferList.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: tstDnDTransferList.cpp 111866 2025-11-25 13:35:04Z andreas.loeffler@oracle.com $ */
 /** @file
  * DnD transfer list  tests.
  */
@@ -116,8 +116,8 @@ int main()
     }
     DnDTransferListDestroy(&list);
 
-    char  *pszBuf;
-    size_t cbBuf;
+    char  *pszBuf = NULL;
+    size_t cbBuf  = 0;
 
     /* To URI data. */
     RTTEST_CHECK_RC(hTest, DnDTransferListInitEx(&list, szPathWellKnownURI, DNDTRANSFERLISTFMT_URI), VINF_SUCCESS);
