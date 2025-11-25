@@ -1,4 +1,4 @@
-/* $Id: VMXAllTemplate.cpp.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: VMXAllTemplate.cpp.h 111860 2025-11-25 09:09:01Z alexander.eichner@oracle.com $ */
 /** @file
  * HM VMX (Intel VT-x) - Code template for our own hypervisor and the NEM darwin backend using Apple's Hypervisor.framework.
  */
@@ -7213,7 +7213,7 @@ static VBOXSTRICTRC vmxHCHandleSplitLockAcXcpt(PVMCPUCC pVCpu, PVMXTRANSIENT pVm
                                        HMVMX_CPUMCTX_XPCT_AC>(pVCpu, pVmxTransient->pVmcsInfo, __FUNCTION__);
         AssertRCReturn(rc, rc);
 
-        VBOXVMM_XCPT_DF(pVCpu, &pVCpu->cpum.GstCtx);
+        VBOXVMM_VMX_SPLIT_LOCK(pVCpu, &pVCpu->cpum.GstCtx);
 
         if (DBGF_IS_EVENT_ENABLED(pVM, DBGFEVENT_VMX_SPLIT_LOCK))
         {
