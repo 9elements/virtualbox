@@ -1,4 +1,4 @@
-/* $Id: DBGCEmulateCodeView.cpp 106320 2024-10-15 12:08:41Z klaus.espenlaub@oracle.com $ */
+/* $Id: DBGCEmulateCodeView.cpp 111861 2025-11-25 09:19:14Z alexander.eichner@oracle.com $ */
 /** @file
  * DBGC - Debugger Console, CodeView / WinDbg Emulation.
  */
@@ -690,6 +690,7 @@ const DBGCSXEVT g_aDbgcSxEvents[] =
     { DBGFEVENT_EXIT_SVM_STGI,          "exit_svm_stgi",        NULL,       kDbgcSxEventKind_Plain,     kDbgcEvtState_Disabled, 0,                    NULL },
     { DBGFEVENT_EXIT_SVM_CLGI,          "exit_svm_clgi",        NULL,       kDbgcSxEventKind_Plain,     kDbgcEvtState_Disabled, 0,                    NULL },
     { DBGFEVENT_VMX_SPLIT_LOCK,         "vmx_split_lock",       NULL,       kDbgcSxEventKind_Plain,     kDbgcEvtState_Disabled, 0,                    NULL },
+    { DBGFEVENT_SVM_BUS_LOCK_THRESHOLD, "svm_bus_lock",         NULL,       kDbgcSxEventKind_Plain,     kDbgcEvtState_Disabled, 0,                    NULL },
     { DBGFEVENT_IOPORT_UNASSIGNED,      "pio_unassigned",       NULL,       kDbgcSxEventKind_Plain,     kDbgcEvtState_Disabled, 0,                    NULL },
     { DBGFEVENT_IOPORT_UNUSED,          "pio_unused",           NULL,       kDbgcSxEventKind_Plain,     kDbgcEvtState_Disabled, 0,                    NULL },
     { DBGFEVENT_MEMORY_UNASSIGNED,      "mmio_unassigned",      NULL,       kDbgcSxEventKind_Plain,     kDbgcEvtState_Disabled, 0,                    NULL },

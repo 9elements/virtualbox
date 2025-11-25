@@ -1,4 +1,4 @@
-/* $Id: VBoxVMM.d 106320 2024-10-15 12:08:41Z klaus.espenlaub@oracle.com $ */
+/* $Id: VBoxVMM.d 111861 2025-11-25 09:19:14Z alexander.eichner@oracle.com $ */
 /** @file
  * VBoxVMM - Static dtrace probes.
  */
@@ -374,6 +374,8 @@ provider vboxvmm
      * @{ */
     /** VT-x: Split-lock \#AC triggered by host having detection enabled. */
     probe vmx__split__lock(struct VMCPU *a_pVCpu, struct CPUMCTX *a_pCtx);
+    /** SVM: Buslock SVM exit triggered by host having detection enabled. */
+    probe svm__bus__lock_threshold(struct VMCPU *a_pVCpu, struct CPUMCTX *a_pCtx);
     /** @} */
 
 
