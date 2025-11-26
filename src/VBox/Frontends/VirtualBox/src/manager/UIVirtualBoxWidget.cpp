@@ -1,4 +1,4 @@
-/* $Id: UIVirtualBoxWidget.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: UIVirtualBoxWidget.cpp 111881 2025-11-26 09:59:07Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVirtualBoxWidget class implementation.
  */
@@ -520,6 +520,13 @@ void UIVirtualBoxWidget::updateToolbar()
                 m_pToolBar->addAction(actionPool()->action(UIActionIndexMN_M_Group_S_New));
                 m_pToolBar->addAction(actionPool()->action(UIActionIndexMN_M_Group_S_Add));
                 m_pToolBar->addSeparator();
+                if (   isSingleCloudProviderGroupSelected()
+                    || isSingleCloudProfileGroupSelected())
+                {
+                    m_pToolBar->addAction(actionPool()->action(UIActionIndexMN_M_Group_S_NewCloud));
+                    m_pToolBar->addAction(actionPool()->action(UIActionIndexMN_M_Group_S_AddCloud));
+                    m_pToolBar->addSeparator();
+                }
                 if (isSingleLocalGroupSelected())
                     m_pToolBar->addAction(actionPool()->action(UIActionIndexMN_M_Group_S_Discard));
                 else if (   isSingleCloudProviderGroupSelected()
@@ -536,6 +543,12 @@ void UIVirtualBoxWidget::updateToolbar()
                 m_pToolBar->addAction(actionPool()->action(UIActionIndexMN_M_Machine_S_New));
                 m_pToolBar->addAction(actionPool()->action(UIActionIndexMN_M_Machine_S_Add));
                 m_pToolBar->addSeparator();
+                if (isCloudMachineItemSelected())
+                {
+                    m_pToolBar->addAction(actionPool()->action(UIActionIndexMN_M_Machine_S_NewCloud));
+                    m_pToolBar->addAction(actionPool()->action(UIActionIndexMN_M_Machine_S_AddCloud));
+                    m_pToolBar->addSeparator();
+                }
                 m_pToolBar->addAction(actionPool()->action(UIActionIndexMN_M_Machine_S_Settings));
                 if (isLocalMachineItemSelected())
                     m_pToolBar->addAction(actionPool()->action(UIActionIndexMN_M_Machine_S_Discard));

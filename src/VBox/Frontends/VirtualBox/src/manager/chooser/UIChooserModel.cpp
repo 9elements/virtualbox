@@ -1,4 +1,4 @@
-/* $Id: UIChooserModel.cpp 111879 2025-11-26 09:52:08Z sergey.dubov@oracle.com $ */
+/* $Id: UIChooserModel.cpp 111881 2025-11-26 09:59:07Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIChooserModel class implementation.
  */
@@ -1392,8 +1392,8 @@ void UIChooserModel::sltHandleContextMenuAboutToShow()
                 if (!pMenu->property("is_valid").toBool())
                 {
                     pMenu->clear();
-                    pMenu->addAction(actionPool()->action(UIActionIndexMN_M_Group_S_New));
-                    pMenu->addAction(actionPool()->action(UIActionIndexMN_M_Group_S_Add));
+                    pMenu->addAction(actionPool()->action(UIActionIndexMN_M_Group_S_NewCloud));
+                    pMenu->addAction(actionPool()->action(UIActionIndexMN_M_Group_S_AddCloud));
                     pMenu->addSeparator();
                     pMenu->addAction(actionPool()->action(UIActionIndexMN_M_Group_M_Start));
                     pMenu->addAction(actionPool()->action(UIActionIndexMN_M_Group_S_Reset));
