@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 111774 2025-11-18 05:47:24Z ramshankar.venkataraman@oracle.com $
+# $Id: Makefile.kmk 111877 2025-11-26 09:04:57Z ramshankar.venkataraman@oracle.com $
 ## @file
 # Top-level makefile for the VMM.
 #
@@ -223,11 +223,11 @@ VBoxVMM_SOURCES  = \
 	VMMAll/MMAll.cpp \
 	VMMAll/NEMAll.cpp \
 	VMMAll/PDMAll.cpp \
-	VMMAll/PDMAllApic.cpp \
+	VMMAll/target-x86/PDMAllApic-x86.cpp \
 	VMMAll/PDMAllCritSect.cpp \
 	VMMAll/PDMAllCritSectRw.cpp \
 	VMMAll/PDMAllCritSectBoth.cpp \
-	$(if-expr defined(VBOX_WITH_IOMMU_AMD) || defined(VBOX_WITH_IOMMU_INTEL), VMMAll/PDMAllIommu.cpp,) \
+	$(if-expr defined(VBOX_WITH_IOMMU_AMD) || defined(VBOX_WITH_IOMMU_INTEL), VMMAll/target-x86/PDMAllIommu-x86.cpp,) \
 	VMMAll/PDMAllQueue.cpp \
 	VMMAll/PDMAllTask.cpp \
 	VMMAll/PGMAll.cpp \
@@ -1075,11 +1075,11 @@ if defined(VBOX_WITH_R0_MODULES) && !defined(VBOX_ONLY_BUILD)
   	VMMAll/MMAll.cpp \
   	VMMAll/NEMAll.cpp \
   	VMMAll/PDMAll.cpp \
-  	VMMAll/PDMAllApic.cpp \
+  	VMMAll/target-x86/PDMAllApic-x86.cpp \
   	VMMAll/PDMAllCritSect.cpp \
   	VMMAll/PDMAllCritSectRw.cpp \
   	VMMAll/PDMAllCritSectBoth.cpp \
-  	$(if-expr defined(VBOX_WITH_IOMMU_AMD) || defined(VBOX_WITH_IOMMU_INTEL), VMMAll/PDMAllIommu.cpp,) \
+  	$(if-expr defined(VBOX_WITH_IOMMU_AMD) || defined(VBOX_WITH_IOMMU_INTEL), VMMAll/target-x86/PDMAllIommu-x86.cpp,) \
   	VMMAll/PDMAllQueue.cpp \
   	VMMAll/PDMAllTask.cpp \
   	VMMAll/PGMAll.cpp \
