@@ -1,4 +1,4 @@
-/* $Id: dxvk_video_decoder.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: dxvk_video_decoder.h 111926 2025-11-27 14:06:27Z vitali.pelenjow@oracle.com $ */
 /** @file
  * VBoxDxVk - Video decoder.
  */
@@ -299,6 +299,8 @@ namespace dxvk {
     struct DxvkVideoDecodeCapabilities {
       /* Whether vkCmdDecodeVideo output image can be not from DPB. */
       bool                              distinctOutputImage = false;
+      /* Whether DPB images are separate image resources or are array elements of one image resource. */
+      bool                              separateReferenceImages = true;
     };
     DxvkVideoDecodeCapabilities         m_caps;
 
