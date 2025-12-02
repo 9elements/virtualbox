@@ -1,4 +1,4 @@
-/* $Id: hardenedmain.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: hardenedmain.cpp 111979 2025-12-02 16:27:22Z knut.osmundsen@oracle.com $ */
 /** @file
  * VBox Qt GUI - Hardened main().
  */
@@ -48,6 +48,28 @@ static int MyStrCmp(const char *psz1, const char *psz2)
     }
 }
 
+/**
+ * Option w/ value matching.
+ *
+ * @returns -1 on mismatch, 1 on exact match, 0 if there is a value separator
+ *          ('=' or ':') following in the string.
+ */
+static int MyStrMatchOptWithValue(const char *pszString, const char *pszOpt)
+{
+    for (;;)
+    {
+        char ch1 = *pszString++;
+        char ch2 = *pszOpt++;
+        if (ch1 != ch2)
+        {
+            if (!ch2)
+                return ch1 == ':' || ch1 == '=' ? 0 : -1;
+            return -1;
+        }
+        if (!ch1)
+            return 1;
+    }
+}
 
 int main(int argc, char **argv, char **envp)
 {
@@ -67,12 +89,13 @@ int main(int argc, char **argv, char **envp)
     bool     fDriverless      = false;
     for (int i = 1; i < argc && cOptionsLeft > 0; ++i)
     {
-        if (   !MyStrCmp(argv[i], "--startvm")
-            || !MyStrCmp(argv[i], "-startvm"))
+        int iMatch;
+        if (   (iMatch = MyStrMatchOptWithValue(argv[i], "--startvm")) >= 0
+            || (iMatch = MyStrMatchOptWithValue(argv[i], "-startvm"))  >= 0)
         {
             cOptionsLeft -= fStartVM == false;
             fStartVM = true;
-            i++;
+            i += iMatch;
         }
         else if (   !MyStrCmp(argv[i], "--separate")
                  || !MyStrCmp(argv[i], "-separate"))
