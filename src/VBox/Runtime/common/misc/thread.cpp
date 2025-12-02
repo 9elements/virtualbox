@@ -1,4 +1,4 @@
-/* $Id: thread.cpp 106320 2024-10-15 12:08:41Z klaus.espenlaub@oracle.com $ */
+/* $Id: thread.cpp 111974 2025-12-02 13:06:20Z alexander.eichner@oracle.com $ */
 /** @file
  * IPRT - Threads, common routines.
  */
@@ -809,7 +809,7 @@ RTDECL(int) RTThreadCreate(PRTTHREAD pThread, PFNRTTHREAD pfnThread, void *pvUse
     else
         rc = VERR_NO_TMP_MEMORY;
     LogFlow(("RTThreadCreate: Failed to create thread, rc=%Rrc\n", rc));
-    AssertReleaseRC(rc);
+    AssertRC(rc);
     return rc;
 }
 RT_EXPORT_SYMBOL(RTThreadCreate);
