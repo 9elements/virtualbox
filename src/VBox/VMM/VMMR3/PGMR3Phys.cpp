@@ -1,4 +1,4 @@
-/* $Id: PGMR3Phys.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: PGMR3Phys.cpp 111984 2025-12-03 11:43:27Z alexander.eichner@oracle.com $ */
 /** @file
  * PGM - Page Manager and Monitor, Physical Memory Addressing.
  */
@@ -729,6 +729,7 @@ VMMR3DECL(int) PGMR3PhysBulkGCPhys2CCPtrExternal(PVM pVM, uint32_t cPages, PCRTG
             if (RT_FAILURE(rc))
                 break;
             cNextYield = 128;
+            continue;
         }
 
         /*
