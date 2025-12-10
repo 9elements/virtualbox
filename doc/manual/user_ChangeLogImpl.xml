@@ -92,6 +92,10 @@ Rules for adding a changelog entry to make them look more uniform:
         <para>VM encryption: The disk and VM encryption feature was moved to the open source base package</para>
       </listitem>
 
+      <listitem>
+        <para>Guest Additions: Fixed installation on Windows XP 64-bit guests (github:gh-142)</para>
+      </listitem>
+
     </itemizedlist>
   </sect1>
 
