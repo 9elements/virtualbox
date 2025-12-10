@@ -1,4 +1,4 @@
-/* $Id: VMMDevState.h 106320 2024-10-15 12:08:41Z klaus.espenlaub@oracle.com $ */
+/* $Id: VMMDevState.h 112103 2025-12-10 12:30:59Z dmitrii.grigorev@oracle.com $ */
 /** @file
  * VMMDev - Guest <-> VMM/Host communication device, internal header.
  */
@@ -60,8 +60,8 @@ typedef struct DISPLAYCHANGEREQUEST
 {
     bool fPending;
     bool afAlignment[3];
-    VMMDevDisplayDef displayChangeRequest;
-    VMMDevDisplayDef lastReadDisplayChangeRequest;
+    VMMDevDisplayDef displayChangeDef;
+    VMMDevDisplayDef lastReadDisplayChangeDef;
 } DISPLAYCHANGEREQUEST;
 
 typedef struct DISPLAYCHANGEDATA
