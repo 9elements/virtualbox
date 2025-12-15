@@ -1,4 +1,4 @@
-/* $Id: UIPortForwardingTable.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: UIPortForwardingTable.cpp 112116 2025-12-15 15:01:41Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIPortForwardingTable class implementation.
  */
@@ -245,38 +245,26 @@ public:
     /** Constructs table cell passing @a pParent to the base-class.
       * @param  strName  Brings the name. */
     UIPortForwardingCell(QITableViewRow *pParent, const NameData &strName)
-        : QITableViewCell(pParent)
-        , m_strText(strName)
+        : QITableViewCell(pParent, strName)
     {}
 
     /** Constructs table cell passing @a pParent to the base-class.
       * @param  enmProtocol  Brings the protocol type. */
     UIPortForwardingCell(QITableViewRow *pParent, KNATProtocol enmProtocol)
-        : QITableViewCell(pParent)
-        , m_strText(gpConverter->toString(enmProtocol))
+        : QITableViewCell(pParent, gpConverter->toString(enmProtocol))
     {}
 
     /** Constructs table cell passing @a pParent to the base-class.
       * @param  strIp  Brings the IP address. */
     UIPortForwardingCell(QITableViewRow *pParent, const IpData &strIp)
-        : QITableViewCell(pParent)
-        , m_strText(strIp)
+        : QITableViewCell(pParent, strIp)
     {}
 
     /** Constructs table cell passing @a pParent to the base-class.
       * @param  port  Brings the port. */
     UIPortForwardingCell(QITableViewRow *pParent, PortData port)
-        : QITableViewCell(pParent)
-        , m_strText(QString::number(port.value()))
+        : QITableViewCell(pParent, QString::number(port.value()))
     {}
-
-    /** Returns the cell text. */
-    virtual QString text() const RT_OVERRIDE { return m_strText; }
-
-private:
-
-    /** Holds the cell text. */
-    QString  m_strText;
 };
 
 
@@ -303,14 +291,12 @@ public:
         , m_strHostIp(strHostIp), m_hostPort(hostPort)
         , m_strGuestIp(strGuestIp), m_guestPort(guestPort)
     {
-        /* Create cells: */
         createCells();
     }
 
     /** Destructs table row. */
-    ~UIPortForwardingRow()
+    virtual ~UIPortForwardingRow() RT_OVERRIDE RT_FINAL
     {
-        /* Destroy cells: */
         destroyCells();
     }
 
@@ -319,8 +305,11 @@ public:
     /** Defines the unique rule name. */
     void setName(const NameData &strName)
     {
+        /* Sanity check: */
+        AssertReturnVoid(m_cells.size() == UIPortForwardingDataType_Max);
+
         m_strName = strName;
-        delete m_cells[UIPortForwardingDataType_Name];
+        delete m_cells.at(UIPortForwardingDataType_Name);
         m_cells[UIPortForwardingDataType_Name] = new UIPortForwardingCell(this, m_strName);
     }
 
@@ -329,8 +318,11 @@ public:
     /** Defines the rule protocol type. */
     void setProtocol(KNATProtocol enmProtocol)
     {
+        /* Sanity check: */
+        AssertReturnVoid(m_cells.size() == UIPortForwardingDataType_Max);
+
         m_enmProtocol = enmProtocol;
-        delete m_cells[UIPortForwardingDataType_Protocol];
+        delete m_cells.at(UIPortForwardingDataType_Protocol);
         m_cells[UIPortForwardingDataType_Protocol] = new UIPortForwardingCell(this, m_enmProtocol);
     }
 
@@ -339,8 +331,11 @@ public:
     /** Defines the rule host IP address. */
     void setHostIp(const IpData &strHostIp)
     {
+        /* Sanity check: */
+        AssertReturnVoid(m_cells.size() == UIPortForwardingDataType_Max);
+
         m_strHostIp = strHostIp;
-        delete m_cells[UIPortForwardingDataType_HostIp];
+        delete m_cells.at(UIPortForwardingDataType_HostIp);
         m_cells[UIPortForwardingDataType_HostIp] = new UIPortForwardingCell(this, m_strHostIp);
     }
 
@@ -349,8 +344,11 @@ public:
     /** Defines the rule host port. */
     void setHostPort(PortData hostPort)
     {
+        /* Sanity check: */
+        AssertReturnVoid(m_cells.size() == UIPortForwardingDataType_Max);
+
         m_hostPort = hostPort;
-        delete m_cells[UIPortForwardingDataType_HostPort];
+        delete m_cells.at(UIPortForwardingDataType_HostPort);
         m_cells[UIPortForwardingDataType_HostPort] = new UIPortForwardingCell(this, m_hostPort);
     }
 
@@ -359,8 +357,11 @@ public:
     /** Defines the rule guest IP address. */
     void setGuestIp(const IpData &strGuestIp)
     {
+        /* Sanity check: */
+        AssertReturnVoid(m_cells.size() == UIPortForwardingDataType_Max);
+
         m_strGuestIp = strGuestIp;
-        delete m_cells[UIPortForwardingDataType_GuestIp];
+        delete m_cells.at(UIPortForwardingDataType_GuestIp);
         m_cells[UIPortForwardingDataType_GuestIp] = new UIPortForwardingCell(this, m_strGuestIp);
     }
 
@@ -369,27 +370,30 @@ public:
     /** Defines the rule guest port. */
     void setGuestPort(PortData guestPort)
     {
+        /* Sanity check: */
+        AssertReturnVoid(m_cells.size() == UIPortForwardingDataType_Max);
+
         m_guestPort = guestPort;
-        delete m_cells[UIPortForwardingDataType_GuestPort];
+        delete m_cells.at(UIPortForwardingDataType_GuestPort);
         m_cells[UIPortForwardingDataType_GuestPort] = new UIPortForwardingCell(this, m_guestPort);
     }
 
 protected:
 
     /** Returns the number of children. */
-    virtual int childCount() const RT_OVERRIDE
+    virtual int childCount() const RT_OVERRIDE RT_FINAL
     {
         /* Return cell count: */
-        return UIPortForwardingDataType_Max;
+        return m_cells.size();
     }
 
     /** Returns the child item with @a iIndex. */
-    virtual QITableViewCell *childItem(int iIndex) const RT_OVERRIDE
+    virtual QITableViewCell *childItem(int iIndex) const RT_OVERRIDE RT_FINAL
     {
-        /* Make sure index within the bounds: */
+        /* Sanity check: */
         AssertReturn(iIndex >= 0 && iIndex < m_cells.size(), 0);
         /* Return corresponding cell: */
-        return m_cells[iIndex];
+        return m_cells.at(iIndex);
     }
 
 private:
@@ -397,39 +401,39 @@ private:
     /** Creates cells. */
     void createCells()
     {
-        /* Create cells on the basis of variables we have: */
-        m_cells.resize(UIPortForwardingDataType_Max);
-        m_cells[UIPortForwardingDataType_Name] = new UIPortForwardingCell(this, m_strName);
-        m_cells[UIPortForwardingDataType_Protocol] = new UIPortForwardingCell(this, m_enmProtocol);
-        m_cells[UIPortForwardingDataType_HostIp] = new UIPortForwardingCell(this, m_strHostIp);
-        m_cells[UIPortForwardingDataType_HostPort] = new UIPortForwardingCell(this, m_hostPort);
-        m_cells[UIPortForwardingDataType_GuestIp] = new UIPortForwardingCell(this, m_strGuestIp);
-        m_cells[UIPortForwardingDataType_GuestPort] = new UIPortForwardingCell(this, m_guestPort);
+        if (!m_cells.isEmpty())
+            destroyCells();
+        m_cells << new UIPortForwardingCell(this, m_strName);
+        m_cells << new UIPortForwardingCell(this, m_enmProtocol);
+        m_cells << new UIPortForwardingCell(this, m_strHostIp);
+        m_cells << new UIPortForwardingCell(this, m_hostPort);
+        m_cells << new UIPortForwardingCell(this, m_strGuestIp);
+        m_cells << new UIPortForwardingCell(this, m_guestPort);
+        Assert(m_cells.size() == UIPortForwardingDataType_Max);
     }
 
     /** Destroys cells. */
     void destroyCells()
     {
-        /* Destroy cells: */
         qDeleteAll(m_cells);
         m_cells.clear();
     }
 
     /** Holds the unique rule name. */
-    NameData m_strName;
+    NameData      m_strName;
     /** Holds the rule protocol type. */
-    KNATProtocol m_enmProtocol;
+    KNATProtocol  m_enmProtocol;
     /** Holds the rule host IP address. */
-    IpData m_strHostIp;
+    IpData        m_strHostIp;
     /** Holds the rule host port. */
-    PortData m_hostPort;
+    PortData      m_hostPort;
     /** Holds the rule guest IP address. */
-    IpData m_strGuestIp;
+    IpData        m_strGuestIp;
     /** Holds the rule guest port. */
-    PortData m_guestPort;
+    PortData      m_guestPort;
 
     /** Holds the cell instances. */
-    QVector<UIPortForwardingCell*> m_cells;
+    QVector<UIPortForwardingCell*>  m_cells;
 };
 
 
@@ -486,7 +490,7 @@ private:
     UIPortForwardingTable *m_pPortForwardingTable;
 
     /** Holds the port forwarding row list.  */
-    QList<UIPortForwardingRow*> m_dataList;
+    QList<UIPortForwardingRow*>  m_dataList;
 
     /** Holds the guest address hint. */
     QString  m_strGuestAddressHint;
@@ -504,12 +508,12 @@ public:
       * @param  fIPv6  Brings whether this table contains IPv6 rules, not IPv4. */
     UIPortForwardingView(bool fIPv6, QWidget *pParent = 0);
     /** Destructs Port Forwarding table-view. */
-    virtual ~UIPortForwardingView();
+    virtual ~UIPortForwardingView() RT_OVERRIDE RT_FINAL;
 
 protected:
 
     /** Handles any Qt @a pEvent. */
-    virtual bool event(QEvent *pEvent) RT_OVERRIDE;
+    virtual bool event(QEvent *pEvent) RT_OVERRIDE RT_FINAL;
 
 protected slots:
 
@@ -517,13 +521,13 @@ protected slots:
       * @param  parent  Brings the parent under which new rows being inserted.
       * @param  iStart  Brings the starting position (inclusive).
       * @param  iStart  Brings the end position (inclusive). */
-    virtual void rowsInserted(const QModelIndex &parent, int iStart, int iEnd) RT_OVERRIDE;
+    virtual void rowsInserted(const QModelIndex &parent, int iStart, int iEnd) RT_OVERRIDE RT_FINAL;
 
     /** Handles rows being removed.
       * @param  parent  Brings the parent for which rows being removed.
       * @param  iStart  Brings the starting position (inclusive).
       * @param  iStart  Brings the end position (inclusive). */
-    virtual void rowsAboutToBeRemoved(const QModelIndex &parent, int iStart, int iEnd) RT_OVERRIDE;
+    virtual void rowsAboutToBeRemoved(const QModelIndex &parent, int iStart, int iEnd) RT_OVERRIDE RT_FINAL;
 
 private:
 
@@ -940,7 +944,6 @@ void UIPortForwardingView::cleanup()
     delete m_pItemEditorFactory;
     m_pItemEditorFactory = 0;
 }
-
 
 void UIPortForwardingView::adjust()
 {
