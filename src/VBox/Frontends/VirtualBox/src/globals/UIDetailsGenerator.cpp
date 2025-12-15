@@ -1,4 +1,4 @@
-/* $Id: UIDetailsGenerator.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: UIDetailsGenerator.cpp 112114 2025-12-15 11:35:34Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIDetailsGenerator implementation.
  */
@@ -526,24 +526,23 @@ UITextTable UIDetailsGenerator::generateMachineInformationDisplay(CMachine &comM
     if (fOptions & UIExtraDataMetaDefs::DetailsElementOptionTypeDisplay_Recording)
     {
         CRecordingSettings comRecordingSettings = comMachine.GetRecordingSettings();
-        CProgress comProgress = comRecordingSettings.GetProgress(); /** @todo r=andy Revamp this. */
-        /** @r=andy Check if recording is running: if not completed AND not canceled. */
-        if (comProgress.isOk() && !comProgress.GetCompleted() && !comProgress.GetCanceled())
+        if (comRecordingSettings.isNotNull())
         {
-            /* For now all screens have the same config: */
-            const CRecordingScreenSettings comRecordingScreen0Settings = comRecordingSettings.GetScreenSettings(0);
-
-            /** @todo r=andy Refine these texts (wrt audio and/or video). */
-            table << UITextTableLine(QApplication::translate("UIDetails", "Recording File", "details (display/recording)"),
-                                     comRecordingScreen0Settings.GetFilename());
-            table << UITextTableLine(QApplication::translate("UIDetails", "Recording Attributes", "details (display/recording)"),
-                                     QApplication::translate("UIDetails", "Frame Size: %1x%2, Frame Rate: %3fps, Bit Rate: %4kbps")
-                                     .arg(comRecordingScreen0Settings.GetVideoWidth()).arg(comRecordingScreen0Settings.GetVideoHeight())
-                                     .arg(comRecordingScreen0Settings.GetVideoFPS()).arg(comRecordingScreen0Settings.GetVideoRate()));
+            if (comRecordingSettings.GetEnabled())
+            {
+                /* For now all screens have the same config: */
+                const CRecordingScreenSettings comRecordingScreen0Settings = comRecordingSettings.GetScreenSettings(0);
+                table << UITextTableLine(QApplication::translate("UIDetails", "Recording File", "details (display/recording)"),
+                                         comRecordingScreen0Settings.GetFilename());
+                table << UITextTableLine(QApplication::translate("UIDetails", "Recording Attributes", "details (display/recording)"),
+                                         QApplication::translate("UIDetails", "Frame Size: %1x%2, Frame Rate: %3fps, Bit Rate: %4kbps")
+                                         .arg(comRecordingScreen0Settings.GetVideoWidth()).arg(comRecordingScreen0Settings.GetVideoHeight())
+                                         .arg(comRecordingScreen0Settings.GetVideoFPS()).arg(comRecordingScreen0Settings.GetVideoRate()));
+            }
+            else
+                table << UITextTableLine(QApplication::translate("UIDetails", "Recording", "details (display/recording)"),
+                                         QApplication::translate("UIDetails", "Disabled", "details (display/recording)"));
         }
-        else
-            table << UITextTableLine(QApplication::translate("UIDetails", "Recording", "details (display/recording)"),
-                                     QApplication::translate("UIDetails", "Disabled", "details (display/recording)"));
     }
 
     return table;
