@@ -1,4 +1,4 @@
-/* $Id: UITakeSnapshotDialog.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: UITakeSnapshotDialog.cpp 112119 2025-12-15 15:21:58Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UITakeSnapshotDialog class implementation.
  */
@@ -66,6 +66,7 @@ void UITakeSnapshotDialog::setIcon(const QIcon &icon)
 void UITakeSnapshotDialog::setName(const QString &strName)
 {
     m_pEditorName->setText(strName);
+    m_pEditorName->selectAll();
 }
 
 QString UITakeSnapshotDialog::name() const
