@@ -2908,7 +2908,7 @@
     <name>UIChooserNodeGroup</name>
     <message>
         <source>Machine group</source>
-        <translation type="unfinished"></translation>
+        <translation>Makine grubu</translation>
     </message>
 </context>
 <context>
@@ -4540,7 +4540,7 @@
     <message>
         <source>Intel 82583V Gigabit Network Connection [EXPERIMENTAL]</source>
         <comment>NetworkAdapterType</comment>
-        <translation type="unfinished"></translation>
+        <translation>Intel 82583V Gigabit Ağ Bağlantısı [DENEYSEL]</translation>
     </message>
 </context>
 <context>
@@ -12430,7 +12430,7 @@
     <name>UIToolsItem</name>
     <message>
         <source>Tool item</source>
-        <translation type="unfinished"></translation>
+        <translation>Araç öğesi</translation>
     </message>
     <message>
         <source>Media</source>
