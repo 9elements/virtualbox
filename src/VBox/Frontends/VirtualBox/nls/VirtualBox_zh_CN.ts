@@ -3178,7 +3178,7 @@
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">名称</translation>
     </message>
     <message>
         <source>Value</source>
