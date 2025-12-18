@@ -1339,7 +1339,7 @@
     </message>
     <message>
         <source>Cl&amp;one...</source>
-        <translation>Κλωνοποίηση...</translation>
+        <translation type="vanished">Κλωνοποίηση...</translation>
     </message>
     <message>
         <source>&amp;Recording Settings...</source>
@@ -2533,6 +2533,26 @@
         <source>Send the ACPI shutdown signal to the virtual machine</source>
         <translation>Αποστολή σήματος τερματισμού ACPI στην επιλεγμένη εικονική μηχανή</translation>
     </message>
+    <message>
+        <source>&amp;New</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;New Cloud Machine...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create new cloud virtual machine</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Open Cloud Machine...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open existing cloud virtual machine</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>UIAddDiskEncryptionPasswordDialog</name>
@@ -3569,6 +3589,14 @@
     <message>
         <source>Show Help (%1)</source>
         <translation>Εμφάνιση Βοήθειας (%1)</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished">Όνομα</translation>
+    </message>
+    <message>
+        <source>Value</source>
+        <translation type="unfinished">Τιμή</translation>
     </message>
 </context>
 <context>
@@ -8511,7 +8539,7 @@
     </message>
     <message>
         <source>Domain name should be at least 2 character long. Allowed characters are alphanumerics, &quot;-&quot; and &quot;.&quot;</source>
-        <translation>Το όνομα τομέα πρέπει να έχει μήκος 2 χαρακτήρων τουλάχιστον. Επιτρεπόμενοι χαρακτήρες είναι οι αλφαριθμητικοί, &quot;-&quot; και &quot;.&quot;</translation>
+        <translation type="vanished">Το όνομα τομέα πρέπει να έχει μήκος 2 χαρακτήρων τουλάχιστον. Επιτρεπόμενοι χαρακτήρες είναι οι αλφαριθμητικοί, &quot;-&quot; και &quot;.&quot;</translation>
     </message>
     <message>
         <source>Hostna&amp;me:</source>
@@ -8535,7 +8563,7 @@
     </message>
     <message>
         <source>Host name should be at least 2 character long. Allowed characters are alphanumerics, &quot;-&quot; and &quot;.&quot;</source>
-        <translation>Το όνομα διακομιστή θα πρέπει να έχει μήκος 2 χαρακτήρων τουλάχιστον. Επιτρεπόμενοι χαρακτήρες είναι οι αλφαριθμητικοί, &quot;-&quot; και &quot;.&quot;</translation>
+        <translation type="vanished">Το όνομα διακομιστή θα πρέπει να έχει μήκος 2 χαρακτήρων τουλάχιστον. Επιτρεπόμενοι χαρακτήρες είναι οι αλφαριθμητικοί, &quot;-&quot; και &quot;.&quot;</translation>
     </message>
     <message>
         <source>Host name is valid</source>
@@ -8568,6 +8596,14 @@
     <message>
         <source>Domain name to be assigned to the virtual machine</source>
         <translation>Όνομα τομέα που θα δοθεί στην εικονική μηχανή</translation>
+    </message>
+    <message>
+        <source>Host name must be at least two alphanumeric characters. Hyphens are allowed between characters.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Domain labels (1–63 chars) may use letters, digits, or hyphens, but not start or end with one. Labels are dot-separated, and the total length must be under 254 characters.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -9176,11 +9212,11 @@
     <name>UILanguageSettingsEditor</name>
     <message>
         <source>Id</source>
-        <translation>Αναγνωριστικό</translation>
+        <translation type="vanished">Αναγνωριστικό</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation>Όνομα</translation>
+        <translation type="vanished">Όνομα</translation>
     </message>
     <message>
         <source>&amp;Interface Languages</source>
@@ -9188,7 +9224,7 @@
     </message>
     <message>
         <source>Author</source>
-        <translation>Συγγραφέας</translation>
+        <translation type="vanished">Συγγραφέας</translation>
     </message>
     <message>
         <source>Language:</source>
@@ -9196,7 +9232,7 @@
     </message>
     <message>
         <source>Language</source>
-        <translation>Γλώσσα</translation>
+        <translation type="vanished">Γλώσσα</translation>
     </message>
     <message>
         <source>Author(s):</source>
@@ -12532,6 +12568,14 @@
     <message>
         <source>Can&apos;t drop data to guest ...</source>
         <translation>Αδυναμία άφεσης δεδομένων στον επισκέπτη ...</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;The VM folder contains files that were used for unattended guest OS installation and are no longer needed.&lt;/p&gt;&lt;p&gt;Delete them now?&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

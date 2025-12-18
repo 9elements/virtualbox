@@ -888,7 +888,7 @@
     </message>
     <message>
         <source>Cl&amp;one...</source>
-        <translation>Skl&amp;onuj...</translation>
+        <translation type="vanished">Skl&amp;onuj...</translation>
     </message>
     <message>
         <source>&amp;Remove...</source>
@@ -2105,7 +2105,7 @@
     </message>
     <message>
         <source>Create new cloud virtual machine</source>
-        <translation type="vanished">Stwórz nową maszynę wirtualną w chmurze</translation>
+        <translation>Stwórz nową maszynę wirtualną w chmurze</translation>
     </message>
     <message>
         <source>E&amp;xport Locally...</source>
@@ -2983,6 +2983,22 @@
     </message>
     <message>
         <source>Send the ACPI shutdown signal to the virtual machine</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;New</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;New Cloud Machine...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Open Cloud Machine...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open existing cloud virtual machine</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4182,6 +4198,14 @@
     <message>
         <source>Show Help (%1)</source>
         <translation>Pokaż pomoc (%1)</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished">Nazwa</translation>
+    </message>
+    <message>
+        <source>Value</source>
+        <translation type="unfinished">Wartość</translation>
     </message>
 </context>
 <context>
@@ -11186,7 +11210,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Domain name should be at least 2 character long. Allowed characters are alphanumerics, &quot;-&quot; and &quot;.&quot;</source>
-        <translation>Nazwa domeny powinna się składać z przynajmniej 2 znaków. Dozwolone są znaki alfanumeryczne, &quot;-&quot; i &quot;.&quot;</translation>
+        <translation type="vanished">Nazwa domeny powinna się składać z przynajmniej 2 znaków. Dozwolone są znaki alfanumeryczne, &quot;-&quot; i &quot;.&quot;</translation>
     </message>
     <message>
         <source>Hostna&amp;me:</source>
@@ -11211,10 +11235,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Domain name is valid</source>
         <translation>Nazwa domeny jest poprawna</translation>
-    </message>
-    <message>
-        <source>Host name should be at least 2 character long. Allowed characters are alphanumerics, &quot;-&quot; and &quot;.&quot;</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Host name is valid</source>
@@ -11242,6 +11262,14 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Domain name to be assigned to the virtual machine</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Host name must be at least two alphanumeric characters. Hyphens are allowed between characters.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Domain labels (1–63 chars) may use letters, digits, or hyphens, but not start or end with one. Labels are dot-separated, and the total length must be under 254 characters.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -12774,19 +12802,19 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Author</source>
-        <translation>Autor</translation>
+        <translation type="vanished">Autor</translation>
     </message>
     <message>
         <source>Language</source>
-        <translation>Język</translation>
+        <translation type="vanished">Język</translation>
     </message>
     <message>
         <source>Id</source>
-        <translation>Identyfikator</translation>
+        <translation type="vanished">Identyfikator</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation>Nazwa</translation>
+        <translation type="vanished">Nazwa</translation>
     </message>
     <message>
         <source>Language:</source>
@@ -19870,6 +19898,14 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Can&apos;t drop data to guest ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;The VM folder contains files that were used for unattended guest OS installation and are no longer needed.&lt;/p&gt;&lt;p&gt;Delete them now?&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

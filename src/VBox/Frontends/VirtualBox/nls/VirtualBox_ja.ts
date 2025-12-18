@@ -1165,7 +1165,7 @@
     </message>
     <message>
         <source>Cl&amp;one...</source>
-        <translation>クローン(&amp;O)...</translation>
+        <translation type="vanished">クローン(&amp;O)...</translation>
     </message>
     <message>
         <source>Clone the selected virtual machine</source>
@@ -2639,7 +2639,7 @@
     </message>
     <message>
         <source>Create new cloud virtual machine</source>
-        <translation type="vanished">新しいクラウド仮想マシンを作成</translation>
+        <translation>新しいクラウド仮想マシンを作成</translation>
     </message>
     <message>
         <source>E&amp;xport Locally...</source>
@@ -3570,6 +3570,22 @@
     <message>
         <source>Send the ACPI shutdown signal to the virtual machine</source>
         <translation>仮想マシンに ACPI シャットダウン信号を送信する</translation>
+    </message>
+    <message>
+        <source>&amp;New</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;New Cloud Machine...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Open Cloud Machine...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open existing cloud virtual machine</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4877,6 +4893,14 @@
     <message>
         <source>Registered cloud providers and profiles</source>
         <translation>登録済みのクラウドプロバイダーとプロファイル</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished">名前</translation>
+    </message>
+    <message>
+        <source>Value</source>
+        <translation type="unfinished">値</translation>
     </message>
 </context>
 <context>
@@ -12880,7 +12904,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Domain name should be at least 2 character long. Allowed characters are alphanumerics, &quot;-&quot; and &quot;.&quot;</source>
-        <translation>ドメイン名は2文字以上である必要があります。アルファベット、数字、&quot;-&quot;と&quot;.&quot;が使用できます</translation>
+        <translation type="vanished">ドメイン名は2文字以上である必要があります。アルファベット、数字、&quot;-&quot;と&quot;.&quot;が使用できます</translation>
     </message>
     <message>
         <source>Hostna&amp;me:</source>
@@ -12904,7 +12928,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Host name should be at least 2 character long. Allowed characters are alphanumerics, &quot;-&quot; and &quot;.&quot;</source>
-        <translation>ホスト名は2文字以上で入力してください。使用可能な文字は英数字、ハイフン (-)、ドット (.) です</translation>
+        <translation type="vanished">ホスト名は2文字以上で入力してください。使用可能な文字は英数字、ハイフン (-)、ドット (.) です</translation>
     </message>
     <message>
         <source>Host name is valid</source>
@@ -12933,6 +12957,14 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Domain name to be assigned to the virtual machine</source>
         <translation>仮想マシンに割り当てるドメイン名</translation>
+    </message>
+    <message>
+        <source>Host name must be at least two alphanumeric characters. Hyphens are allowed between characters.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Domain labels (1–63 chars) may use letters, digits, or hyphens, but not start or end with one. Labels are dot-separated, and the total length must be under 254 characters.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -14575,19 +14607,19 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Author</source>
-        <translation>作者</translation>
+        <translation type="vanished">作者</translation>
     </message>
     <message>
         <source>Language</source>
-        <translation>言語</translation>
+        <translation type="vanished">言語</translation>
     </message>
     <message>
         <source>Id</source>
-        <translation>Id</translation>
+        <translation type="vanished">Id</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation>名前</translation>
+        <translation type="vanished">名前</translation>
     </message>
     <message>
         <source>Language:</source>
@@ -22486,6 +22518,14 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Can&apos;t drop data to guest ...</source>
         <translation>‘ゲストにデータをドロップできません…</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;The VM folder contains files that were used for unattended guest OS installation and are no longer needed.&lt;/p&gt;&lt;p&gt;Delete them now?&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

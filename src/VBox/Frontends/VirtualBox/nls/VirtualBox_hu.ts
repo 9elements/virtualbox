@@ -973,7 +973,7 @@
     </message>
     <message>
         <source>Cl&amp;one...</source>
-        <translation>K&amp;lónozás...</translation>
+        <translation type="vanished">K&amp;lónozás...</translation>
     </message>
     <message>
         <source>Clone the selected virtual machine</source>
@@ -2550,7 +2550,7 @@
     </message>
     <message>
         <source>Create new cloud virtual machine</source>
-        <translation type="vanished">Új felhős virtuális gép létrehozása</translation>
+        <translation>Új felhős virtuális gép létrehozása</translation>
     </message>
     <message>
         <source>E&amp;xport Locally...</source>
@@ -3392,6 +3392,22 @@
     <message>
         <source>Send the ACPI shutdown signal to the virtual machine</source>
         <translation>ACPI leállítási parancs küldése a virtuális gépnek</translation>
+    </message>
+    <message>
+        <source>&amp;New</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;New Cloud Machine...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Open Cloud Machine...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open existing cloud virtual machine</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4775,6 +4791,14 @@
     <message>
         <source>Registered cloud providers and profiles</source>
         <translation>Regisztrált felhőszolgáltatók és profilok</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished">Név</translation>
+    </message>
+    <message>
+        <source>Value</source>
+        <translation type="unfinished">Érték</translation>
     </message>
 </context>
 <context>
@@ -12503,7 +12527,7 @@ p, li { white-space: pre-wrap; }
     <name>UIHostnameDomainNameEditor</name>
     <message>
         <source>Domain name should be at least 2 character long. Allowed characters are alphanumerics, &quot;-&quot; and &quot;.&quot;</source>
-        <translation>A tartomány nevének leghalább 2 karakter hosszúnak kell lennie. Csak az alfanumerikus, &quot;-&quot; és  &quot;.&quot; karakterek engedélyezettek</translation>
+        <translation type="vanished">A tartomány nevének leghalább 2 karakter hosszúnak kell lennie. Csak az alfanumerikus, &quot;-&quot; és  &quot;.&quot; karakterek engedélyezettek</translation>
     </message>
     <message>
         <source>Domain name is valid</source>
@@ -12511,7 +12535,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Host name should be at least 2 character long. Allowed characters are alphanumerics, &quot;-&quot; and &quot;.&quot;</source>
-        <translation>Az állomásnévnek leghalább 2 karakter hosszúnak kell lennie. Csak az alfanumerikus, &quot;-&quot; és  &quot;.&quot; karakterek engedélyezettek</translation>
+        <translation type="vanished">Az állomásnévnek leghalább 2 karakter hosszúnak kell lennie. Csak az alfanumerikus, &quot;-&quot; és  &quot;.&quot; karakterek engedélyezettek</translation>
     </message>
     <message>
         <source>Host name is valid</source>
@@ -12540,6 +12564,14 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Domain name to be assigned to the virtual machine</source>
         <translation>A virtuális géphez rendelendő tartomány</translation>
+    </message>
+    <message>
+        <source>Host name must be at least two alphanumeric characters. Hyphens are allowed between characters.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Domain labels (1–63 chars) may use letters, digits, or hyphens, but not start or end with one. Labels are dot-separated, and the total length must be under 254 characters.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -14146,19 +14178,19 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Author</source>
-        <translation>Szerző</translation>
+        <translation type="vanished">Szerző</translation>
     </message>
     <message>
         <source>Language</source>
-        <translation>Nyelv</translation>
+        <translation type="vanished">Nyelv</translation>
     </message>
     <message>
         <source>Id</source>
-        <translation>Azonosító</translation>
+        <translation type="vanished">Azonosító</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation>Név</translation>
+        <translation type="vanished">Név</translation>
     </message>
     <message>
         <source>Language:</source>
@@ -21544,6 +21576,14 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Can&apos;t drop data to guest ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;The VM folder contains files that were used for unattended guest OS installation and are no longer needed.&lt;/p&gt;&lt;p&gt;Delete them now?&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

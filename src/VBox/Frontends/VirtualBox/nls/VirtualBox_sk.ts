@@ -1241,7 +1241,7 @@
     </message>
     <message>
         <source>Cl&amp;one...</source>
-        <translation>Kl&amp;onovať...</translation>
+        <translation type="vanished">Kl&amp;onovať...</translation>
     </message>
     <message>
         <source>Clone selected virtual machine</source>
@@ -2813,6 +2813,26 @@
         <source>Send the ACPI shutdown signal to the virtual machine</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>&amp;New</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;New Cloud Machine...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create new cloud virtual machine</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Open Cloud Machine...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open existing cloud virtual machine</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>UIAddDiskEncryptionPasswordDialog</name>
@@ -3926,6 +3946,14 @@
     </message>
     <message>
         <source>Show Help (%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished">Názov</translation>
+    </message>
+    <message>
+        <source>Value</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -9936,15 +9964,7 @@
 <context>
     <name>UIHostnameDomainNameEditor</name>
     <message>
-        <source>Domain name should be at least 2 character long. Allowed characters are alphanumerics, &quot;-&quot; and &quot;.&quot;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Domain name is valid</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Host name should be at least 2 character long. Allowed characters are alphanumerics, &quot;-&quot; and &quot;.&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -9973,6 +9993,14 @@
     </message>
     <message>
         <source>Domain name to be assigned to the virtual machine</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Host name must be at least two alphanumeric characters. Hyphens are allowed between characters.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Domain labels (1–63 chars) may use letters, digits, or hyphens, but not start or end with one. Labels are dot-separated, and the total length must be under 254 characters.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -11129,19 +11157,15 @@
     </message>
     <message>
         <source>Author</source>
-        <translation type="unfinished">Autor</translation>
+        <translation type="obsolete">Autor</translation>
     </message>
     <message>
         <source>Language</source>
-        <translation type="unfinished">Jazyk</translation>
-    </message>
-    <message>
-        <source>Id</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Jazyk</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Názov</translation>
+        <translation type="obsolete">Názov</translation>
     </message>
     <message>
         <source>Language:</source>
@@ -15881,6 +15905,14 @@
     </message>
     <message>
         <source>Can&apos;t drop data to guest ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;The VM folder contains files that were used for unattended guest OS installation and are no longer needed.&lt;/p&gt;&lt;p&gt;Delete them now?&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

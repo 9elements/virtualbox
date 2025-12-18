@@ -441,7 +441,7 @@
     </message>
     <message>
         <source>Cl&amp;one...</source>
-        <translation>&amp;Klonen...</translation>
+        <translation type="vanished">&amp;Klonen...</translation>
     </message>
     <message>
         <source>&amp;Remove...</source>
@@ -2303,6 +2303,26 @@
         <source>Send the ACPI shutdown signal to the virtual machine</source>
         <translation>Sendet das ACPI-Signal zum Ausschalten der virtuellen Maschine</translation>
     </message>
+    <message>
+        <source>&amp;New</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;New Cloud Machine...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create new cloud virtual machine</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Open Cloud Machine...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open existing cloud virtual machine</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>UIAddDiskEncryptionPasswordDialog</name>
@@ -3148,6 +3168,14 @@
     <message>
         <source>Registered cloud providers and profiles</source>
         <translation>Registrierte Cloud-Anbieter- und -Profile</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished">Name</translation>
+    </message>
+    <message>
+        <source>Value</source>
+        <translation type="unfinished">Wert</translation>
     </message>
 </context>
 <context>
@@ -6373,7 +6401,7 @@
     <name>UIHostnameDomainNameEditor</name>
     <message>
         <source>Domain name should be at least 2 character long. Allowed characters are alphanumerics, &quot;-&quot; and &quot;.&quot;</source>
-        <translation>Der Domainname muss mindestens 2 Zeichen lang sein. Erlaubte Zeichen sind alphanumerische, &quot;-&quot; und &quot;.&quot;</translation>
+        <translation type="vanished">Der Domainname muss mindestens 2 Zeichen lang sein. Erlaubte Zeichen sind alphanumerische, &quot;-&quot; und &quot;.&quot;</translation>
     </message>
     <message>
         <source>Domain name is valid</source>
@@ -6381,7 +6409,7 @@
     </message>
     <message>
         <source>Host name should be at least 2 character long. Allowed characters are alphanumerics, &quot;-&quot; and &quot;.&quot;</source>
-        <translation>Der Hostname muss mindestens 2 Zeichen lang sein. Zulässige Zeichen sind alphanumerische Zeichen, „-“ und „.“</translation>
+        <translation type="vanished">Der Hostname muss mindestens 2 Zeichen lang sein. Zulässige Zeichen sind alphanumerische Zeichen, „-“ und „.“</translation>
     </message>
     <message>
         <source>Host name is valid</source>
@@ -6410,6 +6438,14 @@
     <message>
         <source>Domain name to be assigned to the virtual machine</source>
         <translation>Der der virtuellen Maschine zuzuweisende Domänenname</translation>
+    </message>
+    <message>
+        <source>Host name must be at least two alphanumeric characters. Hyphens are allowed between characters.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Domain labels (1–63 chars) may use letters, digits, or hyphens, but not start or end with one. Labels are dot-separated, and the total length must be under 254 characters.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -6783,19 +6819,11 @@
     <name>UILanguageSettingsEditor</name>
     <message>
         <source>Author</source>
-        <translation>Autor</translation>
+        <translation type="vanished">Autor</translation>
     </message>
     <message>
         <source>Language</source>
-        <translation>Sprache</translation>
-    </message>
-    <message>
-        <source>Id</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation></translation>
+        <translation type="vanished">Sprache</translation>
     </message>
     <message>
         <source>Language:</source>
@@ -9731,6 +9759,14 @@
     <message>
         <source>Can&apos;t drop data to guest ...</source>
         <translation>Daten können nicht auf Gast übertragen werden ...</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;The VM folder contains files that were used for unattended guest OS installation and are no longer needed.&lt;/p&gt;&lt;p&gt;Delete them now?&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
