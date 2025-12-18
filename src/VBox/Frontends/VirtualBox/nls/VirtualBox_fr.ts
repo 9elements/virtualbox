@@ -1394,7 +1394,7 @@
     <message>
         <source>Resize to %1x%2</source>
         <comment>Virtual Screen</comment>
-        <translation>Redimmensionner en %1x%2</translation>
+        <translation>Redimensionner en %1x%2</translation>
     </message>
     <message>
         <source>Preview Monitor %1</source>
