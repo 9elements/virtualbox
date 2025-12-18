@@ -6875,7 +6875,7 @@ Slå venligst en at disse valgmuligheder fra.</translation>
     </message>
     <message>
         <source>%1: unable to make key</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1: kunne ikke lave nøgle</translation>
     </message>
     <message>
         <source>%1: ftok failed</source>

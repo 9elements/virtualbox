@@ -206,11 +206,11 @@
     <name>QAndroidPlatformTheme</name>
     <message>
         <source>Yes</source>
-        <translation>დიახ</translation>
+        <translation>კი</translation>
     </message>
     <message>
         <source>Yes to All</source>
-        <translation>დიახ ყველაფერზე</translation>
+        <translation>დიახ ყველასთვის</translation>
     </message>
     <message>
         <source>No</source>
@@ -244,7 +244,7 @@
     </message>
     <message>
         <source>Config</source>
-        <translation>კონფიგურაცია</translation>
+        <translation>პარამ</translation>
     </message>
     <message>
         <source>Preference</source>
@@ -256,7 +256,7 @@
     </message>
     <message>
         <source>Setting</source>
-        <translation>პარამეტრები</translation>
+        <translation>პარამეტრი</translation>
     </message>
     <message>
         <source>Setup</source>
@@ -284,7 +284,7 @@
     </message>
     <message>
         <source>Select All</source>
-        <translation>ყველას მონიშვნა</translation>
+        <translation>ყველაფრის მონიშვნა</translation>
     </message>
 </context>
 <context>
@@ -340,7 +340,7 @@ Press ESC to cancel</source>
     </message>
     <message>
         <source>Select Color</source>
-        <translation>ფერი</translation>
+        <translation>ფერის არჩევა</translation>
     </message>
     <message>
         <source>&amp;Basic colors</source>
@@ -437,7 +437,7 @@ Press ESC to cancel</source>
     </message>
     <message>
         <source>Job priority:</source>
-        <translation>დავალებების პრიორიტეტები:</translation>
+        <translation>ამოცანის პრიორიტეტი:</translation>
     </message>
     <message>
         <source>Banner Pages</source>
@@ -446,7 +446,7 @@ Press ESC to cancel</source>
     <message>
         <source>End:</source>
         <comment>Banner page at end</comment>
-        <translation>დასასრული:</translation>
+        <translation>დასასრულ:</translation>
     </message>
     <message>
         <source>Start:</source>
@@ -488,7 +488,7 @@ Press ESC to cancel</source>
     <message>
         <source>None</source>
         <comment>CUPS Banner page</comment>
-        <translation>არაფერი</translation>
+        <translation>არცერთი</translation>
     </message>
     <message>
         <source>Standard</source>
@@ -503,17 +503,17 @@ Press ESC to cancel</source>
     <message>
         <source>Confidential</source>
         <comment>CUPS Banner page</comment>
-        <translation>Კონფიდენციალური</translation>
+        <translation>კონფიდენციალური</translation>
     </message>
     <message>
         <source>Classified</source>
         <comment>CUPS Banner page</comment>
-        <translation>საიდუმლო</translation>
+        <translation>საიდუმლოა</translation>
     </message>
     <message>
         <source>Secret</source>
         <comment>CUPS Banner page</comment>
-        <translation>სამხედრო საიდუმლო</translation>
+        <translation>საიდუმლო</translation>
     </message>
     <message>
         <source>Top Secret</source>
@@ -548,7 +548,7 @@ Press ESC to cancel</source>
     <name>QDB2Driver</name>
     <message>
         <source>Unable to connect</source>
-        <translation>დაკავშირება შეუძლებელია</translation>
+        <translation>კავშირის შეცდომა</translation>
     </message>
     <message>
         <source>Unable to commit transaction</source>
@@ -699,11 +699,11 @@ Press ESC to cancel</source>
     </message>
     <message>
         <source>SSL/TLS support not present</source>
-        <translation type="unfinished"></translation>
+        <translation>SSL/TLS-ის მხარდაჭერა არ არსებობს</translation>
     </message>
     <message>
         <source>Invalid TLS association record</source>
-        <translation type="unfinished"></translation>
+        <translation>არასწორი TLS-ის ასოცირების ჩანაწერი</translation>
     </message>
 </context>
 <context>
@@ -936,7 +936,7 @@ Press ESC to cancel</source>
     </message>
     <message>
         <source>Warning:</source>
-        <translation>გაფთხილება:</translation>
+        <translation>გაფრთხილება:</translation>
     </message>
     <message>
         <source>Critical Error:</source>
@@ -1033,11 +1033,11 @@ Press ESC to cancel</source>
     </message>
     <message>
         <source>Go back</source>
-        <translation>უკან დაბრუნება</translation>
+        <translation>უკან გადასვლა</translation>
     </message>
     <message>
         <source>Forward</source>
-        <translation>გადაგზავნა</translation>
+        <translation>წინ</translation>
     </message>
     <message>
         <source>Go forward</source>
@@ -1061,7 +1061,7 @@ Press ESC to cancel</source>
     </message>
     <message>
         <source>List View</source>
-        <translation>სიისებრი ხედი</translation>
+        <translation>სიის ხედი</translation>
     </message>
     <message>
         <source>Change to list view mode</source>
@@ -1077,7 +1077,7 @@ Press ESC to cancel</source>
     </message>
     <message>
         <source>Sidebar</source>
-        <translation>გვერდითი ზოლი</translation>
+        <translation>გვერდითი პანელი</translation>
     </message>
     <message>
         <source>List of places and bookmarks</source>
@@ -1085,7 +1085,7 @@ Press ESC to cancel</source>
     </message>
     <message>
         <source>Files</source>
-        <translation>ფაილები</translation>
+        <translation>ფაილი</translation>
     </message>
     <message>
         <source>Files of type:</source>
@@ -1133,7 +1133,7 @@ Press ESC to cancel</source>
     </message>
     <message>
         <source>&amp;Rename</source>
-        <translation>&amp;გადარქმევა</translation>
+        <translation>&amp;სახელის გადარქმევა</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
@@ -1242,7 +1242,7 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Date Modified</source>
-        <translation>შეცვლის თარიღი</translation>
+        <translation>ცვლილების დროით</translation>
     </message>
     <message>
         <source>My Computer</source>
@@ -1274,12 +1274,12 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Light</source>
-        <translation>მსუბუქი</translation>
+        <translation>ღია</translation>
     </message>
     <message>
         <source>Normal</source>
         <comment>The Normal or Regular font weight</comment>
-        <translation>ჩვეულებრივი</translation>
+        <translation>ნორმალური</translation>
     </message>
     <message>
         <source>Medium</source>
@@ -1305,7 +1305,7 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Italic</source>
-        <translation>დახრა</translation>
+        <translation>კურსივი</translation>
     </message>
     <message>
         <source>Oblique</source>
@@ -1480,7 +1480,7 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Sample</source>
-        <translation>მაგალითი</translation>
+        <translation>სინჯი</translation>
     </message>
     <message>
         <source>Wr&amp;iting System</source>
@@ -1499,7 +1499,7 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation>&amp;შეწყვეტა</translation>
+        <translation>&amp;გაუქმება</translation>
     </message>
     <message>
         <source>&amp;Close</source>
@@ -1742,11 +1742,11 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Could not subscribe to event notifications for %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1-სთვის მოვლენის გაფრთხილებები ვერ გამოვიწერე.</translation>
     </message>
     <message>
         <source>Could not unsubscribe from event notifications for %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1-სთვის მოვლენის გაფრთხილებები გამოწერის გაუქმება შეუძლებელია.</translation>
     </message>
 </context>
 <context>
@@ -1821,15 +1821,15 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Array size mismatch. Field name: %3, expected size: %1. Supplied size: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>მასივის ზომა არ ემთხვევა. ველის სახელი: %3, მოსალოდნელი ზომა: %1. მოწოდებული ზომა: %2</translation>
     </message>
     <message>
         <source>Array dimensions mismatch. Field name: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>მასივის ზომები არ ემთხვევა. ველის სახელი: %1</translation>
     </message>
     <message>
         <source>Array size mismatch: size of %1 is %2, size of provided list is %3</source>
-        <translation type="unfinished"></translation>
+        <translation>მასივის ზომა არ ემთხვევა: %1-ის ზომაა %2, მოწოდებული სიის ზომა კი %3</translation>
     </message>
 </context>
 <context>
@@ -1944,7 +1944,6 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>invalid termination by number</source>
-        <translatorcomment>?</translatorcomment>
         <translation>არასწორი გაყოფა რიცხვით</translation>
     </message>
     <message>
@@ -2192,18 +2191,18 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Could not resolve &apos;qt_plugin_instance&apos; function</source>
-        <translation type="unfinished"></translation>
+        <translation>ფუნქციის &apos;qt_plugin_instance&apos; ამოხსნა შეუძლებელია</translation>
     </message>
 </context>
 <context>
     <name>QLineEdit</name>
     <message>
         <source>&amp;Undo</source>
-        <translation>დაბრ&amp;უნება</translation>
+        <translation>&amp;დაბრუნება</translation>
     </message>
     <message>
         <source>&amp;Redo</source>
-        <translation>&amp;თავიდან გაკეთება</translation>
+        <translation>&amp;თავიდან</translation>
     </message>
     <message>
         <source>Cu&amp;t</source>
@@ -2223,7 +2222,7 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Select All</source>
-        <translation>ყველას მონიშვნა</translation>
+        <translation>ყველაფრის მონიშვნა</translation>
     </message>
 </context>
 <context>
@@ -2324,7 +2323,7 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Unable to connect</source>
-        <translation>დაკავშირება შეუძლებელია</translation>
+        <translation>კავშირის შეცდომა</translation>
     </message>
     <message>
         <source>Unable to begin transaction</source>
@@ -2489,7 +2488,7 @@ Do you want to delete it anyway?</source>
     <message>
         <source>&lt;p&gt;Qt is a C++ toolkit for cross-platform application development.&lt;/p&gt;&lt;p&gt;Qt provides single-source portability across all major desktop operating systems. It is also available for embedded Linux and other embedded and mobile operating systems.&lt;/p&gt;&lt;p&gt;Qt is available under multiple licensing options designed to accommodate the needs of our various users.&lt;/p&gt;&lt;p&gt;Qt licensed under our commercial license agreement is appropriate for development of proprietary/commercial software where you do not want to share any source code with third parties or otherwise cannot comply with the terms of GNU (L)GPL.&lt;/p&gt;&lt;p&gt;Qt licensed under GNU (L)GPL is appropriate for the development of Qt&amp;nbsp;applications provided you can comply with the terms and conditions of the respective licenses.&lt;/p&gt;&lt;p&gt;Please see &lt;a href=&quot;https://%2/&quot;&gt;%2&lt;/a&gt; for an overview of Qt licensing.&lt;/p&gt;&lt;p&gt;Copyright (C) The Qt Company Ltd. and other contributors.&lt;/p&gt;&lt;p&gt;Qt and the Qt logo are trademarks of The Qt Company Ltd.&lt;/p&gt;&lt;p&gt;Qt is The Qt Company Ltd. product developed as an open source project. See &lt;a href=&quot;https://%3/&quot;&gt;%3&lt;/a&gt; for more information.&lt;/p&gt;</source>
         <extracomment>Leave this text untranslated or include a verbatim copy of it below and note that it is the authoritative version in case of doubt.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -2759,7 +2758,7 @@ Do you want to delete it anyway?</source>
     <name>QODBCDriver</name>
     <message>
         <source>Unable to connect</source>
-        <translation>დაკავშირება შეუძლებელია</translation>
+        <translation>კავშირის შეცდომა</translation>
     </message>
     <message>
         <source>Unable to connect - Driver doesn&apos;t support all functionality required</source>
@@ -2822,14 +2821,14 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>QODBCResult::reset: Unable to set &apos;SQL_ATTR_CURSOR_TYPE&apos; as statement attribute. Please check your ODBC driver configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>QODBCResult::reset: ვერ დავაყენე &apos;SQL_ATTR_CURSOR_TYPE&apos; ინსტრუქციის ატრიბუტად. შეამოწმეთ თქვენი ODBC დრაივერის კონფიგურაცია</translation>
     </message>
 </context>
 <context>
     <name>QPSQLDriver</name>
     <message>
         <source>Unable to connect</source>
-        <translation>დაკავშირება შეუძლებელია</translation>
+        <translation>კავშირის შეცდომა</translation>
     </message>
     <message>
         <source>Unable to set client encoding to &apos;UNICODE&apos;</source>
@@ -2951,7 +2950,7 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Inches (in)</source>
-        <translation>ინჩი (in)</translation>
+        <translation>დუიმი (in)</translation>
     </message>
     <message>
         <source>Points (pt)</source>
@@ -3155,7 +3154,7 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Legal</source>
-        <translation>იურიდიული</translation>
+        <translation>იურიდიული ინფორმაცია</translation>
     </message>
     <message>
         <source>Letter / ANSI A</source>
@@ -3534,11 +3533,11 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Retry</source>
-        <translation>გამეორება</translation>
+        <translation>თავიდან ცდა</translation>
     </message>
     <message>
         <source>Ignore</source>
-        <translation>გამოტოვება</translation>
+        <translation>იგნორი</translation>
     </message>
     <message>
         <source>Close</source>
@@ -3550,7 +3549,7 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Discard</source>
-        <translation>გაუქმება</translation>
+        <translation>მოცილება</translation>
     </message>
     <message>
         <source>Help</source>
@@ -3562,7 +3561,7 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Reset</source>
-        <translation>საწყის მნიშვნელობაზე დაბრუნება</translation>
+        <translation>ჩამოყრა</translation>
     </message>
     <message>
         <source>Restore Defaults</source>
@@ -3584,7 +3583,7 @@ Do you want to delete it anyway?</source>
     <name>QPrintDialog</name>
     <message>
         <source>Print</source>
-        <translation>დაბეჭდვა</translation>
+        <translation>ბეჭდვა</translation>
     </message>
     <message>
         <source>Left to Right, Top to Bottom</source>
@@ -3731,7 +3730,7 @@ Please turn one of those options off.</source>
     <name>QPrintPreviewDialog</name>
     <message>
         <source>Page Setup</source>
-        <translation>გვერდის პარამეტრები</translation>
+        <translation>გვერდის მორგება</translation>
     </message>
     <message>
         <source>%1%</source>
@@ -3795,7 +3794,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Print</source>
-        <translation>დაბეჭდვა</translation>
+        <translation>ბეჭდვა</translation>
     </message>
     <message>
         <source>Page setup</source>
@@ -3864,7 +3863,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Print range</source>
-        <translation>ბეჭდვის დიაპაზონი</translation>
+        <translation>ბეჭდვის შუალედი</translation>
     </message>
     <message>
         <source>Print all</source>
@@ -3876,7 +3875,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>to</source>
-        <translation>სადამდე</translation>
+        <translation>ვის</translation>
     </message>
     <message>
         <source>Current Page</source>
@@ -3900,7 +3899,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Reverse</source>
-        <translation>პირიქით</translation>
+        <translation>რევერსი</translation>
     </message>
     <message>
         <source>Options</source>
@@ -3936,7 +3935,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Off</source>
-        <translation>გამორთულია</translation>
+        <translation>გამორთ</translation>
     </message>
     <message>
         <source>Long side binding</source>
@@ -3963,7 +3962,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>P&amp;roperties</source>
-        <translation>&amp;თვისებები</translation>
+        <translation>თვის&amp;ებები</translation>
     </message>
     <message>
         <source>Location:</source>
@@ -4148,7 +4147,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>\g is not followed by a braced, angle-bracketed, or quoted name/number or by a plain number</source>
-        <translation>\g-ს არ მოსდევს ფრჩხილი, ერთი ბრჭყალი, ორმაგი ბრჭყალი ან რიცხვი ან უბრალოდ რიცხვი</translation>
+        <translation>\g-ს არ მოსდევს ერთი ბრჭყალი, ორმაგი ბრჭყალი, ან ციტირებული სახელი/რიცხვი ან უბრალოდ რიცხვი</translation>
     </message>
     <message>
         <source>subpattern name expected</source>
@@ -4268,11 +4267,10 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>unmatched closing parenthesis</source>
-        <translation>აკლია დამხურავი ფრჩხილი</translation>
+        <translation>შეუსაბამო დამხურავი ფრჩხილი</translation>
     </message>
     <message>
         <source>assertion expected after (?( or (?(?C)</source>
-        <translatorcomment>if /else</translatorcomment>
         <translation>(?(-ის ან (?(?C)-ის შემდეგ მოველოდი დადასტურებას</translation>
     </message>
     <message>
@@ -4457,7 +4455,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>no match</source>
-        <translation>დამთხვევა არ არის</translation>
+        <translation>დამთხვევის გარეშე</translation>
     </message>
     <message>
         <source>partial match</source>
@@ -4721,7 +4719,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>INTERNAL ERROR: invalid substring offset</source>
-        <translation type="unfinished"></translation>
+        <translation>შიდა შეცდომა: არასწორი ქვესტრიქონის წანაცვლება</translation>
     </message>
 </context>
 <context>
@@ -4809,7 +4807,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Top</source>
-        <translation>თავში</translation>
+        <translation>ზემოთ</translation>
     </message>
     <message>
         <source>Right edge</source>
@@ -4817,7 +4815,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Bottom</source>
-        <translation>ბოლოში</translation>
+        <translation>ქვემოთ</translation>
     </message>
     <message>
         <source>Page left</source>
@@ -4837,7 +4835,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Scroll left</source>
-        <translation>მარცხნივ გაწევა</translation>
+        <translation>გადახვევა მარცხნივ</translation>
     </message>
     <message>
         <source>Scroll up</source>
@@ -4887,7 +4885,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>%1: already exists</source>
-        <translation>%1 უკვე არსებობს</translation>
+        <translation>%1: უკვე არსებობს</translation>
     </message>
     <message>
         <source>%1: doesn&apos;t exist</source>
@@ -4939,7 +4937,7 @@ Please turn one of those options off.</source>
     <message>
         <source>Space</source>
         <extracomment>This and all following &quot;incomprehensible&quot; strings in QShortcut context are key names. Please use the localized names appearing on actual keyboards or whatever is commonly used.</extracomment>
-        <translation>სივრცე</translation>
+        <translation>ჰარე</translation>
     </message>
     <message>
         <source>Esc</source>
@@ -4963,7 +4961,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Enter</source>
-        <translation>Enter</translation>
+        <translation>შესვლა</translation>
     </message>
     <message>
         <source>Ins</source>
@@ -4975,11 +4973,11 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Pause</source>
-        <translation>გაჩერება</translation>
+        <translation>შეჩერება</translation>
     </message>
     <message>
         <source>Print</source>
-        <translation>დაბეჭდვა</translation>
+        <translation>ბეჭდვა</translation>
     </message>
     <message>
         <source>SysReq</source>
@@ -4987,7 +4985,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Home</source>
-        <translation>საწყისი</translation>
+        <translation>მთავარი</translation>
     </message>
     <message>
         <source>End</source>
@@ -5007,7 +5005,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Down</source>
-        <translation>ქვემოთ</translation>
+        <translation>გამორთულია</translation>
     </message>
     <message>
         <source>PgUp</source>
@@ -5043,7 +5041,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Forward</source>
-        <translation>გადაგზავნა</translation>
+        <translation>წინ</translation>
     </message>
     <message>
         <source>Stop</source>
@@ -5121,7 +5119,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Favorites</source>
-        <translation>სანიშნეები</translation>
+        <translation>რჩეულები</translation>
     </message>
     <message>
         <source>Search</source>
@@ -5245,7 +5243,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Eject</source>
-        <translation>მოხსნა</translation>
+        <translation>გამოღება</translation>
     </message>
     <message>
         <source>Screensaver</source>
@@ -5289,7 +5287,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Community</source>
-        <translation>საზგადოება</translation>
+        <translation>საზოგადოება</translation>
     </message>
     <message>
         <source>Back Forward</source>
@@ -5321,7 +5319,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Clear</source>
-        <translation>გაწმენდა</translation>
+        <translation>გასუფთავება</translation>
     </message>
     <message>
         <source>Clear Grab</source>
@@ -5357,7 +5355,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Spreadsheet</source>
-        <translation>ელექტრონული ცხრილი</translation>
+        <translation>ელცხრილი</translation>
     </message>
     <message>
         <source>Browser</source>
@@ -5369,7 +5367,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Go</source>
-        <translation>გადასვლა</translation>
+        <translation>წინ</translation>
     </message>
     <message>
         <source>iTouch</source>
@@ -5405,7 +5403,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>News</source>
-        <translation>სიახლეები</translation>
+        <translation>ახალი ამბები</translation>
     </message>
     <message>
         <source>Home Office</source>
@@ -5529,7 +5527,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Battery</source>
-        <translation>კვების ელემენტი</translation>
+        <translation>ელემენტი</translation>
     </message>
     <message>
         <source>Bluetooth</source>
@@ -5569,7 +5567,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>View</source>
-        <translation>ნახვა</translation>
+        <translation>ხედი</translation>
     </message>
     <message>
         <source>Top Menu</source>
@@ -5653,11 +5651,11 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Find</source>
-        <translation>მოძებნა</translation>
+        <translation>ძებნა</translation>
     </message>
     <message>
         <source>Undo</source>
-        <translation>ბრძანების გაუქმება</translation>
+        <translation>დაბრუნება</translation>
     </message>
     <message>
         <source>Redo</source>
@@ -5709,7 +5707,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Yes</source>
-        <translation>დიახ</translation>
+        <translation>კი</translation>
     </message>
     <message>
         <source>No</source>
@@ -5900,7 +5898,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Execute</source>
-        <translation>გაშვება</translation>
+        <translation>შესრულება</translation>
     </message>
     <message>
         <source>Play</source>
@@ -5948,7 +5946,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Num</source>
-        <translation>რიცხვი</translation>
+        <translation>ნუმი</translation>
     </message>
     <message>
         <source>+</source>
@@ -5972,7 +5970,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Proxy host not found</source>
-        <translation>პროქსის ჰოსტი ვერ ვიპოვე</translation>
+        <translation>პროქსის უცნობი ჰოსტი</translation>
     </message>
     <message>
         <source>Connection to proxy timed out</source>
@@ -6299,7 +6297,7 @@ Please turn one of those options off.</source>
     <message>
         <source>space</source>
         <extracomment>Role of an accessible object - blank space between other objects.</extracomment>
-        <translation>ადგილი</translation>
+        <translation>ჰარე</translation>
     </message>
     <message>
         <source>button menu</source>
@@ -6396,7 +6394,7 @@ Please turn one of those options off.</source>
     <name>QSslDiffieHellmanParameter</name>
     <message>
         <source>No error</source>
-        <translation>შეცდომის გარეშე</translation>
+        <translation>შეცდომების გარეშე</translation>
     </message>
     <message>
         <source>Invalid input data</source>
@@ -6411,7 +6409,7 @@ Please turn one of those options off.</source>
     <name>QSslSocket</name>
     <message>
         <source>No error</source>
-        <translation>შეცდომის გარეშე</translation>
+        <translation>შეცდომების გარეშე</translation>
     </message>
     <message>
         <source>The issuer certificate could not be found</source>
@@ -6854,7 +6852,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Home</source>
-        <translation>საწყისი</translation>
+        <translation>მთავარი</translation>
     </message>
     <message>
         <source>Application Data</source>
@@ -6890,11 +6888,11 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Runtime</source>
-        <translation>აქტივობა</translation>
+        <translation>გაშვების დრო</translation>
     </message>
     <message>
         <source>Configuration</source>
-        <translation>გამართვა</translation>
+        <translation>მორგება</translation>
     </message>
     <message>
         <source>Shared Configuration</source>
@@ -6926,11 +6924,11 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>%1: already exists</source>
-        <translation>%1 უკვე არსებობს</translation>
+        <translation>%1: უკვე არსებობს</translation>
     </message>
     <message>
         <source>%1: does not exist</source>
-        <translation>%1 არ არსებობს</translation>
+        <translation>%1: არ არსებობს</translation>
     </message>
     <message>
         <source>%1: out of resources</source>
@@ -6999,7 +6997,7 @@ Please turn one of those options off.</source>
     <message>
         <source>Undo</source>
         <comment>Default text for undo action</comment>
-        <translation>ბრძანების გაუქმება</translation>
+        <translation>დაბრუნება</translation>
     </message>
     <message>
         <source>Redo %1</source>
@@ -7027,7 +7025,7 @@ Please turn one of those options off.</source>
     <message>
         <source>Undo</source>
         <comment>Default text for undo action</comment>
-        <translation>ბრძანების გაუქმება</translation>
+        <translation>დაბრუნება</translation>
     </message>
     <message>
         <source>Redo %1</source>
@@ -7120,11 +7118,11 @@ Please turn one of those options off.</source>
     <name>QWidgetTextControl</name>
     <message>
         <source>&amp;Undo</source>
-        <translation>დაბრ&amp;უნება</translation>
+        <translation>&amp;დაბრუნება</translation>
     </message>
     <message>
         <source>&amp;Redo</source>
-        <translation>&amp;თავიდან გაკეთება</translation>
+        <translation>&amp;თავიდან</translation>
     </message>
     <message>
         <source>Cu&amp;t</source>
@@ -7148,7 +7146,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Select All</source>
-        <translation>ყველას მონიშვნა</translation>
+        <translation>ყველაფრის მონიშვნა</translation>
     </message>
 </context>
 <context>
@@ -7186,15 +7184,15 @@ The minimum Direct2D version required is %1. The Direct2D version on this system
     </message>
     <message>
         <source>&amp;Next &gt;</source>
-        <translation>&amp;შემდეგი &gt;</translation>
+        <translation>შ&amp;ემდეგი &gt;</translation>
     </message>
     <message>
         <source>Commit</source>
-        <translation>გადაცემა</translation>
+        <translation>კომიტი</translation>
     </message>
     <message>
         <source>Done</source>
-        <translation>დასრულდა</translation>
+        <translation>მზადაა</translation>
     </message>
     <message>
         <source>&amp;Finish</source>
@@ -7479,7 +7477,7 @@ The minimum Direct2D version required is %1. The Direct2D version on this system
     </message>
     <message>
         <source>Could not close statement</source>
-        <translation>ინსტრუქციის დახურვის შეცდომა</translation>
+        <translation>ინსტრუქციის დახურვა შეუძლებელია</translation>
     </message>
     <message>
         <source>Fetch did not succeed</source>
@@ -7575,23 +7573,23 @@ The minimum Direct2D version required is %1. The Direct2D version on this system
     <name>Assets::Downloader::AssetDownloader</name>
     <message>
         <source>Downloading JSON file...</source>
-        <translation type="unfinished"></translation>
+        <translation>მიმდინარეობს JSON ფაილის გადმოწერა...</translation>
     </message>
     <message>
         <source>Downloading zip file...</source>
-        <translation type="unfinished"></translation>
+        <translation>მიმდინარეობს ZIP ფაილის გადმოწერა...</translation>
     </message>
     <message>
         <source>Unzipping...</source>
-        <translation type="unfinished"></translation>
+        <translation>ZIP ფაილის გაშლა...</translation>
     </message>
     <message>
         <source>Downloading assets...</source>
-        <translation type="unfinished"></translation>
+        <translation>აქტივების გადმოწერა...</translation>
     </message>
     <message>
         <source>Copying assets...</source>
-        <translation type="unfinished"></translation>
+        <translation>აქტივების კოპირება...</translation>
     </message>
 </context>
 </TS>

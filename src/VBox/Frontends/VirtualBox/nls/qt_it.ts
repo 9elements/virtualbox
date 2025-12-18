@@ -215,7 +215,7 @@
     </message>
     <message>
         <source>Application &quot;%1&quot; requires Qt %2, found Qt %3.</source>
-        <translation type="unfinished"></translation>
+        <translation>L&apos;applicazione &quot;%1&quot; richiede Qt %2, trovate Qt %3.</translation>
     </message>
 </context>
 <context>
@@ -400,7 +400,7 @@ Premi ESC per annullare</translation>
     </message>
     <message>
         <source>Displays help, including generic Qt options.</source>
-        <translation type="unfinished"></translation>
+        <translation>Visualizza la guida, comprese le opzioni generiche di Qt.</translation>
     </message>
 </context>
 <context>
@@ -582,98 +582,98 @@ Premi ESC per annullare</translation>
     </message>
     <message>
         <source>Invalid domain name</source>
-        <translation type="unfinished">Nome di dominio non valido</translation>
+        <translation>Nome di dominio non valido</translation>
     </message>
     <message>
         <source>SSL/TLS support not present</source>
-        <translation type="unfinished"></translation>
+        <translation>Supporto SSL/TLS non presente</translation>
     </message>
     <message>
         <source>Request timed out</source>
-        <translation type="unfinished"></translation>
+        <translation>Richiesta scaduta</translation>
     </message>
     <message>
         <source>Server could not process query</source>
-        <translation type="unfinished">Il server non può elaborare la query</translation>
+        <translation>Il server non può elaborare la query</translation>
     </message>
     <message>
         <source>Server failure</source>
-        <translation type="unfinished">Errore del server</translation>
+        <translation>Errore del server</translation>
     </message>
     <message>
         <source>Non existent domain</source>
-        <translation type="unfinished">Dominio non esistente</translation>
+        <translation>Dominio non esistente</translation>
     </message>
     <message>
         <source>Server refused to answer</source>
-        <translation type="unfinished">Il server si è rifiutato di rispondere</translation>
+        <translation>Il server si rifiuta di rispondere</translation>
     </message>
     <message>
         <source>Invalid reply received (rcode %1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Risposta non valida ricevuta (rcode %1)</translation>
     </message>
     <message>
         <source>Invalid reply received</source>
-        <translation type="unfinished">Ricevuta una risposta non valida</translation>
+        <translation>Ricevuta una risposta non valida</translation>
     </message>
     <message>
         <source>Invalid reply received (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Risposta non valida ricevuta (%1)</translation>
     </message>
     <message>
         <source>IPv6 nameservers are currently not supported on this OS</source>
-        <translation type="unfinished"></translation>
+        <translation>I server dei nomi IPv6 non sono attualmente supportati su questo sistema operativo</translation>
     </message>
     <message>
         <source>Reply was too large</source>
-        <translation type="unfinished"></translation>
+        <translation>La risposta era troppo grande</translation>
     </message>
     <message>
         <source>Could not expand domain name</source>
-        <translation type="unfinished">Impossibile espandere il nome del dominio</translation>
+        <translation>Impossibile espandere il nome del dominio</translation>
     </message>
     <message>
         <source>Invalid IPv4 address record</source>
-        <translation type="unfinished">Record di tipo indirizzo IPv4 non valido</translation>
+        <translation>Record di tipo indirizzo IPv4 non valido</translation>
     </message>
     <message>
         <source>Invalid IPv6 address record</source>
-        <translation type="unfinished">Record di tipo indirizzo IPv6 non valido</translation>
+        <translation>Record di tipo indirizzo IPv6 non valido</translation>
     </message>
     <message>
         <source>Invalid canonical name record</source>
-        <translation type="unfinished">Record di tipo nome canonico non valido</translation>
+        <translation>Record di tipo nome canonico non valido</translation>
     </message>
     <message>
         <source>Invalid name server record</source>
-        <translation type="unfinished">Record di tipo nome del server non valido</translation>
+        <translation>Record di tipo server dei nomi non valido</translation>
     </message>
     <message>
         <source>Invalid pointer record</source>
-        <translation type="unfinished">Record di tipo puntatore non valido</translation>
+        <translation>Record di tipo puntatore non valido</translation>
     </message>
     <message>
         <source>Invalid mail exchange record</source>
-        <translation type="unfinished">Record di tipo mail exchange non valido</translation>
+        <translation>Record di tipo mail exchange non valido</translation>
     </message>
     <message>
         <source>Invalid service record</source>
-        <translation type="unfinished">Record di tipo servizio non valido</translation>
+        <translation>Record di tipo servizio non valido</translation>
     </message>
     <message>
         <source>Invalid TLS association record</source>
-        <translation type="unfinished"></translation>
+        <translation>Record di tipo associazione TLS non valido</translation>
     </message>
     <message>
         <source>Invalid text record</source>
-        <translation type="unfinished">Record di tipo testo non valido</translation>
+        <translation>Record di tipo testo non valido</translation>
     </message>
 </context>
 <context>
     <name>QDnsLookupRunnable</name>
     <message>
         <source>Not yet supported on this OS</source>
-        <translation type="unfinished"></translation>
+        <translation>Non ancora supportato su questo sistema operativo</translation>
     </message>
 </context>
 <context>
@@ -721,7 +721,7 @@ Premi ESC per annullare</translation>
     </message>
     <message>
         <source>An error occurred</source>
-        <translation type="unfinished"></translation>
+        <translation>Si è verificato un errore</translation>
     </message>
     <message>
         <source>Critical Error:</source>
@@ -776,11 +776,11 @@ Premi ESC per annullare</translation>
     </message>
     <message>
         <source>Failure to write block: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Scrittura del blocco non riuscita: %1</translation>
     </message>
     <message>
         <source>Cannot create %1 for output: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile creare %1 per l&apos;output: %2</translation>
     </message>
 </context>
 <context>
@@ -1348,15 +1348,15 @@ Vuoi eliminarlo comunque?</translation>
     </message>
     <message>
         <source>Alias for --qwindowgeometry.</source>
-        <translation type="unfinished"></translation>
+        <translation>Alias per --qwindowgeometry.</translation>
     </message>
     <message>
         <source>Alias for --qwindowicon.</source>
-        <translation type="unfinished"></translation>
+        <translation>Alias per --qwindowicon.</translation>
     </message>
     <message>
         <source>Alias for --qwindowtitle.</source>
-        <translation type="unfinished"></translation>
+        <translation>Alias per --qwindowtitle.</translation>
     </message>
 </context>
 <context>
@@ -1433,27 +1433,27 @@ Vuoi eliminarlo comunque?</translation>
     </message>
     <message>
         <source>Unsupported content encoding: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Codifica del contenuto non supportata: %1</translation>
     </message>
     <message>
         <source>Failed to initialize the compression decoder.</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile inizializzare il decodificatore di compressione.</translation>
     </message>
     <message>
         <source>The decompressed output exceeds the limits specified by QNetworkRequest::decompressedSafetyCheckThreshold()</source>
-        <translation type="unfinished"></translation>
+        <translation>L&apos;output decompresso supera i limiti specificati da QNetworkRequest::decompressedSafetyCheckThreshold()</translation>
     </message>
     <message>
         <source>Decompression failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Decompressione non riuscita: %1</translation>
     </message>
     <message>
         <source>Data downloaded is too large to store</source>
-        <translation type="unfinished"></translation>
+        <translation>I dati scaricati sono troppo grandi per essere archiviati</translation>
     </message>
     <message>
         <source>Failed to initialize decompression: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile inizializzare la decompressione: %1</translation>
     </message>
 </context>
 <context>
@@ -1515,11 +1515,11 @@ Vuoi eliminarlo comunque?</translation>
     </message>
     <message>
         <source>Could not subscribe to event notifications for %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile sottoscrivere le notifiche degli eventi per %1.</translation>
     </message>
     <message>
         <source>Could not unsubscribe from event notifications for %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile annullare la sottoscrizione delle notifiche degli eventi per %1.</translation>
     </message>
 </context>
 <context>
@@ -1594,15 +1594,15 @@ Vuoi eliminarlo comunque?</translation>
     </message>
     <message>
         <source>Array size mismatch. Field name: %3, expected size: %1. Supplied size: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Mancata corrispondenza delle dimensioni dell&apos;array. Nome campo: %3, dimensione prevista: %1. Dimensione fornita: %2</translation>
     </message>
     <message>
         <source>Array dimensions mismatch. Field name: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Le dimensioni dell&apos;array non corrispondono. Nome del campo: %1</translation>
     </message>
     <message>
         <source>Array size mismatch: size of %1 is %2, size of provided list is %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Mancata corrispondenza delle dimensioni dell&apos;array: la dimensione di %1 è %2, la dimensione dell&apos;elenco fornito è %3</translation>
     </message>
 </context>
 <context>
@@ -1829,143 +1829,143 @@ Vuoi eliminarlo comunque?</translation>
     </message>
     <message>
         <source>&apos;%1&apos; is not a valid Windows DLL (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>&apos;%1&apos; non è una DLL di Windows valida (%2)</translation>
     </message>
     <message>
         <source>&apos;%1&apos; is too small</source>
-        <translation type="unfinished"></translation>
+        <translation>&apos;%1&apos; è troppo piccolo</translation>
     </message>
     <message>
         <source>&apos;%1&apos; is not a Qt plugin (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>&apos;%1&apos; non è un&apos;estensione Qt (%2)</translation>
     </message>
     <message>
         <source>metadata not found</source>
-        <translation type="unfinished"></translation>
+        <translation>metadati non trovati</translation>
     </message>
     <message>
         <source>invalid signature</source>
-        <translation type="unfinished"></translation>
+        <translation>firma non valida</translation>
     </message>
     <message>
         <source>file is for a different processor</source>
-        <translation type="unfinished"></translation>
+        <translation>il file è per un processore diverso</translation>
     </message>
     <message>
         <source>file has no sections</source>
-        <translation type="unfinished"></translation>
+        <translation>il file non ha sezioni</translation>
     </message>
     <message>
         <source>wrong characteristics</source>
-        <translation type="unfinished"></translation>
+        <translation>caratteristiche errate</translation>
     </message>
     <message>
         <source>file is for a different word size</source>
-        <translation type="unfinished"></translation>
+        <translation>il file è per una dimensione di word diversa</translation>
     </message>
     <message>
         <source>file has no code</source>
-        <translation type="unfinished"></translation>
+        <translation>il file non ha codice</translation>
     </message>
     <message>
         <source>a section name is empty or extends past the end of the file</source>
-        <translation type="unfinished"></translation>
+        <translation>il nome di una sezione è vuoto o si estende oltre la fine del file</translation>
     </message>
     <message>
         <source>section contents extend past the end of the file</source>
-        <translation type="unfinished"></translation>
+        <translation>il contenuto della sezione si estende oltre la fine del file</translation>
     </message>
     <message>
         <source>.qtmetadata section is too small</source>
-        <translation type="unfinished"></translation>
+        <translation>La sezione .qtmetadata è troppo piccola</translation>
     </message>
     <message>
         <source>.qtmetadata section has incorrect magic</source>
-        <translation type="unfinished"></translation>
+        <translation>La sezione .qtmetadata ha un magic non corretto</translation>
     </message>
     <message>
         <source>.qtmetadata section is writable</source>
-        <translation type="unfinished"></translation>
+        <translation>La sezione .qtmetadata è scrivibile</translation>
     </message>
     <message>
         <source>.qtmetadata section is executable</source>
-        <translation type="unfinished"></translation>
+        <translation>La sezione .qtmetadata è eseguibile</translation>
     </message>
     <message>
         <source>file is for the wrong endianness</source>
-        <translation type="unfinished"></translation>
+        <translation>il file è per l&apos;endianness errata</translation>
     </message>
     <message>
         <source>file has an unknown ELF version</source>
-        <translation type="unfinished"></translation>
+        <translation>il file ha una versione ELF sconosciuta</translation>
     </message>
     <message>
         <source>file has an unexpected ABI</source>
-        <translation type="unfinished"></translation>
+        <translation>il file ha un ABI inatteso</translation>
     </message>
     <message>
         <source>file is not a shared object</source>
-        <translation type="unfinished"></translation>
+        <translation>il file non è un oggetto condiviso</translation>
     </message>
     <message>
         <source>&apos;%1&apos; is not a valid ELF object (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>&apos;%1&apos; non è un oggetto ELF valido (%2)</translation>
     </message>
     <message>
         <source>unimplemented: PN_XNUM program headers</source>
-        <translation type="unfinished"></translation>
+        <translation>non implementato: intestazioni di programma PN_XNUM</translation>
     </message>
     <message>
         <source>program header table extends past the end of the file</source>
-        <translation type="unfinished"></translation>
+        <translation>la tabella dell&apos;intestazione del programma si estende oltre la fine del file</translation>
     </message>
     <message>
         <source>a program header entry extends past the end of the file</source>
-        <translation type="unfinished"></translation>
+        <translation>una voce di intestazione del programma si estende oltre la fine del file</translation>
     </message>
     <message>
         <source>a note segment start is not properly aligned (offset 0x%1, alignment %2)</source>
-        <translation type="unfinished"></translation>
+        <translation>l&apos;inizio di un segmento di nota non è allineato correttamente (offset 0x%1, allineamento %2)</translation>
     </message>
     <message>
         <source>section table extends past the end of the file</source>
-        <translation type="unfinished"></translation>
+        <translation>la tabella delle sezioni si estende oltre la fine del file</translation>
     </message>
     <message>
         <source>section header string table extends past the end of the file</source>
-        <translation type="unfinished"></translation>
+        <translation>la stringa dell&apos;intestazione di sezione si estende oltre la fine del file</translation>
     </message>
     <message>
         <source>a section name extends past the end of the file</source>
-        <translation type="unfinished"></translation>
+        <translation>un nome di sezione si estende oltre la fine del file</translation>
     </message>
     <message>
         <source>unexpected program header entry size (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>dimensione imprevista della voce dell&apos;intestazione del programma (%1)</translation>
     </message>
     <message>
         <source>unexpected section entry size (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>dimensione della voce di sezione imprevista (%1)</translation>
     </message>
     <message>
         <source>e_shstrndx greater than the number of sections e_shnum (%1 &gt;= %2)</source>
-        <translation type="unfinished"></translation>
+        <translation>e_shstrndx maggiore del numero di sezioni e_shnum (%1 &gt;= %2)</translation>
     </message>
     <message>
         <source>Failed to extract plugin meta data from &apos;%1&apos;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile estrarre i metadati dell&apos;estensione da &apos;%1&apos;: %2</translation>
     </message>
     <message>
         <source>Could not resolve &apos;qt_plugin_instance&apos; function</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile risolvere la funzione &apos;qt_plugin_instance&apos;</translation>
     </message>
     <message>
         <source>metadata too small</source>
-        <translation type="unfinished"></translation>
+        <translation>metadati troppo piccoli</translation>
     </message>
     <message>
         <source>entrypoint to query the plugin meta data not found</source>
-        <translation type="unfinished"></translation>
+        <translation>punto di ingresso per interrogare i metadati dell&apos;estensione non trovati</translation>
     </message>
 </context>
 <context>
@@ -2082,7 +2082,7 @@ Vuoi eliminarlo comunque?</translation>
     </message>
     <message>
         <source>Remote closed</source>
-        <translation type="unfinished"></translation>
+        <translation>Chiuso da remoto</translation>
     </message>
 </context>
 <context>
@@ -2262,7 +2262,7 @@ Vuoi eliminarlo comunque?</translation>
     <message>
         <source>&lt;p&gt;Qt is a C++ toolkit for cross-platform application development.&lt;/p&gt;&lt;p&gt;Qt provides single-source portability across all major desktop operating systems. It is also available for embedded Linux and other embedded and mobile operating systems.&lt;/p&gt;&lt;p&gt;Qt is available under multiple licensing options designed to accommodate the needs of our various users.&lt;/p&gt;&lt;p&gt;Qt licensed under our commercial license agreement is appropriate for development of proprietary/commercial software where you do not want to share any source code with third parties or otherwise cannot comply with the terms of GNU (L)GPL.&lt;/p&gt;&lt;p&gt;Qt licensed under GNU (L)GPL is appropriate for the development of Qt&amp;nbsp;applications provided you can comply with the terms and conditions of the respective licenses.&lt;/p&gt;&lt;p&gt;Please see &lt;a href=&quot;https://%2/&quot;&gt;%2&lt;/a&gt; for an overview of Qt licensing.&lt;/p&gt;&lt;p&gt;Copyright (C) The Qt Company Ltd. and other contributors.&lt;/p&gt;&lt;p&gt;Qt and the Qt logo are trademarks of The Qt Company Ltd.&lt;/p&gt;&lt;p&gt;Qt is The Qt Company Ltd. product developed as an open source project. See &lt;a href=&quot;https://%3/&quot;&gt;%3&lt;/a&gt; for more information.&lt;/p&gt;</source>
         <extracomment>Leave this text untranslated or include a verbatim copy of it below and note that it is the authoritative version in case of doubt.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Qt is a C++ toolkit for cross-platform application development.&lt;/p&gt;&lt;p&gt;Qt provides single-source portability across all major desktop operating systems. It is also available for embedded Linux and other embedded and mobile operating systems.&lt;/p&gt;&lt;p&gt;Qt is available under multiple licensing options designed to accommodate the needs of our various users.&lt;/p&gt;&lt;p&gt;Qt licensed under our commercial license agreement is appropriate for development of proprietary/commercial software where you do not want to share any source code with third parties or otherwise cannot comply with the terms of GNU (L)GPL.&lt;/p&gt;&lt;p&gt;Qt licensed under GNU (L)GPL is appropriate for the development of Qt&amp;nbsp;applications provided you can comply with the terms and conditions of the respective licenses.&lt;/p&gt;&lt;p&gt;Please see &lt;a href=&quot;https://%2/&quot;&gt;%2&lt;/a&gt; for an overview of Qt licensing.&lt;/p&gt;&lt;p&gt;Copyright (C) The Qt Company Ltd. and other contributors.&lt;/p&gt;&lt;p&gt;Qt and the Qt logo are trademarks of The Qt Company Ltd.&lt;/p&gt;&lt;p&gt;Qt is The Qt Company Ltd. product developed as an open source project. See &lt;a href=&quot;https://%3/&quot;&gt;%3&lt;/a&gt; for more information.&lt;/p&gt;</translation>
     </message>
 </context>
 <context>
@@ -2595,7 +2595,7 @@ Vuoi eliminarlo comunque?</translation>
     </message>
     <message>
         <source>QODBCResult::reset: Unable to set &apos;SQL_ATTR_CURSOR_TYPE&apos; as statement attribute. Please check your ODBC driver configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>QODBCResult::reset: Impossibile impostare &apos;SQL_ATTR_CURSOR_TYPE&apos; come attributo di istruzione. Verifica la configurazione del driver ODBC</translation>
     </message>
 </context>
 <context>
@@ -2626,7 +2626,7 @@ Vuoi eliminarlo comunque?</translation>
     </message>
     <message>
         <source>Unable to set client encoding to &apos;UNICODE&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile impostare la codifica del client su &apos;UNICODE&apos;</translation>
     </message>
 </context>
 <context>
@@ -3803,19 +3803,19 @@ Disattiva una di queste opzioni.</translation>
     </message>
     <message>
         <source>Child process modifier threw an exception: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Il modificatore del processo figlio ha generato un&apos;eccezione: %1</translation>
     </message>
     <message>
         <source>Child process modifier reported error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Errore segnalato dal modificatore del processo figlio: %1</translation>
     </message>
     <message>
         <source>Child process modifier reported error: %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Errore segnalato dal modificatore del processo figlio: %1: %2</translation>
     </message>
     <message>
         <source>Child process set up failed: %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Errore di configurazione del processo figlio: %1: %2</translation>
     </message>
 </context>
 <context>
@@ -4493,7 +4493,7 @@ Disattiva una di queste opzioni.</translation>
     </message>
     <message>
         <source>INTERNAL ERROR: invalid substring offset</source>
-        <translation type="unfinished"></translation>
+        <translation>ERRORE INTERNO: offset sottostringa non valido</translation>
     </message>
 </context>
 <context>
@@ -4688,15 +4688,15 @@ Disattiva una di queste opzioni.</translation>
     </message>
     <message>
         <source>%1: unsupported key type</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: tipo di chiave non supportato</translation>
     </message>
     <message>
         <source>%1: unable to set key on lock (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: impossibile impostare il blocco sulla chiave (%2)</translation>
     </message>
     <message>
         <source>%1: unknown error: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: errore sconosciuto: %2</translation>
     </message>
 </context>
 <context>
@@ -5722,7 +5722,7 @@ Disattiva una di queste opzioni.</translation>
     </message>
     <message>
         <source>Control</source>
-        <translation type="unfinished"></translation>
+        <translation>Control</translation>
     </message>
 </context>
 <context>
@@ -6417,7 +6417,7 @@ Disattiva una di queste opzioni.</translation>
     </message>
     <message>
         <source>TLS certificate unexpectedly changed during renegotiation!</source>
-        <translation type="unfinished"></translation>
+        <translation>Il certificato TLS è stato modificato inaspettatamente durante la rinegoziazione!</translation>
     </message>
     <message>
         <source>Server-side QSslSocket does not support OCSP stapling</source>
@@ -6644,24 +6644,24 @@ Disattiva una di queste opzioni.</translation>
     </message>
     <message>
         <source>State</source>
-        <translation type="unfinished"></translation>
+        <translation>Stato</translation>
     </message>
     <message>
         <source>Shared State</source>
-        <translation type="unfinished"></translation>
+        <translation>Stato condiviso</translation>
     </message>
     <message>
         <source>Public</source>
-        <translation type="unfinished"></translation>
+        <translation>Pubblico</translation>
     </message>
     <message>
         <source>Templates</source>
-        <translation type="unfinished"></translation>
+        <translation>Modelli</translation>
     </message>
     <message>
         <source>Temporary Items</source>
         <extracomment>macOS: Temporary directory</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Elementi temporanei</translation>
     </message>
 </context>
 <context>
@@ -6684,31 +6684,31 @@ Disattiva una di queste opzioni.</translation>
     </message>
     <message>
         <source>%1: unsupported key type</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: tipo di chiave non supportato</translation>
     </message>
     <message>
         <source>%1: key too long</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: chiave troppo lunga</translation>
     </message>
     <message>
         <source>%1: unknown error: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: errore sconosciuto: %2</translation>
     </message>
     <message>
         <source>%1: key is empty</source>
-        <translation type="unfinished">%1: la chiave è vuota</translation>
+        <translation>%1: la chiave è vuota</translation>
     </message>
     <message>
         <source>%1: System V semaphores are not available for sandboxed applications. Please build Qt with -feature-ipc_posix</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: i semafori System V non sono disponibili per le applicazioni sandbox. Compila Qt con -feature-ipc_posix</translation>
     </message>
     <message>
         <source>%1: unable to make key</source>
-        <translation type="unfinished">%1: impossibile creare la chiave</translation>
+        <translation>%1: impossibile creare la chiave</translation>
     </message>
     <message>
         <source>%1: ftok failed</source>
-        <translation type="unfinished">%1: ftok non riuscito</translation>
+        <translation>%1: ftok non riuscito</translation>
     </message>
 </context>
 <context>
@@ -6830,11 +6830,11 @@ Disattiva una di queste opzioni.</translation>
     </message>
     <message>
         <source>FSI First strong isolate</source>
-        <translation type="unfinished"></translation>
+        <translation>FSI First strong isolate</translation>
     </message>
     <message>
         <source>PDI Pop directional isolate</source>
-        <translation type="unfinished"></translation>
+        <translation>PDI Pop directional isolate</translation>
     </message>
     <message>
         <source>Insert Unicode control character</source>
@@ -7076,11 +7076,11 @@ La versione minima di Direct2D richiesta è %1. La versione di Direct2D in quest
     </message>
     <message>
         <source>Invalid attribute in XML declaration: %1 = %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Attributo non valido nella dichiarazione XML: %1 = %2</translation>
     </message>
     <message>
         <source>Length of XML attribute name exceeds implementation limits (4KiB characters).</source>
-        <translation type="unfinished"></translation>
+        <translation>La lunghezza del nome dell&apos;attributo XML supera i limiti di implementazione (4 KiB di caratteri).</translation>
     </message>
     <message>
         <source>&apos;%1&apos;</source>
@@ -7116,11 +7116,11 @@ La versione minima di Direct2D richiesta è %1. La versione di Direct2D in quest
     </message>
     <message>
         <source>Unexpected token type %1 in %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipo di token inatteso %1 in %2.</translation>
     </message>
     <message>
         <source>Found second DTD token in %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Trovato secondo token DTD in %1.</translation>
     </message>
     <message>
         <source>Self-referencing entity detected.</source>
@@ -7135,73 +7135,73 @@ La versione minima di Direct2D richiesta è %1. La versione di Direct2D in quest
     <name>Assets::Downloader::AssetDownloader</name>
     <message>
         <source>Downloading JSON file...</source>
-        <translation type="unfinished"></translation>
+        <translation>Scaricamento del file JSON...</translation>
     </message>
     <message>
         <source>Downloading zip file...</source>
-        <translation type="unfinished"></translation>
+        <translation>Scaricamento del file zip...</translation>
     </message>
     <message>
         <source>Unzipping...</source>
-        <translation type="unfinished"></translation>
+        <translation>Decompressione...</translation>
     </message>
     <message>
         <source>Downloading assets...</source>
-        <translation type="unfinished"></translation>
+        <translation>Scaricamento delle risorse...</translation>
     </message>
     <message>
         <source>Copying assets...</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia delle risorse...</translation>
     </message>
 </context>
 <context>
     <name>QFactoryLoader</name>
     <message>
         <source>Metadata parsing error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Errore di analisi dei metadati: %1</translation>
     </message>
     <message>
         <source>Invalid metadata version</source>
-        <translation type="unfinished"></translation>
+        <translation>Versione dei metadati non valida</translation>
     </message>
     <message>
         <source>Unexpected metadata contents</source>
-        <translation type="unfinished"></translation>
+        <translation>Contenuto dei metadati inatteso</translation>
     </message>
 </context>
 <context>
     <name>QAbstractFileIconProvider</name>
     <message>
         <source>Drive</source>
-        <translation type="unfinished">Unità</translation>
+        <translation>Unità</translation>
     </message>
     <message>
         <source>File</source>
-        <translation type="unfinished">File</translation>
+        <translation>File</translation>
     </message>
     <message>
         <source>File Folder</source>
         <comment>Match Windows Explorer</comment>
-        <translation type="unfinished">Cartella di file</translation>
+        <translation>Cartella di file</translation>
     </message>
     <message>
         <source>Folder</source>
         <comment>All other platforms</comment>
-        <translation type="unfinished">Cartella</translation>
+        <translation>Cartella</translation>
     </message>
     <message>
         <source>Alias</source>
         <comment>macOS Finder</comment>
-        <translation type="unfinished">Alias</translation>
+        <translation>Alias</translation>
     </message>
     <message>
         <source>Shortcut</source>
         <comment>All other platforms</comment>
-        <translation type="unfinished">Scorciatoia</translation>
+        <translation>Scorciatoia</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">Sconosciuto</translation>
+        <translation>Sconosciuto</translation>
     </message>
 </context>
 <context>
@@ -7342,7 +7342,7 @@ La versione minima di Direct2D richiesta è %1. La versione di Direct2D in quest
     <name>QDtlsClientVerifier</name>
     <message>
         <source>A valid UDP socket, non-empty datagram, and valid address/port were expected</source>
-        <translation type="unfinished"></translation>
+        <translation>Erano previsti un socket UDP valido, un datagramma non vuoto e un indirizzo/porta validi</translation>
     </message>
     <message>
         <source>BIO_ADDR_new failed, ignoring client hello</source>
@@ -7368,18 +7368,18 @@ La versione minima di Direct2D richiesta è %1. La versione di Direct2D in quest
     <name>QCocoaMenuBar</name>
     <message>
         <source>Edit</source>
-        <translation type="unfinished"></translation>
+        <translation>Modifica</translation>
     </message>
 </context>
 <context>
     <name>quiaccessibilityelement</name>
     <message>
         <source>checked</source>
-        <translation type="unfinished"></translation>
+        <translation>selezionato</translation>
     </message>
     <message>
         <source>unchecked</source>
-        <translation type="unfinished"></translation>
+        <translation>non selezionato</translation>
     </message>
 </context>
 <context>
@@ -7409,11 +7409,11 @@ La versione minima di Direct2D richiesta è %1. La versione di Direct2D in quest
     <name>QMimerSQL</name>
     <message>
         <source>No Mimer SQL error for code %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nessun errore SQL Mimer per il codice %1</translation>
     </message>
     <message>
         <source>Generic Mimer SQL error</source>
-        <translation type="unfinished"></translation>
+        <translation>Errore SQL Mimer generico</translation>
     </message>
 </context>
 <context>
@@ -7421,99 +7421,99 @@ La versione minima di Direct2D richiesta è %1. La versione di Direct2D in quest
     <message>
         <source>Could not get %1, column %2</source>
         <extracomment>Data type, column</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile ottenere %1, colonna %2</translation>
     </message>
     <message>
         <source>Could not set %1, parameter %2</source>
         <extracomment>Data type, parameter</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile impostare %1, parametro %2</translation>
     </message>
     <message>
         <source>Could not close cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile chiudere il cursore</translation>
     </message>
     <message>
         <source>Could not close statement</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile chiudere l&apos;istruzione</translation>
     </message>
     <message>
         <source>Fetch did not succeed</source>
-        <translation type="unfinished"></translation>
+        <translation>Il recupero non è riuscito</translation>
     </message>
     <message>
         <source>Fetch first did not succeed</source>
-        <translation type="unfinished"></translation>
+        <translation>Il primo recupero non è riuscito</translation>
     </message>
     <message>
         <source>Could not fetch next row</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile recuperare la riga successiva</translation>
     </message>
     <message>
         <source>Unknown data type %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipo di dati sconosciuto %1</translation>
     </message>
     <message>
         <source>Could not check null, column %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile controllare il valore nullo, colonna %1</translation>
     </message>
     <message>
         <source>Could not prepare/execute statement</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile preparare/eseguire l&apos;istruzione</translation>
     </message>
     <message>
         <source>Wrong number of parameters</source>
-        <translation type="unfinished"></translation>
+        <translation>Numero errato di parametri</translation>
     </message>
     <message>
         <source>Unknown datatype, parameter %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipo di dati sconosciuto, parametro %1</translation>
     </message>
     <message>
         <source>Could not execute statement/open cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile eseguire l&apos;istruzione/aprire il cursore</translation>
     </message>
     <message>
         <source>Only input parameters can be used in batch operations</source>
-        <translation type="unfinished"></translation>
+        <translation>Nelle operazioni batch è possibile utilizzare solo i parametri di input</translation>
     </message>
     <message>
         <source>Could not add batch %1</source>
         <extracomment>%1 is the batch number</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile aggiungere il batch %1</translation>
     </message>
     <message>
         <source>Could not execute batch</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile eseguire il batch</translation>
     </message>
 </context>
 <context>
     <name>QMimerSQLResult:</name>
     <message>
         <source>Fetch last did not succeed</source>
-        <translation type="unfinished"></translation>
+        <translation>L&apos;ultimo recupero non è riuscito</translation>
     </message>
     <message>
         <source>Column %1 out of range</source>
-        <translation type="unfinished"></translation>
+        <translation>Colonna %1 fuori intervallo</translation>
     </message>
 </context>
 <context>
     <name>QMimerSQLDriver</name>
     <message>
         <source>Could not connect to database</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile connettersi al database</translation>
     </message>
     <message>
         <source>Could not start transaction</source>
-        <translation type="unfinished">Impossibile avviare la transazione</translation>
+        <translation>Impossibile avviare la transazione</translation>
     </message>
     <message>
         <source>Could not commit transaction</source>
-        <translation type="unfinished">Impossibile effettuare la transazione</translation>
+        <translation>Impossibile applicare la transazione</translation>
     </message>
     <message>
         <source>Could not roll back transaction</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile annullare la transazione</translation>
     </message>
 </context>
 <context>

@@ -5,7 +5,7 @@
     <name>CloseButton</name>
     <message>
         <source>Close Tab</source>
-        <translation>סגור כרטיסייה</translation>
+        <translation>סגירת לשונית</translation>
     </message>
 </context>
 <context>
@@ -16,15 +16,15 @@
     </message>
     <message>
         <source>Hide %1</source>
-        <translation>הסתר את %1</translation>
+        <translation>הסתרת %1</translation>
     </message>
     <message>
         <source>Hide Others</source>
-        <translation>הסתר את האחרים</translation>
+        <translation>הסתרת האחרים</translation>
     </message>
     <message>
         <source>Show All</source>
-        <translation>הצג הכל</translation>
+        <translation>הצגה של הכול</translation>
     </message>
     <message>
         <source>Preferences...</source>
@@ -32,11 +32,11 @@
     </message>
     <message>
         <source>Quit %1</source>
-        <translation>צא מתוך %1</translation>
+        <translation>יציאה מ־%1</translation>
     </message>
     <message>
         <source>About %1</source>
-        <translation>אודות %1</translation>
+        <translation>על %1</translation>
     </message>
 </context>
 <context>
@@ -215,7 +215,7 @@
     </message>
     <message>
         <source>Application &quot;%1&quot; requires Qt %2, found Qt %3.</source>
-        <translation type="unfinished"></translation>
+        <translation>היישום ‚%1’ דורש את Qt %2, נמצא Qt %3.</translation>
     </message>
 </context>
 <context>
@@ -312,7 +312,7 @@
     </message>
     <message>
         <source>&amp;HTML:</source>
-        <translation></translation>
+        <translation>&amp;HTML:</translation>
     </message>
     <message>
         <source>Cursor at %1, %2
@@ -368,39 +368,39 @@ Press ESC to cancel</source>
     </message>
     <message>
         <source>Unknown options: %1.</source>
-        <translation></translation>
+        <translation>אפשרויות לא ידועות: %1.</translation>
     </message>
     <message>
         <source>Missing value after &apos;%1&apos;.</source>
-        <translation></translation>
+        <translation>חסר ערך אחרי ‚%1’.</translation>
     </message>
     <message>
         <source>Unexpected value after &apos;%1&apos;.</source>
-        <translation></translation>
+        <translation>ערך מפתיע אחרי ‚%1’.</translation>
     </message>
     <message>
         <source>[options]</source>
-        <translation></translation>
+        <translation>[אפשרויות]</translation>
     </message>
     <message>
         <source>Usage: %1</source>
-        <translation></translation>
+        <translation>שימוש: %1</translation>
     </message>
     <message>
         <source>Options:</source>
-        <translation></translation>
+        <translation>אפשרויות:</translation>
     </message>
     <message>
         <source>Arguments:</source>
-        <translation></translation>
+        <translation>ארגומנטים:</translation>
     </message>
     <message>
         <source>Displays help on commandline options.</source>
-        <translation type="unfinished"></translation>
+        <translation>הצגת עזרה על אפשרויות שורת פקודה.</translation>
     </message>
     <message>
         <source>Displays help, including generic Qt options.</source>
-        <translation type="unfinished"></translation>
+        <translation>הצגת עזרה, כולל אפשרויות Qt כלליות.</translation>
     </message>
 </context>
 <context>
@@ -586,11 +586,11 @@ Press ESC to cancel</source>
     </message>
     <message>
         <source>SSL/TLS support not present</source>
-        <translation type="unfinished"></translation>
+        <translation>אין תמיכה ב־SSL/TLS</translation>
     </message>
     <message>
         <source>Request timed out</source>
-        <translation type="unfinished"></translation>
+        <translation>הזמן שהוקצב לבקשה תם</translation>
     </message>
     <message>
         <source>Server could not process query</source>
@@ -610,7 +610,7 @@ Press ESC to cancel</source>
     </message>
     <message>
         <source>Invalid reply received (rcode %1)</source>
-        <translation type="unfinished"></translation>
+        <translation>התקבלה תגובה שגויה (rcode %1)</translation>
     </message>
     <message>
         <source>Invalid reply received</source>
@@ -618,15 +618,15 @@ Press ESC to cancel</source>
     </message>
     <message>
         <source>Invalid reply received (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>התקבלה תגובה שגויה (%1)</translation>
     </message>
     <message>
         <source>IPv6 nameservers are currently not supported on this OS</source>
-        <translation type="unfinished"></translation>
+        <translation>אין תמיכה במתחמי שמות IPv6 במערכת ההפעלה הזאת כרגע</translation>
     </message>
     <message>
         <source>Reply was too large</source>
-        <translation type="unfinished"></translation>
+        <translation>התגובה הייתה גדולה מדי</translation>
     </message>
     <message>
         <source>Could not expand domain name</source>
@@ -662,7 +662,7 @@ Press ESC to cancel</source>
     </message>
     <message>
         <source>Invalid TLS association record</source>
-        <translation type="unfinished"></translation>
+        <translation>רשומת שיוך TLS שגויה</translation>
     </message>
     <message>
         <source>Invalid text record</source>
@@ -673,7 +673,7 @@ Press ESC to cancel</source>
     <name>QDnsLookupRunnable</name>
     <message>
         <source>Not yet supported on this OS</source>
-        <translation type="unfinished"></translation>
+        <translation>לא נתמך עדיין במערכת ההפעלה הזאת</translation>
     </message>
 </context>
 <context>
@@ -721,15 +721,15 @@ Press ESC to cancel</source>
     </message>
     <message>
         <source>An error occurred</source>
-        <translation type="unfinished"></translation>
+        <translation>אירעה שגיאה</translation>
     </message>
     <message>
         <source>Critical Error:</source>
-        <translation type="unfinished"></translation>
+        <translation>שגיאה משמעותית:</translation>
     </message>
     <message>
         <source>Information:</source>
-        <translation type="unfinished"></translation>
+        <translation>פרטים:</translation>
     </message>
 </context>
 <context>
@@ -764,23 +764,23 @@ Press ESC to cancel</source>
     </message>
     <message>
         <source>Error while renaming: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>שגיאה בשינוי שם: %1</translation>
     </message>
     <message>
         <source>Cannot open destination file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>לא ניתן לפתוח את קובץ היעד: %1</translation>
     </message>
     <message>
         <source>Cannot open for output: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>לא ניתן לפתוח לפלט: %1</translation>
     </message>
     <message>
         <source>Failure to write block: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>כתיבת הבלוק נכשלה: %1</translation>
     </message>
     <message>
         <source>Cannot create %1 for output: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>לא ניתן ליצור %1 לקלט: %2</translation>
     </message>
 </context>
 <context>
@@ -791,7 +791,7 @@ Press ESC to cancel</source>
     </message>
     <message>
         <source>No file engine available</source>
-        <translation type="unfinished"></translation>
+        <translation>אין מנוע קבצים זמין</translation>
     </message>
 </context>
 <context>
@@ -810,7 +810,7 @@ Press ESC to cancel</source>
     </message>
     <message>
         <source>Alt+Left</source>
-        <translation></translation>
+        <translation>Alt+שמאלה</translation>
     </message>
     <message>
         <source>Forward</source>
@@ -822,7 +822,7 @@ Press ESC to cancel</source>
     </message>
     <message>
         <source>Alt+Right</source>
-        <translation></translation>
+        <translation>Alt+ימינה</translation>
     </message>
     <message>
         <source>Parent Directory</source>
@@ -834,7 +834,7 @@ Press ESC to cancel</source>
     </message>
     <message>
         <source>Alt+Up</source>
-        <translation></translation>
+        <translation>Alt+למעלה</translation>
     </message>
     <message>
         <source>Create New Folder</source>
@@ -1292,11 +1292,11 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>QPA plugin. See QGuiApplication documentation for available options for each plugin.</source>
-        <translation type="unfinished"></translation>
+        <translation>תוסף QPA. כדאי לעיין בתיעוד של QGuiApplication לאפשרויות הזמינות לכל תוסף.</translation>
     </message>
     <message>
         <source>Path to the platform plugins.</source>
-        <translation type="unfinished"></translation>
+        <translation>נתיב לתוספי הפלטפורמה.</translation>
     </message>
     <message>
         <source>Platform theme.</source>
@@ -1304,59 +1304,59 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Additional plugins to load, can be specified multiple times.</source>
-        <translation type="unfinished"></translation>
+        <translation>תוספים נוספים לטעינה, אפשר לציין מספר פעמים.</translation>
     </message>
     <message>
         <source>Window geometry for the main window, using the X11-syntax, like 100x100+50+50.</source>
-        <translation type="unfinished"></translation>
+        <translation>גודל ומקום החלון הראשי, בתחביר X11, כגון 100x100+50+50.</translation>
     </message>
     <message>
         <source>Default window icon.</source>
-        <translation type="unfinished"></translation>
+        <translation>סמל חלון כברירת מחדל.</translation>
     </message>
     <message>
         <source>Title of the first window.</source>
-        <translation type="unfinished"></translation>
+        <translation>כותרת החלון הראשון.</translation>
     </message>
     <message>
         <source>Sets the application&apos;s layout direction to Qt::RightToLeft (debugging helper).</source>
-        <translation type="unfinished"></translation>
+        <translation>הגדרת כיוון הפריסה של היישום ל־Qt::RightToLeft (מסייע ניפוי שגיאות).</translation>
     </message>
     <message>
         <source>Restores the application from an earlier session.</source>
-        <translation type="unfinished"></translation>
+        <translation>שחזור היישום מהפעלה קודמת.</translation>
     </message>
     <message>
         <source>Display name, overrides $DISPLAY.</source>
-        <translation type="unfinished"></translation>
+        <translation>שם התצוגה, דורס את ‎$DISPLAY.</translation>
     </message>
     <message>
         <source>Instance name according to ICCCM 4.1.2.5.</source>
-        <translation type="unfinished"></translation>
+        <translation>שם המופע לפי תקן ICCCM 4.1.2.5.</translation>
     </message>
     <message>
         <source>Disable mouse grabbing (useful in debuggers).</source>
-        <translation type="unfinished"></translation>
+        <translation>כיבוי לכידת עכבר (שימושי למנפי שגיאות).</translation>
     </message>
     <message>
         <source>Force mouse grabbing (even when running in a debugger).</source>
-        <translation type="unfinished"></translation>
+        <translation>אכיפת לכידת עכבר (אפילו מפעילות בתוך מנפה שגיאות).</translation>
     </message>
     <message>
         <source>ID of the X11 Visual to use.</source>
-        <translation type="unfinished"></translation>
+        <translation>מזהה מיצג X11 לשימוש.</translation>
     </message>
     <message>
         <source>Alias for --qwindowgeometry.</source>
-        <translation type="unfinished"></translation>
+        <translation>כינוי לייצוג ‎--qwindowgeometry.</translation>
     </message>
     <message>
         <source>Alias for --qwindowicon.</source>
-        <translation type="unfinished"></translation>
+        <translation>כינוי לייצוג ‎--qwindowicon.</translation>
     </message>
     <message>
         <source>Alias for --qwindowtitle.</source>
-        <translation type="unfinished"></translation>
+        <translation>כינוי לייצוג ‎--qwindowtitle.</translation>
     </message>
 </context>
 <context>
@@ -1433,27 +1433,27 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Unsupported content encoding: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>קידוד תוכן לא נתמך: %1</translation>
     </message>
     <message>
         <source>Failed to initialize the compression decoder.</source>
-        <translation type="unfinished"></translation>
+        <translation>אתחול מפענח הדחיסה נכשל.</translation>
     </message>
     <message>
         <source>The decompressed output exceeds the limits specified by QNetworkRequest::decompressedSafetyCheckThreshold()</source>
-        <translation type="unfinished"></translation>
+        <translation>הפלט שנפרס מהדחיסה חורג מהמגבלה שצוינה ב־QNetworkRequest::decompressedSafetyCheckThreshold()</translation>
     </message>
     <message>
         <source>Decompression failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>פריסת הדחיסה נכשלה: %1</translation>
     </message>
     <message>
         <source>Data downloaded is too large to store</source>
-        <translation type="unfinished"></translation>
+        <translation>הנתונים שהתקבלו גדולים מכדי לאחסן אותם</translation>
     </message>
     <message>
         <source>Failed to initialize decompression: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>התחלת חילוץ הדחיסה נכשלה: %1</translation>
     </message>
 </context>
 <context>
@@ -1515,11 +1515,11 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Could not subscribe to event notifications for %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>לא ניתן להירשם להתראות לאירוע %1.</translation>
     </message>
     <message>
         <source>Could not unsubscribe from event notifications for %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>לא ניתן לבטל רישום להתראות לאירוע %1.</translation>
     </message>
 </context>
 <context>
@@ -1594,15 +1594,15 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Array size mismatch. Field name: %3, expected size: %1. Supplied size: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>גודל המערך סותר. שם השדה: %3, גודל צפוי: %1. גודל שסופק: %2</translation>
     </message>
     <message>
         <source>Array dimensions mismatch. Field name: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>ממדי המערך סותרים. שם השדה: %1</translation>
     </message>
     <message>
         <source>Array size mismatch: size of %1 is %2, size of provided list is %3</source>
-        <translation type="unfinished"></translation>
+        <translation>גודל המערך סותר: הגודל של %1 הוא %2, גודל הרשימה שסופקה הוא %3</translation>
     </message>
 </context>
 <context>
@@ -1675,11 +1675,11 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Cannot open device for writing: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>לא ניתן לפתוח התקן לכתיבה: %1</translation>
     </message>
     <message>
         <source>Image is empty</source>
-        <translation type="unfinished"></translation>
+        <translation>התמונה ריקה</translation>
     </message>
 </context>
 <context>
@@ -1828,59 +1828,59 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>&apos;%1&apos; is not a valid Windows DLL (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>‚%1’ אינו DLL תקף של Windows‏ (%2)</translation>
     </message>
     <message>
         <source>&apos;%1&apos; is too small</source>
-        <translation type="unfinished"></translation>
+        <translation>‚%1’ קטן מדי</translation>
     </message>
     <message>
         <source>&apos;%1&apos; is not a Qt plugin (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>‚%1’ אינו תוסף Qt‏ (%2)</translation>
     </message>
     <message>
         <source>metadata not found</source>
-        <translation type="unfinished"></translation>
+        <translation>נתוני העל לא נמצאו</translation>
     </message>
     <message>
         <source>invalid signature</source>
-        <translation type="unfinished"></translation>
+        <translation>חתימה שגויה</translation>
     </message>
     <message>
         <source>file is for a different processor</source>
-        <translation type="unfinished"></translation>
+        <translation>הקובץ מיועד למעבד אחר</translation>
     </message>
     <message>
         <source>file has no sections</source>
-        <translation type="unfinished"></translation>
+        <translation>לקובץ אין סעיפים</translation>
     </message>
     <message>
         <source>wrong characteristics</source>
-        <translation type="unfinished"></translation>
+        <translation>מאפיינים שגוים</translation>
     </message>
     <message>
         <source>file is for a different word size</source>
-        <translation type="unfinished"></translation>
+        <translation>הקובץ הוא לגודל מילים אחר</translation>
     </message>
     <message>
         <source>file has no code</source>
-        <translation type="unfinished"></translation>
+        <translation>בקובץ אין קוד</translation>
     </message>
     <message>
         <source>a section name is empty or extends past the end of the file</source>
-        <translation type="unfinished"></translation>
+        <translation>שם הסעיף ריק או שמתפרס מעבר לסוף הקובץ</translation>
     </message>
     <message>
         <source>section contents extend past the end of the file</source>
-        <translation type="unfinished"></translation>
+        <translation>תוכן הסעיף מתפרש מעבר לסוף הקובץ</translation>
     </message>
     <message>
         <source>.qtmetadata section is too small</source>
-        <translation type="unfinished"></translation>
+        <translation>סעיף ה־‎.qtmetadata קטן מדי</translation>
     </message>
     <message>
         <source>.qtmetadata section has incorrect magic</source>
-        <translation type="unfinished"></translation>
+        <translation>לסעיף ‎.qtmetadata יש קסם שגוי</translation>
     </message>
     <message>
         <source>.qtmetadata section is writable</source>
@@ -1892,35 +1892,35 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>file is for the wrong endianness</source>
-        <translation type="unfinished"></translation>
+        <translation>הקובץ הוא לסגנון הסיומות הלא נכון</translation>
     </message>
     <message>
         <source>file has an unknown ELF version</source>
-        <translation type="unfinished"></translation>
+        <translation>לקובץ יש גרסת ELF (קובץ הרצה) לא ידועה</translation>
     </message>
     <message>
         <source>file has an unexpected ABI</source>
-        <translation type="unfinished"></translation>
+        <translation>לקובץ יש ABI (ממשק יישום בינרי) מפתיע</translation>
     </message>
     <message>
         <source>file is not a shared object</source>
-        <translation type="unfinished"></translation>
+        <translation>הקובץ אינו עצם משותף</translation>
     </message>
     <message>
         <source>&apos;%1&apos; is not a valid ELF object (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>‚%1’ אינו עצם ELF‏ תקני (%2)</translation>
     </message>
     <message>
         <source>unimplemented: PN_XNUM program headers</source>
-        <translation type="unfinished"></translation>
+        <translation>לא ממומש: כותרות תוכנית PN_XNUM</translation>
     </message>
     <message>
         <source>program header table extends past the end of the file</source>
-        <translation type="unfinished"></translation>
+        <translation>טבלת כותרת התוכנית מתרחבת מעבר לסוף הקובץ</translation>
     </message>
     <message>
         <source>a program header entry extends past the end of the file</source>
-        <translation type="unfinished"></translation>
+        <translation>רשומת כותרת התוכנית מתרחבת מעבר לסוף הקובץ</translation>
     </message>
     <message>
         <source>a note segment start is not properly aligned (offset 0x%1, alignment %2)</source>
@@ -6695,7 +6695,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>%1: key is empty</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1: מפתח ריק</translation>
     </message>
     <message>
         <source>%1: System V semaphores are not available for sandboxed applications. Please build Qt with -feature-ipc_posix</source>
@@ -6703,7 +6703,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>%1: unable to make key</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1: אין אפשרות לייצר מפתח</translation>
     </message>
     <message>
         <source>%1: ftok failed</source>
@@ -7172,35 +7172,35 @@ The minimum Direct2D version required is %1. The Direct2D version on this system
     <name>QAbstractFileIconProvider</name>
     <message>
         <source>Drive</source>
-        <translation type="unfinished">כונן</translation>
+        <translation>כונן</translation>
     </message>
     <message>
         <source>File</source>
-        <translation type="unfinished">קובץ</translation>
+        <translation>קובץ</translation>
     </message>
     <message>
         <source>File Folder</source>
         <comment>Match Windows Explorer</comment>
-        <translation type="unfinished">תיקיית קבצים</translation>
+        <translation>תיקיית קבצים</translation>
     </message>
     <message>
         <source>Folder</source>
         <comment>All other platforms</comment>
-        <translation type="unfinished">תיקייה</translation>
+        <translation>תיקייה</translation>
     </message>
     <message>
         <source>Alias</source>
         <comment>macOS Finder</comment>
-        <translation type="unfinished">כינוי</translation>
+        <translation>כינוי</translation>
     </message>
     <message>
         <source>Shortcut</source>
         <comment>All other platforms</comment>
-        <translation type="unfinished">קיצור דרך</translation>
+        <translation>קיצור דרך</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">לא ידוע</translation>
+        <translation>לא ידוע</translation>
     </message>
 </context>
 <context>

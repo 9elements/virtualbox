@@ -5345,7 +5345,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>%1: key is empty</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1:kľúč je prázdny</translation>
     </message>
     <message>
         <source>%1: System V semaphores are not available for sandboxed applications. Please build Qt with -feature-ipc_posix</source>
@@ -5353,7 +5353,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>%1: unable to make key</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1: nepodarilo sa vytvoriť kľúč</translation>
     </message>
     <message>
         <source>%1: ftok failed</source>

@@ -28,7 +28,7 @@
     </message>
     <message>
         <source>Preferences...</source>
-        <translation>Préférences…</translation>
+        <translation>Préférences...</translation>
     </message>
     <message>
         <source>Quit %1</source>
@@ -61,7 +61,7 @@
     </message>
     <message>
         <source>Operation on socket is not supported</source>
-        <translation>L&apos;opération sur le socket n&apos;est pas supportée</translation>
+        <translation>L&apos;opération sur la socket n&apos;est pas supportée</translation>
     </message>
     <message>
         <source>Host not found</source>
@@ -1988,7 +1988,7 @@ Voulez-vous quand même le supprimer&#xa0;?</translation>
     <message>
         <source>%1, ...</source>
         <extracomment>This text is an &quot;unfinished&quot; shortcut, expands like &quot;Ctrl+A, ...&quot;</extracomment>
-        <translation>%1, …</translation>
+        <translation>%1, ...</translation>
     </message>
 </context>
 <context>
@@ -2260,11 +2260,11 @@ Voulez-vous quand même le supprimer&#xa0;?</translation>
     </message>
     <message>
         <source>%1: Socket access error</source>
-        <translation>%1&#xa0;: Erreur d&apos;accès au socket</translation>
+        <translation>%1&#xa0;: Erreur d&apos;accès à la socket</translation>
     </message>
     <message>
         <source>%1: Socket resource error</source>
-        <translation>%1&#xa0;: Erreur de ressource du socket</translation>
+        <translation>%1&#xa0;: Erreur de ressource de la socket</translation>
     </message>
     <message>
         <source>%1: Socket operation timed out</source>
@@ -2304,7 +2304,7 @@ Voulez-vous quand même le supprimer&#xa0;?</translation>
     </message>
     <message>
         <source>Socket is not connected</source>
-        <translation>Le socket n&apos;est pas connecté</translation>
+        <translation>La socket n&apos;est pas connectée</translation>
     </message>
     <message>
         <source>Remote closed</source>
@@ -2471,11 +2471,11 @@ Voulez-vous quand même le supprimer&#xa0;?</translation>
     <name>QMessageBox</name>
     <message>
         <source>Show Details...</source>
-        <translation>Montrer les détails…</translation>
+        <translation>Montrer les détails...</translation>
     </message>
     <message>
         <source>Hide Details...</source>
-        <translation>Masquer les détails…</translation>
+        <translation>Masquer les détails...</translation>
     </message>
     <message>
         <source>&lt;h3&gt;About Qt&lt;/h3&gt;&lt;p&gt;This program uses Qt version %1.&lt;/p&gt;</source>
@@ -2495,15 +2495,15 @@ Voulez-vous quand même le supprimer&#xa0;?</translation>
     <name>QNativeSocketEngine</name>
     <message>
         <source>Unable to initialize non-blocking socket</source>
-        <translation>Impossible d&apos;initialiser le socket asynchrone</translation>
+        <translation>Impossible d&apos;initialiser la socket asynchrone</translation>
     </message>
     <message>
         <source>Unable to initialize broadcast socket</source>
-        <translation>Impossible d&apos;initialiser le socket en broadcast</translation>
+        <translation>Impossible d&apos;initialiser la socket en broadcast</translation>
     </message>
     <message>
         <source>Attempt to use IPv6 socket on a platform with no IPv6 support</source>
-        <translation>Tentative d&apos;utiliser un socket IPv6 sur une plateforme qui ne supporte pas IPv6</translation>
+        <translation>Tentative d&apos;utiliser une socket IPv6 sur une plateforme qui ne supporte pas IPv6</translation>
     </message>
     <message>
         <source>The remote host closed the connection</source>
@@ -3695,7 +3695,7 @@ Voulez-vous quand même le supprimer&#xa0;?</translation>
     </message>
     <message>
         <source>Print To File ...</source>
-        <translation>Imprimer dans un fichier…</translation>
+        <translation>Imprimer dans un fichier...</translation>
     </message>
     <message>
         <source>%1 is a directory.
@@ -3982,7 +3982,7 @@ Veuillez désactiver l&apos;une de ces options.</translation>
     </message>
     <message>
         <source>...</source>
-        <translation>…</translation>
+        <translation>...</translation>
     </message>
 </context>
 <context>

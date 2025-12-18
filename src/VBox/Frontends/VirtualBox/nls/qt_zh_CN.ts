@@ -231,7 +231,7 @@
     </message>
     <message>
         <source>Application &quot;%1&quot; requires Qt %2, found Qt %3.</source>
-        <translation type="unfinished"></translation>
+        <translation>应用程序“%1”需要Qt %2，但找到的是Qt %3。</translation>
     </message>
 </context>
 <context>
@@ -421,7 +421,7 @@ Press ESC to cancel</source>
     </message>
     <message>
         <source>Displays help, including generic Qt options.</source>
-        <translation type="unfinished"></translation>
+        <translation>显示帮助信息，包括通用的 Qt 选项。</translation>
     </message>
 </context>
 <context>
@@ -626,98 +626,98 @@ Press ESC to cancel</source>
     </message>
     <message>
         <source>Invalid domain name</source>
-        <translation type="unfinished">无效的域名</translation>
+        <translation>无效的域名</translation>
     </message>
     <message>
         <source>SSL/TLS support not present</source>
-        <translation type="unfinished"></translation>
+        <translation>SSL/TLS 支持不存在</translation>
     </message>
     <message>
         <source>Request timed out</source>
-        <translation type="unfinished"></translation>
+        <translation>请求超时</translation>
     </message>
     <message>
         <source>Server could not process query</source>
-        <translation type="unfinished">服务器无法处理查询</translation>
+        <translation>服务器无法处理查询</translation>
     </message>
     <message>
         <source>Server failure</source>
-        <translation type="unfinished">服务器故障</translation>
+        <translation>服务器故障</translation>
     </message>
     <message>
         <source>Non existent domain</source>
-        <translation type="unfinished">不存在的域</translation>
+        <translation>不存在的域</translation>
     </message>
     <message>
         <source>Server refused to answer</source>
-        <translation type="unfinished">服务器拒绝回答</translation>
+        <translation>服务器拒绝回答</translation>
     </message>
     <message>
         <source>Invalid reply received (rcode %1)</source>
-        <translation type="unfinished"></translation>
+        <translation>收到无效回复（rcode %1）</translation>
     </message>
     <message>
         <source>Invalid reply received</source>
-        <translation type="unfinished">收到的回复无效</translation>
+        <translation>收到的回复无效</translation>
     </message>
     <message>
         <source>Invalid reply received (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>收到的回复无效（%1）</translation>
     </message>
     <message>
         <source>IPv6 nameservers are currently not supported on this OS</source>
-        <translation type="unfinished"></translation>
+        <translation>此操作系统当前不支持 IPv6 域名服务器</translation>
     </message>
     <message>
         <source>Reply was too large</source>
-        <translation type="unfinished"></translation>
+        <translation>回复过大</translation>
     </message>
     <message>
         <source>Could not expand domain name</source>
-        <translation type="unfinished">无法扩展域名</translation>
+        <translation>无法扩展域名</translation>
     </message>
     <message>
         <source>Invalid IPv4 address record</source>
-        <translation type="unfinished">无效的 IPv4 地址记录</translation>
+        <translation>无效的 IPv4 地址记录</translation>
     </message>
     <message>
         <source>Invalid IPv6 address record</source>
-        <translation type="unfinished">无效的 IPv6 地址记录</translation>
+        <translation>无效的 IPv6 地址记录</translation>
     </message>
     <message>
         <source>Invalid canonical name record</source>
-        <translation type="unfinished">无效的规范名称记录</translation>
+        <translation>无效的规范名称记录</translation>
     </message>
     <message>
         <source>Invalid name server record</source>
-        <translation type="unfinished">无效的名称服务器记录</translation>
+        <translation>无效的名称服务器记录</translation>
     </message>
     <message>
         <source>Invalid pointer record</source>
-        <translation type="unfinished">无效的指针记录</translation>
+        <translation>无效的指针记录</translation>
     </message>
     <message>
         <source>Invalid mail exchange record</source>
-        <translation type="unfinished">无效的邮件交换记录</translation>
+        <translation>无效的邮件交换记录</translation>
     </message>
     <message>
         <source>Invalid service record</source>
-        <translation type="unfinished">无效的服务记录</translation>
+        <translation>无效的服务记录</translation>
     </message>
     <message>
         <source>Invalid TLS association record</source>
-        <translation type="unfinished"></translation>
+        <translation>TLS 关联记录无效</translation>
     </message>
     <message>
         <source>Invalid text record</source>
-        <translation type="unfinished">无效的文本记录</translation>
+        <translation>无效的文本记录</translation>
     </message>
 </context>
 <context>
     <name>QDnsLookupRunnable</name>
     <message>
         <source>Not yet supported on this OS</source>
-        <translation type="unfinished"></translation>
+        <translation>此操作系统尚不支持</translation>
     </message>
 </context>
 <context>
@@ -928,7 +928,7 @@ Press ESC to cancel</source>
     </message>
     <message>
         <source>A valid UDP socket, non-empty datagram, and valid address/port were expected</source>
-        <translation type="unfinished"></translation>
+        <translation>预期应有一个有效的 UDP 套接字、非空的数据报以及有效的地址/端口</translation>
     </message>
 </context>
 <context>
@@ -963,7 +963,7 @@ Press ESC to cancel</source>
     </message>
     <message>
         <source>An error occurred</source>
-        <translation type="unfinished"></translation>
+        <translation>发生错误</translation>
     </message>
 </context>
 <context>
@@ -1010,11 +1010,11 @@ Press ESC to cancel</source>
     </message>
     <message>
         <source>Failure to write block: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>写入块失败：%1</translation>
     </message>
     <message>
         <source>Cannot create %1 for output: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>无法为输出 %2 创建 %1</translation>
     </message>
 </context>
 <context>
@@ -1612,15 +1612,15 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Alias for --qwindowgeometry.</source>
-        <translation type="unfinished"></translation>
+        <translation>qwindowgeometry 的别名。</translation>
     </message>
     <message>
         <source>Alias for --qwindowicon.</source>
-        <translation type="unfinished"></translation>
+        <translation>qwindowicon 的别名。</translation>
     </message>
     <message>
         <source>Alias for --qwindowtitle.</source>
-        <translation type="unfinished"></translation>
+        <translation>qwindowtitle 的别名</translation>
     </message>
 </context>
 <context>
@@ -1697,27 +1697,27 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Unsupported content encoding: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>不支持的内容编码：%1</translation>
     </message>
     <message>
         <source>Failed to initialize the compression decoder.</source>
-        <translation type="unfinished"></translation>
+        <translation>压缩解码器初始化失败。</translation>
     </message>
     <message>
         <source>The decompressed output exceeds the limits specified by QNetworkRequest::decompressedSafetyCheckThreshold()</source>
-        <translation type="unfinished"></translation>
+        <translation>解压后的输出超出了 QNetworkRequest::decompressedSafetyCheckThreshold() 函数所设定的限制</translation>
     </message>
     <message>
         <source>Decompression failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>解压缩失败：%1</translation>
     </message>
     <message>
         <source>Data downloaded is too large to store</source>
-        <translation type="unfinished"></translation>
+        <translation>下载的数据过大，无法存储</translation>
     </message>
     <message>
         <source>Failed to initialize decompression: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>初始化解压缩失败：%1</translation>
     </message>
 </context>
 <context>
@@ -1779,11 +1779,11 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Could not subscribe to event notifications for %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法订阅 %1 的事件通知。</translation>
     </message>
     <message>
         <source>Could not unsubscribe from event notifications for %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法取消订阅 %1 的事件通知。</translation>
     </message>
 </context>
 <context>
@@ -1858,15 +1858,15 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Array size mismatch. Field name: %3, expected size: %1. Supplied size: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>数组大小不匹配。字段名：%3，预期大小：%1。提供的大小：%2</translation>
     </message>
     <message>
         <source>Array dimensions mismatch. Field name: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>数组维度不匹配。字段名：%1</translation>
     </message>
     <message>
         <source>Array size mismatch: size of %1 is %2, size of provided list is %3</source>
-        <translation type="unfinished"></translation>
+        <translation>数组大小不匹配：%1 的大小为 %2，提供的列表大小为 %3</translation>
     </message>
 </context>
 <context>
@@ -2092,143 +2092,143 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>&apos;%1&apos; is not a valid Windows DLL (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>“%1”不是有效的Windows动态链接库（%2）</translation>
     </message>
     <message>
         <source>&apos;%1&apos; is too small</source>
-        <translation type="unfinished"></translation>
+        <translation>“%1”太小</translation>
     </message>
     <message>
         <source>&apos;%1&apos; is not a Qt plugin (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>“%1”不是 Qt 插件（%2）</translation>
     </message>
     <message>
         <source>metadata not found</source>
-        <translation type="unfinished"></translation>
+        <translation>未找到元数据</translation>
     </message>
     <message>
         <source>invalid signature</source>
-        <translation type="unfinished"></translation>
+        <translation>无效的签名</translation>
     </message>
     <message>
         <source>file is for a different processor</source>
-        <translation type="unfinished"></translation>
+        <translation>该文件适用于不同的处理器</translation>
     </message>
     <message>
         <source>file has no sections</source>
-        <translation type="unfinished"></translation>
+        <translation>文件没有分节</translation>
     </message>
     <message>
         <source>wrong characteristics</source>
-        <translation type="unfinished"></translation>
+        <translation>错误的特征</translation>
     </message>
     <message>
         <source>file is for a different word size</source>
-        <translation type="unfinished"></translation>
+        <translation>该文件适用于不同的字长大小</translation>
     </message>
     <message>
         <source>file has no code</source>
-        <translation type="unfinished"></translation>
+        <translation>文件没有代码</translation>
     </message>
     <message>
         <source>a section name is empty or extends past the end of the file</source>
-        <translation type="unfinished"></translation>
+        <translation>节名为空或超出文件末尾</translation>
     </message>
     <message>
         <source>section contents extend past the end of the file</source>
-        <translation type="unfinished"></translation>
+        <translation>节内容延伸到文件末尾之后</translation>
     </message>
     <message>
         <source>.qtmetadata section is too small</source>
-        <translation type="unfinished"></translation>
+        <translation>.qtmetadata 节太小</translation>
     </message>
     <message>
         <source>.qtmetadata section has incorrect magic</source>
-        <translation type="unfinished"></translation>
+        <translation>.qtmetadata 部分的魔词不正确</translation>
     </message>
     <message>
         <source>.qtmetadata section is writable</source>
-        <translation type="unfinished"></translation>
+        <translation>.qtmetadata 节是可写的</translation>
     </message>
     <message>
         <source>.qtmetadata section is executable</source>
-        <translation type="unfinished"></translation>
+        <translation>.qtmetadata 节是可执行的</translation>
     </message>
     <message>
         <source>file is for the wrong endianness</source>
-        <translation type="unfinished"></translation>
+        <translation>文件适用于错误的字节序</translation>
     </message>
     <message>
         <source>file has an unknown ELF version</source>
-        <translation type="unfinished"></translation>
+        <translation>文件的 ELF 版本未知</translation>
     </message>
     <message>
         <source>file has an unexpected ABI</source>
-        <translation type="unfinished"></translation>
+        <translation>文件具有意外的 ABI</translation>
     </message>
     <message>
         <source>file is not a shared object</source>
-        <translation type="unfinished"></translation>
+        <translation>文件不是共享对象</translation>
     </message>
     <message>
         <source>&apos;%1&apos; is not a valid ELF object (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>“%1”不是有效的 ELF 对象（%2）</translation>
     </message>
     <message>
         <source>unimplemented: PN_XNUM program headers</source>
-        <translation type="unfinished"></translation>
+        <translation>未实现：PN_XNUM 程序头</translation>
     </message>
     <message>
         <source>program header table extends past the end of the file</source>
-        <translation type="unfinished"></translation>
+        <translation>程序头表延伸到文件末尾之后</translation>
     </message>
     <message>
         <source>a program header entry extends past the end of the file</source>
-        <translation type="unfinished"></translation>
+        <translation>程序头条目延伸到文件末尾之后</translation>
     </message>
     <message>
         <source>a note segment start is not properly aligned (offset 0x%1, alignment %2)</source>
-        <translation type="unfinished"></translation>
+        <translation>注释段开头未正确对齐（偏移量 0x%1，对齐方式 %2）</translation>
     </message>
     <message>
         <source>section table extends past the end of the file</source>
-        <translation type="unfinished"></translation>
+        <translation>节表延伸到文件末尾之后</translation>
     </message>
     <message>
         <source>section header string table extends past the end of the file</source>
-        <translation type="unfinished"></translation>
+        <translation>节标题字符串表延伸到文件末尾之后</translation>
     </message>
     <message>
         <source>a section name extends past the end of the file</source>
-        <translation type="unfinished"></translation>
+        <translation>节名称延伸到文件末尾之后</translation>
     </message>
     <message>
         <source>unexpected program header entry size (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>意外的程序头条目大小（%1）</translation>
     </message>
     <message>
         <source>unexpected section entry size (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>意外的节条目大小（%1）</translation>
     </message>
     <message>
         <source>e_shstrndx greater than the number of sections e_shnum (%1 &gt;= %2)</source>
-        <translation type="unfinished"></translation>
+        <translation>e_shstrndx 大于节数 e_shnum（%1 &gt;= %2）</translation>
     </message>
     <message>
         <source>Failed to extract plugin meta data from &apos;%1&apos;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>无法从“%1”提取插件元数据：%2</translation>
     </message>
     <message>
         <source>Could not resolve &apos;qt_plugin_instance&apos; function</source>
-        <translation type="unfinished"></translation>
+        <translation>无法解析“qt_plugin_instance”函数</translation>
     </message>
     <message>
         <source>metadata too small</source>
-        <translation type="unfinished"></translation>
+        <translation>元数据太小</translation>
     </message>
     <message>
         <source>entrypoint to query the plugin meta data not found</source>
-        <translation type="unfinished"></translation>
+        <translation>未找到查询插件元数据的入口点</translation>
     </message>
 </context>
 <context>
@@ -2345,7 +2345,7 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Remote closed</source>
-        <translation type="unfinished"></translation>
+        <translation>远程关闭</translation>
     </message>
 </context>
 <context>
@@ -2527,7 +2527,7 @@ Do you want to delete it anyway?</source>
     <message>
         <source>&lt;p&gt;Qt is a C++ toolkit for cross-platform application development.&lt;/p&gt;&lt;p&gt;Qt provides single-source portability across all major desktop operating systems. It is also available for embedded Linux and other embedded and mobile operating systems.&lt;/p&gt;&lt;p&gt;Qt is available under multiple licensing options designed to accommodate the needs of our various users.&lt;/p&gt;&lt;p&gt;Qt licensed under our commercial license agreement is appropriate for development of proprietary/commercial software where you do not want to share any source code with third parties or otherwise cannot comply with the terms of GNU (L)GPL.&lt;/p&gt;&lt;p&gt;Qt licensed under GNU (L)GPL is appropriate for the development of Qt&amp;nbsp;applications provided you can comply with the terms and conditions of the respective licenses.&lt;/p&gt;&lt;p&gt;Please see &lt;a href=&quot;https://%2/&quot;&gt;%2&lt;/a&gt; for an overview of Qt licensing.&lt;/p&gt;&lt;p&gt;Copyright (C) The Qt Company Ltd. and other contributors.&lt;/p&gt;&lt;p&gt;Qt and the Qt logo are trademarks of The Qt Company Ltd.&lt;/p&gt;&lt;p&gt;Qt is The Qt Company Ltd. product developed as an open source project. See &lt;a href=&quot;https://%3/&quot;&gt;%3&lt;/a&gt; for more information.&lt;/p&gt;</source>
         <extracomment>Leave this text untranslated or include a verbatim copy of it below and note that it is the authoritative version in case of doubt.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Qt 是一个用于跨平台应用程序开发的 C++ 工具包。&lt;/p&gt;&lt;p&gt;Qt 提供跨所有主要桌面操作系统的单源可移植性。它也可用于嵌入式 Linux 和其他嵌入式和移动操作系统。&lt;/p&gt;&lt;p&gt;Qt 提供多种许可选项，旨在满足不同用户的需求。&lt;/p&gt;&lt;p&gt;根据我们的商业许可协议许可的 Qt 适用于开发专有/商业软件，在这些软件中，您不想与第三方共享任何源代码，或者无法遵守 GNU (L)GPL 的条款。&lt;/p&gt;&lt;p&gt;根据 GNU (L)GPL 许可的 Qt 适用于 Qt 的开发；提供的应用程序可以遵守相应许可证的条款和条件。&lt;/p&gt;&lt;p&gt;有关 Qt 许可的概述，请参阅&lt;a href=&quot;https://%2/&quot;&gt;%2&lt;/a&gt;。&lt;/p&gt;&lt;p&gt;版权所有（C） Qt 有限公司和其他贡献者。&lt;/p&gt;&lt;p&gt;Qt 和 Qt 徽标是 Qt 有限公司的商标&lt;/p&gt;&lt;p&gt;Qt 是  Qt 有限公司作为开源项目开发的产品。有关详细信息，请参阅&lt;a href=&quot;https://%3/&quot;&gt;%3&lt;/a&gt;。&lt;/p&gt;&lt;p&gt;Qt is a C++ toolkit for cross-platform application development.&lt;/p&gt;&lt;p&gt;Qt provides single-source portability across all major desktop operating systems. It is also available for embedded Linux and other embedded and mobile operating systems.&lt;/p&gt;&lt;p&gt;Qt is available under multiple licensing options designed to accommodate the needs of our various users.&lt;/p&gt;&lt;p&gt;Qt licensed under our commercial license agreement is appropriate for development of proprietary/commercial software where you do not want to share any source code with third parties or otherwise cannot comply with the terms of GNU (L)GPL.&lt;/p&gt;&lt;p&gt;Qt licensed under GNU (L)GPL is appropriate for the development of Qt&amp;nbsp;applications provided you can comply with the terms and conditions of the respective licenses.&lt;/p&gt;&lt;p&gt;Please see &lt;a href=&quot;https://%2/&quot;&gt;%2&lt;/a&gt; for an overview of Qt licensing.&lt;/p&gt;&lt;p&gt;Copyright (C) The Qt Company Ltd. and other contributors.&lt;/p&gt;&lt;p&gt;Qt and the Qt logo are trademarks of The Qt Company Ltd.&lt;/p&gt;&lt;p&gt;Qt is The Qt Company Ltd. product developed as an open source project. See &lt;a href=&quot;https://%3/&quot;&gt;%3&lt;/a&gt; for more information.&lt;/p&gt;</translation>
     </message>
 </context>
 <context>
@@ -2860,7 +2860,7 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>QODBCResult::reset: Unable to set &apos;SQL_ATTR_CURSOR_TYPE&apos; as statement attribute. Please check your ODBC driver configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>QODBCResult::reset：无法将“Async ATTR_CURSOR_TYPE”设置为语句属性。请检查您的ODBC驱动程序配置</translation>
     </message>
 </context>
 <context>
@@ -2891,7 +2891,7 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Unable to set client encoding to &apos;UNICODE&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>无法将客户端编码设置为“UNICODE”</translation>
     </message>
 </context>
 <context>
@@ -4069,19 +4069,19 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Child process modifier threw an exception: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>子进程修改器引发异常：%1</translation>
     </message>
     <message>
         <source>Child process modifier reported error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>子进程修改器报告错误：%1</translation>
     </message>
     <message>
         <source>Child process modifier reported error: %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>子进程修改器报告错误：%1: %2</translation>
     </message>
     <message>
         <source>Child process set up failed: %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>子进程设置失败：%1: %2</translation>
     </message>
 </context>
 <context>
@@ -4335,47 +4335,47 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>escape sequence is invalid in character class</source>
-        <translation type="unfinished"></translation>
+        <translation>转义序列在字符类中无效</translation>
     </message>
     <message>
         <source>missing closing parenthesis for condition</source>
-        <translation type="unfinished"></translation>
+        <translation>缺少条件的右括号</translation>
     </message>
     <message>
         <source>a relative value of zero is not allowed</source>
-        <translation type="unfinished"></translation>
+        <translation>不允许相对值为零</translation>
     </message>
     <message>
         <source>conditional subpattern contains more than two branches</source>
-        <translation type="unfinished"></translation>
+        <translation>条件子模式包含两个以上的分支</translation>
     </message>
     <message>
         <source>digit expected after (?+ or (?-</source>
-        <translation type="unfinished"></translation>
+        <translation>(?+ 或 (?- 后面需要数字</translation>
     </message>
     <message>
         <source>lookbehind is too complicated</source>
-        <translation type="unfinished"></translation>
+        <translation>向后看太复杂了</translation>
     </message>
     <message>
         <source>\C is not allowed in a lookbehind assertion in UTF-16 mode</source>
-        <translation type="unfinished"></translation>
+        <translation>在 UTF-16 模式下，不允许在后视镜断言中使用 \C</translation>
     </message>
     <message>
         <source>PCRE2 does not support \F, \L, \l, \N{name}, \U, or \u</source>
-        <translation type="unfinished"></translation>
+        <translation>PCRE2 不支持\F、\L、\L、\N{name}、\U 或 \U</translation>
     </message>
     <message>
         <source>syntax error in subpattern name (missing terminator?)</source>
-        <translation type="unfinished"></translation>
+        <translation>子模式名称语法错误（缺少终止符？）</translation>
     </message>
     <message>
         <source>subpattern name must start with a non-digit</source>
-        <translation type="unfinished"></translation>
+        <translation>子模式名称必须以非数字开头</translation>
     </message>
     <message>
         <source>subpattern name is too long (maximum 32 code units)</source>
-        <translation type="unfinished"></translation>
+        <translation>子模式名称太长（最多 32 个代码单元）</translation>
     </message>
     <message>
         <source>too many named subpatterns (maximum 10000)</source>
@@ -4383,39 +4383,39 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>DEFINE subpattern contains more than one branch</source>
-        <translation type="unfinished"></translation>
+        <translation>DEFINE 子模式包含多个分支</translation>
     </message>
     <message>
         <source>(?R (recursive pattern call) must be followed by a closing parenthesis</source>
-        <translation type="unfinished"></translation>
+        <translation>(?R （递归模式调用）后面必须有一个右括号</translation>
     </message>
     <message>
         <source>obsolete error (should not occur)</source>
-        <translation type="unfinished"></translation>
+        <translation>过时错误（不应发生）</translation>
     </message>
     <message>
         <source>subpattern number is too big</source>
-        <translation type="unfinished"></translation>
+        <translation>子模式编号太大</translation>
     </message>
     <message>
         <source>internal error: parsed pattern overflow</source>
-        <translation type="unfinished"></translation>
+        <translation>内部错误：解析模式溢出</translation>
     </message>
     <message>
         <source>internal error: unknown meta code in check_lookbehinds()</source>
-        <translation type="unfinished"></translation>
+        <translation>内部错误：check_lookbehinds() 中的元代码未知</translation>
     </message>
     <message>
         <source>callout string is too long</source>
-        <translation type="unfinished"></translation>
+        <translation>标注字符串太长</translation>
     </message>
     <message>
         <source>digits missing in \x{} or \o{} or \N{U+}</source>
-        <translation type="unfinished"></translation>
+        <translation>\x{}、\o{} 或 \N{U+}中缺少数字</translation>
     </message>
     <message>
         <source>syntax error or number too big in (?(VERSION condition</source>
-        <translation type="unfinished"></translation>
+        <translation>语法错误或 (?(VERSION 条件中的数字太大</translation>
     </message>
     <message>
         <source>internal error: unknown opcode in auto_possessify()</source>
@@ -4455,43 +4455,43 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>internal error: unknown code in parsed pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>内部错误：解析模式中的未知代码</translation>
     </message>
     <message>
         <source>internal error: bad code value in parsed_skip()</source>
-        <translation type="unfinished"></translation>
+        <translation>内部错误：parsed_skip() 中的代码值错误</translation>
     </message>
     <message>
         <source>PCRE2_EXTRA_ALLOW_SURROGATE_ESCAPES is not allowed in UTF-16 mode</source>
-        <translation type="unfinished"></translation>
+        <translation>在 UTF-16 模式下不允许使用 PCRE2_EXTRA_ALLOW_SURROGATE_ESCAPES</translation>
     </message>
     <message>
         <source>invalid option bits with PCRE2_LITERAL</source>
-        <translation type="unfinished"></translation>
+        <translation>PCRE2_LITERAL 的选项比特位无效</translation>
     </message>
     <message>
         <source>\N{U+dddd} is supported only in Unicode (UTF) mode</source>
-        <translation type="unfinished"></translation>
+        <translation>\N{U+dddd} 仅在 Unicode (UTF) 模式下受支持</translation>
     </message>
     <message>
         <source>invalid hyphen in option setting</source>
-        <translation type="unfinished"></translation>
+        <translation>选项设置中的连字符无效</translation>
     </message>
     <message>
         <source>(*alpha_assertion) not recognized</source>
-        <translation type="unfinished"></translation>
+        <translation>(*alpha_assertion) 无法识别</translation>
     </message>
     <message>
         <source>script runs require Unicode support, which this version of PCRE2 does not have</source>
-        <translation type="unfinished"></translation>
+        <translation>脚本运行需要 Unicode 支持，而此版本的 PCRE2 不支持 Unicode</translation>
     </message>
     <message>
         <source>too many capturing groups (maximum 65535)</source>
-        <translation type="unfinished"></translation>
+        <translation>捕获组太多（最多 65535个）</translation>
     </message>
     <message>
         <source>atomic assertion expected after (?( or (?(?C)</source>
-        <translation type="unfinished"></translation>
+        <translation>在 (?( 或 (?(?C) 后面需要原子断言</translation>
     </message>
     <message>
         <source>no match</source>
@@ -4703,31 +4703,31 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>matching depth limit exceeded</source>
-        <translation type="unfinished"></translation>
+        <translation>超出匹配深度限制</translation>
     </message>
     <message>
         <source>match with end before start or start moved backwards is not supported</source>
-        <translation type="unfinished"></translation>
+        <translation>不支持先结束后开始或向后移动开始的匹配</translation>
     </message>
     <message>
         <source>bad serialized data</source>
-        <translation type="unfinished"></translation>
+        <translation>序列化数据错误</translation>
     </message>
     <message>
         <source>heap limit exceeded</source>
-        <translation type="unfinished"></translation>
+        <translation>超出堆限制</translation>
     </message>
     <message>
         <source>invalid syntax</source>
-        <translation type="unfinished"></translation>
+        <translation>无效语法</translation>
     </message>
     <message>
         <source>internal error - duplicate substitution match</source>
-        <translation type="unfinished"></translation>
+        <translation>内部错误--重复替换匹配</translation>
     </message>
     <message>
         <source>PCRE2_MATCH_INVALID_UTF is not supported for DFA matching</source>
-        <translation type="unfinished"></translation>
+        <translation>DFA 匹配不支持 PCRE2_MATCH_INVALID_UTF</translation>
     </message>
     <message>
         <source>requested value is not available</source>
@@ -4759,7 +4759,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>INTERNAL ERROR: invalid substring offset</source>
-        <translation type="unfinished"></translation>
+        <translation>内部错误：子字符串偏移量无效</translation>
     </message>
 </context>
 <context>
@@ -4961,15 +4961,15 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>%1: unsupported key type</source>
-        <translation type="unfinished"></translation>
+        <translation>%1：不支持的密钥类型</translation>
     </message>
     <message>
         <source>%1: unable to set key on lock (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1:无法在锁上设置密钥 (%2)</translation>
     </message>
     <message>
         <source>%1: unknown error: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: 未知错误: %2</translation>
     </message>
 </context>
 <context>
@@ -5995,7 +5995,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Control</source>
-        <translation type="unfinished"></translation>
+        <translation>Control</translation>
     </message>
 </context>
 <context>
@@ -6613,47 +6613,47 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>No OCSP status response found</source>
-        <translation type="unfinished"></translation>
+        <translation>未找到 OCSP 状态响应</translation>
     </message>
     <message>
         <source>The OCSP status request had invalid syntax</source>
-        <translation type="unfinished"></translation>
+        <translation>OCSP 状态请求的语法无效</translation>
     </message>
     <message>
         <source>OCSP response contains an unexpected number of SingleResponse structures</source>
-        <translation type="unfinished"></translation>
+        <translation>OCSP 响应包含意外数量的 SingleResponse 结构</translation>
     </message>
     <message>
         <source>OCSP responder reached an inconsistent internal state</source>
-        <translation type="unfinished"></translation>
+        <translation>OCSP 响应程序达到不一致的内部状态</translation>
     </message>
     <message>
         <source>OCSP responder was unable to return a status for the requested certificate</source>
-        <translation type="unfinished"></translation>
+        <translation>OCSP 响应程序无法返回所请求证书的状态</translation>
     </message>
     <message>
         <source>The server requires the client to sign the OCSP request in order to construct a response</source>
-        <translation type="unfinished"></translation>
+        <translation>服务器要求客户端对 OCSP 请求进行签名，以便构造响应</translation>
     </message>
     <message>
         <source>The client is not authorized to request OCSP status from this server</source>
-        <translation type="unfinished"></translation>
+        <translation>客户端无权从此服务器请求 OCSP 状态</translation>
     </message>
     <message>
         <source>OCSP responder&apos;s identity cannot be verified</source>
-        <translation type="unfinished"></translation>
+        <translation>无法验证 OCSP 响应者的身份</translation>
     </message>
     <message>
         <source>The identity of a certificate in an OCSP response cannot be established</source>
-        <translation type="unfinished"></translation>
+        <translation>无法建立 OCSP 响应中的证书标识</translation>
     </message>
     <message>
         <source>The certificate status response has expired</source>
-        <translation type="unfinished"></translation>
+        <translation>证书状态响应已过期</translation>
     </message>
     <message>
         <source>The certificate&apos;s status is unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>证书的状态未知</translation>
     </message>
     <message>
         <source>Unknown error</source>
@@ -6665,7 +6665,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Attempted to use an unsupported protocol.</source>
-        <translation type="unfinished"></translation>
+        <translation>试图使用不受支持的协议。</translation>
     </message>
     <message>
         <source>The TLS/SSL connection has been closed</source>
@@ -6681,15 +6681,15 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Server-side QSslSocket does not support OCSP stapling</source>
-        <translation type="unfinished"></translation>
+        <translation>服务器端 QSslSocket 不支持 OCSP 装订</translation>
     </message>
     <message>
         <source>Failed to enable OCSP stapling</source>
-        <translation type="unfinished"></translation>
+        <translation>无法启用 OCSP 装订</translation>
     </message>
     <message>
         <source>Client-side sockets do not send OCSP responses</source>
-        <translation type="unfinished"></translation>
+        <translation>客户端套接字不发送 OCSP 响应</translation>
     </message>
     <message>
         <source>Unable to init SSL Context: %1</source>
@@ -6713,147 +6713,147 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Failed to decode OCSP response</source>
-        <translation type="unfinished"></translation>
+        <translation>解码 OCSP 响应失败</translation>
     </message>
     <message>
         <source>Failed to extract basic OCSP response</source>
-        <translation type="unfinished"></translation>
+        <translation>未能提取基本 OCSP 响应</translation>
     </message>
     <message>
         <source>No certificate verification store, cannot verify OCSP response</source>
-        <translation type="unfinished"></translation>
+        <translation>没有证书验证存储，无法验证 OCSP 响应</translation>
     </message>
     <message>
         <source>Failed to decode a SingleResponse from OCSP status response</source>
-        <translation type="unfinished"></translation>
+        <translation>未能从 OCSP 状态响应中解码 SingleResponse</translation>
     </message>
     <message>
         <source>Failed to extract &apos;this update time&apos; from the SingleResponse</source>
-        <translation type="unfinished"></translation>
+        <translation>未能从 SingleResponse 中提取“此更新时间”</translation>
     </message>
     <message>
         <source>Insufficient memory</source>
-        <translation type="unfinished"></translation>
+        <translation>内存不足</translation>
     </message>
     <message>
         <source>Internal error</source>
-        <translation type="unfinished"></translation>
+        <translation>内部错误</translation>
     </message>
     <message>
         <source>An internal handle was invalid</source>
-        <translation type="unfinished"></translation>
+        <translation>内部句柄无效</translation>
     </message>
     <message>
         <source>An internal token was invalid</source>
-        <translation type="unfinished"></translation>
+        <translation>内部词符无效</translation>
     </message>
     <message>
         <source>Access denied</source>
-        <translation type="unfinished"></translation>
+        <translation>拒绝访问</translation>
     </message>
     <message>
         <source>No authority could be contacted for authorization</source>
-        <translation type="unfinished"></translation>
+        <translation>无法联系任何机构进行授权</translation>
     </message>
     <message>
         <source>No credentials</source>
-        <translation type="unfinished"></translation>
+        <translation>没有凭据</translation>
     </message>
     <message>
         <source>The target is unknown or unreachable</source>
-        <translation type="unfinished"></translation>
+        <translation>目标未知或无法到达</translation>
     </message>
     <message>
         <source>An unsupported function was requested</source>
-        <translation type="unfinished"></translation>
+        <translation>请求了不受支持的函数</translation>
     </message>
     <message>
         <source>The hostname provided does not match the one received from the peer</source>
-        <translation type="unfinished"></translation>
+        <translation>提供的主机名与从对等端收到的主机名不匹配</translation>
     </message>
     <message>
         <source>No common protocol exists between the client and the server</source>
-        <translation type="unfinished"></translation>
+        <translation>客户端和服务器之间不存在通用协议</translation>
     </message>
     <message>
         <source>Unexpected or badly-formatted message received</source>
-        <translation type="unfinished"></translation>
+        <translation>收到意外或格式错误的消息</translation>
     </message>
     <message>
         <source>The data could not be encrypted</source>
-        <translation type="unfinished"></translation>
+        <translation>数据无法加密</translation>
     </message>
     <message>
         <source>No cipher suites in common</source>
-        <translation type="unfinished"></translation>
+        <translation>没有共同的密码套件</translation>
     </message>
     <message>
         <source>The credentials were not recognized / Invalid argument</source>
-        <translation type="unfinished"></translation>
+        <translation>无法识别凭据 / 参数无效</translation>
     </message>
     <message>
         <source>The message was tampered with, damaged or out of sequence.</source>
-        <translation type="unfinished"></translation>
+        <translation>消息被篡改、损坏或顺序错误。</translation>
     </message>
     <message>
         <source>A message was received out of sequence.</source>
-        <translation type="unfinished"></translation>
+        <translation>收到的消息顺序错误。</translation>
     </message>
     <message>
         <source>Unknown error occurred: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>出现未知错误：%1</translation>
     </message>
     <message>
         <source>Invalid protocol chosen</source>
-        <translation type="unfinished"></translation>
+        <translation>选择的协议无效</translation>
     </message>
     <message>
         <source>The certificate provided cannot be used for a client.</source>
-        <translation type="unfinished"></translation>
+        <translation>提供的证书不能用于客户端。</translation>
     </message>
     <message>
         <source>The certificate provided cannot be used for a server.</source>
-        <translation type="unfinished"></translation>
+        <translation>提供的证书不能用于服务器。</translation>
     </message>
     <message>
         <source>Server did not accept any certificate we could present.</source>
-        <translation type="unfinished"></translation>
+        <translation>服务器不接受我们提供的任何证书。</translation>
     </message>
     <message>
         <source>Algorithm mismatch</source>
-        <translation type="unfinished"></translation>
+        <translation>算法不匹配</translation>
     </message>
     <message>
         <source>Handshake failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>握手失败：%1</translation>
     </message>
     <message>
         <source>Failed to query the TLS context: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>查询 TLS 上下文失败：%1</translation>
     </message>
     <message>
         <source>Did not get the required attributes for the connection.</source>
-        <translation type="unfinished"></translation>
+        <translation>未获取连接所需的属性。</translation>
     </message>
     <message>
         <source>Unwanted protocol was negotiated</source>
-        <translation type="unfinished"></translation>
+        <translation>协商达成了不必要的协议</translation>
     </message>
     <message>
         <source>Renegotiation was unsuccessful: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>重新协商不成功：%1</translation>
     </message>
     <message>
         <source>Schannel failed to encrypt data: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Schannel 未能加密数据：%1</translation>
     </message>
     <message>
         <source>Cannot provide a certificate with no key</source>
-        <translation type="unfinished"></translation>
+        <translation>无法提供没有密钥的证书</translation>
     </message>
     <message>
         <source>TLS certificate unexpectedly changed during renegotiation!</source>
-        <translation type="unfinished"></translation>
+        <translation>TLS 证书在重新协商过程中意外更改！</translation>
     </message>
 </context>
 <context>
@@ -6932,24 +6932,24 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>State</source>
-        <translation type="unfinished"></translation>
+        <translation>状态</translation>
     </message>
     <message>
         <source>Shared State</source>
-        <translation type="unfinished"></translation>
+        <translation>共享状态</translation>
     </message>
     <message>
         <source>Public</source>
-        <translation type="unfinished"></translation>
+        <translation>公开的</translation>
     </message>
     <message>
         <source>Templates</source>
-        <translation type="unfinished"></translation>
+        <translation>模板</translation>
     </message>
     <message>
         <source>Temporary Items</source>
         <extracomment>macOS: Temporary directory</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>临时项</translation>
     </message>
 </context>
 <context>
@@ -6972,31 +6972,31 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>%1: unsupported key type</source>
-        <translation type="unfinished"></translation>
+        <translation>%1：不支持的密钥类型</translation>
     </message>
     <message>
         <source>%1: key too long</source>
-        <translation type="unfinished"></translation>
+        <translation>%1：密钥太长</translation>
     </message>
     <message>
         <source>%1: unknown error: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: 未知错误: %2</translation>
     </message>
     <message>
         <source>%1: key is empty</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: 密钥为空</translation>
     </message>
     <message>
         <source>%1: System V semaphores are not available for sandboxed applications. Please build Qt with -feature-ipc_posix</source>
-        <translation type="unfinished"></translation>
+        <translation>%1:System V 信号量不适用于沙盒应用程序。请使用 -feature-ipc_posix 构建 Qt</translation>
     </message>
     <message>
         <source>%1: unable to make key</source>
-        <translation type="unfinished"></translation>
+        <translation>%1：无法制作密钥</translation>
     </message>
     <message>
         <source>%1: ftok failed</source>
-        <translation type="unfinished">%1：ftok 失败</translation>
+        <translation>%1：ftok 失败</translation>
     </message>
 </context>
 <context>
@@ -7359,11 +7359,11 @@ The minimum Direct2D version required is %1. The Direct2D version on this system
     </message>
     <message>
         <source>Self-referencing entity detected.</source>
-        <translation type="unfinished"></translation>
+        <translation>检测到自引用实体。</translation>
     </message>
     <message>
         <source>Entity expands to more characters than the entity expansion limit.</source>
-        <translation type="unfinished"></translation>
+        <translation>实体扩展到的字符数超过了实体扩展限制。</translation>
     </message>
     <message>
         <source>Start tag expected.</source>
@@ -7415,121 +7415,121 @@ The minimum Direct2D version required is %1. The Direct2D version on this system
     </message>
     <message>
         <source>Invalid attribute in XML declaration: %1 = %2</source>
-        <translation type="unfinished"></translation>
+        <translation>XML 声明中的属性无效：%1 = %2</translation>
     </message>
     <message>
         <source>Length of XML attribute name exceeds implementation limits (4KiB characters).</source>
-        <translation type="unfinished"></translation>
+        <translation>XML 属性名称的长度超过了实现限制（4KiB 个字符）。</translation>
     </message>
     <message>
         <source>Unexpected token type %1 in %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>%2 中出现意外的词符类型 %1。</translation>
     </message>
     <message>
         <source>Found second DTD token in %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>在 %1 中找到了第二个 DTD 词符。</translation>
     </message>
 </context>
 <context>
     <name>Assets::Downloader::AssetDownloader</name>
     <message>
         <source>Downloading JSON file...</source>
-        <translation type="unfinished"></translation>
+        <translation>正在下载 JSON 文件...</translation>
     </message>
     <message>
         <source>Downloading zip file...</source>
-        <translation type="unfinished"></translation>
+        <translation>正在下载 zip 文件...</translation>
     </message>
     <message>
         <source>Unzipping...</source>
-        <translation type="unfinished"></translation>
+        <translation>正在解压缩...</translation>
     </message>
     <message>
         <source>Downloading assets...</source>
-        <translation type="unfinished"></translation>
+        <translation>正在下载资源文件...</translation>
     </message>
     <message>
         <source>Copying assets...</source>
-        <translation type="unfinished"></translation>
+        <translation>正在拷贝资源文件...</translation>
     </message>
 </context>
 <context>
     <name>QFactoryLoader</name>
     <message>
         <source>Metadata parsing error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>元数据解析错误：%1</translation>
     </message>
     <message>
         <source>Invalid metadata version</source>
-        <translation type="unfinished"></translation>
+        <translation>元数据版本无效</translation>
     </message>
     <message>
         <source>Unexpected metadata contents</source>
-        <translation type="unfinished"></translation>
+        <translation>意外的元数据内容</translation>
     </message>
 </context>
 <context>
     <name>QAbstractFileIconProvider</name>
     <message>
         <source>Drive</source>
-        <translation type="unfinished">驱动器</translation>
+        <translation>驱动器</translation>
     </message>
     <message>
         <source>File</source>
-        <translation type="unfinished">文件</translation>
+        <translation>文件</translation>
     </message>
     <message>
         <source>File Folder</source>
         <comment>Match Windows Explorer</comment>
-        <translation type="unfinished">文件夹</translation>
+        <translation>文件夹</translation>
     </message>
     <message>
         <source>Folder</source>
         <comment>All other platforms</comment>
-        <translation type="unfinished">文件夹</translation>
+        <translation>文件夹</translation>
     </message>
     <message>
         <source>Alias</source>
         <comment>macOS Finder</comment>
-        <translation type="unfinished">别名</translation>
+        <translation>别名</translation>
     </message>
     <message>
         <source>Shortcut</source>
         <comment>All other platforms</comment>
-        <translation type="unfinished">快捷方式</translation>
+        <translation>快捷方式</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">未知</translation>
+        <translation>未知</translation>
     </message>
 </context>
 <context>
     <name>QCocoaMenuBar</name>
     <message>
         <source>Edit</source>
-        <translation type="unfinished"></translation>
+        <translation>编辑</translation>
     </message>
 </context>
 <context>
     <name>quiaccessibilityelement</name>
     <message>
         <source>checked</source>
-        <translation type="unfinished"></translation>
+        <translation>勾选</translation>
     </message>
     <message>
         <source>unchecked</source>
-        <translation type="unfinished"></translation>
+        <translation>未勾选</translation>
     </message>
 </context>
 <context>
     <name>QMimerSQL</name>
     <message>
         <source>No Mimer SQL error for code %1</source>
-        <translation type="unfinished"></translation>
+        <translation>代码 %1 没有 Mimer SQL 错误</translation>
     </message>
     <message>
         <source>Generic Mimer SQL error</source>
-        <translation type="unfinished"></translation>
+        <translation>通用 Mimer SQL 错误</translation>
     </message>
 </context>
 <context>
@@ -7537,99 +7537,99 @@ The minimum Direct2D version required is %1. The Direct2D version on this system
     <message>
         <source>Could not get %1, column %2</source>
         <extracomment>Data type, column</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>无法获取 %1，列 %2</translation>
     </message>
     <message>
         <source>Could not set %1, parameter %2</source>
         <extracomment>Data type, parameter</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>无法设置 %1，参数 %2</translation>
     </message>
     <message>
         <source>Could not close cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>无法关闭光标</translation>
     </message>
     <message>
         <source>Could not close statement</source>
-        <translation type="unfinished"></translation>
+        <translation>无法关闭语句</translation>
     </message>
     <message>
         <source>Fetch did not succeed</source>
-        <translation type="unfinished"></translation>
+        <translation>提取未成功</translation>
     </message>
     <message>
         <source>Fetch first did not succeed</source>
-        <translation type="unfinished"></translation>
+        <translation>先获取未成功</translation>
     </message>
     <message>
         <source>Could not fetch next row</source>
-        <translation type="unfinished"></translation>
+        <translation>无法获取下一行</translation>
     </message>
     <message>
         <source>Unknown data type %1</source>
-        <translation type="unfinished"></translation>
+        <translation>未知数据类型 %1</translation>
     </message>
     <message>
         <source>Could not check null, column %1</source>
-        <translation type="unfinished"></translation>
+        <translation>无法检查 null, 列 %1</translation>
     </message>
     <message>
         <source>Could not prepare/execute statement</source>
-        <translation type="unfinished"></translation>
+        <translation>无法准备/执行语句</translation>
     </message>
     <message>
         <source>Wrong number of parameters</source>
-        <translation type="unfinished"></translation>
+        <translation>参数数量错误</translation>
     </message>
     <message>
         <source>Unknown datatype, parameter %1</source>
-        <translation type="unfinished"></translation>
+        <translation>未知数据类型，参数 %1</translation>
     </message>
     <message>
         <source>Could not execute statement/open cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>无法执行语句/打开光标</translation>
     </message>
     <message>
         <source>Only input parameters can be used in batch operations</source>
-        <translation type="unfinished"></translation>
+        <translation>批处理操作中只能使用输入参数</translation>
     </message>
     <message>
         <source>Could not add batch %1</source>
         <extracomment>%1 is the batch number</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>无法添加批次 %1</translation>
     </message>
     <message>
         <source>Could not execute batch</source>
-        <translation type="unfinished"></translation>
+        <translation>无法执行批处理</translation>
     </message>
 </context>
 <context>
     <name>QMimerSQLResult:</name>
     <message>
         <source>Fetch last did not succeed</source>
-        <translation type="unfinished"></translation>
+        <translation>上次获取未成功</translation>
     </message>
     <message>
         <source>Column %1 out of range</source>
-        <translation type="unfinished"></translation>
+        <translation>列 %1 超出范围</translation>
     </message>
 </context>
 <context>
     <name>QMimerSQLDriver</name>
     <message>
         <source>Could not connect to database</source>
-        <translation type="unfinished"></translation>
+        <translation>无法连接到数据库</translation>
     </message>
     <message>
         <source>Could not start transaction</source>
-        <translation type="unfinished">无法开始事务</translation>
+        <translation>无法启动业务</translation>
     </message>
     <message>
         <source>Could not commit transaction</source>
-        <translation type="unfinished">无法提交事务</translation>
+        <translation>无法提交业务</translation>
     </message>
     <message>
         <source>Could not roll back transaction</source>
-        <translation type="unfinished"></translation>
+        <translation>无法回滚业务</translation>
     </message>
 </context>
 </TS>

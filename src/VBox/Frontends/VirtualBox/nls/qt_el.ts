@@ -284,7 +284,7 @@
     </message>
     <message>
         <source>Output &amp;file:</source>
-        <translation>Όνομα αρχείου:</translation>
+        <translation>Εξαγώγιμο αρχείου:</translation>
     </message>
     <message>
         <source>...</source>
@@ -598,23 +598,23 @@ Do you want to delete it anyway?</source>
     <name>Assets::Downloader::AssetDownloader</name>
     <message>
         <source>Downloading JSON file...</source>
-        <translation type="unfinished"></translation>
+        <translation>Λήψη JSON αρχείου...</translation>
     </message>
     <message>
         <source>Downloading zip file...</source>
-        <translation type="unfinished"></translation>
+        <translation>Λήψη zip αρχείου...</translation>
     </message>
     <message>
         <source>Unzipping...</source>
-        <translation type="unfinished"></translation>
+        <translation>Αποσυμπίεση...</translation>
     </message>
     <message>
         <source>Downloading assets...</source>
-        <translation type="unfinished"></translation>
+        <translation>Λήψη στοιχείων...</translation>
     </message>
     <message>
         <source>Copying assets...</source>
-        <translation type="unfinished"></translation>
+        <translation>Αντιγραφή στοιχείων...</translation>
     </message>
 </context>
 <context>
@@ -661,22 +661,22 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Failure to write block: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Αποτυχία εγγραφής μπλοκ: %1</translation>
     </message>
     <message>
         <source>Cannot create %1 for output: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Αδυναμία δημιουργίας %1 για εξαγώμενο: %2</translation>
     </message>
 </context>
 <context>
     <name>QFileDevice</name>
     <message>
         <source>No file engine available or engine does not support UnMapExtension</source>
-        <translation>Δεν διαθέτεται αρχείο μηχανής ή η μηχανή δεν υποστηρίζει UnMapΕπέκταση</translation>
+        <translation>Δεν υπάρχει διαθέσιμο αρχείο μηχανής ή η μηχανή δεν υποστηρίζει UnMapΕπέκταση</translation>
     </message>
     <message>
         <source>No file engine available</source>
-        <translation type="unfinished"></translation>
+        <translation>Δεν υπάρχει διαθέσιμο αρχείο μηχανής</translation>
     </message>
 </context>
 <context>
@@ -742,19 +742,19 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Child process modifier threw an exception: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ο μετατροπέας της εξεργασίας τέκνο απέδωσε μία εξαίρεση: %1</translation>
     </message>
     <message>
         <source>Child process modifier reported error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ο μετατροπέας της εξεργασίας τέκνο ανέφερε λάθος: %1</translation>
     </message>
     <message>
         <source>Child process modifier reported error: %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Ο μετατροπέας της εξεργασίας τέκνο ανέφερε λάθος: %1: %2</translation>
     </message>
     <message>
         <source>Child process set up failed: %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Αποτυχία ρύθμισης της διεργασίας τέκνο: %1: %2</translation>
     </message>
     <message>
         <source>Could not open output redirection for writing</source>
@@ -832,7 +832,7 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>State</source>
-        <translation type="unfinished"></translation>
+        <translation>Κατάσταση</translation>
     </message>
     <message>
         <source>Shared Data</source>
@@ -856,7 +856,7 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Shared State</source>
-        <translation type="unfinished"></translation>
+        <translation>Κοινόχρηστη Κατάσταση</translation>
     </message>
     <message>
         <source>Download</source>
@@ -868,27 +868,27 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Public</source>
-        <translation type="unfinished"></translation>
+        <translation>Δημόσιο</translation>
     </message>
     <message>
         <source>Templates</source>
-        <translation type="unfinished"></translation>
+        <translation>Υποδείγματα</translation>
     </message>
     <message>
         <source>Temporary Items</source>
         <extracomment>macOS: Temporary directory</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Προσωρινά Αντικείμενα</translation>
     </message>
 </context>
 <context>
     <name>QSharedMemory</name>
     <message>
         <source>%1: unsupported key type</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: μη υποστηριζόμενος τύπος κλειδιού</translation>
     </message>
     <message>
         <source>%1: unable to set key on lock (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: αδυναμία ρύθμισης κλειδιού στο κλείδωμα (%2)</translation>
     </message>
     <message>
         <source>%1: create size is less then 0</source>
@@ -920,7 +920,7 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>%1: unknown error: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: άγνωστο λάθος: %2</translation>
     </message>
     <message>
         <source>%1: key is empty</source>
@@ -959,7 +959,7 @@ Do you want to delete it anyway?</source>
     <name>QSystemSemaphore</name>
     <message>
         <source>%1: unsupported key type</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: μη υποστηριζόμενος τύπος κλειδιού</translation>
     </message>
     <message>
         <source>%1: permission denied</source>
@@ -979,142 +979,142 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>%1: key too long</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: το κλειδί είναι πολύ μακρύ</translation>
     </message>
     <message>
         <source>%1: unknown error: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: άγνωστο λάθος: %2</translation>
     </message>
     <message>
         <source>%1: key is empty</source>
-        <translation type="unfinished">%1: το κλειδί είναι άδειο</translation>
+        <translation>%1: το κλειδί είναι κενό</translation>
     </message>
     <message>
         <source>%1: System V semaphores are not available for sandboxed applications. Please build Qt with -feature-ipc_posix</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: Οι σηματοφόροι του συστήματος V δεν είναι διαθέσιμοι για εφαρμογές που εκτελούνται σε sandbox. Παρακαλώ μεταγλωττίστε την Qt με -feature-ipc_posix</translation>
     </message>
     <message>
         <source>%1: unable to make key</source>
-        <translation type="unfinished">%1: αδύνατη η δημιουργία κλειδιού</translation>
+        <translation>%1: αδυναμία δημιουργίας κλειδιού</translation>
     </message>
     <message>
         <source>%1: ftok failed</source>
-        <translation type="unfinished">%1: αποτυχία ftok</translation>
+        <translation>%1: αποτυχία ftok</translation>
     </message>
 </context>
 <context>
     <name>QLibrary</name>
     <message>
         <source>&apos;%1&apos; is not a valid Windows DLL (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>&apos;%1&apos; δεν είναι ένα έγκυρο Windows DLL (%2)</translation>
     </message>
     <message>
         <source>&apos;%1&apos; is too small</source>
-        <translation type="unfinished"></translation>
+        <translation>&apos;%1&apos; είναι πολύ μικρό</translation>
     </message>
     <message>
         <source>&apos;%1&apos; is not a Qt plugin (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>&apos;%1&apos; δεν είναι ένα πρόσθετο Qt (%2)</translation>
     </message>
     <message>
         <source>metadata not found</source>
-        <translation type="unfinished"></translation>
+        <translation>Δεν βρέθηκαν μεταδεδομένα</translation>
     </message>
     <message>
         <source>invalid signature</source>
-        <translation type="unfinished"></translation>
+        <translation>Μη έγκυρη υπογραφή</translation>
     </message>
     <message>
         <source>file is for a different processor</source>
-        <translation type="unfinished"></translation>
+        <translation>το αρχείο είναι για έναν διαφορετικό επεξεργαστή</translation>
     </message>
     <message>
         <source>file has no sections</source>
-        <translation type="unfinished"></translation>
+        <translation>Το αρχείο δεν έχει τμήματα</translation>
     </message>
     <message>
         <source>wrong characteristics</source>
-        <translation type="unfinished"></translation>
+        <translation>λάθος χαρακτηριστικά</translation>
     </message>
     <message>
         <source>file is for a different word size</source>
-        <translation type="unfinished"></translation>
+        <translation>το αρχείο είναι για ένα διαφορετικό μέγεθος λέξης</translation>
     </message>
     <message>
         <source>file has no code</source>
-        <translation type="unfinished"></translation>
+        <translation>Το αρχείο δεν έχει κώδικα</translation>
     </message>
     <message>
         <source>a section name is empty or extends past the end of the file</source>
-        <translation type="unfinished"></translation>
+        <translation>ένα όνομα τομέα είναι κενό ή εκτείνεται μετά το πέρας του αρχείου</translation>
     </message>
     <message>
         <source>section contents extend past the end of the file</source>
-        <translation type="unfinished"></translation>
+        <translation>τα περιεχόμενα τμήματος εκτείνονται μετά το πέρας του αρχείου</translation>
     </message>
     <message>
         <source>.qtmetadata section is too small</source>
-        <translation type="unfinished"></translation>
+        <translation>.qtmetadata section είναι πολύ μικρό</translation>
     </message>
     <message>
         <source>.qtmetadata section has incorrect magic</source>
-        <translation type="unfinished"></translation>
+        <translation>.qtmetadata section έχει λάθος μαγικό</translation>
     </message>
     <message>
         <source>.qtmetadata section is writable</source>
-        <translation type="unfinished"></translation>
+        <translation>.qtmetadata section είναι εγγράψιμο</translation>
     </message>
     <message>
         <source>.qtmetadata section is executable</source>
-        <translation type="unfinished"></translation>
+        <translation>.qtmetadata section είναι εκτελέσιμο</translation>
     </message>
     <message>
         <source>file is for the wrong endianness</source>
-        <translation type="unfinished"></translation>
+        <translation>το αρχείο είναι για μία λάθος σειρά μεταφερόμενων λεξικογραφικών δεδομένων (endianness)</translation>
     </message>
     <message>
         <source>file has an unknown ELF version</source>
-        <translation type="unfinished"></translation>
+        <translation>Το αρχείο έχει μία άγνωστη έκδοση ELF</translation>
     </message>
     <message>
         <source>file has an unexpected ABI</source>
-        <translation type="unfinished"></translation>
+        <translation>Το αρχείο έχει ένα άγνωστο ABI</translation>
     </message>
     <message>
         <source>file is not a shared object</source>
-        <translation type="unfinished"></translation>
+        <translation>Το αρχείο δεν είναι ένα κοινόχρηστο αντικείμενο</translation>
     </message>
     <message>
         <source>&apos;%1&apos; is not a valid ELF object (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>&apos;%1&apos; δεν είναι ένα έγκυρο αντικείμενο ELF (%2)</translation>
     </message>
     <message>
         <source>unimplemented: PN_XNUM program headers</source>
-        <translation type="unfinished"></translation>
+        <translation>δεν έχουν εφαρμοστεί: επικεφαλίδες προγράμματος PN_XNUM</translation>
     </message>
     <message>
         <source>program header table extends past the end of the file</source>
-        <translation type="unfinished"></translation>
+        <translation>ο πίνακας επικεφαλίδας προγράμματος εκτείνεται μετά το πέρας του αρχείου</translation>
     </message>
     <message>
         <source>a program header entry extends past the end of the file</source>
-        <translation type="unfinished"></translation>
+        <translation>μία εγγραφή επικεφαλίδας προγράμματος εκτείνεται μετά το πέρας του αρχείου</translation>
     </message>
     <message>
         <source>a note segment start is not properly aligned (offset 0x%1, alignment %2)</source>
-        <translation type="unfinished"></translation>
+        <translation>μία εκκίνηση τμήματος σημείωσης δεν έχει ευθυγραμμιστεί κατάλληλα (αντιστάθμισμα 0x%1, ευθυγράμμιση %2)</translation>
     </message>
     <message>
         <source>section table extends past the end of the file</source>
-        <translation type="unfinished"></translation>
+        <translation>ο πίνακας τμήματος εκτείνεται μετά το πέρας του αρχείου</translation>
     </message>
     <message>
         <source>section header string table extends past the end of the file</source>
-        <translation type="unfinished"></translation>
+        <translation>ο πίνακας χορδής επικεφαλίδας τμήματος εκτείνεται μετά το πέρας του αρχείου</translation>
     </message>
     <message>
         <source>a section name extends past the end of the file</source>
-        <translation type="unfinished"></translation>
+        <translation>ένα όνομα τμήματος εκτείνεται μετά το πέρας του αρχείου</translation>
     </message>
     <message>
         <source>file too small</source>
@@ -1122,15 +1122,15 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>unexpected program header entry size (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>απροσδόκητο μέγεθος εγγραφής επικεφαλίδας προγράμματος (%1)</translation>
     </message>
     <message>
         <source>unexpected section entry size (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>απροσδόκητο μέγεθος εγγραφής τμήματος (%1)</translation>
     </message>
     <message>
         <source>e_shstrndx greater than the number of sections e_shnum (%1 &gt;= %2)</source>
-        <translation type="unfinished"></translation>
+        <translation>e_shstrndx μεγαλύτερο από τον αριθμό τμημάτων e_shnum (%1 &gt;= %2)</translation>
     </message>
     <message>
         <source>&apos;%1&apos; is not a Qt plugin</source>
@@ -1138,7 +1138,7 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Failed to extract plugin meta data from &apos;%1&apos;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Αποτυχία εξαγωγής μεταδεδομένων πρόσθετου από &apos;%1&apos;: %2</translation>
     </message>
     <message>
         <source>The shared library was not found.</source>
@@ -1146,15 +1146,15 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Could not resolve &apos;qt_plugin_instance&apos; function</source>
-        <translation type="unfinished"></translation>
+        <translation>Αδυναμία επίλυσης λειτουργίας &apos;qt_plugin_instance&apos;</translation>
     </message>
     <message>
         <source>metadata too small</source>
-        <translation type="unfinished"></translation>
+        <translation>Τα μεταδεδομένα είναι πολύ μικρά</translation>
     </message>
     <message>
         <source>entrypoint to query the plugin meta data not found</source>
-        <translation type="unfinished"></translation>
+        <translation>δεν βρέθηκε σημείο εισόδου για ερώτηση στα μεταδεδομένα πρόσθετου</translation>
     </message>
     <message>
         <source>The file &apos;%1&apos; is not a valid Qt plugin.</source>
@@ -1209,15 +1209,15 @@ Do you want to delete it anyway?</source>
     <name>QFactoryLoader</name>
     <message>
         <source>Metadata parsing error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Λάθος ανάλυσης μεταδεδομένων: %1</translation>
     </message>
     <message>
         <source>Invalid metadata version</source>
-        <translation type="unfinished"></translation>
+        <translation>Μη έγκυρη έκδοση μεταδεδομένων</translation>
     </message>
     <message>
         <source>Unexpected metadata contents</source>
-        <translation type="unfinished"></translation>
+        <translation>Απροσδόκητα περιεχόμενα μεταδεδομένων</translation>
     </message>
 </context>
 <context>
@@ -1358,7 +1358,7 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Invalid attribute in XML declaration: %1 = %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Μη-έγκυρο χαρακτηριστικό στην δήλωση XML: %1 = %2</translation>
     </message>
     <message>
         <source>Premature end of document.</source>
@@ -1370,7 +1370,7 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Length of XML attribute name exceeds implementation limits (4KiB characters).</source>
-        <translation type="unfinished"></translation>
+        <translation>Το μήκος ονόματος χαρακτηριστικού XML υπερβαίνει τα όρια εφαρμογής (χαρακτήρες 4KiB).</translation>
     </message>
     <message>
         <source>&apos;%1&apos;</source>
@@ -1410,11 +1410,11 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Unexpected token type %1 in %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Απροσδόκητος τύπος λεξικογραφικής μονάδας %1 σε %2.</translation>
     </message>
     <message>
         <source>Found second DTD token in %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Βρέθηκε δεύτερη λεξικογραφικήςμονάδα στο %1.</translation>
     </message>
     <message>
         <source>Self-referencing entity detected.</source>
@@ -2141,7 +2141,7 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>INTERNAL ERROR: invalid substring offset</source>
-        <translation type="unfinished"></translation>
+        <translation>ΕΣΩΤΕΡΙΚΟ ΛΑΘΟΣ: άκυρο αντιστάθμισμα υποχορδής</translation>
     </message>
 </context>
 <context>
@@ -2156,7 +2156,7 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Displays help, including generic Qt options.</source>
-        <translation type="unfinished"></translation>
+        <translation>Εμφανίζει βοήθεια, συμπεριλαμβανομένου γενικές ιδιότητες Qt.</translation>
     </message>
     <message>
         <source>Unknown option &apos;%1&apos;.</source>
@@ -2667,35 +2667,35 @@ Do you want to delete it anyway?</source>
     <name>QAbstractFileIconProvider</name>
     <message>
         <source>Drive</source>
-        <translation type="unfinished">Δίσκος</translation>
+        <translation>Δίσκος</translation>
     </message>
     <message>
         <source>File</source>
-        <translation type="unfinished">Αρχείο</translation>
+        <translation>Αρχείο</translation>
     </message>
     <message>
         <source>File Folder</source>
         <comment>Match Windows Explorer</comment>
-        <translation type="unfinished">Αρχείο Φάκελος</translation>
+        <translation>Αρχείο Φάκελος</translation>
     </message>
     <message>
         <source>Folder</source>
         <comment>All other platforms</comment>
-        <translation type="unfinished">Φάκελος</translation>
+        <translation>Φάκελος</translation>
     </message>
     <message>
         <source>Alias</source>
         <comment>macOS Finder</comment>
-        <translation type="unfinished">Ψευδώνυμο</translation>
+        <translation>Ψευδώνυμο</translation>
     </message>
     <message>
         <source>Shortcut</source>
         <comment>All other platforms</comment>
-        <translation type="unfinished">Συντόμευση</translation>
+        <translation>Συντόμευση</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">Άγνωστο</translation>
+        <translation>Άγνωστο</translation>
     </message>
 </context>
 <context>
@@ -2846,15 +2846,15 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Alias for --qwindowgeometry.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ψευδώνυμο για --qwindowgeometry.</translation>
     </message>
     <message>
         <source>Alias for --qwindowicon.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ψευδώνυμο για --qwindowicon.</translation>
     </message>
     <message>
         <source>Alias for --qwindowtitle.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ψευδώνυμο για --qwindowtitle.</translation>
     </message>
 </context>
 <context>
@@ -3855,7 +3855,7 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Control</source>
-        <translation type="unfinished"></translation>
+        <translation>Control</translation>
     </message>
     <message>
         <source>Alt</source>
@@ -4447,7 +4447,7 @@ Do you want to delete it anyway?</source>
     <name>QGnomeTheme</name>
     <message>
         <source>&amp;OK</source>
-        <translation>ΟΚ</translation>
+        <translation>&amp;OK</translation>
     </message>
     <message>
         <source>&amp;Save</source>
@@ -4707,15 +4707,15 @@ Do you want to delete it anyway?</source>
     <name>QHttp</name>
     <message>
         <source>Unsupported content encoding: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Μη υποστηριζόμενη κωδικοποίηση περιεχομένου: %1</translation>
     </message>
     <message>
         <source>Failed to initialize the compression decoder.</source>
-        <translation type="unfinished"></translation>
+        <translation>Αδυναμία εκκίνησης του αποκωδικοποιητή συμπίεσης.</translation>
     </message>
     <message>
         <source>The decompressed output exceeds the limits specified by QNetworkRequest::decompressedSafetyCheckThreshold()</source>
-        <translation type="unfinished"></translation>
+        <translation>Το αποτέλεσμα αποσυμπίεσης υπερβαίνει τα όρια που καθορίστηκαν από QNetworkRequest::decompressedSafetyCheckThreshold()</translation>
     </message>
     <message>
         <source>Connection closed</source>
@@ -4759,15 +4759,15 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Decompression failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Η αποσυμπίεση απέτυχε: %1</translation>
     </message>
     <message>
         <source>Data downloaded is too large to store</source>
-        <translation type="unfinished"></translation>
+        <translation>Τα ληφθέντα δεδομένα είναι πολύ μεγάλα για αποθήκευση</translation>
     </message>
     <message>
         <source>Failed to initialize decompression: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Αδυναμία εκκίνησης αποσυμπίεσης: %1</translation>
     </message>
 </context>
 <context>
@@ -4898,98 +4898,98 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Invalid domain name</source>
-        <translation type="unfinished">Μη έγκυρο όνομα τομέα</translation>
+        <translation>Μη έγκυρο όνομα τομέα</translation>
     </message>
     <message>
         <source>SSL/TLS support not present</source>
-        <translation type="unfinished"></translation>
+        <translation>Δεν υπάρχει υποστήριξη SSL/TLS</translation>
     </message>
     <message>
         <source>Request timed out</source>
-        <translation type="unfinished"></translation>
+        <translation>Το αίτημα τερματίστηκε λόγω καθυστέρησης</translation>
     </message>
     <message>
         <source>Server could not process query</source>
-        <translation type="unfinished">Ο διακομιστής δεν μπόρεσε να επεξεργαστεί το ερώτημα</translation>
+        <translation>Ο διακομιστής δεν μπόρεσε να επεξεργαστεί το ερώτημα</translation>
     </message>
     <message>
         <source>Server failure</source>
-        <translation type="unfinished">Αποτυχία διακομιστή</translation>
+        <translation>Αποτυχία διακομιστή</translation>
     </message>
     <message>
         <source>Non existent domain</source>
-        <translation type="unfinished">Μη υπάρχων τομέας</translation>
+        <translation>Μη υπάρχων τομέας</translation>
     </message>
     <message>
         <source>Server refused to answer</source>
-        <translation type="unfinished">Ο διακομιστής αρνήθηκε να απαντήσει</translation>
+        <translation>Ο διακομιστής αρνήθηκε να απαντήσει</translation>
     </message>
     <message>
         <source>Invalid reply received (rcode %1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Ελήφθει μη έγκυρη απάντηση (rcode %1)</translation>
     </message>
     <message>
         <source>Invalid reply received</source>
-        <translation type="unfinished">Ελήφθει μη έγκυρη απάντηση</translation>
+        <translation>Ελήφθει μη έγκυρη απάντηση</translation>
     </message>
     <message>
         <source>Invalid reply received (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Ελήφθει μη έγκυρη απάντηση (%1)</translation>
     </message>
     <message>
         <source>IPv6 nameservers are currently not supported on this OS</source>
-        <translation type="unfinished"></translation>
+        <translation>διακομιστές ονομάτων IPv6 δεν υποστηρίζονται προς το παρόν σε αυτό το ΛΣ</translation>
     </message>
     <message>
         <source>Reply was too large</source>
-        <translation type="unfinished"></translation>
+        <translation>Η απάντηση είναι πολύ μεγάλη</translation>
     </message>
     <message>
         <source>Could not expand domain name</source>
-        <translation type="unfinished">Δεν ήταν δυνατή η επέκταση ονόματος τομέα</translation>
+        <translation>Δεν ήταν δυνατή η επέκταση ονόματος τομέα</translation>
     </message>
     <message>
         <source>Invalid IPv4 address record</source>
-        <translation type="unfinished">Άκυρη αρχειοθέτηση IPv4 διευθύνσης</translation>
+        <translation>Άκυρη αρχειοθέτηση IPv4 διευθύνσης</translation>
     </message>
     <message>
         <source>Invalid IPv6 address record</source>
-        <translation type="unfinished">Άκυρη αρχειοθέτηση IPv6 διευθύνσης</translation>
+        <translation>Άκυρη αρχειοθέτηση IPv6 διευθύνσης</translation>
     </message>
     <message>
         <source>Invalid canonical name record</source>
-        <translation type="unfinished">Άκυρη αρχειοθέτηση αναγνωρισμένου ονόματος</translation>
+        <translation>Άκυρη αρχειοθέτηση αναγνωρισμένου ονόματος</translation>
     </message>
     <message>
         <source>Invalid name server record</source>
-        <translation type="unfinished">Άκυρη αρχειοθέτηση ονόματος διακομιστή</translation>
+        <translation>Άκυρη αρχειοθέτηση ονόματος διακομιστή</translation>
     </message>
     <message>
         <source>Invalid pointer record</source>
-        <translation type="unfinished">Άκυρη αρχειοθέτηση δείκτη</translation>
+        <translation>Άκυρη αρχειοθέτηση δείκτη</translation>
     </message>
     <message>
         <source>Invalid mail exchange record</source>
-        <translation type="unfinished">Άκυρη αρχειοθέτηση ανταλλαγής αλληλογραφίας</translation>
+        <translation>Άκυρη αρχειοθέτηση ανταλλαγής αλληλογραφίας</translation>
     </message>
     <message>
         <source>Invalid service record</source>
-        <translation type="unfinished">Άκυρη αρχειοθέτηση υπηρεσίας</translation>
+        <translation>Άκυρη αρχειοθέτηση υπηρεσίας</translation>
     </message>
     <message>
         <source>Invalid TLS association record</source>
-        <translation type="unfinished"></translation>
+        <translation>Άκυρη αρχειοθέτηση TLS συνεργασίας</translation>
     </message>
     <message>
         <source>Invalid text record</source>
-        <translation type="unfinished">Άκυρη αρχειοθέτηση κειμένου</translation>
+        <translation>Άκυρη αρχειοθέτηση κειμένου</translation>
     </message>
 </context>
 <context>
     <name>QDnsLookupRunnable</name>
     <message>
         <source>Not yet supported on this OS</source>
-        <translation type="unfinished"></translation>
+        <translation>Δεν υποστηρίζεται ακόμη σε αυτό το ΛΣ</translation>
     </message>
 </context>
 <context>
@@ -5088,7 +5088,7 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>%1: Remote closed</source>
-        <translation>%1: Απομακρυσμένος τερματισμός</translation>
+        <translation>%1: Η σύνδεση τερματίστηκε απομακρυσμένα</translation>
     </message>
     <message>
         <source>%1: Invalid name</source>
@@ -5144,7 +5144,7 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Remote closed</source>
-        <translation type="unfinished"></translation>
+        <translation>Η σύνδεση τερματίστηκε απομακρυσμένα</translation>
     </message>
 </context>
 <context>
@@ -5470,7 +5470,7 @@ Do you want to delete it anyway?</source>
     <name>QDtlsClientVerifier</name>
     <message>
         <source>A valid UDP socket, non-empty datagram, and valid address/port were expected</source>
-        <translation type="unfinished"></translation>
+        <translation>Αναμένονταν μία έγκυρη θύρα UDP, μη-κενό δεδομενόγραμμα, και έγκυρη διεύθυνση/θύρα</translation>
     </message>
     <message>
         <source>BIO_ADDR_new failed, ignoring client hello</source>
@@ -5732,7 +5732,7 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>TLS certificate unexpectedly changed during renegotiation!</source>
-        <translation type="unfinished"></translation>
+        <translation>Το πιστοποιητικό TLS άλλαξε απροσδόκητα κατά την επαναδιαπραγμάτευση!</translation>
     </message>
     <message>
         <source>The TLS/SSL connection has been closed</source>
@@ -5926,7 +5926,7 @@ Do you want to delete it anyway?</source>
     <name>QCocoaMenuBar</name>
     <message>
         <source>Edit</source>
-        <translation type="unfinished"></translation>
+        <translation>Επεξεργασία</translation>
     </message>
 </context>
 <context>
@@ -6028,22 +6028,24 @@ Do you want to delete it anyway?</source>
         <source>Qt cannot load the direct2d platform plugin because the Direct2D version on this system is too old. The minimum system requirement for this platform plugin is Windows 7 SP1 with Platform Update.
 
 The minimum Direct2D version required is %1. The Direct2D version on this system is %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Η Qt αδυνατεί να φορτώσει το πρόσθετο πλατφόρμας direct2d επειδή η έκδοση Direct2D αυτού του συστήματος είναι πολύ παλιά. Η ελάχιστη απαίτηση συστήματος για αυτό το πρόσθετο πλατφόρμας είναι Windows 7 SP1 με Ενημέρωση Πλατφόρμας.
+
+Η ελάχιστη απαιτούμενη έκδοση Direct2D είναι %1. Η εκδοση Direct2D σε αυτό το σύστημα είναι %2.</translation>
     </message>
     <message>
         <source>Cannot load direct2d platform plugin</source>
-        <translation type="unfinished"></translation>
+        <translation>Αδυναμία φόρτωσης προσθέτου direct2d</translation>
     </message>
 </context>
 <context>
     <name>quiaccessibilityelement</name>
     <message>
         <source>checked</source>
-        <translation type="unfinished"></translation>
+        <translation>ελέγχθηκε</translation>
     </message>
     <message>
         <source>unchecked</source>
-        <translation type="unfinished"></translation>
+        <translation>δεν ελέγχθηκε</translation>
     </message>
 </context>
 <context>
@@ -6104,7 +6106,7 @@ The minimum Direct2D version required is %1. The Direct2D version on this system
     </message>
     <message>
         <source>QODBCResult::reset: Unable to set &apos;SQL_ATTR_CURSOR_TYPE&apos; as statement attribute. Please check your ODBC driver configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>QODBCResult::reset: Δεν ήταν δυνατός ο ορισμός του &apos;SQL_ATTR_CURSOR_TYPE&apos; σαν παράμετρο της πρότασης. Παρακαλώ ελέγξτε τις ρυθμίσεις του οδηγού σας ODBC</translation>
     </message>
     <message>
         <source>Unable to execute statement</source>
@@ -6186,15 +6188,15 @@ The minimum Direct2D version required is %1. The Direct2D version on this system
     </message>
     <message>
         <source>Array size mismatch. Field name: %3, expected size: %1. Supplied size: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Αναντιστοιχία μεγέθους συστοιχίας. Όνομα πεδίου: %3, αναμενόμενο μέγεθος: %1. Παρεχόμενο μέγεθος: %2</translation>
     </message>
     <message>
         <source>Array dimensions mismatch. Field name: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Αναντιστοιχία διαστάσεων συστοιχίας. Όνομα πεδίου: %1</translation>
     </message>
     <message>
         <source>Array size mismatch: size of %1 is %2, size of provided list is %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Αναντιστοιχία μεγέθους συστοιχίας: το μέγεθος του %1 είναι %2, το μέγεθος της παρεχόμενης λίστας είναι %3</translation>
     </message>
     <message>
         <source>Could not get query info</source>
@@ -6261,22 +6263,22 @@ The minimum Direct2D version required is %1. The Direct2D version on this system
     </message>
     <message>
         <source>Could not subscribe to event notifications for %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Αδυναμία εγγραφής σε γεγονότα ειδοποιήσεων για %1.</translation>
     </message>
     <message>
         <source>Could not unsubscribe from event notifications for %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Αδυναμία ανάκλησης εγγραφής σε γεγονότα ειδοποιήσεων για %1.</translation>
     </message>
 </context>
 <context>
     <name>QMimerSQL</name>
     <message>
         <source>No Mimer SQL error for code %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Χωρίς λάθος Mimer SQL για τον κώδικα %1</translation>
     </message>
     <message>
         <source>Generic Mimer SQL error</source>
-        <translation type="unfinished"></translation>
+        <translation>Γενικό λάθος Mimer SQL</translation>
     </message>
 </context>
 <context>
@@ -6284,99 +6286,99 @@ The minimum Direct2D version required is %1. The Direct2D version on this system
     <message>
         <source>Could not get %1, column %2</source>
         <extracomment>Data type, column</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Αδυναμία απόκτησης %1, στήλη %2</translation>
     </message>
     <message>
         <source>Could not set %1, parameter %2</source>
         <extracomment>Data type, parameter</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Αδυναμία ρύθμισης %1, παράμετρος %2</translation>
     </message>
     <message>
         <source>Could not close cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Αδυναμία κλεισίματος κέρσορα</translation>
     </message>
     <message>
         <source>Could not close statement</source>
-        <translation type="unfinished"></translation>
+        <translation>Αδυναμία κλεισίματος πρότασης</translation>
     </message>
     <message>
         <source>Fetch did not succeed</source>
-        <translation type="unfinished"></translation>
+        <translation>Η απόκτηση απέτυχε</translation>
     </message>
     <message>
         <source>Fetch first did not succeed</source>
-        <translation type="unfinished"></translation>
+        <translation>Η απόκτηση πρώτου απέτυχε</translation>
     </message>
     <message>
         <source>Could not fetch next row</source>
-        <translation type="unfinished"></translation>
+        <translation>Αδυναμία απόκτησης επόμενης σειράς</translation>
     </message>
     <message>
         <source>Unknown data type %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Άγνωστος τύπος δεδομένων %1</translation>
     </message>
     <message>
         <source>Could not check null, column %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Αδυναμία ελέγχου null, στήλη %1</translation>
     </message>
     <message>
         <source>Could not prepare/execute statement</source>
-        <translation type="unfinished"></translation>
+        <translation>Αδυναμία προετοιμασίας/εκτέλεσης πρότασης</translation>
     </message>
     <message>
         <source>Wrong number of parameters</source>
-        <translation type="unfinished"></translation>
+        <translation>Λάθος αριθμός παραμέτρων</translation>
     </message>
     <message>
         <source>Unknown datatype, parameter %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Άγνωστος τύπος δεδομένων, παράμετρος %1</translation>
     </message>
     <message>
         <source>Could not execute statement/open cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Αδυναμία εκτέλεσης πρότασης/ανοικτός κέρσορας</translation>
     </message>
     <message>
         <source>Only input parameters can be used in batch operations</source>
-        <translation type="unfinished"></translation>
+        <translation>Μόνο παράμετροι εισόδου μπορούν να χρησιμοποιηθούν σε εργασίες στοίβας</translation>
     </message>
     <message>
         <source>Could not add batch %1</source>
         <extracomment>%1 is the batch number</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Αδυναμία προσθήκης στοίβας %1</translation>
     </message>
     <message>
         <source>Could not execute batch</source>
-        <translation type="unfinished"></translation>
+        <translation>Αδυναμία εκτέλεσης στοίβας</translation>
     </message>
 </context>
 <context>
     <name>QMimerSQLResult:</name>
     <message>
         <source>Fetch last did not succeed</source>
-        <translation type="unfinished"></translation>
+        <translation>Η απόκτηση τελευταίου απέτυχε</translation>
     </message>
     <message>
         <source>Column %1 out of range</source>
-        <translation type="unfinished"></translation>
+        <translation>Στήλη %1 εκτός φάσματος</translation>
     </message>
 </context>
 <context>
     <name>QMimerSQLDriver</name>
     <message>
         <source>Could not connect to database</source>
-        <translation type="unfinished"></translation>
+        <translation>Αδυναμία σύνδεσης στη βάση δεδομένων</translation>
     </message>
     <message>
         <source>Could not start transaction</source>
-        <translation type="unfinished">Δεν ήταν δυνατή η εκκίνηση της συνδιαλλαγής</translation>
+        <translation>Αδυναμία εκκίνησης συνδιαλλαγής</translation>
     </message>
     <message>
         <source>Could not commit transaction</source>
-        <translation type="unfinished">Δεν ήταν δυνατή η εκτέλεση της συνδιαλλαγής</translation>
+        <translation>Αδυναμία ανάθεσης συνδιαλλαγής</translation>
     </message>
     <message>
         <source>Could not roll back transaction</source>
-        <translation type="unfinished"></translation>
+        <translation>Αδυναμία επιστροφής σε προηγούμενη κατάσταση της συνδιαλλαγής</translation>
     </message>
 </context>
 <context>
@@ -6570,7 +6572,7 @@ The minimum Direct2D version required is %1. The Direct2D version on this system
     </message>
     <message>
         <source>Unable to set client encoding to &apos;UNICODE&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Αδυναμία ορισμού κωδικοποίησης πελάτη σε &apos;UNICODE&apos;</translation>
     </message>
     <message>
         <source>Could not begin transaction</source>
@@ -7001,7 +7003,7 @@ Press ESC to cancel</source>
     <name>QErrorMessage</name>
     <message>
         <source>An error occurred</source>
-        <translation type="unfinished"></translation>
+        <translation>Προέκυψε ένα λάθος</translation>
     </message>
     <message>
         <source>Debug Message:</source>
@@ -7096,7 +7098,8 @@ Press ESC to cancel</source>
     <message>
         <source>&lt;p&gt;Qt is a C++ toolkit for cross-platform application development.&lt;/p&gt;&lt;p&gt;Qt provides single-source portability across all major desktop operating systems. It is also available for embedded Linux and other embedded and mobile operating systems.&lt;/p&gt;&lt;p&gt;Qt is available under multiple licensing options designed to accommodate the needs of our various users.&lt;/p&gt;&lt;p&gt;Qt licensed under our commercial license agreement is appropriate for development of proprietary/commercial software where you do not want to share any source code with third parties or otherwise cannot comply with the terms of GNU (L)GPL.&lt;/p&gt;&lt;p&gt;Qt licensed under GNU (L)GPL is appropriate for the development of Qt&amp;nbsp;applications provided you can comply with the terms and conditions of the respective licenses.&lt;/p&gt;&lt;p&gt;Please see &lt;a href=&quot;https://%2/&quot;&gt;%2&lt;/a&gt; for an overview of Qt licensing.&lt;/p&gt;&lt;p&gt;Copyright (C) The Qt Company Ltd. and other contributors.&lt;/p&gt;&lt;p&gt;Qt and the Qt logo are trademarks of The Qt Company Ltd.&lt;/p&gt;&lt;p&gt;Qt is The Qt Company Ltd. product developed as an open source project. See &lt;a href=&quot;https://%3/&quot;&gt;%3&lt;/a&gt; for more information.&lt;/p&gt;</source>
         <extracomment>Leave this text untranslated or include a verbatim copy of it below and note that it is the authoritative version in case of doubt.</extracomment>
-        <translation type="unfinished"></translation>
+        <translatorcomment>verbatim copy of the authoritative version</translatorcomment>
+        <translation>&lt;p&gt;Qt is a C++ toolkit for cross-platform application development.&lt;/p&gt;&lt;p&gt;Qt provides single-source portability across all major desktop operating systems. It is also available for embedded Linux and other embedded and mobile operating systems.&lt;/p&gt;&lt;p&gt;Qt is available under multiple licensing options designed to accommodate the needs of our various users.&lt;/p&gt;&lt;p&gt;Qt licensed under our commercial license agreement is appropriate for development of proprietary/commercial software where you do not want to share any source code with third parties or otherwise cannot comply with the terms of GNU (L)GPL.&lt;/p&gt;&lt;p&gt;Qt licensed under GNU (L)GPL is appropriate for the development of Qt&amp;nbsp;applications provided you can comply with the terms and conditions of the respective licenses.&lt;/p&gt;&lt;p&gt;Please see &lt;a href=&quot;https://%2/&quot;&gt;%2&lt;/a&gt; for an overview of Qt licensing.&lt;/p&gt;&lt;p&gt;Copyright (C) The Qt Company Ltd. and other contributors.&lt;/p&gt;&lt;p&gt;Qt and the Qt logo are trademarks of The Qt Company Ltd.&lt;/p&gt;&lt;p&gt;Qt is The Qt Company Ltd. product developed as an open source project. See &lt;a href=&quot;https://%3/&quot;&gt;%3&lt;/a&gt; for more information.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -7114,7 +7117,7 @@ Press ESC to cancel</source>
     <name>QApplication</name>
     <message>
         <source>Application &quot;%1&quot; requires Qt %2, found Qt %3.</source>
-        <translation type="unfinished"></translation>
+        <translation>Η εφαρμογή &quot;%1&quot; απαιτεί Qt %2, βρέθηκε Qt %3.</translation>
     </message>
     <message>
         <source>Incompatible Qt Library Error</source>

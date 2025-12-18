@@ -6703,7 +6703,7 @@ Por favor desactiva una de las opciones.</translation>
     </message>
     <message>
         <source>%1: unable to make key</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1: imposible crear clave</translation>
     </message>
     <message>
         <source>%1: ftok failed</source>

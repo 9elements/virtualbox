@@ -6889,7 +6889,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>%1: unable to make key</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1：無法產生鍵值</translation>
     </message>
     <message>
         <source>%1: ftok failed</source>
