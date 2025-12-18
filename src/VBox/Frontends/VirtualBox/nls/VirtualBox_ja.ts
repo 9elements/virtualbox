@@ -3012,7 +3012,7 @@
         <translation>グループに移動(&amp;U)</translation>
     </message>
     <message>
-        <source>C&amp;onsole</source>
+        <source>Conso&amp;le</source>
         <translation>端末(&amp;O)</translation>
     </message>
     <message>

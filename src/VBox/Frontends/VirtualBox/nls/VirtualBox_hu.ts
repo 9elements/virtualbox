@@ -2865,7 +2865,7 @@
         <translation>Áthelyezés &amp;csoportba</translation>
     </message>
     <message>
-        <source>C&amp;onsole</source>
+        <source>Conso&amp;le</source>
         <translation>K&amp;onzol</translation>
     </message>
     <message>

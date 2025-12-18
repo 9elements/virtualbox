@@ -1881,7 +1881,7 @@
         <translation>Flytta till g&amp;rupp</translation>
     </message>
     <message>
-        <source>C&amp;onsole</source>
+        <source>Conso&amp;le</source>
         <translation>K&amp;onsoll</translation>
     </message>
     <message>

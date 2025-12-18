@@ -2881,7 +2881,7 @@
         <translation>移动到编组（&amp;U）</translation>
     </message>
     <message>
-        <source>C&amp;onsole</source>
+        <source>Conso&amp;le</source>
         <translation>终端（&amp;O）</translation>
     </message>
     <message>

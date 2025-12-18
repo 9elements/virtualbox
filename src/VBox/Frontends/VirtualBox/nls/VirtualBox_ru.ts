@@ -1780,7 +1780,7 @@
         <translation>Переместить в &amp;группу</translation>
     </message>
     <message>
-        <source>C&amp;onsole</source>
+        <source>Conso&amp;le</source>
         <translation>&amp;Консоль</translation>
     </message>
     <message>

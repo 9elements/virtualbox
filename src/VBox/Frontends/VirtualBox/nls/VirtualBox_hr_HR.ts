@@ -1966,7 +1966,7 @@
         <translation>Premjesti u &amp;Grupu</translation>
     </message>
     <message>
-        <source>C&amp;onsole</source>
+        <source>Conso&amp;le</source>
         <translation>K&amp;onzola</translation>
     </message>
     <message>

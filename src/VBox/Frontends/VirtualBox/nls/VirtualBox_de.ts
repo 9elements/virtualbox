@@ -1780,7 +1780,7 @@
         <translation>In Gruppe verschie&amp;ben</translation>
     </message>
     <message>
-        <source>C&amp;onsole</source>
+        <source>Conso&amp;le</source>
         <translation>&amp;Konsole</translation>
     </message>
     <message>

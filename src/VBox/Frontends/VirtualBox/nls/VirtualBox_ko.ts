@@ -2028,7 +2028,7 @@
         <translation>그룹으로 이동(&amp;U)</translation>
     </message>
     <message>
-        <source>C&amp;onsole</source>
+        <source>Conso&amp;le</source>
         <translation>콘솔(&amp;O)</translation>
     </message>
     <message>

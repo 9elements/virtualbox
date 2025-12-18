@@ -3125,8 +3125,8 @@
         <translation>Mover para Gr&amp;upo</translation>
     </message>
     <message>
-        <source>C&amp;onsole</source>
-        <translation>C&amp;onsole</translation>
+        <source>Conso&amp;le</source>
+        <translation>Conso&amp;le</translation>
     </message>
     <message>
         <source>&amp;Create Connection</source>

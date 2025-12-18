@@ -1780,7 +1780,7 @@
         <translation>移至群組(&amp;U)</translation>
     </message>
     <message>
-        <source>C&amp;onsole</source>
+        <source>Conso&amp;le</source>
         <translation>主控台(&amp;O)</translation>
     </message>
     <message>

@@ -1934,7 +1934,7 @@
         <translation>&amp;ჯგუფში გადატანა</translation>
     </message>
     <message>
-        <source>C&amp;onsole</source>
+        <source>Conso&amp;le</source>
         <translation>&amp;კონსოლი</translation>
     </message>
     <message>

@@ -2221,7 +2221,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>C&amp;onsole</source>
+        <source>Conso&amp;le</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

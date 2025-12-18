@@ -1906,7 +1906,7 @@
         <translation>Pindah ke Gr&amp;up</translation>
     </message>
     <message>
-        <source>C&amp;onsole</source>
+        <source>Conso&amp;le</source>
         <translation>K&amp;onsol</translation>
     </message>
     <message>

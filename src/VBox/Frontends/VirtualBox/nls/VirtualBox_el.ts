@@ -1840,7 +1840,7 @@
         <translation>Αναζήτηση εικονικών μηχανών σεβόμενοι έναν όρο αναζήτησης</translation>
     </message>
     <message>
-        <source>C&amp;onsole</source>
+        <source>Conso&amp;le</source>
         <translation>Κονσόλα</translation>
     </message>
     <message>

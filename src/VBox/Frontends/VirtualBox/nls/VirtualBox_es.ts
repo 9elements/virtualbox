@@ -2987,7 +2987,7 @@
         <translation>Mover a &amp;grupo</translation>
     </message>
     <message>
-        <source>C&amp;onsole</source>
+        <source>Conso&amp;le</source>
         <translation>C&amp;onsola</translation>
     </message>
     <message>
