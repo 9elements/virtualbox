@@ -448,10 +448,6 @@
         <translation>&amp;Добавить...</translation>
     </message>
     <message>
-        <source>Cl&amp;one...</source>
-        <translation type="vanished">&amp;Клонировать...</translation>
-    </message>
-    <message>
         <source>&amp;Remove...</source>
         <translation>&amp;Удалить...</translation>
     </message>
@@ -6405,16 +6401,8 @@
 <context>
     <name>UIHostnameDomainNameEditor</name>
     <message>
-        <source>Domain name should be at least 2 character long. Allowed characters are alphanumerics, &quot;-&quot; and &quot;.&quot;</source>
-        <translation type="vanished">Имя домена должно быть длиной не менее 2х символов. Разрешены буквы, цифры, а также символы &quot;-&quot; и &quot;.&quot;</translation>
-    </message>
-    <message>
         <source>Domain name is valid</source>
         <translation>Имя домена корректно</translation>
-    </message>
-    <message>
-        <source>Host name should be at least 2 character long. Allowed characters are alphanumerics, &quot;-&quot; and &quot;.&quot;</source>
-        <translation type="vanished">Имя хоста должно быть длиной не менее 2х символов. Разрешены буквы, цифры, а также символы &quot;-&quot; и &quot;.&quot;</translation>
     </message>
     <message>
         <source>Host name is valid</source>
@@ -6823,22 +6811,6 @@
 </context>
 <context>
     <name>UILanguageSettingsEditor</name>
-    <message>
-        <source>Author</source>
-        <translation type="vanished">Автор(ы)</translation>
-    </message>
-    <message>
-        <source>Language</source>
-        <translation type="vanished">Язык</translation>
-    </message>
-    <message>
-        <source>Id</source>
-        <translation type="vanished">ИД</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="vanished">Имя</translation>
-    </message>
     <message>
         <source>Language:</source>
         <translation>Язык:</translation>

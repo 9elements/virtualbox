@@ -440,10 +440,6 @@
         <translation>&amp;Hinzufügen...</translation>
     </message>
     <message>
-        <source>Cl&amp;one...</source>
-        <translation type="vanished">&amp;Klonen...</translation>
-    </message>
-    <message>
         <source>&amp;Remove...</source>
         <translation>&amp;Entfernen...</translation>
     </message>
@@ -6400,16 +6396,8 @@
 <context>
     <name>UIHostnameDomainNameEditor</name>
     <message>
-        <source>Domain name should be at least 2 character long. Allowed characters are alphanumerics, &quot;-&quot; and &quot;.&quot;</source>
-        <translation type="vanished">Der Domainname muss mindestens 2 Zeichen lang sein. Erlaubte Zeichen sind alphanumerische, &quot;-&quot; und &quot;.&quot;</translation>
-    </message>
-    <message>
         <source>Domain name is valid</source>
         <translation>Domainname ist gültig</translation>
-    </message>
-    <message>
-        <source>Host name should be at least 2 character long. Allowed characters are alphanumerics, &quot;-&quot; and &quot;.&quot;</source>
-        <translation type="vanished">Der Hostname muss mindestens 2 Zeichen lang sein. Zulässige Zeichen sind alphanumerische Zeichen, „-“ und „.“</translation>
     </message>
     <message>
         <source>Host name is valid</source>
@@ -6817,14 +6805,6 @@
 </context>
 <context>
     <name>UILanguageSettingsEditor</name>
-    <message>
-        <source>Author</source>
-        <translation type="vanished">Autor</translation>
-    </message>
-    <message>
-        <source>Language</source>
-        <translation type="vanished">Sprache</translation>
-    </message>
     <message>
         <source>Language:</source>
         <translation>Sprache:</translation>

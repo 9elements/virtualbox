@@ -448,10 +448,6 @@
         <translation>&amp;Ekle...</translation>
     </message>
     <message>
-        <source>Cl&amp;one...</source>
-        <translation type="vanished">Ç&amp;oğalt...</translation>
-    </message>
-    <message>
         <source>&amp;Remove...</source>
         <translation>&amp;Kaldır...</translation>
     </message>
@@ -6395,16 +6391,8 @@
 <context>
     <name>UIHostnameDomainNameEditor</name>
     <message>
-        <source>Domain name should be at least 2 character long. Allowed characters are alphanumerics, &quot;-&quot; and &quot;.&quot;</source>
-        <translation type="vanished">Etki alanı adı en az 2 karakter uzunluğunda olmalıdır. İzin verilen karakterler alfasayısallar, &quot;-&quot; ve &quot;.&quot;dır</translation>
-    </message>
-    <message>
         <source>Domain name is valid</source>
         <translation>Etki alanı adı geçerli</translation>
-    </message>
-    <message>
-        <source>Host name should be at least 2 character long. Allowed characters are alphanumerics, &quot;-&quot; and &quot;.&quot;</source>
-        <translation type="vanished">Anamakine adı en az 2 karakter uzunluğunda olmalıdır. İzin verilen karakterler alfasayısallar, &quot;-&quot; ve &quot;.&quot;dır</translation>
     </message>
     <message>
         <source>Host name is valid</source>
@@ -6812,22 +6800,6 @@
 </context>
 <context>
     <name>UILanguageSettingsEditor</name>
-    <message>
-        <source>Author</source>
-        <translation type="vanished">Hazırlayan</translation>
-    </message>
-    <message>
-        <source>Language</source>
-        <translation type="vanished">Dil</translation>
-    </message>
-    <message>
-        <source>Id</source>
-        <translation type="vanished">Kimlik</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="vanished">Ad</translation>
-    </message>
     <message>
         <source>Language:</source>
         <translation>Dil:</translation>

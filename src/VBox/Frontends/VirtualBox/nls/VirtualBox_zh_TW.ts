@@ -659,10 +659,6 @@
         <translation>顯示「虛擬機器設定」視窗</translation>
     </message>
     <message>
-        <source>Cl&amp;one...</source>
-        <translation type="vanished">再製(&amp;O)...</translation>
-    </message>
-    <message>
         <source>Clone selected virtual machine</source>
         <translation>再製選取的虛擬機器</translation>
     </message>
@@ -6395,16 +6391,8 @@
 <context>
     <name>UIHostnameDomainNameEditor</name>
     <message>
-        <source>Domain name should be at least 2 character long. Allowed characters are alphanumerics, &quot;-&quot; and &quot;.&quot;</source>
-        <translation type="vanished">域名應至少 2 個字元長。 允許的字元是字母數字，&quot;-&quot; 和 &quot;.&quot;</translation>
-    </message>
-    <message>
         <source>Domain name is valid</source>
         <translation>域名有效</translation>
-    </message>
-    <message>
-        <source>Host name should be at least 2 character long. Allowed characters are alphanumerics, &quot;-&quot; and &quot;.&quot;</source>
-        <translation type="vanished">主機名稱長度至少為 2 個字元。 允許的字元包括字母數字，&quot;-&quot; 和 &quot;.&quot;</translation>
     </message>
     <message>
         <source>Host name is valid</source>
@@ -6812,22 +6800,6 @@
 </context>
 <context>
     <name>UILanguageSettingsEditor</name>
-    <message>
-        <source>Author</source>
-        <translation type="vanished">作者</translation>
-    </message>
-    <message>
-        <source>Language</source>
-        <translation type="vanished">語言</translation>
-    </message>
-    <message>
-        <source>Id</source>
-        <translation type="vanished">ID</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="vanished">名稱</translation>
-    </message>
     <message>
         <source>Language:</source>
         <translation>語言:</translation>
