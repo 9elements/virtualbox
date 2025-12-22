@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA3d-dx-dx11.cpp 112158 2025-12-17 22:04:47Z vitali.pelenjow@oracle.com $ */
+/* $Id: DevVGA-SVGA3d-dx-dx11.cpp 112195 2025-12-22 21:12:23Z vitali.pelenjow@oracle.com $ */
 /** @file
  * DevVMWare - VMWare SVGA device
  */
@@ -86,6 +86,7 @@ typedef struct D3D11BLITTER
     ID3D11Device1          *pDevice;
     ID3D11DeviceContext1   *pImmediateContext;
 
+    ID3D11Buffer           *pVSConstantBuffer;
     ID3D11VertexShader     *pVertexShader;
     ID3D11PixelShader      *pPixelShader;
     ID3D11PixelShader      *pPixelShaderSRGB;
@@ -3688,7 +3689,6 @@ static DECLCALLBACK(int) vmsvga3dBackDestroyScreen(PVGASTATECC pThisCC, VMSVGASC
 }
 
 
-#ifdef DX_NEW_HWSCREEN
 typedef struct DXPIPELINESTATE
 {
     D3D11_PRIMITIVE_TOPOLOGY    Topology;
@@ -3712,67 +3712,68 @@ typedef struct DXPIPELINESTATE
 } DXPIPELINESTATE;
 
 
-static void dxSavePipelineState(DXDEVICE *pDXDevice, DXPIPELINESTATE *pSavedState)
+static void dxSavePipelineState(ID3D11DeviceContext1 *pImmediateContext, DXPIPELINESTATE *pSavedState)
 {
-    pDXDevice->pImmediateContext->IAGetPrimitiveTopology(&pSavedState->Topology);
-    pDXDevice->pImmediateContext->IAGetInputLayout(&pSavedState->pInputLayout);
-    pDXDevice->pImmediateContext->VSGetConstantBuffers(0, 1, &pSavedState->pConstantBuffer);
-    pDXDevice->pImmediateContext->VSGetShader(&pSavedState->pVertexShader, NULL, NULL);
-    pDXDevice->pImmediateContext->HSGetShader(&pSavedState->pHullShader, NULL, NULL);
-    pDXDevice->pImmediateContext->DSGetShader(&pSavedState->pDomainShader, NULL, NULL);
-    pDXDevice->pImmediateContext->GSGetShader(&pSavedState->pGeometryShader, NULL, NULL);
-    pDXDevice->pImmediateContext->PSGetShaderResources(0, 1, &pSavedState->pShaderResourceView);
-    pDXDevice->pImmediateContext->PSGetShader(&pSavedState->pPixelShader, NULL, NULL);
-    pDXDevice->pImmediateContext->PSGetSamplers(0, 1, &pSavedState->pSamplerState);
-    pDXDevice->pImmediateContext->RSGetState(&pSavedState->pRasterizerState);
-    pDXDevice->pImmediateContext->OMGetBlendState(&pSavedState->pBlendState, pSavedState->BlendFactor, &pSavedState->SampleMask);
-    pDXDevice->pImmediateContext->OMGetRenderTargets(RT_ELEMENTS(pSavedState->apRenderTargetView), pSavedState->apRenderTargetView, &pSavedState->pDepthStencilView);
+    pImmediateContext->IAGetPrimitiveTopology(&pSavedState->Topology);
+    pImmediateContext->IAGetInputLayout(&pSavedState->pInputLayout);
+    pImmediateContext->VSGetConstantBuffers(0, 1, &pSavedState->pConstantBuffer);
+    pImmediateContext->VSGetShader(&pSavedState->pVertexShader, NULL, NULL);
+    pImmediateContext->HSGetShader(&pSavedState->pHullShader, NULL, NULL);
+    pImmediateContext->DSGetShader(&pSavedState->pDomainShader, NULL, NULL);
+    pImmediateContext->GSGetShader(&pSavedState->pGeometryShader, NULL, NULL);
+    pImmediateContext->PSGetShaderResources(0, 1, &pSavedState->pShaderResourceView);
+    pImmediateContext->PSGetShader(&pSavedState->pPixelShader, NULL, NULL);
+    pImmediateContext->PSGetSamplers(0, 1, &pSavedState->pSamplerState);
+    pImmediateContext->RSGetState(&pSavedState->pRasterizerState);
+    pImmediateContext->OMGetBlendState(&pSavedState->pBlendState, pSavedState->BlendFactor, &pSavedState->SampleMask);
+    pImmediateContext->OMGetRenderTargets(RT_ELEMENTS(pSavedState->apRenderTargetView), pSavedState->apRenderTargetView, &pSavedState->pDepthStencilView);
     pSavedState->NumViewports = RT_ELEMENTS(pSavedState->aViewport);
-    pDXDevice->pImmediateContext->RSGetViewports(&pSavedState->NumViewports, &pSavedState->aViewport[0]);
+    pImmediateContext->RSGetViewports(&pSavedState->NumViewports, &pSavedState->aViewport[0]);
 }
 
 
-static void dxRestorePipelineState(DXDEVICE *pDXDevice, DXPIPELINESTATE &SavedState)
+static void dxRestorePipelineState(ID3D11DeviceContext1 *pImmediateContext, DXPIPELINESTATE &SavedState)
 {
-    pDXDevice->pImmediateContext->IASetPrimitiveTopology(SavedState.Topology);
-    pDXDevice->pImmediateContext->IASetInputLayout(SavedState.pInputLayout);
+    pImmediateContext->IASetPrimitiveTopology(SavedState.Topology);
+    pImmediateContext->IASetInputLayout(SavedState.pInputLayout);
     D3D_RELEASE(SavedState.pInputLayout);
-    pDXDevice->pImmediateContext->VSSetConstantBuffers(0, 1, &SavedState.pConstantBuffer);
+    pImmediateContext->VSSetConstantBuffers(0, 1, &SavedState.pConstantBuffer);
     D3D_RELEASE(SavedState.pConstantBuffer);
-    pDXDevice->pImmediateContext->VSSetShader(SavedState.pVertexShader, NULL, 0);
+    pImmediateContext->VSSetShader(SavedState.pVertexShader, NULL, 0);
     D3D_RELEASE(SavedState.pVertexShader);
 
-    pDXDevice->pImmediateContext->HSSetShader(SavedState.pHullShader, NULL, 0);
+    pImmediateContext->HSSetShader(SavedState.pHullShader, NULL, 0);
     D3D_RELEASE(SavedState.pHullShader);
-    pDXDevice->pImmediateContext->DSSetShader(SavedState.pDomainShader, NULL, 0);
+    pImmediateContext->DSSetShader(SavedState.pDomainShader, NULL, 0);
     D3D_RELEASE(SavedState.pDomainShader);
-    pDXDevice->pImmediateContext->GSSetShader(SavedState.pGeometryShader, NULL, 0);
+    pImmediateContext->GSSetShader(SavedState.pGeometryShader, NULL, 0);
     D3D_RELEASE(SavedState.pGeometryShader);
 
-    pDXDevice->pImmediateContext->PSSetShaderResources(0, 1, &SavedState.pShaderResourceView);
+    pImmediateContext->PSSetShaderResources(0, 1, &SavedState.pShaderResourceView);
     D3D_RELEASE(SavedState.pShaderResourceView);
-    pDXDevice->pImmediateContext->PSSetShader(SavedState.pPixelShader, NULL, 0);
+    pImmediateContext->PSSetShader(SavedState.pPixelShader, NULL, 0);
     D3D_RELEASE(SavedState.pPixelShader);
-    pDXDevice->pImmediateContext->PSSetSamplers(0, 1, &SavedState.pSamplerState);
+    pImmediateContext->PSSetSamplers(0, 1, &SavedState.pSamplerState);
     D3D_RELEASE(SavedState.pSamplerState);
-    pDXDevice->pImmediateContext->RSSetState(SavedState.pRasterizerState);
+    pImmediateContext->RSSetState(SavedState.pRasterizerState);
     D3D_RELEASE(SavedState.pRasterizerState);
-    pDXDevice->pImmediateContext->OMSetBlendState(SavedState.pBlendState, SavedState.BlendFactor, SavedState.SampleMask);
+    pImmediateContext->OMSetBlendState(SavedState.pBlendState, SavedState.BlendFactor, SavedState.SampleMask);
     D3D_RELEASE(SavedState.pBlendState);
-    pDXDevice->pImmediateContext->OMSetRenderTargets(RT_ELEMENTS(SavedState.apRenderTargetView), SavedState.apRenderTargetView, SavedState.pDepthStencilView);
+    pImmediateContext->OMSetRenderTargets(RT_ELEMENTS(SavedState.apRenderTargetView), SavedState.apRenderTargetView, SavedState.pDepthStencilView);
     D3D_RELEASE_ARRAY(RT_ELEMENTS(SavedState.apRenderTargetView), SavedState.apRenderTargetView);
     D3D_RELEASE(SavedState.pDepthStencilView);
-    pDXDevice->pImmediateContext->RSSetViewports(SavedState.NumViewports, &SavedState.aViewport[0]);
+    pImmediateContext->RSSetViewports(SavedState.NumViewports, &SavedState.aViewport[0]);
 }
 
 
+#ifdef DX_NEW_HWSCREEN
 static void dxUpdateScreenBegin(DXDEVICE *pDXDevice, VMSVGAHWSCREEN *pHwScreen,
                                 ID3D11ShaderResourceView *pScreenTargetSrv, bool fScreenTargetSRGB, DXPIPELINESTATE *pSavedState)
 {
     /*
      * Prepare pipeline for blits from pScreenTargetSrv to pScreenTextureRTV with scaling and format conversion.
      */
-    dxSavePipelineState(pDXDevice, pSavedState);
+    dxSavePipelineState(pDXDevice->pImmediateContext, pSavedState);
 
     /*
      * Setup pipeline.
@@ -3862,7 +3863,7 @@ static HRESULT dxUpdateScreenRect(DXDEVICE *pDXDevice, VMSVGAHWSCREEN *pHwScreen
 
 static void dxUpdateScreenEnd(DXDEVICE *pDXDevice, DXPIPELINESTATE &SavedState)
 {
-    dxRestorePipelineState(pDXDevice, SavedState);
+    dxRestorePipelineState(pDXDevice->pImmediateContext, SavedState);
 }
 
 
@@ -9058,8 +9059,6 @@ static DECLCALLBACK(int) vmsvga3dBackDXPredCopy(PVGASTATECC pThisCC, PVMSVGA3DDX
 }
 
 
-#include "shaders/d3d11blitter.hlsl.vs.h"
-
 #define HTEST(stmt) \
     hr = stmt; \
     AssertReturn(SUCCEEDED(hr), hr)
@@ -9067,6 +9066,7 @@ static DECLCALLBACK(int) vmsvga3dBackDXPredCopy(PVGASTATECC pThisCC, PVMSVGA3DDX
 
 static void BlitRelease(D3D11BLITTER *pBlitter)
 {
+    D3D_RELEASE(pBlitter->pVSConstantBuffer);
     D3D_RELEASE(pBlitter->pVertexShader);
     D3D_RELEASE(pBlitter->pPixelShader);
     D3D_RELEASE(pBlitter->pPixelShaderSRGB);
@@ -9086,7 +9086,20 @@ static HRESULT BlitInit(D3D11BLITTER *pBlitter, ID3D11Device1 *pDevice, ID3D11De
     pBlitter->pDevice = pDevice;
     pBlitter->pImmediateContext = pImmediateContext;
 
-    HTEST(pBlitter->pDevice->CreateVertexShader(g_vs_blitter, sizeof(g_vs_blitter), NULL, &pBlitter->pVertexShader));
+    /* Vertex shader constant buffer. */
+    D3D11_BUFFER_DESC bd;
+    RT_ZERO(bd);
+    bd.ByteWidth             = sizeof(HwScreenUpdateVSConstants);
+    bd.Usage                 = D3D11_USAGE_DYNAMIC;
+    bd.BindFlags             = D3D11_BIND_CONSTANT_BUFFER;
+    bd.CPUAccessFlags        = D3D11_CPU_ACCESS_WRITE;
+    //bd.MiscFlags           = 0;
+    //bd.StructureByteStride = 0;
+
+    hr = pBlitter->pDevice->CreateBuffer(&bd, NULL, &pBlitter->pVSConstantBuffer);
+    AssertReturn(SUCCEEDED(hr), hr);
+
+    HTEST(pBlitter->pDevice->CreateVertexShader(g_vs_screen, sizeof(g_vs_screen), NULL, &pBlitter->pVertexShader));
     HTEST(pBlitter->pDevice->CreatePixelShader(g_ps_screen, sizeof(g_ps_screen), NULL, &pBlitter->pPixelShader));
     HTEST(pBlitter->pDevice->CreatePixelShader(g_ps_screen_SRGB, sizeof(g_ps_screen_SRGB), NULL, &pBlitter->pPixelShaderSRGB));
 
@@ -9142,56 +9155,15 @@ static HRESULT BlitInit(D3D11BLITTER *pBlitter, ID3D11Device1 *pDevice, ID3D11De
 }
 
 
-static HRESULT BlitFromTexture(D3D11BLITTER *pBlitter, ID3D11RenderTargetView *pDstRenderTargetView,
-                               float cDstWidth, float cDstHeight, D3D11_RECT const &rectDst,
-                               ID3D11ShaderResourceView *pSrcShaderResourceView, bool fSrcSRGB)
+static void BlitBegin(D3D11BLITTER *pBlitter, ID3D11RenderTargetView *pDstRenderTargetView,
+                      ID3D11ShaderResourceView *pSrcShaderResourceView, bool fSrcSRGB,
+                      DXPIPELINESTATE *pSavedState)
 {
-    HRESULT hr;
-
     /*
-     * Save pipeline state.
+     * Prepare pipeline for blits from pSrcShaderResourceView to pDstRenderTargetView
+     * with scaling and format conversion.
      */
-    struct
-    {
-        D3D11_PRIMITIVE_TOPOLOGY    Topology;
-        ID3D11InputLayout          *pInputLayout;
-        ID3D11Buffer               *pConstantBuffer;
-        ID3D11VertexShader         *pVertexShader;
-        ID3D11HullShader           *pHullShader;
-        ID3D11DomainShader         *pDomainShader;
-        ID3D11GeometryShader       *pGeometryShader;
-        ID3D11ShaderResourceView   *pShaderResourceView;
-        ID3D11PixelShader          *pPixelShader;
-        ID3D11SamplerState         *pSamplerState;
-        ID3D11RasterizerState      *pRasterizerState;
-        ID3D11BlendState           *pBlendState;
-        FLOAT                       BlendFactor[4];
-        UINT                        SampleMask;
-        ID3D11RenderTargetView     *apRenderTargetView[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT];
-        ID3D11DepthStencilView     *pDepthStencilView;
-        UINT                        NumViewports;
-        D3D11_VIEWPORT              aViewport[D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE];
-    } SavedState;
-
-    pBlitter->pImmediateContext->IAGetPrimitiveTopology(&SavedState.Topology);
-    pBlitter->pImmediateContext->IAGetInputLayout(&SavedState.pInputLayout);
-    pBlitter->pImmediateContext->VSGetConstantBuffers(0, 1, &SavedState.pConstantBuffer);
-    pBlitter->pImmediateContext->VSGetShader(&SavedState.pVertexShader, NULL, NULL);
-    pBlitter->pImmediateContext->HSGetShader(&SavedState.pHullShader, NULL, NULL);
-    pBlitter->pImmediateContext->DSGetShader(&SavedState.pDomainShader, NULL, NULL);
-    pBlitter->pImmediateContext->GSGetShader(&SavedState.pGeometryShader, NULL, NULL);
-    pBlitter->pImmediateContext->PSGetShaderResources(0, 1, &SavedState.pShaderResourceView);
-    pBlitter->pImmediateContext->PSGetShader(&SavedState.pPixelShader, NULL, NULL);
-    pBlitter->pImmediateContext->PSGetSamplers(0, 1, &SavedState.pSamplerState);
-    pBlitter->pImmediateContext->RSGetState(&SavedState.pRasterizerState);
-    pBlitter->pImmediateContext->OMGetBlendState(&SavedState.pBlendState, SavedState.BlendFactor, &SavedState.SampleMask);
-    pBlitter->pImmediateContext->OMGetRenderTargets(RT_ELEMENTS(SavedState.apRenderTargetView), SavedState.apRenderTargetView, &SavedState.pDepthStencilView);
-    SavedState.NumViewports = RT_ELEMENTS(SavedState.aViewport);
-    pBlitter->pImmediateContext->RSGetViewports(&SavedState.NumViewports, &SavedState.aViewport[0]);
-
-    /*
-     * Setup pipeline for the blitter.
-     */
+    dxSavePipelineState(pBlitter->pImmediateContext, pSavedState);
 
     /* Render target is first.
      * If the source texture is bound as a render target, then this call will unbind it
@@ -9199,38 +9171,12 @@ static HRESULT BlitFromTexture(D3D11BLITTER *pBlitter, ID3D11RenderTargetView *p
      */
     pBlitter->pImmediateContext->OMSetRenderTargets(1, &pDstRenderTargetView, NULL);
 
-    /* Input assembler. */
+    /* Buffer for geometry constants. */
+    pBlitter->pImmediateContext->VSSetConstantBuffers(0, 1, &pBlitter->pVSConstantBuffer);
+
+    /* Input assembler uses SV_VertexId to generate vertices. */
     pBlitter->pImmediateContext->IASetInputLayout(NULL);
     pBlitter->pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-
-    /* Constant buffer. */
-    struct
-    {
-        float scaleX;
-        float scaleY;
-        float offsetX;
-        float offsetY;
-    } VSConstantBuffer;
-    VSConstantBuffer.scaleX = (float)(rectDst.right - rectDst.left) / cDstWidth;
-    VSConstantBuffer.scaleY = (float)(rectDst.bottom - rectDst.top) / cDstHeight;
-    VSConstantBuffer.offsetX = (float)(rectDst.right + rectDst.left) / cDstWidth - 1.0f;
-    VSConstantBuffer.offsetY = -((float)(rectDst.bottom + rectDst.top) / cDstHeight - 1.0f);
-
-    D3D11_SUBRESOURCE_DATA initialData;
-    initialData.pSysMem          = &VSConstantBuffer;
-    initialData.SysMemPitch      = sizeof(VSConstantBuffer);
-    initialData.SysMemSlicePitch = sizeof(VSConstantBuffer);
-
-    D3D11_BUFFER_DESC bd;
-    RT_ZERO(bd);
-    bd.ByteWidth           = sizeof(VSConstantBuffer);
-    bd.Usage               = D3D11_USAGE_IMMUTABLE;
-    bd.BindFlags           = D3D11_BIND_CONSTANT_BUFFER;
-
-    ID3D11Buffer *pConstantBuffer;
-    HTEST(pBlitter->pDevice->CreateBuffer(&bd, &initialData, &pConstantBuffer));
-    pBlitter->pImmediateContext->VSSetConstantBuffers(0, 1, &pConstantBuffer);
-    D3D_RELEASE(pConstantBuffer); /* xSSetConstantBuffers "will hold a reference to the interfaces passed in." */
 
     /* Vertex shader. */
     pBlitter->pImmediateContext->VSSetShader(pBlitter->pVertexShader, NULL, 0);
@@ -9240,10 +9186,12 @@ static HRESULT BlitFromTexture(D3D11BLITTER *pBlitter, ID3D11RenderTargetView *p
     pBlitter->pImmediateContext->DSSetShader(NULL, NULL, 0);
     pBlitter->pImmediateContext->GSSetShader(NULL, NULL, 0);
 
-    /* Shader resource view. */
+    /* Shader resource is the source texture. */
     pBlitter->pImmediateContext->PSSetShaderResources(0, 1, &pSrcShaderResourceView);
 
-    /* Pixel shader. */
+    /* Pixel shader. The blitter must copy the data unmodified, however Sample operation in the pixel shader
+     * converts SRGB values to linear. Use a special shader to undo that for _SRGB textures.
+     */
     pBlitter->pImmediateContext->PSSetShader(fSrcSRGB ? pBlitter->pPixelShaderSRGB : pBlitter->pPixelShader, NULL, 0);
 
     /* Sampler. */
@@ -9255,6 +9203,14 @@ static HRESULT BlitFromTexture(D3D11BLITTER *pBlitter, ID3D11RenderTargetView *p
     /* Blend state. */
     static FLOAT const BlendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
     pBlitter->pImmediateContext->OMSetBlendState(pBlitter->pBlendState, BlendFactor, 0xffffffff);
+}
+
+
+static HRESULT BlitRect(D3D11BLITTER *pBlitter,
+                        D3D11_RECT const &dstRect, uint32_t cDstWidth, uint32_t cDstHeight,
+                        D3D11_RECT const &srcRect, uint32_t cSrcWidth, uint32_t cSrcHeight)
+{
+    HRESULT hr;
 
     /* Viewport. */
     D3D11_VIEWPORT Viewport;
@@ -9266,43 +9222,36 @@ static HRESULT BlitFromTexture(D3D11BLITTER *pBlitter, ID3D11RenderTargetView *p
     Viewport.MaxDepth = 1.0f;
     pBlitter->pImmediateContext->RSSetViewports(1, &Viewport);
 
+    /* Update vertex shader constants. */
+    D3D11_MAPPED_SUBRESOURCE map;
+    RT_ZERO(map);
+
+    hr = pBlitter->pImmediateContext->Map(pBlitter->pVSConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &map);
+    AssertReturn(SUCCEEDED(hr), hr);
+
+    HwScreenUpdateVSConstants *pVSConstants = (HwScreenUpdateVSConstants *)map.pData;
+
+    pVSConstants->srcTexcoordScaleX  = (float)(srcRect.right - srcRect.left) / (float)cSrcWidth;
+    pVSConstants->srcTexcoordScaleY  = (float)(srcRect.bottom - srcRect.top) / (float)cSrcHeight;
+    pVSConstants->srcTexcoordOffsetX = (float)srcRect.left / (float)cSrcWidth;
+    pVSConstants->srcTexcoordOffsetY = (float)srcRect.top / (float)cSrcHeight;
+
+    pVSConstants->dstCoordScaleX  = (float)(dstRect.right - dstRect.left) / (float)cDstWidth;
+    pVSConstants->dstCoordScaleY  = (float)(dstRect.bottom - dstRect.top) / (float)cDstHeight;
+    pVSConstants->dstCoordOffsetX = (float)(dstRect.right + dstRect.left) / (float)cDstWidth - 1.0f;
+    pVSConstants->dstCoordOffsetY = -((float)(dstRect.bottom + dstRect.top) / (float)cDstHeight - 1.0f);
+
+    pBlitter->pImmediateContext->Unmap(pBlitter->pVSConstantBuffer, 0);
+
     /* Draw. */
     pBlitter->pImmediateContext->Draw(4, 0);
-
-    /*
-     * Restore pipeline state.
-     */
-    pBlitter->pImmediateContext->IASetPrimitiveTopology(SavedState.Topology);
-    pBlitter->pImmediateContext->IASetInputLayout(SavedState.pInputLayout);
-    D3D_RELEASE(SavedState.pInputLayout);
-    pBlitter->pImmediateContext->VSSetConstantBuffers(0, 1, &SavedState.pConstantBuffer);
-    D3D_RELEASE(SavedState.pConstantBuffer);
-    pBlitter->pImmediateContext->VSSetShader(SavedState.pVertexShader, NULL, 0);
-    D3D_RELEASE(SavedState.pVertexShader);
-
-    pBlitter->pImmediateContext->HSSetShader(SavedState.pHullShader, NULL, 0);
-    D3D_RELEASE(SavedState.pHullShader);
-    pBlitter->pImmediateContext->DSSetShader(SavedState.pDomainShader, NULL, 0);
-    D3D_RELEASE(SavedState.pDomainShader);
-    pBlitter->pImmediateContext->GSSetShader(SavedState.pGeometryShader, NULL, 0);
-    D3D_RELEASE(SavedState.pGeometryShader);
-
-    pBlitter->pImmediateContext->PSSetShaderResources(0, 1, &SavedState.pShaderResourceView);
-    D3D_RELEASE(SavedState.pShaderResourceView);
-    pBlitter->pImmediateContext->PSSetShader(SavedState.pPixelShader, NULL, 0);
-    D3D_RELEASE(SavedState.pPixelShader);
-    pBlitter->pImmediateContext->PSSetSamplers(0, 1, &SavedState.pSamplerState);
-    D3D_RELEASE(SavedState.pSamplerState);
-    pBlitter->pImmediateContext->RSSetState(SavedState.pRasterizerState);
-    D3D_RELEASE(SavedState.pRasterizerState);
-    pBlitter->pImmediateContext->OMSetBlendState(SavedState.pBlendState, SavedState.BlendFactor, SavedState.SampleMask);
-    D3D_RELEASE(SavedState.pBlendState);
-    pBlitter->pImmediateContext->OMSetRenderTargets(RT_ELEMENTS(SavedState.apRenderTargetView), SavedState.apRenderTargetView, SavedState.pDepthStencilView);
-    D3D_RELEASE_ARRAY(RT_ELEMENTS(SavedState.apRenderTargetView), SavedState.apRenderTargetView);
-    D3D_RELEASE(SavedState.pDepthStencilView);
-    pBlitter->pImmediateContext->RSSetViewports(SavedState.NumViewports, &SavedState.aViewport[0]);
-
     return S_OK;
+}
+
+
+static void BlitEnd(D3D11BLITTER *pBlitter, DXPIPELINESTATE &SavedState)
+{
+    dxRestorePipelineState(pBlitter->pImmediateContext, SavedState);
 }
 
 
@@ -9386,14 +9335,26 @@ static DECLCALLBACK(int) vmsvga3dBackDXPresentBlt(PVGASTATECC pThisCC, PVMSVGA3D
     hr = pDevice->pDevice->CreateShaderResourceView(pSrcResource, &SRVDesc, &pSrcShaderResourceView);
     AssertReturnStmt(SUCCEEDED(hr), D3D_RELEASE(pDstRenderTargetView), VERR_NOT_SUPPORTED);
 
-    D3D11_RECT rectDst;
-    rectDst.left   = pBoxDst->x;
-    rectDst.top    = pBoxDst->y;
-    rectDst.right  = pBoxDst->x + pBoxDst->w;
-    rectDst.bottom = pBoxDst->y + pBoxDst->h;
+    D3D11_RECT dstRect;
+    dstRect.left   = clipBoxDst.x;
+    dstRect.top    = clipBoxDst.y;
+    dstRect.right  = clipBoxDst.x + clipBoxDst.w;
+    dstRect.bottom = clipBoxDst.y + clipBoxDst.h;
 
-    BlitFromTexture(&pDevice->Blitter, pDstRenderTargetView, (float)pDstMipLevel->mipmapSize.width, (float)pDstMipLevel->mipmapSize.height,
-                    rectDst, pSrcShaderResourceView, dxIsFormatSRGB(pSrcSurface->pBackendSurface->enmDxgiFormat));
+    D3D11_RECT srcRect;
+    srcRect.left   = clipBoxSrc.x;
+    srcRect.top    = clipBoxSrc.y;
+    srcRect.right  = clipBoxSrc.x + clipBoxSrc.w;
+    srcRect.bottom = clipBoxSrc.y + clipBoxSrc.h;
+
+    DXPIPELINESTATE SavedState;
+    BlitBegin(&pDevice->Blitter, pDstRenderTargetView,
+              pSrcShaderResourceView, dxIsFormatSRGB(pSrcSurface->pBackendSurface->enmDxgiFormat),
+              &SavedState);
+    BlitRect(&pDevice->Blitter,
+             dstRect, pDstMipLevel->mipmapSize.width, pDstMipLevel->mipmapSize.height,
+             srcRect, pSrcMipLevel->mipmapSize.width, pSrcMipLevel->mipmapSize.height);
+    BlitEnd(&pDevice->Blitter, SavedState);
 
     D3D_RELEASE(pSrcShaderResourceView);
     D3D_RELEASE(pDstRenderTargetView);
