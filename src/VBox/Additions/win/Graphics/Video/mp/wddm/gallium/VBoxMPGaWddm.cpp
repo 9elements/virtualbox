@@ -1,4 +1,4 @@
-/* $Id: VBoxMPGaWddm.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: VBoxMPGaWddm.cpp 112188 2025-12-22 12:43:18Z vitali.pelenjow@oracle.com $ */
 /** @file
  * VirtualBox Windows Guest Mesa3D - Gallium driver interface for WDDM kernel mode driver.
  */
@@ -775,7 +775,8 @@ static NTSTATUS gaPresentBlt(DXGKARG_PRESENT *pPresent,
 #ifdef VBOX_WITH_VMSVGA3D_DX
         else if (pDstAlloc->enmType == VBOXWDDM_ALLOC_TYPE_D3D)
         {
-            if (pSrcAlloc->enmType == VBOXWDDM_ALLOC_TYPE_D3D)
+            if (   pSrcAlloc->enmType == VBOXWDDM_ALLOC_TYPE_D3D
+                || pSrcAlloc->enmType == VBOXWDDM_ALLOC_TYPE_UMD_RC_GENERIC)
             {
                 uint32_t cbRequired = sizeof(SVGA3dCmdHeader) + sizeof(SVGA3dCmdDXPresentBlt);
                 if (pDstAlloc->dx.desc.surfaceInfo.surfaceFlags & SVGA3D_SURFACE_HINT_RT_LOCKABLE)
@@ -787,6 +788,10 @@ static NTSTATUS gaPresentBlt(DXGKARG_PRESENT *pPresent,
                     Status = STATUS_GRAPHICS_INSUFFICIENT_DMA_BUFFER;
                     break;
                 }
+
+                uint32_t const sidSrc = pSrcAlloc->enmType == VBOXWDDM_ALLOC_TYPE_D3D
+                                      ? pSrcAlloc->dx.sid
+                                      : pSrcAlloc->AllocData.hostID;
 
                 RECT const &dstRect = pPresent->pDstSubRects[iSubRect];
 
@@ -801,7 +806,7 @@ static NTSTATUS gaPresentBlt(DXGKARG_PRESENT *pPresent,
 
                 {
                 SVGA3dCmdDXPresentBlt *pCmd = (SVGA3dCmdDXPresentBlt *)pu8Cmd;
-                pCmd->srcSid = pSrcAlloc->dx.sid;
+                pCmd->srcSid = sidSrc;
                 pCmd->srcSubResource = 0;
                 pCmd->dstSid = pDstAlloc->dx.sid;
                 pCmd->destSubResource = 0;
