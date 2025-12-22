@@ -2301,23 +2301,23 @@
     </message>
     <message>
         <source>&amp;New</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Новая</translation>
     </message>
     <message>
         <source>&amp;New Cloud Machine...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Создать облачную машину...</translation>
     </message>
     <message>
         <source>Create new cloud virtual machine</source>
-        <translation type="unfinished"></translation>
+        <translation>Создать облачную виртуальную машину</translation>
     </message>
     <message>
         <source>&amp;Open Cloud Machine...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Открыть облачную машину...</translation>
     </message>
     <message>
         <source>Open existing cloud virtual machine</source>
-        <translation type="unfinished"></translation>
+        <translation>Открыть облачную виртуальную машину</translation>
     </message>
 </context>
 <context>
@@ -2914,7 +2914,7 @@
     <name>UIChooserNodeGroup</name>
     <message>
         <source>Machine group</source>
-        <translation type="unfinished"></translation>
+        <translation>Группа машин</translation>
     </message>
 </context>
 <context>
@@ -3172,11 +3172,11 @@
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Имя</translation>
+        <translation>Имя</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished">Значение</translation>
+        <translation>Значение</translation>
     </message>
 </context>
 <context>
@@ -4546,7 +4546,7 @@
     <message>
         <source>Intel 82583V Gigabit Network Connection [EXPERIMENTAL]</source>
         <comment>NetworkAdapterType</comment>
-        <translation type="unfinished"></translation>
+        <translation>Intel 82583V Gigabit Network Connection [ЭКСПЕРИМЕНТАЛЬНЫЙ]</translation>
     </message>
 </context>
 <context>
@@ -6434,11 +6434,11 @@
     </message>
     <message>
         <source>Host name must be at least two alphanumeric characters. Hyphens are allowed between characters.</source>
-        <translation type="unfinished"></translation>
+        <translation>Имя хоста должно включать как минимум два буквенно-цифровых символа. Дефисы между символами разрешены.</translation>
     </message>
     <message>
         <source>Domain labels (1–63 chars) may use letters, digits, or hyphens, but not start or end with one. Labels are dot-separated, and the total length must be under 254 characters.</source>
-        <translation type="unfinished"></translation>
+        <translation>Метки доменов (1-63 символа) могут использовать буквы, цифры и дефисы, но не могут начинаться с последних или заканчиваться ими. Метки разделяются точками, и общая длина не должна превышать 254 символа.</translation>
     </message>
 </context>
 <context>
@@ -9749,11 +9749,11 @@
     </message>
     <message>
         <source>&lt;p&gt;The VM folder contains files that were used for unattended guest OS installation and are no longer needed.&lt;/p&gt;&lt;p&gt;Delete them now?&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Папка машин содержит файлы, которые ранее использовались при установке ОС в автоматическом режиме и более не нужны.&lt;/p&gt;&lt;p&gt;Удалить их сейчас?&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Don&apos;t ask again</source>
-        <translation type="unfinished"></translation>
+        <translation>Больше не спрашивать</translation>
     </message>
 </context>
 <context>
@@ -12415,7 +12415,7 @@
     <name>UIToolsItem</name>
     <message>
         <source>Tool item</source>
-        <translation type="unfinished"></translation>
+        <translation>Инструмент</translation>
     </message>
     <message>
         <source>Media</source>
@@ -13031,23 +13031,23 @@
     </message>
     <message>
         <source>The user name cannot contain following characters: / \ [ ] : | &lt; &gt; + = ; , ? * % @</source>
-        <translation type="unfinished"></translation>
+        <translation>Имя пользователя не может содержать следующие символы: / \ [ ] : | &lt; &gt; + = ; , ? * % @</translation>
     </message>
     <message>
         <source>The user name cannot be &apos;NONE&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Имя пользователя не может быть равным &apos;NONE&apos;</translation>
     </message>
     <message>
         <source>The user name cannot be longer than 20 characters</source>
-        <translation type="unfinished"></translation>
+        <translation>Имя пользователя не может быть длиннее 20и символов</translation>
     </message>
     <message>
         <source>The user name includes invalid characters</source>
-        <translation type="unfinished"></translation>
+        <translation>Имя пользователя не может включать невалидные символы</translation>
     </message>
     <message>
         <source>The user name cannot be longer than 32 characters</source>
-        <translation type="unfinished"></translation>
+        <translation>Имя пользователя не может быть длиннее 32х символов</translation>
     </message>
 </context>
 <context>
