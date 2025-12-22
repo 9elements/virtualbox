@@ -2301,23 +2301,23 @@
     </message>
     <message>
         <source>&amp;New</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Yeni</translation>
     </message>
     <message>
         <source>&amp;New Cloud Machine...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Yeni Bulut Makinesi...</translation>
     </message>
     <message>
         <source>Create new cloud virtual machine</source>
-        <translation type="unfinished"></translation>
+        <translation>Yeni bulut sanal makinesi oluştur</translation>
     </message>
     <message>
         <source>&amp;Open Cloud Machine...</source>
-        <translation type="unfinished"></translation>
+        <translation>Bulut Makinesini &amp;Aç...</translation>
     </message>
     <message>
         <source>Open existing cloud virtual machine</source>
-        <translation type="unfinished"></translation>
+        <translation>Varolan bulut sanal makinesini aç</translation>
     </message>
 </context>
 <context>
@@ -3162,11 +3162,11 @@
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Ad</translation>
+        <translation>Ad</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished">Değer</translation>
+        <translation>Değer</translation>
     </message>
 </context>
 <context>
@@ -6424,11 +6424,11 @@
     </message>
     <message>
         <source>Host name must be at least two alphanumeric characters. Hyphens are allowed between characters.</source>
-        <translation type="unfinished"></translation>
+        <translation>Anamakine adı en az iki alfasayısal karakterden oluşmak zorundadır. Karakterler arasında kısa çizgilere izin verilir.</translation>
     </message>
     <message>
         <source>Domain labels (1–63 chars) may use letters, digits, or hyphens, but not start or end with one. Labels are dot-separated, and the total length must be under 254 characters.</source>
-        <translation type="unfinished"></translation>
+        <translation>Etki alanı etiketlerinde (1-63 karakter) harf, rakam veya kısa çizgi kullanılabilir, ancak bunlardan biriyle başlayıp bitemez. Etiketler noktalarla ayrılmıştır ve toplam uzunluğu 254 karakterin altında olmak zorundadır.</translation>
     </message>
 </context>
 <context>
@@ -9738,11 +9738,11 @@
     </message>
     <message>
         <source>&lt;p&gt;The VM folder contains files that were used for unattended guest OS installation and are no longer needed.&lt;/p&gt;&lt;p&gt;Delete them now?&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;VM klasörü, katılımsız misafir işletim sistemi kurulumu için kullanılan ve artık ihtiyaç duyulmayan dosyaları içeriyor.&lt;/p&gt;&lt;p&gt;Şimdi silinsin mi?&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Don&apos;t ask again</source>
-        <translation type="unfinished"></translation>
+        <translation>Bir daha sorma</translation>
     </message>
 </context>
 <context>

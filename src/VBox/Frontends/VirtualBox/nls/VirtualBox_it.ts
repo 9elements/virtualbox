@@ -2303,23 +2303,23 @@
     </message>
     <message>
         <source>&amp;New</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Nuovo</translation>
     </message>
     <message>
         <source>&amp;New Cloud Machine...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Nuova macchina in cloud...</translation>
     </message>
     <message>
         <source>Create new cloud virtual machine</source>
-        <translation type="unfinished"></translation>
+        <translation>Crea nuova macchina viruale in cloud</translation>
     </message>
     <message>
         <source>&amp;Open Cloud Machine...</source>
-        <translation type="unfinished"></translation>
+        <translation>Apri macchina in cl&amp;oud...</translation>
     </message>
     <message>
         <source>Open existing cloud virtual machine</source>
-        <translation type="unfinished"></translation>
+        <translation>Apri macchina virtuale in cloud esistente</translation>
     </message>
 </context>
 <context>
@@ -3169,11 +3169,11 @@
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Nome</translation>
+        <translation>Nome</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished">Valore</translation>
+        <translation>Valore</translation>
     </message>
 </context>
 <context>
@@ -6431,11 +6431,11 @@
     </message>
     <message>
         <source>Host name must be at least two alphanumeric characters. Hyphens are allowed between characters.</source>
-        <translation type="unfinished"></translation>
+        <translation>Il nome host deve essere composto da almeno due caratteri alfanumerici. Sono consentiti i trattini tra i caratteri.</translation>
     </message>
     <message>
         <source>Domain labels (1–63 chars) may use letters, digits, or hyphens, but not start or end with one. Labels are dot-separated, and the total length must be under 254 characters.</source>
-        <translation type="unfinished"></translation>
+        <translation>Le etichette di dominio (da 1 a 63 caratteri) possono contenere lettere, cifre o trattini, ma non possono iniziare o terminare con uno di essi. Le etichette sono separate da punti e la lunghezza totale deve essere inferiore a 254 caratteri.</translation>
     </message>
 </context>
 <context>
@@ -9744,11 +9744,11 @@
     </message>
     <message>
         <source>&lt;p&gt;The VM folder contains files that were used for unattended guest OS installation and are no longer needed.&lt;/p&gt;&lt;p&gt;Delete them now?&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;La cartella della MV contiene file che sono stati utilizzati per l&apos;installazione non presidiata dell&apos;installazione del sistema operativo del guest e non sono più necessari.&lt;/p&gt;&lt;p&gt;Vuoi eliminarli ora?&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Don&apos;t ask again</source>
-        <translation type="unfinished"></translation>
+        <translation>Non chiedere più</translation>
     </message>
 </context>
 <context>
