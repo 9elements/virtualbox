@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA-cmd.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: DevVGA-SVGA-cmd.cpp 112229 2025-12-25 18:14:49Z vitali.pelenjow@oracle.com $ */
 /** @file
  * VMware SVGA device - implementation of VMSVGA commands.
  */
@@ -1164,7 +1164,7 @@ int vmsvgaR3MobWrite(PVMSVGAR3STATE pSvgaR3State, PVMSVGAMOB pMob,
 int vmsvgaR3MobRead(PVMSVGAR3STATE pSvgaR3State, PVMSVGAMOB pMob,
                     uint32_t off, void *pvData, uint32_t cbData)
 {
-    return vmsvgaR3GboWrite(pSvgaR3State, &pMob->Gbo, off, pvData, cbData);
+    return vmsvgaR3GboRead(pSvgaR3State, &pMob->Gbo, off, pvData, cbData);
 }
 
 
