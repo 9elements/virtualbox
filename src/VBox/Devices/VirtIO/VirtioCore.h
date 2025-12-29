@@ -1,4 +1,4 @@
-/* $Id: VirtioCore.h 109455 2025-05-07 12:03:47Z aleksey.ilyushin@oracle.com $ */
+/* $Id: VirtioCore.h 112247 2025-12-29 11:36:18Z aleksey.ilyushin@oracle.com $ */
 
 /** @file
  * VirtioCore.h - Virtio Declarations
@@ -32,15 +32,18 @@
 # pragma once
 #endif
 
-#include <iprt/ctype.h>
-#include <iprt/sg.h>
-#include <iprt/types.h>
-
 /*
  * WARNING! NEVER ENABLE IN PRODUCTION BUILDS!
  * Enables temporary printouts to release log in descriptor chain handling code.
  */
 //#define VIRTIO_REL_INFO_DUMP 1
+
+/* Do not allocate VIRTQBUF from the heap when possible */
+#define VIRTIO_VBUF_ON_STACK 1
+
+#include <iprt/ctype.h>
+#include <iprt/sg.h>
+#include <iprt/types.h>
 
 #ifdef LOG_ENABLED
 # define VIRTIO_HEX_DUMP(logLevel, pv, cb, base, title) \
@@ -464,6 +467,9 @@ typedef struct VIRTIOCORE
     uint16_t                    uIrqMmio;                         /**< The interrupt number when Virtio-over-MMIO is used */
     uint8_t                     uDeviceType;                      /**< The implemented device type for Virtio-over-MMIO   */
 #ifdef VIRTIO_REL_INFO_DUMP
+#define VIRTIO_CORE_TRACE_NUM_ENTRIES 1024
+#define VIRTIO_CORE_TRACE_ENTRY_SIZE  256
+#define VIRTIO_CORE_TRACE_BUF_SIZE (128 + VIRTIO_CORE_TRACE_NUM_ENTRIES * VIRTIO_CORE_TRACE_ENTRY_SIZE)
     bool                        fRecovering;
     bool                        fTestRecovery;
 #define VIRTIO_CORE_TRACE_BUF_SIZE (256 /* header */ + 256 * 256 /* buffer*/)

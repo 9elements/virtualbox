@@ -1,4 +1,4 @@
-/* $Id: VirtioCore.cpp 111410 2025-10-15 09:14:41Z michal.necasek@oracle.com $ */
+/* $Id: VirtioCore.cpp 112247 2025-12-29 11:36:18Z aleksey.ilyushin@oracle.com $ */
 
 /** @file
  * VirtioCore - Virtio Core (PCI, feature & config mgt, queue mgt & proxy, notification mgt)
@@ -1109,6 +1109,13 @@ DECLHIDDEN(int) virtioCoreR3VirtqAvailBufGet(PPDMDEVINS pDevIns, PVIRTIOCORE pVi
             }
             /* Disable the queue to prevent its operation until it is re-initialized. */
             pVirtq->uEnable = false;
+            /* Cut the loop at the very first descriptor to prevent the infinite loop in NetKVM. */
+            virtioReadDesc(pDevIns, pVirtio, pVirtq, uHeadIdx, &desc);
+            desc.fFlags &= ~VIRTQ_DESC_F_NEXT;
+            /* Write it back */
+            virtioCoreGCPhysWrite(pVirtio, pDevIns,
+                                  pVirtq->GCPhysVirtqDesc + sizeof(VIRTQ_DESC_T) * (uHeadIdx % pVirtq->uQueueSize),
+                                  &desc, sizeof(VIRTQ_DESC_T));
             return VERR_INVALID_STATE;
         }
 #else /* !VIRTIO_REL_INFO_DUMP */
@@ -3372,7 +3379,7 @@ DECLHIDDEN(int) virtioCoreR3Init(PPDMDEVINS pDevIns, PVIRTIOCORE pVirtio, PVIRTI
     pVirtio->fRecovering = false;
     pVirtio->fTestRecovery = false;
     size_t cbBlock = VIRTIO_CORE_TRACE_BUF_SIZE;
-    rc = RTTraceBufCarve(&pVirtio->hTraceBuf, 0 /*cEntries*/, 0 /*cbEntry*/, 0 /*fFlags*/, pVirtio->aTraceBuf, &cbBlock);
+    rc = RTTraceBufCarve(&pVirtio->hTraceBuf, VIRTIO_CORE_TRACE_NUM_ENTRIES /*cEntries*/, VIRTIO_CORE_TRACE_ENTRY_SIZE /*cbEntry*/, 0 /*fFlags*/, pVirtio->aTraceBuf, &cbBlock);
     AssertRC(rc);
     if (RT_FAILURE(rc))
         LogRel(("virtioCore: Failed to initialize trace buffer (rc=%d)\n", rc));
