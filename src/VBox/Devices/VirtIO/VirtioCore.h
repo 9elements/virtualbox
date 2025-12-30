@@ -1,4 +1,4 @@
-/* $Id: VirtioCore.h 112247 2025-12-29 11:36:18Z aleksey.ilyushin@oracle.com $ */
+/* $Id: VirtioCore.h 112248 2025-12-30 09:57:27Z aleksey.ilyushin@oracle.com $ */
 
 /** @file
  * VirtioCore.h - Virtio Declarations
@@ -36,7 +36,8 @@
  * WARNING! NEVER ENABLE IN PRODUCTION BUILDS!
  * Enables temporary printouts to release log in descriptor chain handling code.
  */
-//#define VIRTIO_REL_INFO_DUMP 1
+#define VIRTIO_REL_INFO_DUMP 1
+//#define VIRTIO_REL_INFO_DUMP_TEST 1
 
 /* Do not allocate VIRTQBUF from the heap when possible */
 #define VIRTIO_VBUF_ON_STACK 1
@@ -396,6 +397,14 @@ typedef struct virtio_pci_common_cfg
     uint64_t  GCPhysVirtqDesc;                                   /**< RW (driver writes desc table phys addr)   */
     uint64_t  GCPhysVirtqAvail;                                  /**< RW (driver writes avail ring phys addr)   */
     uint64_t  GCPhysVirtqUsed;                                   /**< RW (driver writes used ring  phys addr)   */
+#ifdef VIRTIO_REL_INFO_DUMP
+    /* Debug fields for driver descriptor tracing */
+    uint64_t  debugDescAddr;
+    uint32_t  debugDescLen;
+    uint16_t  debugDescFlags;
+    uint16_t  debugDescNext;
+    uint32_t  debugDescIndex;
+#endif /* VIRTIO_REL_INFO_DUMP */
 } VIRTIO_PCI_COMMON_CFG_T, *PVIRTIO_PCI_COMMON_CFG_T;
 
 typedef struct virtio_pci_notify_cap
@@ -467,12 +476,18 @@ typedef struct VIRTIOCORE
     uint16_t                    uIrqMmio;                         /**< The interrupt number when Virtio-over-MMIO is used */
     uint8_t                     uDeviceType;                      /**< The implemented device type for Virtio-over-MMIO   */
 #ifdef VIRTIO_REL_INFO_DUMP
+    /* Debug fields for driver descriptor tracing */
+    uint32_t                    debugDescIndex;
+    uint64_t                    debugDescAddr;
+    uint32_t                    debugDescLen;
+    uint16_t                    debugDescFlags;
+    uint16_t                    debugDescNext;
 #define VIRTIO_CORE_TRACE_NUM_ENTRIES 1024
 #define VIRTIO_CORE_TRACE_ENTRY_SIZE  256
-#define VIRTIO_CORE_TRACE_BUF_SIZE (128 + VIRTIO_CORE_TRACE_NUM_ENTRIES * VIRTIO_CORE_TRACE_ENTRY_SIZE)
-    bool                        fRecovering;
+#define VIRTIO_CORE_TRACE_BUF_SIZE (128 + 8 + VIRTIO_CORE_TRACE_NUM_ENTRIES * VIRTIO_CORE_TRACE_ENTRY_SIZE)
+    uint16_t                    uLoopVirtq;
     bool                        fTestRecovery;
-#define VIRTIO_CORE_TRACE_BUF_SIZE (256 /* header */ + 256 * 256 /* buffer*/)
+    bool                        fRecovering;
     RTTRACEBUF                  hTraceBuf;
     uint8_t                     aTraceBuf[VIRTIO_CORE_TRACE_BUF_SIZE];
 #endif /* VIRTIO_REL_INFO_DUMP */

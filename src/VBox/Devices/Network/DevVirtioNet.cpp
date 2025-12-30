@@ -1,4 +1,4 @@
-/* $Id: DevVirtioNet.cpp 111431 2025-10-16 09:49:06Z aleksey.ilyushin@oracle.com $ */
+/* $Id: DevVirtioNet.cpp 112248 2025-12-30 09:57:27Z aleksey.ilyushin@oracle.com $ */
 /** @file
  * VBox storage devices - Virtio NET Driver
  *
@@ -810,14 +810,16 @@ static DECLCALLBACK(void) virtioNetR3Info(PPDMDEVINS pDevIns, PCDBGFINFOHLP pHlp
     bool fState    = pszArgs && (*pszArgs == 's' || *pszArgs == 'S'); /* "state"    */
     bool fPointers = pszArgs && (*pszArgs == 'p' || *pszArgs == 'P'); /* "pointers" */
     bool fVirtqs   = pszArgs && (*pszArgs == 'q' || *pszArgs == 'Q'); /* "queues    */
-#ifdef VIRTIO_REL_INFO_DUMP
-    if (pszArgs && (*pszArgs == 't' || *pszArgs == 'T'))
+#ifdef VIRTIO_REL_INFO_DUMP_TEST
+    if (pszArgs && (*pszArgs >= '0' && *pszArgs <= '2'))
     {
+        pThis->Virtio.uLoopVirtq  = *pszArgs - '0';
         ASMAtomicWriteBool(&pThis->Virtio.fTestRecovery, true);
-        pHlp->pfnPrintf(pHlp, "Triggering recovery for %s\n", pThis->szInst);
+        pHlp->pfnPrintf(pHlp, "Triggering descriptor loop for %s %s\n", pThis->szInst,
+                        pThis->aVirtqs[pThis->Virtio.uLoopVirtq].szName);
         return;
     }
-#endif /* VIRTIO_REL_INFO_DUMP */
+#endif /* VIRTIO_REL_INFO_DUMP_TEST */
 
     /* Show basic information. */
     pHlp->pfnPrintf(pHlp,
@@ -1568,6 +1570,7 @@ static DECLCALLBACK(int) virtioNetR3ModernSaveExec(PPDMDEVINS pDevIns, PSSMHANDL
  */
 DECLHIDDEN(int) virtioNetAttemptToRecover(PPDMDEVINS pDevIns)
 {
+#if 0
     PVIRTIONET     pThis   = PDMDEVINS_2_DATA(pDevIns,  PVIRTIONET);
     PVIRTIONETCC   pThisCC = PDMDEVINS_2_DATA_CC(pDevIns, PVIRTIONETCC);
 
@@ -1586,7 +1589,9 @@ DECLHIDDEN(int) virtioNetAttemptToRecover(PPDMDEVINS pDevIns)
 
     if (ASMAtomicXchgBool(&pThis->Virtio.fRecovering, true))
         LogRel(("[%s] Attempting recovery while in recovery!\n", pThis->szInst));
-
+#else
+    RT_NOREF(pDevIns);
+#endif
     return VINF_SUCCESS;
 }
 #endif /* VIRTIO_REL_INFO_DUMP */

@@ -1,4 +1,4 @@
-/* $Id: VirtioCore.cpp 112247 2025-12-29 11:36:18Z aleksey.ilyushin@oracle.com $ */
+/* $Id: VirtioCore.cpp 112248 2025-12-30 09:57:27Z aleksey.ilyushin@oracle.com $ */
 
 /** @file
  * VirtioCore - Virtio Core (PCI, feature & config mgt, queue mgt & proxy, notification mgt)
@@ -1096,7 +1096,7 @@ DECLHIDDEN(int) virtioCoreR3VirtqAvailBufGet(PPDMDEVINS pDevIns, PVIRTIOCORE pVi
          * the following aborts I/O if breach and employs a simple log throttling algorithm to notify.
          */
 #ifdef VIRTIO_REL_INFO_DUMP
-        if (cSegsIn + cSegsOut >= pVirtq->uQueueSize || ASMAtomicCmpXchgBool(&pVirtio->fTestRecovery, false, true))
+        if (cSegsIn + cSegsOut >= pVirtq->uQueueSize)
         {
             static volatile uint32_t s_cMessages  = 0;
             if (ASMAtomicIncU32(&s_cMessages) <= 10)
@@ -1109,6 +1109,7 @@ DECLHIDDEN(int) virtioCoreR3VirtqAvailBufGet(PPDMDEVINS pDevIns, PVIRTIOCORE pVi
             }
             /* Disable the queue to prevent its operation until it is re-initialized. */
             pVirtq->uEnable = false;
+#if 0
             /* Cut the loop at the very first descriptor to prevent the infinite loop in NetKVM. */
             virtioReadDesc(pDevIns, pVirtio, pVirtq, uHeadIdx, &desc);
             desc.fFlags &= ~VIRTQ_DESC_F_NEXT;
@@ -1116,6 +1117,7 @@ DECLHIDDEN(int) virtioCoreR3VirtqAvailBufGet(PPDMDEVINS pDevIns, PVIRTIOCORE pVi
             virtioCoreGCPhysWrite(pVirtio, pDevIns,
                                   pVirtq->GCPhysVirtqDesc + sizeof(VIRTQ_DESC_T) * (uHeadIdx % pVirtq->uQueueSize),
                                   &desc, sizeof(VIRTQ_DESC_T));
+#endif
             return VERR_INVALID_STATE;
         }
 #else /* !VIRTIO_REL_INFO_DUMP */
@@ -1151,6 +1153,19 @@ DECLHIDDEN(int) virtioCoreR3VirtqAvailBufGet(PPDMDEVINS pDevIns, PVIRTIOCORE pVi
 
         virtioReadDesc(pDevIns, pVirtio, pVirtq, uDescIdx, &desc);
 
+#ifdef VIRTIO_REL_INFO_DUMP_TEST
+        if (!(desc.fFlags & VIRTQ_DESC_F_NEXT) && pVirtq->uVirtq == pVirtio->uLoopVirtq
+            && ASMAtomicCmpXchgBool(&pVirtio->fTestRecovery, false, true))
+        {
+            /* Form a loop. */
+            desc.fFlags |= VIRTQ_DESC_F_NEXT;
+            /* Write it back */
+            virtioCoreGCPhysWrite(pVirtio, pDevIns,
+                                  pVirtq->GCPhysVirtqDesc + sizeof(VIRTQ_DESC_T) * (uDescIdx % pVirtq->uQueueSize),
+                                  &desc, sizeof(VIRTQ_DESC_T));
+
+        }
+#endif /* VIRTIO_REL_INFO_DUMP_TEST */
         if (desc.fFlags & VIRTQ_DESC_F_WRITE)
         {
             Log6Func(("%s IN  idx=%-4u seg=%-3u addr=%RGp cb=%u\n", pVirtq->szName, uDescIdx, cSegsIn, desc.GCPhysBuf, desc.cb));
@@ -1928,6 +1943,37 @@ static int virtioCommonCfgAccessed(PPDMDEVINS pDevIns, PVIRTIOCORE pVirtio, PVIR
     else
     if (VIRTIO_DEV_CONFIG_MATCH_MEMBER(   uMsixVector,                VIRTIO_PCI_COMMON_CFG_T, uOffsetOfAccess))
         VIRTIO_DEV_CONFIG_ACCESS_INDEXED( uMsixVector,       uVirtq,  VIRTIO_PCI_COMMON_CFG_T, uOffsetOfAccess, pVirtio->aVirtqueues);
+#ifdef VIRTIO_REL_INFO_DUMP
+    else
+    if (VIRTIO_DEV_CONFIG_MATCH_MEMBER(   debugDescAddr,              VIRTIO_PCI_COMMON_CFG_T, uOffsetOfAccess))
+        VIRTIO_DEV_CONFIG_ACCESS(         debugDescAddr,              VIRTIO_PCI_COMMON_CFG_T, uOffsetOfAccess, pVirtio);
+    else
+    if (VIRTIO_DEV_CONFIG_MATCH_MEMBER(   debugDescLen,               VIRTIO_PCI_COMMON_CFG_T, uOffsetOfAccess))
+        VIRTIO_DEV_CONFIG_ACCESS(         debugDescLen,               VIRTIO_PCI_COMMON_CFG_T, uOffsetOfAccess, pVirtio);
+    else
+    if (VIRTIO_DEV_CONFIG_MATCH_MEMBER(   debugDescFlags,             VIRTIO_PCI_COMMON_CFG_T, uOffsetOfAccess))
+        VIRTIO_DEV_CONFIG_ACCESS(         debugDescFlags,             VIRTIO_PCI_COMMON_CFG_T, uOffsetOfAccess, pVirtio);
+    else
+    if (VIRTIO_DEV_CONFIG_MATCH_MEMBER(   debugDescNext,              VIRTIO_PCI_COMMON_CFG_T, uOffsetOfAccess))
+        VIRTIO_DEV_CONFIG_ACCESS(         debugDescNext,              VIRTIO_PCI_COMMON_CFG_T, uOffsetOfAccess, pVirtio);
+    else
+    if (VIRTIO_DEV_CONFIG_MATCH_MEMBER(   debugDescIndex,             VIRTIO_PCI_COMMON_CFG_T, uOffsetOfAccess))
+    {
+        if (!fWrite)
+            VIRTIO_DEV_CONFIG_ACCESS(     debugDescIndex,              VIRTIO_PCI_COMMON_CFG_T, uOffsetOfAccess, pVirtio);
+        else if (cb != sizeof(uint32_t))
+            LogRel(("Virtio: wrong size access of debugDescIndex\n"));
+        else
+        {
+            static const char *flags[] = { "R", "RN", "W", "WN"};
+            uint32_t value = *(uint32_t*)pv;
+            uint16_t queue = value & 0xFFFF;
+            uint16_t index = value >> 16;
+            LogRel(("[%s] Trace of %s: @%u addr=%p cb=%u flags=0x%x (%s) next=%u\n", pVirtio->szInstance, pVirtio->aVirtqueues[queue].szName,
+                    index, pVirtio->debugDescAddr, pVirtio->debugDescLen, pVirtio->debugDescFlags, flags[pVirtio->debugDescFlags&3], pVirtio->debugDescNext));
+        }
+    }
+#endif /* VIRTIO_REL_INFO_DUMP */
     else
     {
         Log2Func(("Bad guest %s access to virtio_pci_common_cfg: uOffsetOfAccess=%#x (%d), cb=%d\n",
