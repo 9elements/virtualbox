@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+# $Id: Makefile.kmk 112283 2026-01-06 12:57:36Z sergey.dubov@oracle.com $
 ## @file
 # Makefile for the Windows installer.
 #
@@ -111,7 +111,7 @@ endif
 
 # Note: en_US *must* come first for the dependency file generation.
 ifndef VBOX_INSTALLER_LANGUAGES
- VBOX_INSTALLER_LANGUAGES   = en_US de_DE ru_RU el_GR fr_FR it_IT tr_TR zh_TW zh_CN sv_SE hu_HU id_ID
+ VBOX_INSTALLER_LANGUAGES   = en_US de_DE ru_RU el_GR fr_FR it_IT tr_TR zh_TW zh_CN sv_SE hu_HU id_ID he_IL
  VBOX_INSTALLER_LANGUAGES  += $(VBOX_INSTALLER_ADD_LANGUAGES)
 endif
 
@@ -164,6 +164,7 @@ VBOX_BRAND_zh_CN_LANG_ID ?= 2052
 VBOX_BRAND_sv_SE_LANG_ID ?= 1053
 VBOX_BRAND_hu_HU_LANG_ID ?= 1038
 VBOX_BRAND_id_ID_LANG_ID ?= 1057
+VBOX_BRAND_he_IL_LANG_ID ?= 1037
 
 # Standard language names (in the native language), to be extended as we go.
 # VBOX_BRAND_$(lang)_LANG_NAME must be defined for each language which occurs
