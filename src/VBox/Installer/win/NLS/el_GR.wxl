@@ -64,17 +64,17 @@
 
     <!---->
 
-    <String Id="UsedByOtherApp" Value="It was detected an application which has been using currently installed VirtualBox version. You must remove this application before continuing installation. See the file dependency.dep in the VirtualBox installation directory for details." />
+    <String Id="UsedByOtherApp" Value="Αναγνωρίστηκε μία εφαρμογή που χρησιμοποιεί την ήδη εγκατεστημένη έκδοση του VirtualBox. Πρέπει να αφαιρέσετε αυτήν την εφαρμογή πριν προχωρήσετε με την εγκατάσταση. Δείτε το αρχείο dependency.dep στον κατάλογο εγκατάστασης του VirtualBox για λεπτομέρειες." />
     <String Id="NeedAdmin" Value="Πρέπει να έχετε δικαιώματα διαχειριστή για την (απ)εγκατάσταση του [ProductName]! Η εφαρμογή θα τερματιστεί τώρα." />
-    <String Id="NeedMSCRT" Value="[ProductName] needs the Microsoft Visual C++ 2019 Redistributable Package being installed first. Please install and restart the installation of [ProductName]." />
+    <String Id="NeedMSCRT" Value="[ProductName] χρειάζεται να έχει εγατασταθεί πρώτα το Microsoft Visual C++ 2019 Redistributable Package. Παρακαλώ εγαταστήστε το και επανεκκινήσετε την εγκατάσταση του [ProductName]." />
     <String Id="WrongOS" Value="[ProductName] τρέχει μόνο σε Windows 10 ή παραπάνω." />
     <String Id="Only64Bit" Value="[ProductName] τρέχει μόνο σε συστήματα Windows 64 bit." />
-	<String Id="WrongPlatformArch" Value="This version of [ProductName] was developed for a different platform architecture and therefore cannot be installed. Please install a matching version of [ProductName]!" />
-    <String Id="InvalidTargetDir" Value="Invalid installation directory specified! Please use another installation directory to install [ProductName]." />
+    <String Id="WrongPlatformArch" Value="Αυτή η έκδοση του [ProductName] αναπτύχθηκε για μία διαφορετική αρχιτεκτονική πλατφόρμας και γι'αυτό δεν μπορεί να εγκατασταθεί. Παρακαλώ εγκαταστήστε μία κατάλληλη έκδοση του [ProductName]!" />
+    <String Id="InvalidTargetDir" Value="Ορίστηκε μη έγκυρος κατάλογος εγκατάστασης! Παρακαλώ χρησιμοποιήστε διαφορετικό κατάλογο εγκατάστασης για την εγκατάσταση του [ProductName]." />
 
     <!---->
 
-    <String Id="CancelDlg_Question" Value="Είστε βέβαιοι ότι θέλετε να ακυρώσετε την εγκατάσταση του [ProductName];" />
+    <String Id="CancelDlg_Question" Value="Είστε σίγουροι ότι θέλετε να ακυρώσετε την εγκατάσταση του [ProductName];" />
 
     <!---->
 
@@ -90,9 +90,9 @@
 
     <!---->
 
-    <String Id="InvalidTargetDirDlg_Header" Value="Invalid installation directory" />
-    <String Id="InvalidTargetDirDlg_Desc1" Value="The chosen installation directory is invalid, as it does not meet the security requirements. Refer to the [ProductName] manual for more information." />
-    <String Id="InvalidTargetDirDlg_Desc2" Value="Please choose another directory for installing [ProductName]." />
+    <String Id="InvalidTargetDirDlg_Header" Value="Μη έγκυρος κατάλογος εγκατάστασης" />
+    <String Id="InvalidTargetDirDlg_Desc1" Value="Ο επιλεγμένος κατάλογος εγκατάστασης δεν είναι έγκυρος, καθώς δεν πληροί τις απαιτήσεις ασφαλείας. Δείτε τον οδηγό χρήσης του [ProductName] για περισσότερες πληροφορίες." />
+    <String Id="InvalidTargetDirDlg_Desc2" Value="Παρακαλώ χρησιμοποιήστε διαφορετικό κατάλογο για την εγκατάσταση του [ProductName]." />
 
     <!---->
 
@@ -155,10 +155,10 @@
 
     <!---->
 
-    <String Id="WarnPythonDlg_Title" Value="Missing Dependencies" />
+    <String Id="WarnPythonDlg_Title" Value="Λείπουν Εξαρτήσεις" />
     <String Id="WarnPythonDlg_Title2" Value="Python Core / win32api" />
-    <String Id="WarnPythonDlg_Desc" Value="Installing the [ProductName] Python bindings requires the Python Core package and the win32api bindings to be installed first." />
-    <String Id="WarnPythonDlg_Desc2" Value="When continuing the installation of the [ProductName] Python bindings now, those need to be set up manually later. Refer to the [ProductName] SDK manual for more information." />
+    <String Id="WarnPythonDlg_Desc" Value="Η εγκατάσταση των εξαρτήσεων [ProductName] Python απαιτεί το πακέτο Python Core και τις win32api εξαρτήσεις να έχουν εγκατασταθεί πρώτα." />
+    <String Id="WarnPythonDlg_Desc2" Value="Κατά την συνέχιση τώρα της εγκατάστασης των εξαρτήσεων [ProductName] Python, αυτές πρέπει να ρυθμιστούν χειροκίνητα αργότερα. Δείτε τον οδηγό χρήσης του [ProductName] SDK για περισσότερες πληροφορίες." />
 
     <!---->
 
@@ -228,7 +228,7 @@
     <String Id="MaintenanceTypeDlg_Remove" Value="Κατάργηση" />
     <String Id="MaintenanceTypeDlg_RemoveText" Value="Καταργεί το [ProductName] από τον υπολογιστή σας." />
     <String Id="MaintenanceTypeDlg_RemoveTooltip" Value="Κατάργηση εγκατάστασης" />
-    <String Id="MaintenanceTypeDlg_RemoveProgress1" Value="Κατάργεί" />
+    <String Id="MaintenanceTypeDlg_RemoveProgress1" Value="Καταργεί" />
     <String Id="MaintenanceTypeDlg_RemoveProgress2" Value="καταργήσεις" />
 
     <!---->
@@ -563,27 +563,27 @@
     <String Id="ProgressTextUnmoveFilesTemplate" Value="Αρχείο: [1], Κατάλογος: [9]" />
     <String Id="ProgressTextUnpublishProduct" Value="Κατάργηση δημοσίευσης πληροφοριών προϊόντος" />
 
-    <String Id="ProgressTextCheckTargetDir" Value="Checking target directory ..." />
+    <String Id="ProgressTextCheckTargetDir" Value="Έλεγχος τελικού καταλόγου ..." />
 
-    <String Id="ProgressTextSupDrvInt" Value="Installing support driver ..." />
-    <String Id="ProgressTextSupDrvStart" Value="Starting support driver ..." />
-    <String Id="ProgressTextSupDrvUninst" Value="Uninstalling support driver ..." />
+    <String Id="ProgressTextSupDrvInt" Value="Εγκατάσταση οδηγού υποστήριξης ..." />
+    <String Id="ProgressTextSupDrvStart" Value="Εκκίνηση οδηγού υποστήριξης ..." />
+    <String Id="ProgressTextSupDrvUninst" Value="Απεγκατάσταση οδηγού υποστήριξης ..." />
 
-    <String Id="ProgressTextUSBDevDrvInst" Value="Installing USB device driver ..." />
-    <String Id="ProgressTextUSBDevDrvUninst" Value="Uninstalling USB device driver ..." />
-    <String Id="ProgressTextUSBMonDrvInst" Value="Installing USB monitor driver ..." />
-    <String Id="ProgressTextUSBMonDrvStart" Value="Starting USB monitor driver ..." />
-    <String Id="ProgressTextUSBMonDrvUninst" Value="Uninstalling USB monitor driver ..." />
+    <String Id="ProgressTextUSBDevDrvInst" Value="Εγκατάσταση οδηγού USB συσκευής ..." />
+    <String Id="ProgressTextUSBDevDrvUninst" Value="Απεγκατάσταση οδηγού USB συσκευής ..." />
+    <String Id="ProgressTextUSBMonDrvInst" Value="Εγκατάσταση οδηγού USB οθόνης ..." />
+    <String Id="ProgressTextUSBMonDrvStart" Value="Εκκίνηση οδηγού USB οθόνης ..." />
+    <String Id="ProgressTextUSBMonDrvUninst" Value="Απεγκατάσταση οδηγού USB οθόνης ..." />
 
-    <String Id="ProgressTextNetAdp6Create" Value="Creating network adapter ..." />
-    <String Id="ProgressTextNetAdp6Remove" Value="Removing network adapter ..." />
-    <String Id="ProgressTextNetAdp6Update" Value="Updating network adapter ..." />
-    <String Id="ProgressTextNetAdp6Uninst" Value="Uninstalling network adapter ..." />
+    <String Id="ProgressTextNetAdp6Create" Value="Δημιουργία προσαρμογέα δικτύου ..." />
+    <String Id="ProgressTextNetAdp6Remove" Value="Αφαίρεση προσαρμογέα δικτύου ..." />
+    <String Id="ProgressTextNetAdp6Update" Value="Ανανέωση προσαρμογέα δικτύου ..." />
+    <String Id="ProgressTextNetAdp6Uninst" Value="Απεγκατάσταση προσαρμογέα δικτύου ..." />
 
-    <String Id="ProgressTextNetLwfInst" Value="Installing network filter ..." />
-    <String Id="ProgressTextNetLwfRollbackInst" Value="Rolling back installation of network filter ..." />
-    <String Id="ProgressTextNetLwfUninst" Value="Uninstalling network filter ..." />
-    <String Id="ProgressTextNetLwfRollbackUninst" Value="Rolling back uninstallation of network filter ..." />
+    <String Id="ProgressTextNetLwfInst" Value="Εγκατάσταση φίλτρου δικτύου ..." />
+    <String Id="ProgressTextNetLwfRollbackInst" Value="Επαναφορά πίσω εγκατάστασης φίλτρου δικτύου ..." />
+    <String Id="ProgressTextNetLwfUninst" Value="Απεγκατάσταση φίλτρου δικτύου ..." />
+    <String Id="ProgressTextNetLwfRollbackUninst" Value="Επαναφορά πίσω απεγκατάστασης φίλτρου δικτύου ..." />
 
     <String Id="UITextbytes" Value="bytes" />
     <String Id="UITextGB" Value="GB" />
