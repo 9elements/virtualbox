@@ -5871,7 +5871,7 @@
     <message>
         <source>QCOW (QEMU Copy-On-Write)</source>
         <comment>UIMediumFormat</comment>
-        <translation type="unfinished">QCOM (Copie à l&apos;écriture QEMU)</translation>
+        <translation type="unfinished">QCOW (Copie à l&apos;écriture QEMU)</translation>
     </message>
     <message>
         <source>Video/Audio</source>
