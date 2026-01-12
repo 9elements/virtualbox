@@ -1,4 +1,4 @@
-/* $Id: QIToolBar.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: QIToolBar.cpp 112417 2026-01-12 17:07:30Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - QIToolBar class implementation.
  */
@@ -34,6 +34,7 @@
 
 /* GUI includes: */
 #include "QIToolBar.h"
+#include "UICommon.h"
 #ifdef VBOX_WS_MAC
 # include "VBoxUtils.h"
 #endif
@@ -210,9 +211,8 @@ void QIToolBar::prepare()
     setFloatable(false);
     setMovable(false);
 
-#ifdef VBOX_WS_MAC
-    setStyleSheet("QToolBar { border: 0px none black; }");
-#endif
+    /* Adjust palette: */
+    preparePalette();
 
     /* Configure tool-bar' layout: */
     if (layout())
@@ -220,6 +220,17 @@ void QIToolBar::prepare()
 
     /* Configure tool-bar' context-menu policy: */
     setContextMenuPolicy(Qt::PreventContextMenu);
+
+    /* Prepare connections: */
+    connect(&uiCommon(), &UICommon::sigThemeChange,
+            this, &QIToolBar::sltUpdatePalette);
+}
+
+void QIToolBar::preparePalette()
+{
+#ifdef VBOX_WS_MAC
+    setStyleSheet("QToolBar { border: 0px none black; }");
+#endif
 }
 
 void QIToolBar::recalculateOverallContentsWidth()
