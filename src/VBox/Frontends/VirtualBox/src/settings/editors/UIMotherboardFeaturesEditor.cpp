@@ -1,4 +1,4 @@
-/* $Id: UIMotherboardFeaturesEditor.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: UIMotherboardFeaturesEditor.cpp 112407 2026-01-12 12:23:36Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMotherboardFeaturesEditor class implementation.
  */
@@ -236,7 +236,7 @@ void UIMotherboardFeaturesEditor::sltResetSecureBoot()
 {
     if (!m_pPushButtonResetSecureBoot->property("clicked_once").toBool())
     {
-        if (msgCenter().confirmRestoringDefaultKeys())
+        if (msgCenter().confirmRestoringDefaultKeys(window()))
         {
             m_pPushButtonResetSecureBoot->setProperty("clicked_once", true);
             sltHandleEnableSecureBootToggling();
