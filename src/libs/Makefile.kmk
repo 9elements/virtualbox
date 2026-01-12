@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 111892 2025-11-26 13:57:46Z alexander.rudnev@oracle.com $
+# $Id: Makefile.kmk 112412 2026-01-12 14:53:56Z alexander.rudnev@oracle.com $
 ## @file
 # Top-level makefile for the external libraries.
 #
@@ -99,7 +99,7 @@ if   defined(VBOX_WITH_LIBTPMS) \
   && !defined(VBOX_ONLY_BUILD) \
   && "$(intersects $(KBUILD_TARGET_ARCH),$(VBOX_SUPPORTED_HOST_ARCHS))" != "" \
   && ("$(SDK_VBoxLibTpms_INCS)" == "$(SDK_VBoxLibTpms_VBOX_DEFAULT_INCS)")
- include $(PATH_SUB_CURRENT)/libtpms-0.10.1/Makefile.kmk
+ include $(PATH_SUB_CURRENT)/libtpms-0.10.2/Makefile.kmk
 endif
 
 
