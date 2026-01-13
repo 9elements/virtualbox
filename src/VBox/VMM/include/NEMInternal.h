@@ -1,4 +1,4 @@
-/* $Id: NEMInternal.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: NEMInternal.h 112432 2026-01-13 08:21:44Z knut.osmundsen@oracle.com $ */
 /** @file
  * NEM - Internal header file.
  */
@@ -156,15 +156,7 @@ typedef struct
 typedef NEMHVMMIO2REGION *PNEMHVMMIO2REGION;
 # endif
 
-#endif
-
-
-/** Trick to make slickedit see the static functions in the template. */
-#ifndef IN_SLICKEDIT
-# define NEM_TMPL_STATIC static
-#else
-# define NEM_TMPL_STATIC
-#endif
+#endif /* RT_OS_DARWIN && VBOX_WITH_NATIVE_NEM */
 
 
 /**
