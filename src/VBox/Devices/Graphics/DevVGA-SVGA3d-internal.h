@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA3d-internal.h 107066 2024-11-19 17:21:14Z dmitrii.grigorev@oracle.com $ */
+/* $Id: DevVGA-SVGA3d-internal.h 112485 2026-01-13 13:22:59Z vitali.pelenjow@oracle.com $ */
 /** @file
  * DevVMWare - VMWare SVGA device - 3D part, internal header.
  */
@@ -1371,6 +1371,15 @@ DECLINLINE(int) vmsvga3dDXContextFromCid(PVMSVGA3DSTATE pState, uint32_t cid, PV
 }
 
 void vmsvga3dDXInitContextMobData(SVGADXContextMobFormat *p);
+
+DECLINLINE(uint32_t) vmsvga3dDXContextObjectId(uint32_t id, uint32_t cObjects)
+{
+    if (RT_LIKELY(   id < cObjects
+                  || id == SVGA3D_INVALID_ID))
+        return id;
+    ASSERT_GUEST_MSG_FAILED(("Invalid context object id %u (%u objects)\n", id, cObjects));
+    return SVGA3D_INVALID_ID;
+}
 #endif
 
 DECLINLINE(int) vmsvga3dSurfaceFromSid(PVMSVGA3DSTATE pState, uint32_t sid, PVMSVGA3DSURFACE *ppSurface)
