@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA3d-dx-dx11.cpp 112195 2025-12-22 21:12:23Z vitali.pelenjow@oracle.com $ */
+/* $Id: DevVGA-SVGA3d-dx-dx11.cpp 112460 2026-01-13 12:05:36Z vitali.pelenjow@oracle.com $ */
 /** @file
  * DevVMWare - VMWare SVGA device
  */
@@ -6746,6 +6746,9 @@ static void dxCreateInputLayout(PVGASTATECC pThisCC, PVMSVGA3DDXCONTEXT pDXConte
          * System-Value semantics ("SV_*") between shaders require proper names of course.
          * But they are irrelevant for input attributes.
          */
+        AssertCompile(RT_ELEMENTS(pEntry->descs) == RT_ELEMENTS(pDXElementLayout->aElementDesc));
+        ASSERT_GUEST_RETURN_VOID(pEntry->numDescs <= RT_ELEMENTS(pEntry->descs));
+
         pDXElementLayout->cElementDesc = pEntry->numDescs;
         for (uint32_t i = 0; i < pEntry->numDescs; ++i)
         {
