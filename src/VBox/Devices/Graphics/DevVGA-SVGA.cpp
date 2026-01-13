@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: DevVGA-SVGA.cpp 112494 2026-01-13 14:12:05Z knut.osmundsen@oracle.com $ */
 /** @file
  * VMware SVGA device.
  *
@@ -7942,6 +7942,31 @@ int vmsvgaR3Init(PPDMDEVINS pDevIns)
     REG_CNT(&pSVGAState->StatFifoCursorPosition,          "VMSVGA/FifoCursorPosition",             "Cursor position and visibility changes.");
     REG_CNT(&pSVGAState->StatFifoCursorVisiblity,         "VMSVGA/FifoCursorVisiblity",            "Cursor visibility changes.");
     REG_CNT(&pSVGAState->StatFifoWatchdogWakeUps,         "VMSVGA/FifoWatchdogWakeUps",            "Number of times the FIFO refresh poller/watchdog woke up the FIFO thread.");
+
+    static const char * const s_apszGboNames[] =
+    { "MOB", "SURFACE", "CONTEXT", "SHADER", "SCREENTARGET", "DXCONTEXT", "RESERVED1", "RESERVED2" };
+    AssertCompile(RT_ELEMENTS(s_apszGboNames) >= RT_ELEMENTS(pSVGAState->aGboOTables));
+    for (unsigned i = 0; i < RT_ELEMENTS(s_apszGboNames); i++)
+    {
+# ifdef VBOX_WITH_STATISTICS
+        PDMDevHlpSTAMRegisterF(pDevIns, &pSVGAState->aGboOTables[i].u.StatTransferPrf, STAMTYPE_PROFILE, STAMVISIBILITY_USED,
+                               STAMUNIT_TICKS_PER_CALL, "vmsvgaR3GboTransfer profiling", "VMSVGA/Gbo/%s", s_apszGboNames[i]);
+# else
+        PDMDevHlpSTAMRegisterF(pDevIns, &pSVGAState->aGboOTables[i].u.StatTransferCalls, STAMTYPE_COUNTER, STAMVISIBILITY_USED,
+                               STAMUNIT_CALLS, "vmsvgaR3GboTransfer calls", "VMSVGA/Gbo/%s", s_apszGboNames[i]);
+# endif
+        PDMDevHlpSTAMRegisterF(pDevIns, &pSVGAState->aGboOTables[i].cbTotal, STAMTYPE_U32, STAMVISIBILITY_USED,
+                               STAMUNIT_BYTES, "Size in bytes", "VMSVGA/Gbo/%s/cb", s_apszGboNames[i]);
+        PDMDevHlpSTAMRegisterF(pDevIns, &pSVGAState->aGboOTables[i].cTotalPages, STAMTYPE_U32, STAMVISIBILITY_USED,
+                               STAMUNIT_PAGES, "Size in pages", "VMSVGA/Gbo/%s/cPages", s_apszGboNames[i]);
+# ifdef VMSVGA_WITH_PGM_LOCKING
+        PDMDevHlpSTAMRegisterF(pDevIns, &pSVGAState->aGboOTables[i].cSegsUsed, STAMTYPE_U32, STAMVISIBILITY_USED,
+                               STAMUNIT_COUNT, "Segments",      "VMSVGA/Gbo/%s/cSegs", s_apszGboNames[i]);
+# else
+        PDMDevHlpSTAMRegisterF(pDevIns, &pSVGAState->aGboOTables[i].cDescriptors, STAMTYPE_U32, STAMVISIBILITY_USED,
+                               STAMUNIT_COUNT, "Descriptors",   "VMSVGA/Gbo/%s/cDescriptors", s_apszGboNames[i]);
+# endif
+    }
 
 # undef REG_CNT
 # undef REG_PRF

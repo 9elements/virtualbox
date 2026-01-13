@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: DevVGA-SVGA.h 112494 2026-01-13 14:12:05Z knut.osmundsen@oracle.com $ */
 /** @file
  * VMware SVGA device
  */
@@ -642,6 +642,26 @@ typedef struct VMSVGAGBODESCRIPTOR
    uint64_t                 cPages;
 } VMSVGAGBODESCRIPTOR, *PVMSVGAGBODESCRIPTOR;
 typedef VMSVGAGBODESCRIPTOR const *PCVMSVGAGBODESCRIPTOR;
+#else
+/**
+ * GBO segment.
+ *
+ * This is basically RTSGSEG but with 32-bit size and an added offset member to
+ * enable binary searching.
+ */
+typedef struct VMSVGAGBOSEG
+{
+    /** Pointer to the first byte in the segment. */
+    uint8_t *pbSeg;
+    /** The segment size in bytes. */
+    uint32_t cbSeg;
+    /** The segment byte offset within the GBO. */
+    uint32_t offSeg;
+} VMSVGAGBOSEG;
+/** Pointer to a GBO segment. */
+typedef VMSVGAGBOSEG *PVMSVGAGBOSEG;
+/** Pointer to a const GBO segment. */
+typedef VMSVGAGBOSEG const *PCVMSVGAGBOSEG;
 #endif
 
 /* GBO.
@@ -655,14 +675,21 @@ typedef struct VMSVGAGBO
     uint32_t                cDescriptors;
     PVMSVGAGBODESCRIPTOR    paDescriptors;
 #else
-    uint32_t                cSegsUsed;        /**< Number of segments used in VMSVGAGBO::paSegs. */
-    void                   *pvDescriptors;    /**< Pointer to the memory for holding all the parallel arrays. */
-    RTGCPHYS               *paGCPhysPages;    /**< Pointer to the array of guest physical address for the pages. */
-    PPGMPAGEMAPLOCK         paPageLocks;      /**< Pointer to the array of PGM page map locks. */
-    void                  **papvPages;        /**< Pointer to the host adresses of mapped pages. */
-    PRTSGSEG                paSegs;           /**< Pointer to an array of segments. */
+    uint32_t                cSegsUsed;          /**< Number of segments used in VMSVGAGBO::paSegs. */
+    void                   *pvDescriptors;      /**< Pointer to the memory for holding all the parallel arrays. */
+    RTGCPHYS               *paGCPhysPages;      /**< Pointer to the array of guest physical address for the pages. */
+    PPGMPAGEMAPLOCK         paPageLocks;        /**< Pointer to the array of PGM page map locks. */
+    void                  **papvPages;          /**< Pointer to the host adresses of mapped pages. */
+    PVMSVGAGBOSEG           paSegs;             /**< Pointer to an array of segments (compressed w/ offset lookup). */
 #endif
-    void                   *pvHost; /* Pointer to cbTotal bytes on the host if VMSVGAGBO_F_HOST_BACKED is set. */
+    void                   *pvHost;             /**< Pointer to cbTotal bytes on the host if VMSVGAGBO_F_HOST_BACKED is set. */
+    /** Use a union to keep the structure layout & size the same, avoiding any
+     *  troubles if VBOX_WITH_STATISTICS is defined locally in a source file. */
+    union
+    {
+        STAMPROFILE         StatTransferPrf;    /**< VBOX_WITH_STATISTICS: Profiles vmsvgaR3GboTransfer(). */
+        STAMCOUNTER         StatTransferCalls;  /**< !VBOX_WITH_STATISTICS: Count vmsvgaR3GboTransfer() calls. */
+    } u;
 } VMSVGAGBO, *PVMSVGAGBO;
 typedef VMSVGAGBO const *PCVMSVGAGBO;
 
