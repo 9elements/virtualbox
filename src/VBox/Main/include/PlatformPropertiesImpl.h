@@ -1,4 +1,4 @@
-/* $Id: PlatformPropertiesImpl.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: PlatformPropertiesImpl.h 112523 2026-01-13 15:46:56Z knut.osmundsen@oracle.com $ */
 /** @file
  * VirtualBox COM class implementation - Platform properties.
  */
@@ -125,6 +125,7 @@ private:
     HRESULT getMaxInstancesOfUSBControllerType(ChipsetType_T aChipset,
                                                USBControllerType_T aType,
                                                ULONG *aMaxInstances) RT_OVERRIDE;
+    HRESULT getMinGuestRAM(FirmwareType_T aFirmware, ULONG *aMinMegabytes) RT_OVERRIDE;
 
     VirtualBox * const     mParent;
     /** Platform architecture the properties are for. */
