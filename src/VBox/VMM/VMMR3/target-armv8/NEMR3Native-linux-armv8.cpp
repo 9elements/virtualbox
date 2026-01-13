@@ -1,4 +1,4 @@
-/* $Id: NEMR3Native-linux-armv8.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: NEMR3Native-linux-armv8.cpp 112521 2026-01-13 15:42:08Z knut.osmundsen@oracle.com $ */
 /** @file
  * NEM - Native execution manager, native ring-3 Linux backend arm64 version.
  */
@@ -388,6 +388,29 @@ static int nemR3LnxSetAttribute(PVM pVM, uint32_t u32Grp, uint32_t u32Attr, cons
     return VINF_SUCCESS;
 }
 
+#ifdef LOG_ENABLED
+
+/** Logging: Returns the KVM VCPU state. */
+DECLINLINE(uint32_t) nemR3LnxKvmGetMpState4Log(PVMCPUCC pVCpu)
+{
+    struct kvm_mp_state MpState = { UINT32_MAX };
+    int rcLnx = ioctl(pVCpu->nem.s.fdVCpu, KVM_GET_MP_STATE, &MpState);
+    AssertMsgReturn(rcLnx == 0, ("errno=%u rcLnx=%u\n", errno, rcLnx), UINT32_MAX);
+    return MpState.mp_state;
+}
+
+
+/** Logging: Returns the value of 64-bit register. */
+DECLINLINE(uint64_t) nemR3LnxKvmGetReg4LogU64(PVMCPUCC pVCpu, uint64_t idKvmReg)
+{
+    uint64_t           uValue = UINT64_MAX;
+    struct kvm_one_reg Reg    = { idKvmReg, (uintptr_t)&uValue };
+    int rcLnx = ioctl(pVCpu->nem.s.fdVCpu, KVM_GET_ONE_REG, &Reg);
+    AssertMsgReturn(rcLnx == 0, ("errno=%u rcLnx=%u idKvmReg=%#RX64\n", errno, rcLnx, idKvmReg), UINT64_MAX);
+    return uValue;
+}
+
+#endif /* LOG_ENABLED */
 
 DECL_FORCE_INLINE(int) nemR3LnxKvmSetQueryReg(PVMCPUCC pVCpu, bool fQuery, uint64_t idKvmReg, const void *pv)
 {
@@ -473,8 +496,10 @@ static DECLCALLBACK(int) nemR3LnxArmCpuIdRegQuery(PVM pVM, PVMCPU pVCpu, uint32_
                           ("rc=%Rrc idReg=%#x\n", rc, idReg),
                           VERR_INTERNAL_ERROR_5);
 
-    /* Unsupported registers fail with ENOENT, which gets translated to VERR_FILE_NOT_FOUND: */
-    return rc == VERR_FILE_NOT_FOUND ? VERR_CPUM_UNSUPPORTED_ID_REGISTER : rc;
+    /* Unsupported registers fail with ENOENT, which gets translated to VERR_FILE_NOT_FOUND.
+       ERRIDR_EL1 yields VBOX_ACCESS_DENIED on a DGX system running 6.11, treat it the same
+       way for now. */
+    return rc == VERR_FILE_NOT_FOUND || rc == VERR_ACCESS_DENIED ? VERR_CPUM_UNSUPPORTED_ID_REGISTER : rc;
 }
 
 
@@ -593,6 +618,16 @@ static DECLCALLBACK(int) nemR3LnxArmLoadDone(PVM pVM, PSSMHANDLE pSSM)
 static int nemR3LnxInitSetupVm(PVM pVM, PRTERRINFO pErrInfo)
 {
     AssertReturn(pVM->nem.s.fdVm != -1, RTErrInfoSet(pErrInfo, VERR_WRONG_ORDER, "Wrong initalization order"));
+
+    /*
+     * We want KVM_EXIT_ARM_NISV exits (instead of ENOSYS).
+     */
+    errno = 0;
+    struct kvm_enable_cap CapArmNisvToUser = { KVM_CAP_ARM_NISV_TO_USER, 0 };
+    int rcLnx = ioctl(pVM->nem.s.fdVm, KVM_ENABLE_CAP, &CapArmNisvToUser);
+    if (rcLnx != 0)
+        return RTErrInfoSetF(pErrInfo, VERR_NEM_VM_CREATE_FAILED,
+                             "KVM_ENABLE_CAP/KVM_CAP_ARM_NISV_TO_USER failed: %d (rcLnx=%d)", errno, rcLnx);
 
     /*
      * Create the VCpus.
@@ -1416,6 +1451,10 @@ static VBOXSTRICTRC nemHCLnxHandleExit(PVMCC pVM, PVMCPUCC pVCpu, struct kvm_run
             STAM_REL_COUNTER_INC(&pVCpu->nem.s.StatExitHypercall);
             return nemHCLnxHandleExitHypercall(pVM, pVCpu, pRun);
 
+        case KVM_EXIT_ARM_NISV: /* Since v5.18-ish */
+            AssertLogRelMsgFailedReturn(("KVM_EXIT_ARM_NISV on VCpu #%u! esr_iss=%#llx fault_ipa=%#llx\n",
+                                         pVCpu->idCpu, pRun->arm_nisv.esr_iss, pRun->arm_nisv.fault_ipa), VERR_NEM_IPE_1);
+
 #if 0
         case KVM_EXIT_DEBUG:
             STAM_REL_COUNTER_INC(&pVCpu->nem.s.StatExitDebug);
@@ -1556,10 +1595,12 @@ VMMR3_INT_DECL(VBOXSTRICTRC) NEMR3RunGC(PVM pVM, PVMCPU pVCpu)
         {
             if (VMCPU_CMPXCHG_STATE(pVCpu, VMCPUSTATE_STARTED_EXEC_NEM_WAIT, VMCPUSTATE_STARTED_EXEC_NEM))
             {
-                //LogFlow(("NEM/%u: Entry @ %04x:%08RX64 IF=%d EFL=%#RX64 SS:RSP=%04x:%08RX64 cr0=%RX64\n",
-                //         pVCpu->idCpu, pRun->s.regs.sregs.cs.selector, pRun->s.regs.regs.rip,
-                //         !!(pRun->s.regs.regs.rflags & X86_EFL_IF), pRun->s.regs.regs.rflags,
-                //         pRun->s.regs.sregs.ss.selector, pRun->s.regs.regs.rsp, pRun->s.regs.sregs.cr0));
+                LogFlow(("NEM/%u: Entry @ %012RX64 psr=%08RX64 lr=%012RX64 mp=%RX32\n",
+                         pVCpu->idCpu, nemR3LnxKvmGetReg4LogU64(pVCpu, KVM_ARM64_REG_PC),
+                         nemR3LnxKvmGetReg4LogU64(pVCpu, KVM_ARM64_REG_PSTATE),
+                         nemR3LnxKvmGetReg4LogU64(pVCpu, KVM_ARM64_REG_GPR(ARMV8_A64_REG_LR)),
+                         nemR3LnxKvmGetMpState4Log(pVCpu) ));
+
                 TMNotifyStartOfExecution(pVM, pVCpu);
 
                 int rcLnx = ioctl(pVCpu->nem.s.fdVCpu, KVM_RUN, 0UL);
@@ -1567,17 +1608,13 @@ VMMR3_INT_DECL(VBOXSTRICTRC) NEMR3RunGC(PVM pVM, PVMCPU pVCpu)
                 VMCPU_CMPXCHG_STATE(pVCpu, VMCPUSTATE_STARTED_EXEC_NEM, VMCPUSTATE_STARTED_EXEC_NEM_WAIT);
                 TMNotifyEndOfExecution(pVM, pVCpu, ASMReadTSC());
 
-#if 0 //def LOG_ENABLED
-                if (LogIsFlowEnabled())
-                {
-                    struct kvm_mp_state MpState = {UINT32_MAX};
-                    ioctl(pVCpu->nem.s.fdVCpu, KVM_GET_MP_STATE, &MpState);
-                    LogFlow(("NEM/%u: Exit  @ %04x:%08RX64 IF=%d EFL=%#RX64 CR8=%#x Reason=%#x IrqReady=%d Flags=%#x %#lx\n", pVCpu->idCpu,
-                             pRun->s.regs.sregs.cs.selector, pRun->s.regs.regs.rip, pRun->if_flag,
-                             pRun->s.regs.regs.rflags, pRun->s.regs.sregs.cr8, pRun->exit_reason,
-                             pRun->ready_for_interrupt_injection, pRun->flags, MpState.mp_state));
-                }
-#endif
+                LogFlow(("NEM/%u: Exit  @ %012RX64 psr=%08RX64 lr=%012RX64 mp=%RX32 exit=%u (%d/%d) ff=%RX64/%RX32\n",
+                         pVCpu->idCpu, nemR3LnxKvmGetReg4LogU64(pVCpu, KVM_ARM64_REG_PC),
+                         nemR3LnxKvmGetReg4LogU64(pVCpu, KVM_ARM64_REG_PSTATE),
+                         nemR3LnxKvmGetReg4LogU64(pVCpu, KVM_ARM64_REG_GPR(ARMV8_A64_REG_LR)),
+                         nemR3LnxKvmGetMpState4Log(pVCpu), pRun->exit_reason, rcLnx, errno,
+                         pVCpu->fLocalForcedActions, pVM->fGlobalForcedActions));
+
                 fStatefulExit = false;
                 if (RT_LIKELY(rcLnx == 0 || errno == EINTR))
                 {
