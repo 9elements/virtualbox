@@ -1,4 +1,4 @@
-# $Id: Makefile 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+# $Id: Makefile 112475 2026-01-13 12:52:30Z knut.osmundsen@oracle.com $
 ## @file
 # Makefile for the VirtualBox Linux Host Virtual Network Adapter Driver.
 #
@@ -70,8 +70,7 @@ VBOXMOD_DEFS = \
 	IN_SUP_R0 \
 	VBOX \
 	RT_WITH_VBOX \
-	VBOX_WITH_HARDENING \
-	VBOX_WITH_64_BITS_GUESTS # <-- must be consistent with Config.kmk!
+	VBOX_WITH_HARDENING
 VBOXMOD_CFLAGS = -include $(VBOXNETADP_DIR)include/VBox/SUPDrvMangling.h -fno-pie -Wno-declaration-after-statement
 
 include $(obj)/Makefile-footer.gmk

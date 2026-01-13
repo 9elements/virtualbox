@@ -1,4 +1,4 @@
-/* $Id: VMMDev.cpp 112102 2025-12-10 12:26:27Z dmitrii.grigorev@oracle.com $ */
+/* $Id: VMMDev.cpp 112475 2026-01-13 12:52:30Z knut.osmundsen@oracle.com $ */
 /** @file
  * VMMDev - Guest <-> VMM/Host communication device.
  */
@@ -2993,9 +2993,7 @@ static VBOXSTRICTRC vmmdevReqDispatcher(PPDMDEVINS pDevIns, PVMMDEV pThis, PVMMD
                 *pfPostOptimize |= VMMDEVREQDISP_POST_F_NO_WRITE_OUT;
             break;
 
-# ifdef VBOX_WITH_64_BITS_GUESTS
         case VMMDevReq_HGCMCall64:
-# endif
         case VMMDevReq_HGCMCall32:
             vmmdevReqHdrSetHgcmAsyncExecute(pDevIns, GCPhysReqHdr, *ppLock);
             pReqHdr->rc = vmmdevReqHandler_HGCMCall(pDevIns, pThis, pThisCC, pReqHdr, GCPhysReqHdr, tsArrival, ppLock);

@@ -1,4 +1,4 @@
-# $Id: Makefile 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+# $Id: Makefile 112475 2026-01-13 12:52:30Z knut.osmundsen@oracle.com $
 ## @file
 # Makefile for the VirtualBox FreeBSD Host Driver.
 #
@@ -36,7 +36,7 @@
 
 KMOD = vboxdrv
 
-CFLAGS += -DRT_OS_FREEBSD -DIN_RING0 -DIN_RT_R0 -DIN_SUP_R0 -DSUPDRV_WITH_RELEASE_LOGGER -DVBOX -DRT_WITH_VBOX -Iinclude -I. -Ir0drv -w -DVBOX_WITH_HARDENING -DVBOX_WITH_64_BITS_GUESTS
+CFLAGS += -DRT_OS_FREEBSD -DIN_RING0 -DIN_RT_R0 -DIN_SUP_R0 -DSUPDRV_WITH_RELEASE_LOGGER -DVBOX -DRT_WITH_VBOX -Iinclude -I. -Ir0drv -w -DVBOX_WITH_HARDENING
 
 .if (${MACHINE_ARCH} == "i386")
  CFLAGS += -DRT_ARCH_X86

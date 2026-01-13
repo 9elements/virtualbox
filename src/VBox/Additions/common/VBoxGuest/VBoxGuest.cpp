@@ -1,4 +1,4 @@
-/* $Id: VBoxGuest.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: VBoxGuest.cpp 112475 2026-01-13 12:52:30Z knut.osmundsen@oracle.com $ */
 /** @file
  * VBoxGuest - Guest Additions Driver, Common Code.
  */
@@ -2343,7 +2343,7 @@ static int vgdrvCheckIfVmmReqIsAllowed(PVBOXGUESTDEVEXT pDevExt, PVBOXGUESTSESSI
 #ifdef VBOX_WITH_HGCM
         case VMMDevReq_HGCMConnect:
         case VMMDevReq_HGCMDisconnect:
-# ifdef VBOX_WITH_64_BITS_GUESTS
+# if ARCH_BITS == 64
         case VMMDevReq_HGCMCall64:
 # endif
         case VMMDevReq_HGCMCall32:
