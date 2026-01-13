@@ -1,4 +1,4 @@
-/* $Id: SUPDrv.cpp 112510 2026-01-13 15:24:18Z knut.osmundsen@oracle.com $ */
+/* $Id: SUPDrv.cpp 112517 2026-01-13 15:36:42Z knut.osmundsen@oracle.com $ */
 /** @file
  * VBoxDrv - The VirtualBox Support Driver - Common code.
  */
@@ -6597,7 +6597,7 @@ static void supdrvLdrFree(PSUPDRVDEVEXT pDevExt, PSUPDRVLDRIMAGE pImage)
         if (    pImage->pfnModuleTerm
             &&  pImage->uState == SUP_IOCTL_LDR_LOAD)
         {
-            LogFlow(("supdrvIOCtl_LdrLoad: calling pfnModuleTerm=%p\n", pImage->pfnModuleTerm));
+            LogFlow(("supdrvLdrFree: calling pfnModuleTerm=%p\n", pImage->pfnModuleTerm));
             pDevExt->hLdrTermThread = RTThreadNativeSelf();
             pImage->pfnModuleTerm(pImage);
             pDevExt->hLdrTermThread = NIL_RTNATIVETHREAD;
