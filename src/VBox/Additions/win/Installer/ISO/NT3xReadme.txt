@@ -38,8 +38,8 @@ is already started you can start the service (also possible using
 Install VBoxMouseNT.sys by copying it %SystemRoot%\system32\drivers and using
 the registry editor (regedt32.exe) to set (create it if necessary) value
 HKEY_LOCAL_MACHINE/System/CurrentControlSet/Service/i8042prt/ImagePath
-(REG_EXPAND_SZ) to "System32\drivers\VBoxGuestNT.sys".  (The i8042prt driver
-is the NT PS/2 mouse + keyboard driver and VBoxGuestNT.sys replaces it.)
+(REG_EXPAND_SZ) to "System32\drivers\VBoxMouseNT.sys".  (The i8042prt driver
+is the NT PS/2 mouse + keyboard driver and VBoxMouseNT.sys replaces it.)
 
 
 NT 3.50
