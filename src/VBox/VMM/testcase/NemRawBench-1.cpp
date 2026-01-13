@@ -1,4 +1,4 @@
-/* $Id: NemRawBench-1.cpp 112521 2026-01-13 15:42:08Z knut.osmundsen@oracle.com $ */
+/* $Id: NemRawBench-1.cpp 112533 2026-01-13 16:12:00Z knut.osmundsen@oracle.com $ */
 /** @file
  * NEM Benchmark.
  */
@@ -61,6 +61,7 @@
 # include <time.h>
 # include <sys/mman.h>
 # include <errno.h>
+# include <stdlib.h> /* (for exit in getNanoTS()) */
 
 #else
 # error "port me"
