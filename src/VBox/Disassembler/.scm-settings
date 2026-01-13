@@ -1,4 +1,4 @@
-# $Id: .scm-settings 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+# $Id: .scm-settings 112528 2026-01-13 16:02:26Z knut.osmundsen@oracle.com $
 ## @file
 # Source code massager settings for the diassembler.
 #
@@ -25,6 +25,5 @@
 # SPDX-License-Identifier: GPL-3.0-only
 #
 
---filter-out-files *.bin
 /*.h: --guard-relative-to-dir .
 
