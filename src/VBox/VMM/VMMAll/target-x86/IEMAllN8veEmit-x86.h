@@ -1,4 +1,4 @@
-/* $Id: IEMAllN8veEmit-x86.h 112525 2026-01-13 15:58:36Z knut.osmundsen@oracle.com $ */
+/* $Id: IEMAllN8veEmit-x86.h 112537 2026-01-13 16:15:07Z knut.osmundsen@oracle.com $ */
 /** @file
  * IEM - Native Recompiler, x86 Target - Code Emitters.
  */
@@ -394,9 +394,6 @@ iemNativeEmitPostponedEFlagsCalcLogical(PIEMNATIVEINSTR pCodeBuf, uint32_t off, 
                                         uint8_t idxRegResult, uint8_t idxRegEfl, uint8_t idxRegTmp)
 {
 #ifdef RT_ARCH_AMD64
-    Assert(fEflUpdate == X86_EFL_STATUS_BITS); /** @todo r=aeichner Port the bugfix from the ARMv8 bits over, see @bugref{10996} for details. */
-    RT_NOREF(fEflUpdate);
-
     /* Do TEST idxRegResult, idxRegResult to set flags. */
     if RT_CONSTEXPR_IF(a_fDoOp)
         off = iemNativeEmitAmd64OneByteModRmInstrRREx(pCodeBuf, off, 0x84, 0x85, cOpBits, idxRegResult, idxRegResult);
@@ -404,6 +401,9 @@ iemNativeEmitPostponedEFlagsCalcLogical(PIEMNATIVEINSTR pCodeBuf, uint32_t off, 
     /*
      * Collect the EFLAGS status bits.
      * We know that the overflow bit will always be cleared, so LAHF can be used.
+     *
+     * Unless the complete status bitmask is updated it needs to be ensured that
+     * already up to date bits are not overwritten which makes this more complicated (sigh).
      */
     if (idxRegTmp == X86_GREG_xAX)
     {
@@ -411,19 +411,59 @@ iemNativeEmitPostponedEFlagsCalcLogical(PIEMNATIVEINSTR pCodeBuf, uint32_t off, 
         pCodeBuf[off++] = 0x9f;
         if (idxRegEfl <= X86_GREG_xBX)
         {
-            /* mov [CDB]L, AH */
-            pCodeBuf[off++] = 0x88;
-            pCodeBuf[off++] = X86_MODRM_MAKE(X86_MOD_REG, 4 /*AH*/, idxRegEfl);
+            if (fEflUpdate == X86_EFL_STATUS_BITS)
+            {
+                /* mov [CDB]L, AH */
+                pCodeBuf[off++] = 0x88;
+                pCodeBuf[off++] = X86_MODRM_MAKE(X86_MOD_REG, 4 /*AH*/, idxRegEfl);
+            }
+            else
+            {
+                /* and AH, <bits> */
+                pCodeBuf[off++] = 0x80;
+                pCodeBuf[off++] = X86_MODRM_MAKE(X86_MOD_REG, 4, 4 /*AH*/);
+                pCodeBuf[off++] = (uint8_t)fEflUpdate;
+
+                /* and [CDB]L, ~<bits> */
+                pCodeBuf[off++] = 0x80;
+                pCodeBuf[off++] = X86_MODRM_MAKE(X86_MOD_REG, 4, idxRegEfl);
+                pCodeBuf[off++] = (uint8_t)~fEflUpdate;
+
+                /* or [CDB]L, AH */
+                pCodeBuf[off++] = 0x08;
+                pCodeBuf[off++] = X86_MODRM_MAKE(X86_MOD_REG, 4 /*AH*/, idxRegEfl);
+            }
         }
         else
         {
             /* mov   AL, AH */
             pCodeBuf[off++] = 0x88;
             pCodeBuf[off++] = X86_MODRM_MAKE(X86_MOD_REG, 4 /*AH*/, 0 /*AL*/);
-            /* mov   xxL, AL */
-            pCodeBuf[off++] = idxRegEfl >= 8 ? X86_OP_REX_B : X86_OP_REX;
-            pCodeBuf[off++] = 0x88;
-            pCodeBuf[off++] = X86_MODRM_MAKE(X86_MOD_REG, 0 /*AL*/, idxRegEfl & 7);
+
+            if (fEflUpdate == X86_EFL_STATUS_BITS)
+            {
+                /* mov   xxL, AL */
+                pCodeBuf[off++] = idxRegEfl >= 8 ? X86_OP_REX_B : X86_OP_REX;
+                pCodeBuf[off++] = 0x88;
+                pCodeBuf[off++] = X86_MODRM_MAKE(X86_MOD_REG, 0 /*AL*/, idxRegEfl & 7);
+            }
+            else
+            {
+                /* and AL, <bits> */
+                pCodeBuf[off++] = 0x24;
+                pCodeBuf[off++] = (uint8_t)fEflUpdate;
+
+                /* and xxL, ~<bits> */
+                pCodeBuf[off++] = idxRegEfl >= 8 ? X86_OP_REX_B : X86_OP_REX;
+                pCodeBuf[off++] = 0x80;
+                pCodeBuf[off++] = X86_MODRM_MAKE(X86_MOD_REG, 4, idxRegEfl & 7);
+                pCodeBuf[off++] = (uint8_t)~fEflUpdate;
+
+                /* or xxL, AL */
+                pCodeBuf[off++] = idxRegEfl >= 8 ? X86_OP_REX_B : X86_OP_REX;
+                pCodeBuf[off++] = 0x08;
+                pCodeBuf[off++] = X86_MODRM_MAKE(X86_MOD_REG, 0 /*AL*/, idxRegEfl & 7);
+            }
         }
     }
     else if (idxRegEfl != X86_GREG_xAX)
@@ -437,19 +477,60 @@ iemNativeEmitPostponedEFlagsCalcLogical(PIEMNATIVEINSTR pCodeBuf, uint32_t off, 
         pCodeBuf[off++] = 0x9f;
         if (idxRegEfl <= X86_GREG_xBX)
         {
-            /* mov [CDB]L, AH */
-            pCodeBuf[off++] = 0x88;
-            pCodeBuf[off++] = X86_MODRM_MAKE(X86_MOD_REG, 4 /*AH*/, idxRegEfl);
+            if (fEflUpdate == X86_EFL_STATUS_BITS)
+            {
+                /* mov [CDB]L, AH */
+                pCodeBuf[off++] = 0x88;
+                pCodeBuf[off++] = X86_MODRM_MAKE(X86_MOD_REG, 4 /*AH*/, idxRegEfl);
+            }
+            else
+            {
+                /* and AH, <bits> */
+                pCodeBuf[off++] = 0x80;
+                pCodeBuf[off++] = X86_MODRM_MAKE(X86_MOD_REG, 4, 4 /*AH*/);
+                pCodeBuf[off++] = (uint8_t)fEflUpdate;
+
+                /* and [CDB]L, ~<bits> */
+                pCodeBuf[off++] = 0x80;
+                pCodeBuf[off++] = X86_MODRM_MAKE(X86_MOD_REG, 4, idxRegEfl);
+                pCodeBuf[off++] = (uint8_t)~fEflUpdate;
+
+                /* or [CDB]L, AH */
+                pCodeBuf[off++] = 0x08;
+                pCodeBuf[off++] = X86_MODRM_MAKE(X86_MOD_REG, 4 /*AH*/, idxRegEfl);
+            }
+
         }
         else
         {
             /* mov   AL, AH */
             pCodeBuf[off++] = 0x88;
             pCodeBuf[off++] = X86_MODRM_MAKE(X86_MOD_REG, 4 /*AH*/, 0 /*AL*/);
-            /* mov   xxL, AL */
-            pCodeBuf[off++] = idxRegEfl >= 8 ? X86_OP_REX_B : X86_OP_REX;
-            pCodeBuf[off++] = 0x88;
-            pCodeBuf[off++] = X86_MODRM_MAKE(X86_MOD_REG, 0 /*AL*/, idxRegEfl & 7);
+
+            if (fEflUpdate == X86_EFL_STATUS_BITS)
+            {
+                /* mov   xxL, AL */
+                pCodeBuf[off++] = idxRegEfl >= 8 ? X86_OP_REX_B : X86_OP_REX;
+                pCodeBuf[off++] = 0x88;
+                pCodeBuf[off++] = X86_MODRM_MAKE(X86_MOD_REG, 0 /*AL*/, idxRegEfl & 7);
+            }
+            else
+            {
+                /* and AL, <bits> */
+                pCodeBuf[off++] = 0x24;
+                pCodeBuf[off++] = (uint8_t)fEflUpdate;
+
+                /* and xxL, ~<bits> */
+                pCodeBuf[off++] = idxRegEfl >= 8 ? X86_OP_REX_B : X86_OP_REX;
+                pCodeBuf[off++] = 0x80;
+                pCodeBuf[off++] = X86_MODRM_MAKE(X86_MOD_REG, 4, idxRegEfl & 7);
+                pCodeBuf[off++] = (uint8_t)~fEflUpdate;
+
+                /* or xxL, AL */
+                pCodeBuf[off++] = idxRegEfl >= 8 ? X86_OP_REX_B : X86_OP_REX;
+                pCodeBuf[off++] = 0x08;
+                pCodeBuf[off++] = X86_MODRM_MAKE(X86_MOD_REG, 0 /*AL*/, idxRegEfl & 7);
+            }
         }
 
         /* xchg rax, tmp */
@@ -457,6 +538,8 @@ iemNativeEmitPostponedEFlagsCalcLogical(PIEMNATIVEINSTR pCodeBuf, uint32_t off, 
         pCodeBuf[off++] = 0x90 + (idxRegTmp & 7);
 
 # else
+        Assert(fEflUpdate == X86_EFL_STATUS_BITS); /** @todo */
+
         /* pushf */
         pCodeBuf[off++] = 0x9c;
         /* pop  tmp */
@@ -473,22 +556,62 @@ iemNativeEmitPostponedEFlagsCalcLogical(PIEMNATIVEINSTR pCodeBuf, uint32_t off, 
     }
     else
     {
-        /* xchg al, ah  */
-        pCodeBuf[off++] = 0x86;
-        pCodeBuf[off++] = X86_MODRM_MAKE(X86_MOD_REG, 4 /*AH*/, 0 /*AL*/);
-        /* lahf ; AH = EFLAGS */
-        pCodeBuf[off++] = 0x9f;
-        /* xchg al, ah  */
-        pCodeBuf[off++] = 0x86;
-        pCodeBuf[off++] = X86_MODRM_MAKE(X86_MOD_REG, 4 /*AH*/, 0 /*AL*/);
+        if (fEflUpdate == X86_EFL_STATUS_BITS)
+        {
+            /* xchg al, ah  */
+            pCodeBuf[off++] = 0x86;
+            pCodeBuf[off++] = X86_MODRM_MAKE(X86_MOD_REG, 4 /*AH*/, 0 /*AL*/);
+            /* lahf ; AH = EFLAGS */
+            pCodeBuf[off++] = 0x9f;
+            /* xchg al, ah  */
+            pCodeBuf[off++] = 0x86;
+            pCodeBuf[off++] = X86_MODRM_MAKE(X86_MOD_REG, 4 /*AH*/, 0 /*AL*/);
+        }
+        else
+        {
+            /* xchg rax, tmp */
+            pCodeBuf[off++] = idxRegTmp < 8 ? X86_OP_REX_W : X86_OP_REX_B | X86_OP_REX_W;
+            pCodeBuf[off++] = 0x90 + (idxRegTmp & 7);
+
+            /* lahf ; AH = EFLAGS */
+            pCodeBuf[off++] = 0x9f;
+
+            /* and AH, <bits> */
+            pCodeBuf[off++] = 0x80;
+            pCodeBuf[off++] = X86_MODRM_MAKE(X86_MOD_REG, 4, 4 /*AH*/);
+            pCodeBuf[off++] = (uint8_t)fEflUpdate;
+
+            /* mov   AL, AH */
+            pCodeBuf[off++] = 0x88;
+            pCodeBuf[off++] = X86_MODRM_MAKE(X86_MOD_REG, 4 /*AH*/, 0 /*AL*/);
+
+            /* and tmp, ~<bits> */
+            pCodeBuf[off++] = idxRegTmp >= 8 ? X86_OP_REX_B : X86_OP_REX;
+            pCodeBuf[off++] = 0x80;
+            pCodeBuf[off++] = X86_MODRM_MAKE(X86_MOD_REG, 4, idxRegTmp & 7);
+            pCodeBuf[off++] = (uint8_t)~fEflUpdate;
+
+            /* or tmp, AL */
+            pCodeBuf[off++] = idxRegTmp >= 8 ? X86_OP_REX_B : X86_OP_REX;
+            pCodeBuf[off++] = 0x08;
+            pCodeBuf[off++] = X86_MODRM_MAKE(X86_MOD_REG, 0 /*AL*/, idxRegTmp & 7);
+
+            /* xchg rax, tmp */
+            pCodeBuf[off++] = idxRegTmp < 8 ? X86_OP_REX_W : X86_OP_REX_B | X86_OP_REX_W;
+            pCodeBuf[off++] = 0x90 + (idxRegTmp & 7);
+        }
     }
-    /* BTR idxEfl, 11; Clear OF */
-    if (idxRegEfl >= 8)
-        pCodeBuf[off++] = X86_OP_REX_B;
-    pCodeBuf[off++] = 0xf;
-    pCodeBuf[off++] = 0xba;
-    pCodeBuf[off++] = X86_MODRM_MAKE(X86_MOD_REG, 6, idxRegEfl & 7);
-    pCodeBuf[off++] = X86_EFL_OF_BIT;
+
+    if (fEflUpdate & X86_EFL_OF)
+    {
+        /* BTR idxEfl, 11; Clear OF */
+        if (idxRegEfl >= 8)
+            pCodeBuf[off++] = X86_OP_REX_B;
+        pCodeBuf[off++] = 0xf;
+        pCodeBuf[off++] = 0xba;
+        pCodeBuf[off++] = X86_MODRM_MAKE(X86_MOD_REG, 6, idxRegEfl & 7);
+        pCodeBuf[off++] = X86_EFL_OF_BIT;
+    }
 
 #elif defined(RT_ARCH_ARM64)
     /*
