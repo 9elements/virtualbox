@@ -1,4 +1,4 @@
-/* $Id: VMMDev.cpp 112475 2026-01-13 12:52:30Z knut.osmundsen@oracle.com $ */
+/* $Id: VMMDev.cpp 112490 2026-01-13 13:53:47Z knut.osmundsen@oracle.com $ */
 /** @file
  * VMMDev - Guest <-> VMM/Host communication device.
  */
@@ -5045,6 +5045,13 @@ static DECLCALLBACK(int) vmmdevConstruct(PPDMDEVINS pDevIns, int iInstance, PCFG
 
     /** @todo image-to-load-filename? */
 #endif
+
+    /*
+     * Check PGM page size assumption.
+     */
+    uint32_t const cbPage = PDMDevHlpPhysGetPageSize(pDevIns);
+    AssertLogRelMsgReturn(cbPage == VMMDEV_PAGE_SIZE, ("VMMDev: cbPage=%#x, expected %#x!\n", cbPage, VMMDEV_PAGE_SIZE),
+                          VERR_INTERNAL_ERROR);
 
 #ifdef VBOX_WITH_HGCM
     /*
