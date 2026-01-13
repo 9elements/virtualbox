@@ -1,4 +1,4 @@
-/* $Id: VSCSILunMmc.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: VSCSILunMmc.cpp 112474 2026-01-13 12:47:27Z michal.necasek@oracle.com $ */
 /** @file
  * Virtual SCSI driver: MMC LUN implementation (CD/DVD-ROM)
  */
@@ -1687,11 +1687,10 @@ static DECLCALLBACK(int) vscsiLunMmcReqProcess(PVSCSILUNINT pVScsiLun, PVSCSIREQ
         LogFlow(("%s: uLbaStart=%llu cSectorTransfer=%u\n",
                  __FUNCTION__, uLbaStart, cSectorTransfer));
 
-        vscsiReqSetXferDir(pVScsiReq, enmTxDir == VSCSIIOREQTXDIR_WRITE ? VSCSIXFERDIR_I2T : VSCSIXFERDIR_T2I);
-        vscsiReqSetXferSize(pVScsiReq, cSectorTransfer * cbSector);
         if (RT_UNLIKELY(uLbaStart + cSectorTransfer > pVScsiLunMmc->cSectors))
         {
             vscsiReqSetXferDir(pVScsiReq, VSCSIXFERDIR_NONE);
+            vscsiReqSetXferSize(pVScsiReq, 0);
             rcReq = vscsiLunReqSenseErrorSet(pVScsiLun, pVScsiReq, SCSI_SENSE_ILLEGAL_REQUEST, SCSI_ASC_LOGICAL_BLOCK_OOR, 0x00);
             vscsiDeviceReqComplete(pVScsiLun->pVScsiDevice, pVScsiReq, rcReq, false, VINF_SUCCESS);
         }
@@ -1699,6 +1698,7 @@ static DECLCALLBACK(int) vscsiLunMmcReqProcess(PVSCSILUNINT pVScsiLun, PVSCSIREQ
         {
             /* A 0 transfer length is not an error. */
             vscsiReqSetXferDir(pVScsiReq, VSCSIXFERDIR_NONE);
+            vscsiReqSetXferSize(pVScsiReq, 0);
             rcReq = vscsiLunReqSenseOkSet(pVScsiLun, pVScsiReq);
             vscsiDeviceReqComplete(pVScsiLun->pVScsiDevice, pVScsiReq, rcReq, false, VINF_SUCCESS);
         }
@@ -1710,6 +1710,8 @@ static DECLCALLBACK(int) vscsiLunMmcReqProcess(PVSCSILUNINT pVScsiLun, PVSCSIREQ
                                                            NULL, NULL, NULL, &enmDataForm);
             if (RT_FAILURE(rc))
             {
+                vscsiReqSetXferDir(pVScsiReq, VSCSIXFERDIR_NONE);
+                vscsiReqSetXferSize(pVScsiReq, 0);
                 rcReq = vscsiLunReqSenseErrorSet(pVScsiLun, pVScsiReq, SCSI_SENSE_ILLEGAL_REQUEST, SCSI_ASC_LOGICAL_BLOCK_OOR, 0x00);
                 vscsiDeviceReqComplete(pVScsiLun->pVScsiDevice, pVScsiReq, rcReq, false, VINF_SUCCESS);
                 rc = VINF_SUCCESS; /* The request was completed properly, so don't indicate an error here which might cause another completion. */
@@ -1721,6 +1723,8 @@ static DECLCALLBACK(int) vscsiLunMmcReqProcess(PVSCSILUNINT pVScsiLun, PVSCSIREQ
                      && enmDataForm != VDREGIONDATAFORM_RAW
                      && cbSector == _2K)
             {
+                vscsiReqSetXferDir(pVScsiReq, VSCSIXFERDIR_NONE);
+                vscsiReqSetXferSize(pVScsiReq, 0);
                 rcReq = vscsiLunReqSenseErrorInfoSet(pVScsiLun, pVScsiReq,
                                                      SCSI_SENSE_ILLEGAL_REQUEST | SCSI_SENSE_FLAG_ILI,
                                                      SCSI_ASC_ILLEGAL_MODE_FOR_THIS_TRACK, 0, uLbaStart);
@@ -1728,6 +1732,8 @@ static DECLCALLBACK(int) vscsiLunMmcReqProcess(PVSCSILUNINT pVScsiLun, PVSCSIREQ
             }
             else
             {
+                vscsiReqSetXferDir(pVScsiReq, enmTxDir == VSCSIIOREQTXDIR_WRITE ? VSCSIXFERDIR_I2T : VSCSIXFERDIR_T2I);
+                vscsiReqSetXferSize(pVScsiReq, cSectorTransfer * cbSector);
                 /* Enqueue new I/O request */
                 rc = vscsiIoReqTransferEnqueueEx(pVScsiLun, pVScsiReq, enmTxDir,
                                                  uLbaStart * cbSector,
