@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+# $Id: Makefile.kmk 112487 2026-01-13 13:31:35Z knut.osmundsen@oracle.com $
 ## @file
 # Some hacks to allow syntax and prerequisite include checking of headers.
 # This makefile doesn't and shouldn't build successfully.
@@ -165,17 +165,25 @@ VBOX_HDRS_OMIT := \
 	$(foreach os,$(filter-out $(KBUILD_TARGET),$(KBUILD_OSES)),iprt/$(os)/% VBox/$(os)/%) \
 	$(foreach arch,$(KBUILD_ARCHES),iprt/nocrt/$(arch)/%)
 
+# 64-bit (supported) only headers.
+ifn1of ($(KBUILD_TARGET_ARCH), amd64 arm64)
+ VBOX_HDRS_OMIT += \
+ 	VBox/vmm/cpumctx.h \
+ 	VBox/vmm/dbgfcorefmt.h \
+ 	VBox/vmm/gvm.h \
+ 	VBox/vmm/uvm.h \
+ 	VBox/vmm/vm.h \
+ 	VBox/vmm/vmcc.h
+endif
 # x86 / AMD64 only headers.
 ifn1of ($(KBUILD_TARGET_ARCH), x86 amd64)
  VBOX_HDRS_OMIT += \
  	iprt/asm-amd64-x86.h
 endif
 # AMD64 only headers.
-ifneq ($(KBUILD_TARGET_ARCH),amd64)
+ifneq ($(KBUILD_TARGET_ARCH), amd64)
  VBOX_HDRS_OMIT += \
- 	VBox/vmm/cpumctx.h \
- 	VBox/vmm/cpumctx-v1_6.h \
- 	VBox/vmm/dbgfcorefmt.h
+ 	VBox/vmm/cpumctx-v1_6.h
 endif
 # ARM only headers.
 ifn1of ($(KBUILD_TARGET_ARCH), arm32 arm64)
