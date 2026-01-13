@@ -1,4 +1,4 @@
-/* $Id: PDMInternal.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: PDMInternal.h 112438 2026-01-13 09:00:11Z knut.osmundsen@oracle.com $ */
 /** @file
  * PDM - Internal header file.
  */
@@ -1383,9 +1383,7 @@ typedef struct PDMDEVHLPTASK
     PPDMDEVINSR3                    pDevInsR3;
     /** This operation to perform. */
     PDMDEVHLPTASKOP                 enmOp;
-#if HC_ARCH_BITS == 64
     uint32_t                        Alignment0;
-#endif
     /** Parameters to the operation. */
     union PDMDEVHLPTASKPARAMS
     {

@@ -1,4 +1,4 @@
- ; $Id: CPUMR0A.asm 112437 2026-01-13 08:57:54Z knut.osmundsen@oracle.com $
+ ; $Id: CPUMR0A.asm 112438 2026-01-13 09:00:11Z knut.osmundsen@oracle.com $
 ;; @file
 ; CPUM - Ring-0 Assembly Routines (supporting HM and IEM).
 ;
@@ -195,10 +195,6 @@ SEH64_END_PROLOGUE
 
         mov     eax, ecx
 .return:
-%ifdef RT_ARCH_X86
-        pop     esi
-        pop     ebx
-%endif
         leave
         ret
 ENDPROC   cpumR0SaveHostRestoreGuestFPUState
@@ -308,10 +304,6 @@ SEH64_END_PROLOGUE
         mov     byte [pCpumCpu + CPUMCPU.Guest.fUsedFpuGuest], 0
 
         popf
-%ifdef RT_ARCH_X86
-        pop     esi
-        pop     ebx
-%endif
         leave
         ret
 %undef pCpumCpu

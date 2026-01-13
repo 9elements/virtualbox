@@ -1,4 +1,4 @@
-/* $Id: EMInternal.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: EMInternal.h 112438 2026-01-13 09:00:11Z knut.osmundsen@oracle.com $ */
 /** @file
  * EM - Internal header file.
  */
@@ -77,10 +77,6 @@ typedef struct CLISTAT
 {
     /** The key is the cli address. */
     AVLGCPTRNODECORE        Core;
-#if HC_ARCH_BITS == 32 && !defined(RT_OS_WINDOWS)
-    /** Padding. */
-    uint32_t                u32Padding;
-#endif
     /** Occurrences. */
     STAMCOUNTER             Counter;
 } CLISTAT, *PCLISTAT;

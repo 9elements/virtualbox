@@ -1,4 +1,4 @@
-/* $Id: CPUMRZ.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: CPUMRZ.cpp 112438 2026-01-13 09:00:11Z knut.osmundsen@oracle.com $ */
 /** @file
  * CPUM - Raw-mode and ring-0 context.
  */
@@ -126,7 +126,7 @@ VMMRZ_INT_DECL(void)    CPUMRZFpuStateActualizeForRead(PVMCPUCC pVCpu)
  */
 VMMRZ_INT_DECL(void)    CPUMRZFpuStateActualizeSseForRead(PVMCPUCC pVCpu)
 {
-#if defined(VBOX_WITH_KERNEL_USING_XMM) && HC_ARCH_BITS == 64
+#if defined(VBOX_WITH_KERNEL_USING_XMM)
     NOREF(pVCpu);
 #else
     if (pVCpu->cpum.s.fUseFlags & CPUM_USED_FPU_GUEST)

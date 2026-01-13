@@ -1,4 +1,4 @@
-/* $Id: VMMR0.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: VMMR0.cpp 112438 2026-01-13 09:00:11Z knut.osmundsen@oracle.com $ */
 /** @file
  * VMM - Host Context Ring 0.
  */
@@ -2148,7 +2148,7 @@ DECL_NO_INLINE(static, int) vmmR0EntryExWorker(PGVM pGVM, VMCPUID idCpu, VMMR0OP
         }
 # endif
 
-# if defined(VBOX_STRICT) && HC_ARCH_BITS == 64
+# if defined(VBOX_STRICT)
         case VMMR0_DO_GMM_FIND_DUPLICATE_PAGE:
             if (u64Arg)
                 return VERR_INVALID_PARAMETER;

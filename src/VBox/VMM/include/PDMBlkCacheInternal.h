@@ -1,4 +1,4 @@
-/* $Id: PDMBlkCacheInternal.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: PDMBlkCacheInternal.h 112438 2026-01-13 09:00:11Z knut.osmundsen@oracle.com $ */
 /** @file
  * PDM Block Cache.
  */
@@ -263,10 +263,7 @@ typedef struct PDMBLKCACHE
     } u;
 
 #ifdef VBOX_WITH_STATISTICS
-
-#if HC_ARCH_BITS == 64
     uint32_t                      u32Alignment;
-#endif
     /** Number of times a write was deferred because the cache entry was still in progress */
     STAMCOUNTER                   StatWriteDeferred;
     /** Number appended cache entries. */

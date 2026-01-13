@@ -1,4 +1,4 @@
-/* $Id: GVMMR0.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: GVMMR0.cpp 112438 2026-01-13 09:00:11Z knut.osmundsen@oracle.com $ */
 /** @file
  * GVMM - Global VM Manager.
  */
@@ -151,11 +151,7 @@ typedef struct GVMHANDLE
 typedef GVMHANDLE *PGVMHANDLE;
 
 /** Number of GVM handles (including the NIL handle). */
-#if HC_ARCH_BITS == 64
-# define GVMM_MAX_HANDLES   8192
-#else
-# define GVMM_MAX_HANDLES   128
-#endif
+#define GVMM_MAX_HANDLES   8192
 
 /**
  * Per host CPU GVMM data.

@@ -1,4 +1,4 @@
-/* $Id: PGMR3Phys.cpp 111984 2025-12-03 11:43:27Z alexander.eichner@oracle.com $ */
+/* $Id: PGMR3Phys.cpp 112438 2026-01-13 09:00:11Z knut.osmundsen@oracle.com $ */
 /** @file
  * PGM - Page Manager and Monitor, Physical Memory Addressing.
  */
@@ -5440,7 +5440,7 @@ VMMR3DECL(int) PGMR3PhysRomProtect(PVM pVM, RTGCPHYS GCPhys, RTGCPHYS cb, PGMROM
 *   Ballooning                                                                                                                   *
 *********************************************************************************************************************************/
 
-#if HC_ARCH_BITS == 64 && (defined(RT_OS_WINDOWS) || defined(RT_OS_SOLARIS) || defined(RT_OS_LINUX) || defined(RT_OS_FREEBSD))
+#if defined(RT_OS_WINDOWS) || defined(RT_OS_SOLARIS) || defined(RT_OS_LINUX) || defined(RT_OS_FREEBSD)
 
 /**
  * Rendezvous callback used by PGMR3ChangeMemBalloon that changes the memory balloon size
@@ -5591,7 +5591,7 @@ static DECLCALLBACK(void) pgmR3PhysChangeMemBalloonHelper(PVM pVM, bool fInflate
     RTMemFree(paPhysPage);
 }
 
-#endif /* 64-bit host && (Windows || Solaris || Linux || FreeBSD) */
+#endif /* Windows || Solaris || Linux || FreeBSD */
 
 /**
  * Inflate or deflate a memory balloon
@@ -5605,7 +5605,7 @@ static DECLCALLBACK(void) pgmR3PhysChangeMemBalloonHelper(PVM pVM, bool fInflate
 VMMR3DECL(int) PGMR3PhysChangeMemBalloon(PVM pVM, bool fInflate, unsigned cPages, RTGCPHYS *paPhysPage)
 {
     /* This must match GMMR0Init; currently we only support memory ballooning on all 64-bit hosts except Mac OS X */
-#if HC_ARCH_BITS == 64 && (defined(RT_OS_WINDOWS) || defined(RT_OS_SOLARIS) || defined(RT_OS_LINUX) || defined(RT_OS_FREEBSD))
+#if defined(RT_OS_WINDOWS) || defined(RT_OS_SOLARIS) || defined(RT_OS_LINUX) || defined(RT_OS_FREEBSD)
     int rc;
 
     /* Older additions (ancient non-functioning balloon code) pass wrong physical addresses. */
