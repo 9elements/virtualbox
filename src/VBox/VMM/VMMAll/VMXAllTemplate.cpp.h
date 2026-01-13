@@ -1,4 +1,4 @@
-/* $Id: VMXAllTemplate.cpp.h 112435 2026-01-13 08:49:25Z knut.osmundsen@oracle.com $ */
+/* $Id: VMXAllTemplate.cpp.h 112437 2026-01-13 08:57:54Z knut.osmundsen@oracle.com $ */
 /** @file
  * HM VMX (Intel VT-x) - Code template for our own hypervisor and the NEM darwin backend using Apple's Hypervisor.framework.
  */
@@ -2464,11 +2464,9 @@ static VBOXSTRICTRC vmxHCExportGuestCR3AndCR4(PVMCPUCC pVCpu, PCVMXTRANSIENT pVm
                 case PGMMODE_AMD64:             /* 64-bit AMD paging (long mode). */
                 case PGMMODE_AMD64_NX:          /* 64-bit AMD paging (long mode) with NX enabled. */
                 {
-#ifdef VBOX_WITH_64_BITS_GUESTS
                     /* For our assumption in vmxHCShouldSwapEferMsr. */
                     Assert(u64GuestCr4 & X86_CR4_PAE);
                     break;
-#endif
                 }
                 default:
                     AssertFailed();

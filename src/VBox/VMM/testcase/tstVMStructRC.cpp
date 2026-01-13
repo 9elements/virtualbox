@@ -1,4 +1,4 @@
-/* $Id: tstVMStructRC.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: tstVMStructRC.cpp 112437 2026-01-13 08:57:54Z knut.osmundsen@oracle.com $ */
 /** @file
  * tstVMMStructRC - Generate structure member and size checks from the
  *                  RC perspective.
@@ -47,11 +47,7 @@ AssertCompileSize(uint16_t, 2);
 AssertCompileSize(uint32_t, 4);
 AssertCompileSize(uint64_t, 8);
 AssertCompileSize(RTRCPTR,  4);
-#ifdef VBOX_WITH_64_BITS_GUESTS
 AssertCompileSize(RTGCPTR,  8);
-#else
-AssertCompileSize(RTGCPTR,  4);
-#endif
 AssertCompileSize(RTGCPHYS, 8);
 AssertCompileSize(RTHCPHYS, 8);
 

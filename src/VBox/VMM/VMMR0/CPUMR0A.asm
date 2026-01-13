@@ -1,4 +1,4 @@
- ; $Id: CPUMR0A.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+ ; $Id: CPUMR0A.asm 112437 2026-01-13 08:57:54Z knut.osmundsen@oracle.com $
 ;; @file
 ; CPUM - Ring-0 Assembly Routines (supporting HM and IEM).
 ;
@@ -317,54 +317,4 @@ SEH64_END_PROLOGUE
 %undef pCpumCpu
 %undef pXState
 ENDPROC   cpumR0SaveGuestRestoreHostFPUState
-
-
-%if ARCH_BITS == 32
- %ifdef VBOX_WITH_64_BITS_GUESTS
-;;
-; Restores the host's FPU/SSE/AVX state from pCpumCpu->Host.
-;
-; @param    pCpumCpu  x86:[ebp+8] gcc:rdi msc:rcx     CPUMCPU pointer
-;
-  %ifndef RT_ASM_WITH_SEH64 ; workaround for yasm 1.3.0 bug (error: prologue -1 bytes, must be <256)
-ALIGNCODE(16)
-  %endif
-BEGINPROC cpumR0RestoreHostFPUState
-        ;
-        ; Prologue - xAX+xDX must be free for XSAVE/XRSTOR input.
-        ;
-        push    ebp
-        mov     ebp, esp
-        push    ebx
-        push    esi
-        mov     ebx, dword [ebp + 8]
-  %define pCpumCpu ebx
-  %define pXState  esi
-
-        ;
-        ; Restore host CPU state.
-        ;
-        pushf                           ; The darwin kernel can get upset or upset things if an
-        cli                             ; interrupt occurs while we're doing fxsave/fxrstor/cr0.
-
-        CPUMR0_LOAD_HOST
-
-        ; Restore the CR0 value we saved in cpumR0SaveHostRestoreGuestFPUState or
-        ; in cpumRZSaveHostFPUState.
-        ;; @todo What about XCR0?
-        mov     xCX, [pCpumCpu + CPUMCPU.Host.cr0Fpu]
-        CPUMRZ_RESTORE_CR0_IF_TS_OR_EM_SET xCX
-
-        and     dword [pCpumCpu + CPUMCPU.fUseFlags], ~CPUM_USED_FPU_HOST
-        popf
-
-        pop     esi
-        pop     ebx
-        leave
-        ret
-  %undef pCpumCPu
-  %undef pXState
-ENDPROC   cpumR0RestoreHostFPUState
- %endif ; VBOX_WITH_64_BITS_GUESTS
-%endif  ; ARCH_BITS == 32
 

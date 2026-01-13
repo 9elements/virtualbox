@@ -1,4 +1,4 @@
-/* $Id: PGMR0.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: PGMR0.cpp 112437 2026-01-13 08:57:54Z knut.osmundsen@oracle.com $ */
 /** @file
  * PGM - Page Manager and Monitor, Ring-0.
  */
@@ -1272,9 +1272,6 @@ VMMR0DECL(int) PGMR0Trap0eHandlerNestedPaging(PGVM pGVM, PGVMCPU pGVCpu, PGMMODE
     bool fLockTaken = false;
     switch (enmShwPagingMode)
     {
-        case PGMMODE_32_BIT:
-            rc = PGM_BTH_NAME_32BIT_PROT(Trap0eHandler)(pGVCpu, uErr, pCtx, GCPhysFault, &fLockTaken);
-            break;
         case PGMMODE_PAE:
         case PGMMODE_PAE_NX:
             rc = PGM_BTH_NAME_PAE_PROT(Trap0eHandler)(pGVCpu, uErr, pCtx, GCPhysFault, &fLockTaken);
@@ -1286,6 +1283,7 @@ VMMR0DECL(int) PGMR0Trap0eHandlerNestedPaging(PGVM pGVM, PGVMCPU pGVCpu, PGMMODE
         case PGMMODE_EPT:
             rc = PGM_BTH_NAME_EPT_PROT(Trap0eHandler)(pGVCpu, uErr, pCtx, GCPhysFault, &fLockTaken);
             break;
+        case PGMMODE_32_BIT:
         default:
             AssertFailed();
             rc = VERR_INVALID_PARAMETER;
