@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: files_vboxnetadp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+# $Id: files_vboxnetadp 112492 2026-01-13 13:55:48Z knut.osmundsen@oracle.com $
 ## @files
 # Shared file between Makefile.kmk and export_modules.sh.
 #
@@ -40,6 +40,7 @@ VBOX_VBOXNETADP_SOURCES=" \
     ${PATH_ROOT}/include/iprt/alloca.h=>include/iprt/alloca.h \
     ${PATH_ROOT}/include/iprt/asm.h=>include/iprt/asm.h \
     ${PATH_ROOT}/include/iprt/asm-amd64-x86.h=>include/iprt/asm-amd64-x86.h \
+    ${PATH_ROOT}/include/iprt/asm-arm.h=>include/iprt/asm-arm.h \
     ${PATH_ROOT}/include/iprt/asm-math.h=>include/iprt/asm-math.h \
     ${PATH_ROOT}/include/iprt/asm-mem.h=>include/iprt/asm-mem.h \
     ${PATH_ROOT}/include/iprt/assert.h=>include/iprt/assert.h \

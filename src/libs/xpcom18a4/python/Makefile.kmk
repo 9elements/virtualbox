@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+# $Id: Makefile.kmk 112492 2026-01-13 13:55:48Z knut.osmundsen@oracle.com $
 ## @file
 # Sub-Makefile for Python bindings
 #
@@ -106,7 +106,7 @@ ifndef VBOX_ONLY_SDK
  # Base Python Client Module - the C++/XPCOM bits (not actually built).
  #
  VBoxPythonBase_TEMPLATE = XPComDll
- VBoxPythonBase_CXXFLAGS = -Wno-write-strings
+ VBoxPythonBase_CXXFLAGS = -Wno-write-strings $(VBOX_GCC_Wno-deprecated-declarations)
  VBoxPythonBase_CXXFLAGS.solaris = $(VBOX_GCC_Wno-unknown-pragmas) # /usr/include/python[23].[75]*/ceval.h:67: warning: ignoring #pragma no_inline(PyEval_EvalFrameEx)
  VBoxPythonBase_DLLSUFF.darwin = .so
  VBoxPythonBase_DEFS    = \
