@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA3d-dx.cpp 112233 2025-12-25 18:24:22Z vitali.pelenjow@oracle.com $ */
+/* $Id: DevVGA-SVGA3d-dx.cpp 112472 2026-01-13 12:44:49Z vitali.pelenjow@oracle.com $ */
 /** @file
  * DevSVGA3d - VMWare SVGA device, 3D parts - Common code for DX backend interface.
  */
@@ -49,6 +49,7 @@
 #include "DevVGA-SVGA-internal.h"
 
 
+#define COTABLE_NO_BACKING
 /*
  * Helpers.
  */
@@ -400,6 +401,26 @@ int vmsvga3dDXDestroyContext(PVGASTATECC pThisCC, uint32_t cid)
     AssertRCReturn(rc, rc);
 
     rc = pSvgaR3State->pFuncsDX->pfnDXDestroyContext(pThisCC, pDXContext);
+
+#ifdef COTABLE_NO_BACKING
+    RTMemFree(pDXContext->cot.paRTView);
+    RTMemFree(pDXContext->cot.paDSView);
+    RTMemFree(pDXContext->cot.paSRView);
+    RTMemFree(pDXContext->cot.paElementLayout);
+    RTMemFree(pDXContext->cot.paBlendState);
+    RTMemFree(pDXContext->cot.paDepthStencil);
+    RTMemFree(pDXContext->cot.paRasterizerState);
+    RTMemFree(pDXContext->cot.paSampler);
+    RTMemFree(pDXContext->cot.paStreamOutput);
+    RTMemFree(pDXContext->cot.paQuery);
+    RTMemFree(pDXContext->cot.paShader);
+    RTMemFree(pDXContext->cot.paUAView);
+    RTMemFree(pDXContext->cot.paVideoProcessor);
+    RTMemFree(pDXContext->cot.paVideoDecoderOutputView);
+    RTMemFree(pDXContext->cot.paVideoDecoder);
+    RTMemFree(pDXContext->cot.paVideoProcessorInputView);
+    RTMemFree(pDXContext->cot.paVideoProcessorOutputView);
+#endif
 
     RT_ZERO(*pDXContext);
     pDXContext->cid = SVGA3D_INVALID_ID;
@@ -2169,6 +2190,143 @@ static int dxSetOrGrowCOTable(PVGASTATECC pThisCC, PVMSVGA3DDXCONTEXT pDXContext
         ASSERT_GUEST_FAILED_RETURN(VERR_INVALID_PARAMETER);
     RT_UNTRUSTED_VALIDATED_FENCE();
 
+#ifdef COTABLE_NO_BACKING
+   /*
+    * 3 cases.
+    *   1) pMob != NULL, fGrow = false:
+    *     pMob is the new COTable. validSizeInBytes is how many entries in the MOB are already defined.
+    *     Create a new host buffer, copy validSizeInBytes from the MOB;
+    *   2) pMob != NULL, fGrow = true:
+    *     pMob is the new COTable. validSizeInBytes is how many entries in the MOB should be already defined
+    *     in the currently bound, old COtable MOB.
+    *     Create a new host buffer, copy validSizeInBytes from the old mob;
+    *   3) pMob == NULL:
+    *     Delete the COTable, deallocate the host buffer.
+    */
+
+    uint32_t cEntries;
+    uint32_t cValidEntries;
+    void *pvCOT;
+    if (pMob)
+    {
+        uint32_t cbCOT = vmsvgaR3MobSize(pMob);
+
+        ASSERT_GUEST_RETURN(validSizeInBytes <= cbCOT, VERR_INVALID_PARAMETER);
+        RT_UNTRUSTED_VALIDATED_FENCE();
+
+        /* When growing a COTable, the valid size can't be greater than the old COTable size. */
+        if (fGrow)
+        {
+            uint32_t const cbOldCOT = vmsvgaR3MobSize(pDXContext->aCOTMobs[idxCOTable]);
+            validSizeInBytes = RT_MIN(validSizeInBytes, cbOldCOT);
+        }
+
+        static uint32_t const s_acbEntry[] =
+        {
+            sizeof(SVGACOTableDXRTViewEntry),
+            sizeof(SVGACOTableDXDSViewEntry),
+            sizeof(SVGACOTableDXSRViewEntry),
+            sizeof(SVGACOTableDXElementLayoutEntry),
+            sizeof(SVGACOTableDXBlendStateEntry),
+            sizeof(SVGACOTableDXDepthStencilEntry),
+            sizeof(SVGACOTableDXRasterizerStateEntry),
+            sizeof(SVGACOTableDXSamplerEntry),
+            sizeof(SVGACOTableDXStreamOutputEntry),
+            sizeof(SVGACOTableDXQueryEntry),
+            sizeof(SVGACOTableDXShaderEntry),
+            sizeof(SVGACOTableDXUAViewEntry),
+            sizeof(VBSVGACOTableDXVideoProcessorEntry),
+            sizeof(VBSVGACOTableDXVideoDecoderOutputViewEntry),
+            sizeof(VBSVGACOTableDXVideoDecoderEntry),
+            sizeof(VBSVGACOTableDXVideoProcessorInputViewEntry),
+            sizeof(VBSVGACOTableDXVideoProcessorOutputViewEntry),
+        };
+        AssertCompile(RT_ELEMENTS(s_acbEntry) == VBSVGA_NUM_COTABLES);
+
+        uint32_t const cbEntry = s_acbEntry[idxCOTable];
+
+        cEntries = cbCOT / cbEntry;
+        cEntries = RT_MIN(cEntries, SVGA_COTABLE_MAX_IDS);
+
+        cValidEntries = validSizeInBytes / cbEntry;
+        cValidEntries = RT_MIN(cValidEntries, cEntries);
+
+        validSizeInBytes = cValidEntries * cbEntry;
+
+        /* Allocate a new host buffer */
+        pvCOT = RTMemAllocZ(cbCOT);
+        AssertReturn(pvCOT, VERR_NO_MEMORY);
+    }
+    else
+    {
+        cEntries = 0;
+        cValidEntries = 0;
+        validSizeInBytes = 0;
+        pvCOT = NULL;
+    }
+
+    /* Set the new host buffer and remember the old host buffer. */
+    void *pvOldCOT = NULL;
+    switch (enmType)
+    {
+#   define CASE_DX_COT(_COTName, _COTEntryType, _COTField) \
+        case _COTName: \
+            pvOldCOT                        = pDXContext->cot.pa ## _COTField; \
+            pDXContext->cot.pa ## _COTField = (_COTEntryType *)pvCOT; \
+            pDXContext->cot.c ## _COTField  = cEntries; \
+            break;
+        CASE_DX_COT(SVGA_COTABLE_RTVIEW,           SVGACOTableDXRTViewEntry,                     RTView)
+        CASE_DX_COT(SVGA_COTABLE_DSVIEW,           SVGACOTableDXDSViewEntry,                     DSView)
+        CASE_DX_COT(SVGA_COTABLE_SRVIEW,           SVGACOTableDXSRViewEntry,                     SRView)
+        CASE_DX_COT(SVGA_COTABLE_ELEMENTLAYOUT,    SVGACOTableDXElementLayoutEntry,              ElementLayout)
+        CASE_DX_COT(SVGA_COTABLE_BLENDSTATE,       SVGACOTableDXBlendStateEntry,                 BlendState)
+        CASE_DX_COT(SVGA_COTABLE_DEPTHSTENCIL,     SVGACOTableDXDepthStencilEntry,               DepthStencil)
+        CASE_DX_COT(SVGA_COTABLE_RASTERIZERSTATE,  SVGACOTableDXRasterizerStateEntry,            RasterizerState)
+        CASE_DX_COT(SVGA_COTABLE_SAMPLER,          SVGACOTableDXSamplerEntry,                    Sampler)
+        CASE_DX_COT(SVGA_COTABLE_STREAMOUTPUT,     SVGACOTableDXStreamOutputEntry,               StreamOutput)
+        CASE_DX_COT(SVGA_COTABLE_DXQUERY,          SVGACOTableDXQueryEntry,                      Query)
+        CASE_DX_COT(SVGA_COTABLE_DXSHADER,         SVGACOTableDXShaderEntry,                     Shader)
+        CASE_DX_COT(SVGA_COTABLE_UAVIEW,           SVGACOTableDXUAViewEntry,                     UAView)
+        CASE_DX_COT(VBSVGA_COTABLE_VIDEOPROCESSOR, VBSVGACOTableDXVideoProcessorEntry,           VideoProcessor)
+        CASE_DX_COT(VBSVGA_COTABLE_VDOV,           VBSVGACOTableDXVideoDecoderOutputViewEntry,   VideoDecoderOutputView)
+        CASE_DX_COT(VBSVGA_COTABLE_VIDEODECODER,   VBSVGACOTableDXVideoDecoderEntry,             VideoDecoder)
+        CASE_DX_COT(VBSVGA_COTABLE_VPIV,           VBSVGACOTableDXVideoProcessorInputViewEntry,  VideoProcessorInputView)
+        CASE_DX_COT(VBSVGA_COTABLE_VPOV,           VBSVGACOTableDXVideoProcessorOutputViewEntry, VideoProcessorOutputView)
+#   undef CASE_DX_COT
+        case SVGA_COTABLE_MAX: break; /* Compiler warning */
+        case VBSVGA_COTABLE_MAX: break; /* Compiler warning */
+#ifndef DEBUG_sunlover
+        default: break; /* Compiler warning. */
+#endif
+    }
+
+    if (cValidEntries)
+    {
+        if (fGrow)
+        {
+            /* Copy entries from the old host buffer to the new host buffer.
+             * The GROW command is used only to add new empty entries to an existing COTable.
+             */
+            Assert(pvOldCOT && pvCOT);
+            if (pvOldCOT)
+                memcpy(pvCOT, pvOldCOT, validSizeInBytes);
+        }
+        else
+        {
+            /* Read the content of COTable to the host buffer. */
+            int rc2 = vmsvgaR3MobRead(pSvgaR3State, pMob, 0, pvCOT, validSizeInBytes);
+            AssertRC(rc2);
+            if (RT_FAILURE(rc2))
+                memset(pvCOT, 0, validSizeInBytes);
+        }
+    }
+
+    RTMemFree(pvOldCOT);
+
+    pDXContext->aCOTMobs[idxCOTable] = pMob;
+
+    rc = pSvgaR3State->pFuncsDX->pfnDXSetCOTable(pThisCC, pDXContext, enmType, cValidEntries);
+#else
     uint32_t cbCOT;
     if (pMob)
     {
@@ -2334,6 +2492,7 @@ static int dxSetOrGrowCOTable(PVGASTATECC pThisCC, PVMSVGA3DDXCONTEXT pDXContext
     /* Notify the backend. */
     if (RT_SUCCESS(rc))
         rc = pSvgaR3State->pFuncsDX->pfnDXSetCOTable(pThisCC, pDXContext, enmType, cValidEntries);
+#endif
 
     return rc;
 }
@@ -2369,11 +2528,68 @@ int vmsvga3dDXReadbackCOTable(PVGASTATECC pThisCC, SVGA3dCmdDXReadbackCOTable co
     AssertRCReturn(rc, rc);
     RT_UNTRUSTED_VALIDATED_FENCE();
 
+#ifdef COTABLE_NO_BACKING
+    SVGACOTableType const enmType = pCmd->type;
+
+    uint32_t idxCOTable;
+    if (enmType < SVGA_COTABLE_MAX)
+        idxCOTable = enmType;
+    else if (enmType >= VBSVGA_COTABLE_MIN && enmType < VBSVGA_COTABLE_MAX)
+        idxCOTable = SVGA_COTABLE_MAX + (enmType - VBSVGA_COTABLE_MIN);
+    else
+        ASSERT_GUEST_FAILED_RETURN(VERR_INVALID_PARAMETER);
+    RT_UNTRUSTED_VALIDATED_FENCE();
+
+    PVMSVGAMOB pMob = pDXContext->aCOTMobs[idxCOTable];
+    AssertReturn(pMob, VERR_INVALID_STATE);
+
+    void *pvCOT = NULL;
+    uint32_t cbCOT = 0;
+
+    switch (enmType)
+    {
+#   define CASE_DX_COT(_COTName, _COTEntryType, _COTField) \
+        case _COTName: \
+            pvCOT = pDXContext->cot.pa ## _COTField; \
+            cbCOT = pDXContext->cot.c ## _COTField * sizeof(_COTEntryType); \
+            break;
+        CASE_DX_COT(SVGA_COTABLE_RTVIEW,           SVGACOTableDXRTViewEntry,                     RTView)
+        CASE_DX_COT(SVGA_COTABLE_DSVIEW,           SVGACOTableDXDSViewEntry,                     DSView)
+        CASE_DX_COT(SVGA_COTABLE_SRVIEW,           SVGACOTableDXSRViewEntry,                     SRView)
+        CASE_DX_COT(SVGA_COTABLE_ELEMENTLAYOUT,    SVGACOTableDXElementLayoutEntry,              ElementLayout)
+        CASE_DX_COT(SVGA_COTABLE_BLENDSTATE,       SVGACOTableDXBlendStateEntry,                 BlendState)
+        CASE_DX_COT(SVGA_COTABLE_DEPTHSTENCIL,     SVGACOTableDXDepthStencilEntry,               DepthStencil)
+        CASE_DX_COT(SVGA_COTABLE_RASTERIZERSTATE,  SVGACOTableDXRasterizerStateEntry,            RasterizerState)
+        CASE_DX_COT(SVGA_COTABLE_SAMPLER,          SVGACOTableDXSamplerEntry,                    Sampler)
+        CASE_DX_COT(SVGA_COTABLE_STREAMOUTPUT,     SVGACOTableDXStreamOutputEntry,               StreamOutput)
+        CASE_DX_COT(SVGA_COTABLE_DXQUERY,          SVGACOTableDXQueryEntry,                      Query)
+        CASE_DX_COT(SVGA_COTABLE_DXSHADER,         SVGACOTableDXShaderEntry,                     Shader)
+        CASE_DX_COT(SVGA_COTABLE_UAVIEW,           SVGACOTableDXUAViewEntry,                     UAView)
+        CASE_DX_COT(VBSVGA_COTABLE_VIDEOPROCESSOR, VBSVGACOTableDXVideoProcessorEntry,           VideoProcessor)
+        CASE_DX_COT(VBSVGA_COTABLE_VDOV,           VBSVGACOTableDXVideoDecoderOutputViewEntry,   VideoDecoderOutputView)
+        CASE_DX_COT(VBSVGA_COTABLE_VIDEODECODER,   VBSVGACOTableDXVideoDecoderEntry,             VideoDecoder)
+        CASE_DX_COT(VBSVGA_COTABLE_VPIV,           VBSVGACOTableDXVideoProcessorInputViewEntry,  VideoProcessorInputView)
+        CASE_DX_COT(VBSVGA_COTABLE_VPOV,           VBSVGACOTableDXVideoProcessorOutputViewEntry, VideoProcessorOutputView)
+#   undef CASE_DX_COT
+        case SVGA_COTABLE_MAX: break; /* Compiler warning */
+        case VBSVGA_COTABLE_MAX: break; /* Compiler warning */
+#ifndef DEBUG_sunlover
+        default: break; /* Compiler warning. */
+#endif
+    }
+
+    uint32_t const cbMob = vmsvgaR3MobSize(pMob);
+    Assert(cbMob == cbCOT);
+    cbCOT = RT_MIN(cbCOT, cbMob);
+
+    rc = vmsvgaR3MobWrite(pSvgaR3State, pMob, 0, pvCOT, cbCOT);
+#else
     ASSERT_GUEST_RETURN(pCmd->type < RT_ELEMENTS(pDXContext->aCOTMobs), VERR_INVALID_PARAMETER);
     RT_UNTRUSTED_VALIDATED_FENCE();
 
     PVMSVGAMOB pMob = pDXContext->aCOTMobs[pCmd->type];
     rc = vmsvgaR3MobBackingStoreWriteToGuest(pSvgaR3State, pMob);
+#endif
     return rc;
 }
 
