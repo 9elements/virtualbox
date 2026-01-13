@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+# $Id: Makefile.kmk 112510 2026-01-13 15:24:18Z knut.osmundsen@oracle.com $
 ## @file
 # Sub-Makefile for the IPRT testcases.
 #
@@ -168,7 +168,6 @@ ifdef VBOX_WITH_TESTCASES # The whole file
   	tstRTThreadPoke \
   	tstRTThreadExecutionTime \
   	tstRTTime \
-  	tstTime-2 \
   	tstTime-3 \
   	tstTime-4 \
   	tstTimer \
@@ -202,7 +201,8 @@ ifdef VBOX_WITH_TESTCASES # The whole file
   	tstRTProcIsRunningByName \
   	tstRTBitOperationsPIC3 \
   	tstRTInlineAsmPIC \
-  	tstRTInlineAsmPIC3
+  	tstRTInlineAsmPIC3 \
+  	tstRTLinuxKallsyms
   PROGRAMS.solaris += \
   	tstRTCoreDump
   PROGRAMS.darwin += \
@@ -230,6 +230,7 @@ ifdef VBOX_WITH_TESTCASES # The whole file
    	tstLdr-2 \
    	tstLdr-3 \
    	tstLdr-4 \
+   	tstTime-2 \
    	tstTSC
    if defined(VBOX_WITH_HARDENING) && "$(KBUILD_TARGET)" == "win"
     PROGRAMS += \
@@ -954,7 +955,10 @@ ifdef VBOX_WITH_TESTCASES # The whole file
  tstRTThreadExecutionTime_SOURCES = tstRTThreadExecutionTime.cpp
 
  tstRTTime_TEMPLATE = VBoxR3TstExe
- tstRTTime_SOURCES = tstRTTime.cpp
+ tstRTTime_SOURCES := tstRTTime.cpp
+ ifdef VBOX_WITH_R0_MODULES
+  tstRTTime_DEFS   := MAY_USE_GIP
+ endif
 
  tstRTTls-1_TEMPLATE = VBoxR3TstExe
  tstRTTls-1_SOURCES = tstRTTls-1.cpp
@@ -1190,6 +1194,12 @@ ifdef VBOX_WITH_TESTCASES # The whole file
  tstRTDarwinMachKernel_SOURCES = \
  	tstRTDarwinMachKernel.cpp \
  	../r0drv/darwin/dbgkrnlinfo-r0drv-darwin.cpp
+
+ tstRTLinuxKallsyms_TEMPLATE = VBoxR3TstExe
+ tstRTLinuxKallsyms_INCS    = ../include
+ tstRTLinuxKallsyms_SOURCES = \
+ 	tstRTLinuxKallsyms.cpp \
+ 	../r0drv/linux/dbgkrnlinfo-r0drv-linux.c
 
  ntGetTimerResolution_SOURCES = ntGetTimerResolution.cpp
  ntGetTimerResolution_SDKS.win = ReorderCompilerIncs $(VBOX_WINPSDK) $(VBOX_WINDDK) VBoxNtDll

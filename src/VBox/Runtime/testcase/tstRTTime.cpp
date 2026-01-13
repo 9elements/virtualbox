@@ -1,4 +1,4 @@
-/* $Id: tstRTTime.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: tstRTTime.cpp 112510 2026-01-13 15:24:18Z knut.osmundsen@oracle.com $ */
 /** @file
  * IPRT Testcase - Simple RTTime tests (requires GIP).
  */
@@ -135,7 +135,7 @@ int main()
     }
 
     /* Report debug details: */
-#if defined(RT_ARCH_AMD64) || defined(RT_ARCH_X86) /** @todo This isn't really x86 or AMD64 specific... */
+#ifdef MAY_USE_GIP
     RTTestValue(hTest, "RTTimeDbgSteps",        RTTimeDbgSteps(),                           RTTESTUNIT_OCCURRENCES);
     RTTestValue(hTest, "RTTimeDbgSteps pp",     ((uint64_t)RTTimeDbgSteps() * 1000) / i,    RTTESTUNIT_PP1K);
     RTTestValue(hTest, "RTTimeDbgExpired",      RTTimeDbgExpired(),                         RTTESTUNIT_OCCURRENCES);

@@ -1,4 +1,4 @@
-/* $Id: tstLdr-4.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: tstLdr-4.cpp 112510 2026-01-13 15:24:18Z knut.osmundsen@oracle.com $ */
 /** @file
  * IPRT - Testcase for RTLdrOpen using ldrLdrObjR0.r0.
  */
@@ -40,6 +40,7 @@
 *********************************************************************************************************************************/
 #include <iprt/ldr.h>
 #include <iprt/alloc.h>
+#include <iprt/crc.h>
 #include <iprt/log.h>
 #include <iprt/stream.h>
 #include <iprt/assert.h>
@@ -175,6 +176,8 @@ static DECLCALLBACK(int) testGetImport(RTLDRMOD hLdrMod, const char *pszModule, 
         *pValue = (uintptr_t)&g_pMyGip;
     else if (!strcmp(pszSymbol, "g_SUPGlobalInfoPage")  || !strcmp(pszSymbol, "_g_SUPGlobalInfoPage"))
         *pValue = (uintptr_t)&g_MyGip;
+    else if (!strcmp(pszSymbol, "RTCrc32")              || !strcmp(pszSymbol, "_RTCrc32"))
+        *pValue = (uintptr_t)RTCrc32;
     else
     {
         RTPrintf("tstLdr-4: Unexpected import '%s'!\n", pszSymbol);

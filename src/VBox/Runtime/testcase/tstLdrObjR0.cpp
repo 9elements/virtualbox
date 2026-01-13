@@ -1,4 +1,4 @@
-/* $Id: tstLdrObjR0.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: tstLdrObjR0.cpp 112510 2026-01-13 15:24:18Z knut.osmundsen@oracle.com $ */
 /** @file
  * IPRT - RTLdr test object.
  *
@@ -48,6 +48,7 @@
 # error "not IN_RING0!"
 #endif
 #include <VBox/dis.h>
+#include <iprt/crc.h>
 #include <iprt/string.h>
 
 
@@ -57,6 +58,14 @@
 static const char szStr1[] = "some readonly string";
 static char szStr2[6000] = "some read/write string";
 static char achBss[8192];
+
+/** Absolute data fixups. */
+struct CLANG11WEIRDNOTHROW { PFNRT pfn; } g_ManualR0Deps[] =
+{
+    { (PFNRT)RTCrc32 },
+    { NULL }
+};
+
 
 #ifdef VBOX_SOME_IMPORT_FUNCTION
 extern "C" DECLIMPORT(int) SomeImportFunction(void);
