@@ -1,4 +1,4 @@
-/* $Id: tstPin.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: tstPin.cpp 112538 2026-01-13 16:17:34Z knut.osmundsen@oracle.com $ */
 /** @file
  * SUP Testcase - Memory locking interface (ring 3).
  */
@@ -54,12 +54,7 @@
 int main(int argc, char **argv)
 {
     RTTEST hTest;
-
-    uint32_t fFlags = RTR3INIT_FLAGS_TRY_SUPLIB;
-#if defined(RT_ARCH_ARM64) || defined(RT_ARCH_ARM32) /* For M1 at least. */
-    fFlags |= SUPR3INIT_F_DRIVERLESS << RTR3INIT_FLAGS_SUPLIB_SHIFT;
-#endif
-    RTEXITCODE rcExit = RTTestInitExAndCreate(argc, &argv, fFlags, "tstPin", &hTest);
+    RTEXITCODE rcExit = RTTestInitExAndCreate(argc, &argv, RTR3INIT_FLAGS_TRY_SUPLIB, "tstPin", &hTest);
     if (rcExit != RTEXITCODE_SUCCESS)
         return rcExit;
     RTTestBanner(hTest);
