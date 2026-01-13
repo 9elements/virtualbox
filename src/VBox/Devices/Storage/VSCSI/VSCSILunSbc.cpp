@@ -1,4 +1,4 @@
-/* $Id: VSCSILunSbc.cpp 110138 2025-07-07 17:51:52Z michal.necasek@oracle.com $ */
+/* $Id: VSCSILunSbc.cpp 112473 2026-01-13 12:45:28Z michal.necasek@oracle.com $ */
 /** @file
  * Virtual SCSI driver: SBC LUN implementation (hard disks)
  */
@@ -596,11 +596,10 @@ static DECLCALLBACK(int) vscsiLunSbcReqProcess(PVSCSILUNINT pVScsiLun, PVSCSIREQ
         LogFlow(("%s: uLbaStart=%llu cSectorTransfer=%u\n",
                  __FUNCTION__, uLbaStart, cSectorTransfer));
 
-        vscsiReqSetXferSize(pVScsiReq, cSectorTransfer * 512);
-
         if (RT_UNLIKELY(uLbaStart + cSectorTransfer > pVScsiLunSbc->cSectors))
         {
             vscsiReqSetXferDir(pVScsiReq, VSCSIXFERDIR_NONE);
+            vscsiReqSetXferSize(pVScsiReq, 0);
             rcReq = vscsiLunReqSenseErrorSet(pVScsiLun, pVScsiReq, SCSI_SENSE_ILLEGAL_REQUEST, SCSI_ASC_LOGICAL_BLOCK_OOR, 0x00);
             vscsiDeviceReqComplete(pVScsiLun->pVScsiDevice, pVScsiReq, rcReq, false, VINF_SUCCESS);
         }
@@ -608,6 +607,7 @@ static DECLCALLBACK(int) vscsiLunSbcReqProcess(PVSCSILUNINT pVScsiLun, PVSCSIREQ
         {
             /* A 0 transfer length is not an error. */
             vscsiReqSetXferDir(pVScsiReq, VSCSIXFERDIR_NONE);
+            vscsiReqSetXferSize(pVScsiReq, 0);
             rcReq = vscsiLunReqSenseOkSet(pVScsiLun, pVScsiReq);
             vscsiDeviceReqComplete(pVScsiLun->pVScsiDevice, pVScsiReq, rcReq, false, VINF_SUCCESS);
         }
@@ -618,12 +618,15 @@ static DECLCALLBACK(int) vscsiLunSbcReqProcess(PVSCSILUNINT pVScsiLun, PVSCSIREQ
                     || enmTxDir == VSCSIIOREQTXDIR_FLUSH)
                 && (pVScsiLun->fFeatures & VSCSI_LUN_FEATURE_READONLY))
             {
+                vscsiReqSetXferDir(pVScsiReq, VSCSIXFERDIR_NONE);
+                vscsiReqSetXferSize(pVScsiReq, 0);
                 rcReq = vscsiLunReqSenseErrorSet(pVScsiLun, pVScsiReq, SCSI_SENSE_DATA_PROTECT, SCSI_ASC_WRITE_PROTECTED, 0x00);
                 vscsiDeviceReqComplete(pVScsiLun->pVScsiDevice, pVScsiReq, rcReq, false, VINF_SUCCESS);
             }
             else
             {
                 vscsiReqSetXferDir(pVScsiReq, enmTxDir == VSCSIIOREQTXDIR_WRITE ? VSCSIXFERDIR_I2T : VSCSIXFERDIR_T2I);
+                vscsiReqSetXferSize(pVScsiReq, cSectorTransfer * 512);
                 rc = vscsiIoReqTransferEnqueue(pVScsiLun, pVScsiReq, enmTxDir,
                                                uLbaStart * 512, cSectorTransfer * 512);
             }
