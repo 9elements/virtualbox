@@ -1,4 +1,4 @@
-/* $Id: DevDP8390.cpp 106320 2024-10-15 12:08:41Z klaus.espenlaub@oracle.com $ */
+/* $Id: DevDP8390.cpp 112544 2026-01-13 16:49:21Z michal.necasek@oracle.com $ */
 /** @file
  * DevDP8390 - National Semiconductor DP8390-based Ethernet Adapter Emulation.
  */
@@ -2195,8 +2195,8 @@ static int dp8390CoreAsyncXmitLocked(PPDMDEVINS pDevIns, PDPNICSTATE pThis, PDPN
          * Sending is easy peasy, there is by definition always
          * a complete packet on hand.
          */
-        unsigned    cb  = pThis->core.TBCR; /* Packet size. */
-        const int   adr = RT_MAKE_U16(0, pThis->core.TPSR);
+        unsigned        cb  = pThis->core.TBCR; /* Packet size. */
+        const unsigned  adr = RT_MAKE_U16(0, pThis->core.TPSR);
         LogFunc(("#%d: cb=%d, adr=%04X\n", pThis->iInstance, cb, adr));
 
         if (RT_LIKELY(dp8390IsLinkUp(pThis) || fLoopback))
@@ -2271,7 +2271,7 @@ static int dp8390CoreAsyncXmitLocked(PPDMDEVINS pDevIns, PDPNICSTATE pThis, PDPN
 /* -=-=-=-=-=- I/O Port access -=-=-=-=-=- */
 
 
-static uint32_t dp8390CoreRead(PPDMDEVINS pDevIns, PDPNICSTATE pThis, int ofs)
+static uint8_t dp8390CoreRead(PPDMDEVINS pDevIns, PDPNICSTATE pThis, int ofs)
 {
     uint8_t     val;
 
@@ -3885,9 +3885,9 @@ static DECLCALLBACK(uint32_t) elnk3R3DMAXferHandler(PPDMDEVINS pDevIns, void *op
             if (!pThis->ga.gacr.ddir)
             {
                 Log2Func(("DMAWriteMemory uDmaAddr=%04X cbToXfer=%u\n", uDmaAddr, cbToXfer));
-                rc = PDMDevHlpDMAWriteMemory(pDevIns, nchan,
-                                             &pThis->abLocalRAM[uDmaAddr - 0x2000],
-                                             dma_pos, cbToXfer, &cbXferred);
+                rc = PDMDevHlpDMAWriteMemoryEx(pDevIns, nchan,
+                                               pThis->abLocalRAM, uDmaAddr - 0x2000, sizeof(pThis->abLocalRAM),
+                                               dma_pos, cbToXfer, &cbXferred);
                 AssertMsgRC(rc, ("DMAWriteMemory -> %Rrc\n", rc));
             }
             else
@@ -3903,9 +3903,9 @@ static DECLCALLBACK(uint32_t) elnk3R3DMAXferHandler(PPDMDEVINS pDevIns, void *op
             if (pThis->ga.gacr.ddir)
             {
                 Log2Func(("DMAReadMemory uDmaAddr=%04X cbToXfer=%u\n", uDmaAddr, cbToXfer));
-                rc = PDMDevHlpDMAReadMemory(pDevIns, nchan,
-                                            &pThis->abLocalRAM[uDmaAddr - 0x2000],
-                                            dma_pos, cbToXfer, &cbXferred);
+                rc = PDMDevHlpDMAReadMemoryEx(pDevIns, nchan,
+                                              pThis->abLocalRAM, uDmaAddr - 0x2000, sizeof(pThis->abLocalRAM),
+                                              dma_pos, cbToXfer, &cbXferred);
                 AssertMsgRC(rc, ("DMAReadMemory -> %Rrc\n", rc));
             }
             else
