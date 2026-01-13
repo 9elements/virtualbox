@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 112521 2026-01-13 15:42:08Z knut.osmundsen@oracle.com $
+# $Id: Makefile.kmk 112536 2026-01-13 16:14:23Z knut.osmundsen@oracle.com $
 ## @file
 # Sub-Makefile for the VMM testcases.
 #
@@ -979,13 +979,7 @@ if !defined(VBOX_ONLY_EXTPACKS_USE_IMPLIBS)
  NemRawBench-1_INCS.win = \
  	$(KBUILD_DEVTOOLS)/win.x86/sdk/v10.0.17134.0/include/10.0.17134.0/um \
  	$(KBUILD_DEVTOOLS)/win.x86/sdk/v10.0.17134.0/include/10.0.17134.0/shared
- NemRawBench-1_CXXFLAGS.darwin = \
- 	-F/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform//Developer/SDKs/MacOSX10.13.sdk/System/Library/Frameworks
- #NemRawBench-1_LDFLAGS.darwin =  \
-#     -F/System/Library/Frameworks \
-#     -framework Hypervisor
- NemRawBench-1_LDFLAGS.darwin = \
- 	/System/Library/Frameworks/Hypervisor.framework/Hypervisor
+ NemRawBench-1_LDFLAGS.darwin = -framework Hypervisor
 endif
 
 #
