@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA3d-dx-dx11.cpp 112461 2026-01-13 12:05:48Z vitali.pelenjow@oracle.com $ */
+/* $Id: DevVGA-SVGA3d-dx-dx11.cpp 112482 2026-01-13 13:11:56Z vitali.pelenjow@oracle.com $ */
 /** @file
  * DevVMWare - VMWare SVGA device
  */
@@ -2666,9 +2666,9 @@ static int vmsvga3dBackSurfaceCreateTexture(PVGASTATECC pThisCC, PVMSVGA3DSURFAC
     HRESULT hr = S_OK;
     if (pSurface->f.surfaceFlags & SVGA3D_SURFACE_CUBEMAP)
     {
-        Assert(pSurface->cFaces == 6);
-        Assert(cWidth == cHeight);
-        Assert(cDepth == 1);
+        AssertReturn(pSurface->cFaces == 6, VERR_INVALID_PARAMETER);
+        AssertReturn(cWidth == cHeight, VERR_INVALID_PARAMETER);
+        AssertReturn(cDepth == 1, VERR_INVALID_PARAMETER);
 //DEBUG_BREAKPOINT_TEST();
 
         D3D11_TEXTURE2D_DESC td;
@@ -2726,7 +2726,9 @@ static int vmsvga3dBackSurfaceCreateTexture(PVGASTATECC pThisCC, PVMSVGA3DSURFAC
         /*
          * 1D texture.
          */
-        Assert(pSurface->cFaces == 1);
+        AssertReturn(pSurface->cFaces == 1, VERR_INVALID_PARAMETER);
+        AssertReturn(cHeight == 1, VERR_INVALID_PARAMETER);
+        AssertReturn(cDepth == 1, VERR_INVALID_PARAMETER);
 
         D3D11_TEXTURE1D_DESC td;
         RT_ZERO(td);
@@ -2782,8 +2784,8 @@ static int vmsvga3dBackSurfaceCreateTexture(PVGASTATECC pThisCC, PVMSVGA3DSURFAC
             /*
              * Volume texture.
              */
-            Assert(pSurface->cFaces == 1);
-            Assert(pSurface->surfaceDesc.numArrayElements == 1);
+            AssertReturn(pSurface->cFaces == 1, VERR_INVALID_PARAMETER);
+            AssertReturn(pSurface->surfaceDesc.numArrayElements == 1, VERR_INVALID_PARAMETER);
 
             D3D11_TEXTURE3D_DESC td;
             RT_ZERO(td);
@@ -2837,8 +2839,8 @@ static int vmsvga3dBackSurfaceCreateTexture(PVGASTATECC pThisCC, PVMSVGA3DSURFAC
             /*
              * 2D texture.
              */
-            Assert(cDepth == 1);
-            Assert(pSurface->cFaces == 1);
+            AssertReturn(cDepth == 1, VERR_INVALID_PARAMETER);
+            AssertReturn(pSurface->cFaces == 1, VERR_INVALID_PARAMETER);
 
             D3D11_TEXTURE2D_DESC td;
             RT_ZERO(td);
@@ -3184,6 +3186,14 @@ static int vmsvga3dBackSurfaceCreateResource(PVGASTATECC pThisCC, PVMSVGA3DSURFA
      */
     if (pSurface->format == SVGA3D_BUFFER)
     {
+        uint32_t const cHeight = pSurface->paMipmapLevels[0].cBlocksY * pSurface->cyBlock;
+        uint32_t const cDepth = pSurface->paMipmapLevels[0].mipmapSize.depth;
+        uint32_t const numMipLevels = pSurface->cLevels;
+
+        AssertReturn(cHeight == 1, VERR_INVALID_PARAMETER);
+        AssertReturn(cDepth == 1, VERR_INVALID_PARAMETER);
+        AssertReturn(numMipLevels == 1, VERR_INVALID_PARAMETER);
+
         /* Upload the current data, if any. */
         D3D11_SUBRESOURCE_DATA *pInitialData = NULL;
         D3D11_SUBRESOURCE_DATA initialData;
@@ -3724,7 +3734,6 @@ static DECLCALLBACK(int) vmsvga3dBackSurfaceMap(PVGASTATECC pThisCC, SVGA3dSurfa
     {
         clipBox = *pBox;
         vmsvgaR3ClipBox(&pMipLevel->mipmapSize, &clipBox);
-        ASSERT_GUEST_RETURN(clipBox.w && clipBox.h && clipBox.d, VERR_INVALID_PARAMETER);
     }
     else
     {
@@ -3735,6 +3744,7 @@ static DECLCALLBACK(int) vmsvga3dBackSurfaceMap(PVGASTATECC pThisCC, SVGA3dSurfa
         clipBox.h = pMipLevel->mipmapSize.height;
         clipBox.d = pMipLevel->mipmapSize.depth;
     }
+    ASSERT_GUEST_RETURN(clipBox.w && clipBox.h && clipBox.d, VERR_INVALID_PARAMETER);
 
     D3D11_MAP d3d11MapType;
     switch (enmMapType)
@@ -4777,6 +4787,7 @@ static DECLCALLBACK(int) vmsvga3dBackSurfaceCopy(PVGASTATECC pThisCC, SVGA3dSurf
 
     SVGA3dCopyBox clipBox = *pBox;
     vmsvgaR3ClipCopyBox(&pSrcMipLevel->mipmapSize, &pDstMipLevel->mipmapSize, &clipBox);
+    ASSERT_GUEST_RETURN(clipBox.w && clipBox.h && clipBox.d, VERR_INVALID_PARAMETER);
 
     if (pSrcSurface->pBackendSurface == NULL && pDstSurface->pBackendSurface == NULL)
     {
@@ -8310,6 +8321,7 @@ static DECLCALLBACK(int) vmsvga3dBackDXPredCopyRegion(PVGASTATECC pThisCC, PVMSV
 
     SVGA3dCopyBox clipBox = *pBox;
     vmsvgaR3ClipCopyBox(&pSrcMipLevel->mipmapSize, &pDstMipLevel->mipmapSize, &clipBox);
+    ASSERT_GUEST_RETURN(clipBox.w && clipBox.h && clipBox.d, VERR_INVALID_PARAMETER);
 
     UINT DstSubresource = dstSubResource;
     UINT DstX = clipBox.x;
@@ -8726,6 +8738,7 @@ static DECLCALLBACK(int) vmsvga3dBackDXPresentBlt(PVGASTATECC pThisCC, PVMSVGA3D
 
     SVGA3dBox clipBoxDst = *pBoxDst;
     vmsvgaR3ClipBox(&pDstMipLevel->mipmapSize, &clipBoxDst);
+    ASSERT_GUEST_RETURN(clipBoxDst.w && clipBoxDst.h && clipBoxDst.d, VERR_INVALID_PARAMETER);
 
     ID3D11Resource *pDstResource = dxResource(pDstSurface);
     ID3D11Resource *pSrcResource = dxResource(pSrcSurface);
@@ -9715,6 +9728,7 @@ static DECLCALLBACK(int) vmsvga3dBackIntraSurfaceCopy(PVGASTATECC pThisCC, PVMSV
     /* Clip the box. */
     SVGA3dCopyBox clipBox = box;
     vmsvgaR3ClipCopyBox(&pMipLevel->mipmapSize, &pMipLevel->mipmapSize, &clipBox);
+    ASSERT_GUEST_RETURN(clipBox.w && clipBox.h && clipBox.d, VERR_INVALID_PARAMETER);
 
     LogFunc(("surface%s sid = %u\n",
              pSurface->pBackendSurface ? "" : " sysmem", pSurface->id));
