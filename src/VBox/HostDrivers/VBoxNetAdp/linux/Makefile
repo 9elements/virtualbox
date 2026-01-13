@@ -1,4 +1,4 @@
-# $Id: Makefile 112475 2026-01-13 12:52:30Z knut.osmundsen@oracle.com $
+# $Id: Makefile 112493 2026-01-13 13:57:09Z knut.osmundsen@oracle.com $
 ## @file
 # Makefile for the VirtualBox Linux Host Virtual Network Adapter Driver.
 #
@@ -58,6 +58,10 @@ VBOXMOD_OBJS += \
 	math/gcc/udivmoddi4.o \
 	math/gcc/divdi3.o \
 	math/gcc/umoddi3.o
+endif
+ifeq ($(VBOX_KBUILD_TARGET_ARCH),arm64)
+VBOXMOD_OBJS += \
+	common/asm/ASMBitFirstClear-generic.o
 endif
 VBOXMOD_INCL = \
 	$(VBOXNETADP_DIR) \
