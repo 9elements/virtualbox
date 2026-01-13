@@ -1,4 +1,4 @@
-/* $Id: IOMAllMmioNew.cpp 111971 2025-12-02 09:27:16Z alexander.eichner@oracle.com $ */
+/* $Id: IOMAllMmioNew.cpp 112435 2026-01-13 08:49:25Z knut.osmundsen@oracle.com $ */
 /** @file
  * IOM - Input / Output Monitor - Any Context, MMIO & String I/O.
  */
@@ -686,6 +686,10 @@ DECLINLINE(VBOXSTRICTRC) iomMmioCommonPfHandlerNew(PVMCC pVM, PVMCPUCC pVCpu, ui
             /*
              * Let IEM call us back via iomMmioHandler.
              */
+#ifndef IN_RING0 /* No ring-0 IEM TLB. */
+            if (!VM_IS_EXEC_ENGINE_IEM(pVM))
+                IEMTlbInvalidateAll(pVCpu);
+#endif
             rcStrict = IEMExecOne(pVCpu);
 
 #ifndef IN_RING3

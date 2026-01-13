@@ -1,4 +1,4 @@
-/* $Id: NEMR3Native-linux-x86.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: NEMR3Native-linux-x86.cpp 112435 2026-01-13 08:49:25Z knut.osmundsen@oracle.com $ */
 /** @file
  * NEM - Native execution manager, native ring-3 Linux backend.
  */
@@ -1250,7 +1250,10 @@ static VBOXSTRICTRC nemR3LnxHandleInternalError(PVMCPU pVCpu, struct kvm_run *pR
                                                  | CPUMCTX_EXTRN_INHIBIT_NMI,
                                                 &pVCpu->cpum.GstCtx, pRun);
     if (RT_SUCCESS(rcStrict))
+    {
+        IEMTlbInvalidateAll(pVCpu);
         rcStrict = IEMExecOne(pVCpu);
+    }
     return rcStrict;
 }
 

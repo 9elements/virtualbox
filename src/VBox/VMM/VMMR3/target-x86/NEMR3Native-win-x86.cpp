@@ -1,4 +1,4 @@
-/* $Id: NEMR3Native-win-x86.cpp 112432 2026-01-13 08:21:44Z knut.osmundsen@oracle.com $ */
+/* $Id: NEMR3Native-win-x86.cpp 112435 2026-01-13 08:49:25Z knut.osmundsen@oracle.com $ */
 /** @file
  * NEM - Native execution manager, native ring-3 Windows backend.
  *
@@ -3596,6 +3596,7 @@ nemR3WinHandleExitMemory(PVMCC pVM, PVMCPUCC pVCpu, WHV_RUN_VP_EXIT_CONTEXT cons
     {
         //if (pMsg->InstructionByteCount > 0)
         //    Log4(("InstructionByteCount=%#x %.16Rhxs\n", pMsg->InstructionByteCount, pMsg->InstructionBytes));
+        IEMTlbInvalidateAll(pVCpu);
         if (pExit->MemoryAccess.InstructionByteCount > 0)
             rcStrict = IEMExecOneWithPrefetchedByPC(pVCpu, pExit->VpContext.Rip, pExit->MemoryAccess.InstructionBytes, pExit->MemoryAccess.InstructionByteCount);
         else
@@ -3724,6 +3725,7 @@ static VBOXSTRICTRC nemR3WinHandleExitIoPort(PVMCC pVM, PVMCPUCC pVCpu, WHV_RUN_
                   pExit->IoPortAccess.AccessInfo.RepPrefix ? "REP " : "",
                   pExit->IoPortAccess.AccessInfo.IsWrite ? "OUTS" : "INS",
                   pExit->IoPortAccess.PortNumber, pExit->IoPortAccess.AccessInfo.AccessSize ));
+            IEMTlbInvalidateAll(pVCpu);
             rcStrict = IEMExecOne(pVCpu);
         }
         if (IOM_SUCCESS(rcStrict))
@@ -4001,6 +4003,7 @@ static VBOXSTRICTRC nemR3WinHandleExitMsr(PVMCC pVM, PVMCPUCC pVCpu, WHV_RUN_VP_
     rcStrict = nemHCWinImportStateIfNeededStrict(pVCpu, NEM_WIN_CPUMCTX_EXTRN_MASK_FOR_IEM | CPUMCTX_EXTRN_ALL_MSRS, "MSR");
     if (rcStrict == VINF_SUCCESS)
     {
+        IEMTlbInvalidateAll(pVCpu);
         rcStrict = IEMInjectTrap(pVCpu, X86_XCPT_GP, TRPM_TRAP, 0, 0, 0);
         if (rcStrict == VINF_IEM_RAISED_XCPT)
             rcStrict = VINF_SUCCESS;
@@ -4222,6 +4225,7 @@ static VBOXSTRICTRC nemR3WinHandleExitException(PVMCC pVM, PVMCPUCC pVCpu, WHV_R
             if (nemHcWinIsInterestingUndefinedOpcode(pExit->VpException.InstructionByteCount, pExit->VpException.InstructionBytes,
                                                      pExit->VpContext.ExecutionState.EferLma && pExit->VpContext.Cs.Long ))
             {
+                IEMTlbInvalidateAll(pVCpu);
                 rcStrict = IEMExecOneWithPrefetchedByPC(pVCpu, pExit->VpContext.Rip,
                                                         pExit->VpException.InstructionBytes,
                                                         pExit->VpException.InstructionByteCount);
@@ -4251,6 +4255,7 @@ static VBOXSTRICTRC nemR3WinHandleExitException(PVMCC pVM, PVMCPUCC pVCpu, WHV_R
                                         pExit->VpException.InstructionByteCount))
             {
 #if 1 /** @todo Need to emulate instruction or we get a triple fault when trying to inject the \#GP... */
+                IEMTlbInvalidateAll(pVCpu);
                 rcStrict = IEMExecOneWithPrefetchedByPC(pVCpu, pExit->VpContext.Rip,
                                                         pExit->VpException.InstructionBytes,
                                                         pExit->VpException.InstructionByteCount);
@@ -4294,6 +4299,7 @@ static VBOXSTRICTRC nemR3WinHandleExitException(PVMCC pVM, PVMCPUCC pVCpu, WHV_R
     /*
      * Inject it.
      */
+    IEMTlbInvalidateAll(pVCpu);
     rcStrict = IEMInjectTrap(pVCpu, pExit->VpException.ExceptionType, enmEvtType, pExit->VpException.ErrorCode,
                              pExit->VpException.ExceptionParameter /*??*/, pExit->VpContext.InstructionLength);
     Log4(("XcptExit/%u: %04x:%08RX64/%s: %#u -> injected -> %Rrc\n",
@@ -4335,6 +4341,7 @@ static VBOXSTRICTRC nemR3WinHandleExitUnrecoverableException(PVMCC pVM, PVMCPUCC
     VBOXSTRICTRC rcStrict = nemHCWinImportStateIfNeededStrict(pVCpu, NEM_WIN_CPUMCTX_EXTRN_MASK_FOR_IEM | CPUMCTX_EXTRN_ALL, "TripleExit");
     if (rcStrict == VINF_SUCCESS)
     {
+        IEMTlbInvalidateAll(pVCpu);
         rcStrict = IEMExecOne(pVCpu);
         if (rcStrict == VINF_SUCCESS)
         {
@@ -4497,6 +4504,7 @@ static VBOXSTRICTRC nemHCWinHandleInterruptFF(PVMCC pVM, PVMCPUCC pVCpu, uint8_t
             if (rcStrict == VINF_SUCCESS)
             {
                 VMCPU_FF_CLEAR(pVCpu, VMCPU_FF_INTERRUPT_NMI);
+                IEMTlbInvalidateAll(pVCpu);
                 rcStrict = IEMInjectTrap(pVCpu, X86_XCPT_NMI, TRPM_HARDWARE_INT, 0, 0, 0);
                 Log8(("Injected NMI on %u (%d)\n", pVCpu->idCpu, VBOXSTRICTRC_VAL(rcStrict) ));
             }
@@ -4524,6 +4532,7 @@ static VBOXSTRICTRC nemHCWinHandleInterruptFF(PVMCC pVM, PVMCPUCC pVCpu, uint8_t
                 if (RT_SUCCESS(rc))
                 {
                     Log8(("Injecting interrupt %#x on %u: %04x:%08RX64 efl=%#x\n", bInterrupt, pVCpu->idCpu, pVCpu->cpum.GstCtx.cs.Sel, pVCpu->cpum.GstCtx.rip, pVCpu->cpum.GstCtx.eflags.u));
+                    IEMTlbInvalidateAll(pVCpu);
                     rcStrict = IEMInjectTrap(pVCpu, bInterrupt, TRPM_HARDWARE_INT, 0, 0, 0);
                     Log8(("Injected interrupt %#x on %u (%d)\n", bInterrupt, pVCpu->idCpu, VBOXSTRICTRC_VAL(rcStrict) ));
                 }

@@ -1,4 +1,4 @@
-/* $Id: EMAll.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: EMAll.cpp 112435 2026-01-13 08:49:25Z knut.osmundsen@oracle.com $ */
 /** @file
  * EM - Execution Monitor(/Manager) - All contexts
  */
@@ -418,6 +418,7 @@ VMM_INT_DECL(VBOXSTRICTRC) EMHistoryExec(PVMCPUCC pVCpu, PCEMEXITREC pExitRec, u
         {
             STAM_REL_PROFILE_START(&pVCpu->em.s.StatHistoryExec, a);
             LogFlow(("EMHistoryExec/EXEC_WITH_MAX: %RX64, max %u\n", pExitRec->uFlatPC, pExitRec->cMaxInstructionsWithoutExit));
+            IEMTlbInvalidateAll(pVCpu);
             VBOXSTRICTRC rcStrict = IEMExecForExits(pVCpu, fWillExit,
                                                     pExitRec->cMaxInstructionsWithoutExit /* cMinInstructions*/,
                                                     pVCpu->em.s.cHistoryExecMaxInstructions,
@@ -450,6 +451,7 @@ VMM_INT_DECL(VBOXSTRICTRC) EMHistoryExec(PVMCPUCC pVCpu, PCEMEXITREC pExitRec, u
             STAM_REL_PROFILE_START(&pVCpu->em.s.StatHistoryProbe, b);
             LogFlow(("EMHistoryExec/EXEC_PROBE: %RX64\n", pExitRec->uFlatPC));
             PEMEXITREC   pExitRecUnconst = (PEMEXITREC)pExitRec;
+            IEMTlbInvalidateAll(pVCpu);
             VBOXSTRICTRC rcStrict = IEMExecForExits(pVCpu, fWillExit,
                                                     pVCpu->em.s.cHistoryProbeMinInstructions,
                                                     pVCpu->em.s.cHistoryExecMaxInstructions,
@@ -987,6 +989,11 @@ VMM_INT_DECL(VBOXSTRICTRC) EMInterpretInstruction(PVMCPUCC pVCpu)
     LogFlow(("EMInterpretInstruction %RGv\n", (RTGCPTR)CPUMGetGuestRIP(pVCpu)));
 #endif
 
+#ifndef IN_RING0 /* No ring-0 IEM TLB. */
+    PVMCC const pVM = pVCpu->CTX_SUFF(pVM);
+    if (!VM_IS_EXEC_ENGINE_IEM(pVM) && !pVM->em.s.fIemExecutesAll)
+        IEMTlbInvalidateAll(pVCpu);
+#endif
     VBOXSTRICTRC rc = IEMExecOneBypass(pVCpu);
     if (RT_UNLIKELY(   rc == VERR_IEM_ASPECT_NOT_IMPLEMENTED
                     || rc == VERR_IEM_INSTR_NOT_IMPLEMENTED))
@@ -1026,6 +1033,11 @@ VMM_INT_DECL(VBOXSTRICTRC) EMInterpretInstructionDisasState(PVMCPUCC pVCpu, PDIS
 {
     LogFlow(("EMInterpretInstructionDisasState %RGv\n", (RTGCPTR)rip));
 
+#ifndef IN_RING0 /* No ring-0 IEM TLB. */
+    PVMCC const pVM = pVCpu->CTX_SUFF(pVM);
+    if (!VM_IS_EXEC_ENGINE_IEM(pVM) && !pVM->em.s.fIemExecutesAll)
+        IEMTlbInvalidateAll(pVCpu);
+#endif
     VBOXSTRICTRC rc = IEMExecOneBypassWithPrefetchedByPC(pVCpu, rip, pDis->Instr.ab, pDis->cbCachedInstr);
     if (RT_UNLIKELY(   rc == VERR_IEM_ASPECT_NOT_IMPLEMENTED
                     || rc == VERR_IEM_INSTR_NOT_IMPLEMENTED))

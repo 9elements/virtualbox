@@ -1,4 +1,4 @@
-/* $Id: IEMAll-armv8.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: IEMAll-armv8.cpp 112435 2026-01-13 08:49:25Z knut.osmundsen@oracle.com $ */
 /** @file
  * IEM - Interpreted Execution Manager - ARMv8 target, miscellaneous.
  */
@@ -56,16 +56,16 @@ uint32_t iemCalcExecDbgFlagsSlow(PVMCPUCC pVCpu)
      * This is to make sure any access to the page will always trigger a TLB
      * load for as long as the breakpoint is enabled.
      */
-#ifdef IEM_WITH_DATA_TLB
+#ifdef IEM_WITH_DATA_TLB_IN_CUR_CTX
 # define INVALID_TLB_ENTRY_FOR_BP(a_uValue) do { \
         RTGCPTR uTagNoRev = (a_uValue); \
         uTagNoRev = IEMTLB_CALC_TAG_NO_REV(pVCpu, uTagNoRev); \
         /** @todo do large page accounting */ \
         uintptr_t const idxEven = IEMTLB_TAG_TO_EVEN_INDEX(uTagNoRev); \
-        if (pVCpu->iem.s.DataTlb.aEntries[idxEven].uTag == (uTagNoRev | pVCpu->iem.s.DataTlb.uTlbRevision)) \
-            pVCpu->iem.s.DataTlb.aEntries[idxEven].uTag = 0; \
-        if (pVCpu->iem.s.DataTlb.aEntries[idxEven + 1].uTag == (uTagNoRev | pVCpu->iem.s.DataTlb.uTlbRevisionGlobal)) \
-            pVCpu->iem.s.DataTlb.aEntries[idxEven + 1].uTag = 0; \
+        if (ITLBS(pVCpu).Data.aEntries[idxEven].uTag == (uTagNoRev | ITLBS(pVCpu).Data.uTlbRevision)) \
+            ITLBS(pVCpu).Data.aEntries[idxEven].uTag = 0; \
+        if (ITLBS(pVCpu).Data.aEntries[idxEven + 1].uTag == (uTagNoRev | ITLBS(pVCpu).Data.uTlbRevisionGlobal)) \
+            ITLBS(pVCpu).Data.aEntries[idxEven + 1].uTag = 0; \
     } while (0)
 #else
 # define INVALID_TLB_ENTRY_FOR_BP(a_uValue) do { } while (0)
@@ -98,7 +98,7 @@ uint32_t iemCalcExecDbgFlagsSlow(PVMCPUCC pVCpu)
     if (fGstDr7 & X86_DR7_ENABLED_MASK)
     {
 /** @todo extract more details here to simplify matching later. */
-#ifdef IEM_WITH_DATA_TLB
+#ifdef IEM_WITH_DATA_TLB_IN_CUR_CTX
         IEM_CTX_IMPORT_NORET(pVCpu, CPUMCTX_EXTRN_DR0_DR3);
 #endif
         PROCESS_ONE_BP(fGstDr7, 0, pVCpu->cpum.GstCtx.dr[0]);

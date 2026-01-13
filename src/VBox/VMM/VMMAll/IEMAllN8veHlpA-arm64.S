@@ -1,4 +1,4 @@
-/* $Id: IEMAllN8veHlpA-arm64.S 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: IEMAllN8veHlpA-arm64.S 112435 2026-01-13 08:49:25Z knut.osmundsen@oracle.com $ */
 /** @file
  * IEM - Native Recompiler Assembly Helpers, ARM64 variant.
  */
@@ -86,7 +86,7 @@ BEGINPROC_HIDDEN iemNativeTbEntry
         mov     IEMNATIVE_REG_FIXED_PCPUMCTX_ASM, x1
 #ifdef VBOX_WITH_IEM_NATIVE_RECOMPILER_LONGJMP
         /* Save the frame pointer to pvTbFramePointerR3 */
-        str     x29, [IEMNATIVE_REG_FIXED_PVMCPU_ASM, #(VMCPU_OFF_iem + IEMCPU_OFF_pvTbFramePointerR3)]
+        str     x29, [IEMNATIVE_REG_FIXED_PVMCPU_ASM, #(VMCPU_OFF_iem + IEMCPU_OFF_Recomp + IEMCPURECOMP_OFF_pvTbFramePointerR3)]
 #endif
 
         /*

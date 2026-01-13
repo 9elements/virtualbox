@@ -1,4 +1,4 @@
-/* $Id: IEMAllMemRWTmpl-armv8.cpp.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: IEMAllMemRWTmpl-armv8.cpp.h 112435 2026-01-13 08:49:25Z knut.osmundsen@oracle.com $ */
 /** @file
  * IEM - Interpreted Execution Manager - R/W Memory Functions Template, ARMv8 target.
  */
@@ -76,8 +76,8 @@ VBOXSTRICTRC RT_CONCAT(iemMemFetchData,TMPL_MEM_FN_SUFF)(PVMCPUCC pVCpu, TMPL_ME
 void
 RT_CONCAT3(iemMemFetchData,TMPL_MEM_FN_SUFF,SafeJmp)(PVMCPUCC pVCpu, TMPL_MEM_TYPE *pDst, RTGCPTR GCPtrMem) IEM_NOEXCEPT_MAY_LONGJMP
 {
-# if defined(IEM_WITH_DATA_TLB) && defined(IN_RING3)
-    pVCpu->iem.s.DataTlb.cTlbSafeReadPath++;
+# if defined(IEM_WITH_DATA_TLB_IN_CUR_CTX) && defined(IN_RING3)
+    ITLBS(pVCpu).Data.cTlbSafeReadPath++;
 # endif
     uint8_t              bUnmapInfo;
     TMPL_MEM_TYPE const *pSrc = (TMPL_MEM_TYPE const *)iemMemMapSafeJmp(pVCpu, &bUnmapInfo, sizeof(*pSrc), GCPtrMem,
@@ -90,8 +90,8 @@ RT_CONCAT3(iemMemFetchData,TMPL_MEM_FN_SUFF,SafeJmp)(PVMCPUCC pVCpu, TMPL_MEM_TY
 TMPL_MEM_TYPE
 RT_CONCAT3(iemMemFetchData,TMPL_MEM_FN_SUFF,SafeJmp)(PVMCPUCC pVCpu, RTGCPTR GCPtrMem) IEM_NOEXCEPT_MAY_LONGJMP
 {
-# if defined(IEM_WITH_DATA_TLB) && defined(IN_RING3)
-    pVCpu->iem.s.DataTlb.cTlbSafeReadPath++;
+# if defined(IEM_WITH_DATA_TLB_IN_CUR_CTX) && defined(IN_RING3)
+    ITLBS(pVCpu).Data.cTlbSafeReadPath++;
 # endif
     uint8_t              bUnmapInfo;
     TMPL_MEM_TYPE const *puSrc = (TMPL_MEM_TYPE const *)iemMemMapSafeJmp(pVCpu, &bUnmapInfo, sizeof(*puSrc), GCPtrMem,
@@ -113,8 +113,8 @@ void
 RT_CONCAT3(iemMemFetchDataPair,TMPL_MEM_FN_SUFF,SafeJmp)(PVMCPUCC pVCpu, RTGCPTR GCPtrMem,
                                                          TMPL_MEM_TYPE *pDst1, TMPL_MEM_TYPE *pDst2) IEM_NOEXCEPT_MAY_LONGJMP
 {
-#  if defined(IEM_WITH_DATA_TLB) && defined(IN_RING3)
-    pVCpu->iem.s.DataTlb.cTlbSafeReadPath++;
+#  if defined(IEM_WITH_DATA_TLB_IN_CUR_CTX) && defined(IN_RING3)
+    ITLBS(pVCpu).Data.cTlbSafeReadPath++;
 #  endif
     uint8_t              bUnmapInfo;
     TMPL_MEM_TYPE const *pSrc = (TMPL_MEM_TYPE const *)iemMemMapSafeJmp(pVCpu, &bUnmapInfo, sizeof(TMPL_MEM_TYPE) * 2, GCPtrMem,
@@ -128,8 +128,8 @@ RT_CONCAT3(iemMemFetchDataPair,TMPL_MEM_FN_SUFF,SafeJmp)(PVMCPUCC pVCpu, RTGCPTR
 TMPL_MEM_TYPE
 RT_CONCAT3(iemMemFetchDataPair,TMPL_MEM_FN_SUFF,SafeJmp)(PVMCPUCC pVCpu, RTGCPTR GCPtrMem, TMPL_MEM_TYPE *pDst2) IEM_NOEXCEPT_MAY_LONGJMP
 {
-#  if defined(IEM_WITH_DATA_TLB) && defined(IN_RING3)
-    pVCpu->iem.s.DataTlb.cTlbSafeReadPath++;
+#  if defined(IEM_WITH_DATA_TLB_IN_CUR_CTX) && defined(IN_RING3)
+    ITLBS(pVCpu).Data.cTlbSafeReadPath++;
 #  endif
     uint8_t              bUnmapInfo;
     TMPL_MEM_TYPE const *puSrc = (TMPL_MEM_TYPE const *)iemMemMapSafeJmp(pVCpu, &bUnmapInfo, sizeof(TMPL_MEM_TYPE) * 2, GCPtrMem,
@@ -194,8 +194,8 @@ void RT_CONCAT3(iemMemStoreData,TMPL_MEM_FN_SUFF,SafeJmp)(PVMCPUCC pVCpu, RTGCPT
                                                           TMPL_MEM_TYPE uValue) IEM_NOEXCEPT_MAY_LONGJMP
 #endif
 {
-#if defined(IEM_WITH_DATA_TLB) && defined(IN_RING3)
-    pVCpu->iem.s.DataTlb.cTlbSafeWritePath++;
+#if defined(IEM_WITH_DATA_TLB_IN_CUR_CTX) && defined(IN_RING3)
+    ITLBS(pVCpu).Data.cTlbSafeWritePath++;
 #endif
 #ifdef TMPL_MEM_BY_REF
     Log6(("IEM WR " TMPL_MEM_FMT_DESC " %RGv: " TMPL_MEM_FMT_TYPE "\n", GCPtrMem, pValue));
@@ -230,8 +230,8 @@ void RT_CONCAT3(iemMemStoreDataPair,TMPL_MEM_FN_SUFF,SafeJmp)(PVMCPUCC pVCpu, RT
                                                               TMPL_MEM_TYPE uValue1, TMPL_MEM_TYPE uValue2) IEM_NOEXCEPT_MAY_LONGJMP
 # endif
 {
-# if defined(IEM_WITH_DATA_TLB) && defined(IN_RING3)
-    pVCpu->iem.s.DataTlb.cTlbSafeWritePath++;
+# if defined(IEM_WITH_DATA_TLB_IN_CUR_CTX) && defined(IN_RING3)
+    ITLBS(pVCpu).Data.cTlbSafeWritePath++;
 # endif
 # ifdef TMPL_MEM_BY_REF
     Log6(("IEM WR " TMPL_MEM_FMT_DESC " %RGv: " TMPL_MEM_FMT_TYPE " " TMPL_MEM_FMT_TYPE "\n", GCPtrMem, pValue1, pValue2));
@@ -265,8 +265,8 @@ TMPL_MEM_TYPE *
 RT_CONCAT3(iemMemMapData,TMPL_MEM_FN_SUFF,AtSafeJmp)(PVMCPUCC pVCpu, uint8_t *pbUnmapInfo,
                                                      RTGCPTR GCPtrMem) IEM_NOEXCEPT_MAY_LONGJMP
 {
-#if defined(IEM_WITH_DATA_TLB) && defined(IN_RING3)
-    pVCpu->iem.s.DataTlb.cTlbSafeWritePath++;
+#if defined(IEM_WITH_DATA_TLB_IN_CUR_CTX) && defined(IN_RING3)
+    ITLBS(pVCpu).Data.cTlbSafeWritePath++;
 #endif
     Log8(("IEM AT/map " TMPL_MEM_FMT_DESC " %RGv\n", GCPtrMem));
     *pbUnmapInfo = 1 | ((IEM_ACCESS_TYPE_READ  | IEM_ACCESS_TYPE_WRITE) << 4); /* zero is for the TLB hit */
@@ -287,8 +287,8 @@ TMPL_MEM_TYPE *
 RT_CONCAT3(iemMemMapData,TMPL_MEM_FN_SUFF,RwSafeJmp)(PVMCPUCC pVCpu, uint8_t *pbUnmapInfo,
                                                      RTGCPTR GCPtrMem) IEM_NOEXCEPT_MAY_LONGJMP
 {
-#if defined(IEM_WITH_DATA_TLB) && defined(IN_RING3)
-    pVCpu->iem.s.DataTlb.cTlbSafeWritePath++;
+#if defined(IEM_WITH_DATA_TLB_IN_CUR_CTX) && defined(IN_RING3)
+    ITLBS(pVCpu).Data.cTlbSafeWritePath++;
 #endif
     Log8(("IEM RW/map " TMPL_MEM_FMT_DESC " %RGv\n", GCPtrMem));
     *pbUnmapInfo = 1 | ((IEM_ACCESS_TYPE_READ  | IEM_ACCESS_TYPE_WRITE) << 4); /* zero is for the TLB hit */
@@ -309,8 +309,8 @@ TMPL_MEM_TYPE *
 RT_CONCAT3(iemMemMapData,TMPL_MEM_FN_SUFF,WoSafeJmp)(PVMCPUCC pVCpu, uint8_t *pbUnmapInfo,
                                                      RTGCPTR GCPtrMem) IEM_NOEXCEPT_MAY_LONGJMP
 {
-#if defined(IEM_WITH_DATA_TLB) && defined(IN_RING3)
-    pVCpu->iem.s.DataTlb.cTlbSafeWritePath++;
+#if defined(IEM_WITH_DATA_TLB_IN_CUR_CTX) && defined(IN_RING3)
+    ITLBS(pVCpu).Data.cTlbSafeWritePath++;
 #endif
     Log8(("IEM WO/map " TMPL_MEM_FMT_DESC " %RGv\n", GCPtrMem));
     *pbUnmapInfo = 1 | (IEM_ACCESS_TYPE_WRITE << 4); /* zero is for the TLB hit */
@@ -331,8 +331,8 @@ TMPL_MEM_TYPE const *
 RT_CONCAT3(iemMemMapData,TMPL_MEM_FN_SUFF,RoSafeJmp)(PVMCPUCC pVCpu, uint8_t *pbUnmapInfo,
                                                      RTGCPTR GCPtrMem) IEM_NOEXCEPT_MAY_LONGJMP
 {
-#if defined(IEM_WITH_DATA_TLB) && defined(IN_RING3)
-    pVCpu->iem.s.DataTlb.cTlbSafeWritePath++;
+#if defined(IEM_WITH_DATA_TLB_IN_CUR_CTX) && defined(IN_RING3)
+    ITLBS(pVCpu).Data.cTlbSafeWritePath++;
 #endif
     Log4(("IEM RO/map " TMPL_MEM_FMT_DESC " %RGv\n", GCPtrMem));
     *pbUnmapInfo = 1 | (IEM_ACCESS_TYPE_READ << 4); /* zero is for the TLB hit */
