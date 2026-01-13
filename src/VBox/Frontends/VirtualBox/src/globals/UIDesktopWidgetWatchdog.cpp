@@ -1,4 +1,4 @@
-/* $Id: UIDesktopWidgetWatchdog.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: UIDesktopWidgetWatchdog.cpp 112459 2026-01-13 11:40:28Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIDesktopWidgetWatchdog class implementation.
  */
@@ -470,9 +470,7 @@ bool UIDesktopWidgetWatchdog::isFakeScreenDetected()
 double UIDesktopWidgetWatchdog::devicePixelRatio(int iHostScreenIndex /* = -1 */)
 {
     /* First, we should check whether the screen is valid: */
-    QScreen *pScreen = iHostScreenIndex == -1
-                     ? QGuiApplication::primaryScreen()
-                     : QGuiApplication::screens().value(iHostScreenIndex);
+    QScreen *pScreen = QGuiApplication::screens().value(iHostScreenIndex, QGuiApplication::primaryScreen());
     AssertPtrReturn(pScreen, 1.0);
 
     /* Then acquire device-pixel-ratio: */
