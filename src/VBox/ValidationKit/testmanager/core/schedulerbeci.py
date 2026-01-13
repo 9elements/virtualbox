@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# $Id: schedulerbeci.py 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+# $Id: schedulerbeci.py 112446 2026-01-13 09:47:05Z knut.osmundsen@oracle.com $
 
 """
 Test Manager - Best-Effort-Continuous-Integration (BECI) scheduler.
@@ -36,7 +36,7 @@ terms and conditions of either the GPL or the CDDL or both.
 
 SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 """
-__version__ = "$Revision: 111747 $"
+__version__ = "$Revision: 112446 $"
 
 
 # Validation Kit imports.
@@ -68,10 +68,8 @@ class SchdulerBeci(SchedulerBase): # pylint: disable=too-few-public-methods
                 assert iPrio in range(32);
                 iPrio = iPrio // 4;
                 assert iPrio in range(8);
-                if iPrio > iMaxPriority:
-                    iMaxPriority = iPrio;
-                if iPrio < iMinPriority:
-                    iMinPriority = iPrio;
+                iMinPriority = min(iMinPriority, iPrio);
+                iMaxPriority = max(iMaxPriority, iPrio);
 
                 oTestCase.iBeciPrio      = iPrio;
                 oTestCase.iNextVariation = -1;

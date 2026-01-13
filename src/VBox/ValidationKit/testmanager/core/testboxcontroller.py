@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# $Id: testboxcontroller.py 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+# $Id: testboxcontroller.py 112446 2026-01-13 09:47:05Z knut.osmundsen@oracle.com $
 
 """
 Test Manager Core - Web Server Abstraction Base Class.
@@ -36,7 +36,7 @@ terms and conditions of either the GPL or the CDDL or both.
 
 SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 """
-__version__ = "$Revision: 111747 $"
+__version__ = "$Revision: 112446 $"
 
 
 # Standard python imports.
@@ -63,6 +63,8 @@ from testmanager.core.schedulerbase     import SchedulerBase;
 # Python 3 hacks:
 if sys.version_info[0] >= 3:
     long = int;     # pylint: disable=redefined-builtin,invalid-name
+else:
+    long = long;    # pylint: disable=redefined-builtin,invalid-name,self-assigning-variable
 
 
 class TestBoxControllerException(TMExceptionBase):
@@ -742,9 +744,7 @@ class TestBoxController(object): # pylint: disable=too-few-public-methods
         offFile  = 0;
         oSrcFile = self._oSrvGlue.getBodyIoStreamBinary();
         while offFile < cbFile:
-            cbToRead = cbFile - offFile;
-            if cbToRead > 256*1024:
-                cbToRead = 256*1024;
+            cbToRead = min(cbFile - offFile, 256*1024);
             offFile += cbToRead;
 
             abBuf = oSrcFile.read(cbToRead);

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # pylint: disable=too-many-lines
-# $Id: tdAddGuestCtrl.py 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+# $Id: tdAddGuestCtrl.py 112446 2026-01-13 09:47:05Z knut.osmundsen@oracle.com $
 
 """
 VirtualBox Validation Kit - Guest Control Tests.
@@ -38,7 +38,7 @@ terms and conditions of either the GPL or the CDDL or both.
 
 SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 """
-__version__ = "$Revision: 111747 $"
+__version__ = "$Revision: 112446 $"
 
 # Standard Python imports.
 import errno
@@ -68,8 +68,13 @@ from common     import utils;
 
 # Python 3 hacks:
 if sys.version_info[0] >= 3:
-    long = int      # pylint: disable=redefined-builtin,invalid-name
-    xrange = range; # pylint: disable=redefined-builtin,invalid-name
+    long = int          # pylint: disable=redefined-builtin,invalid-name
+    xrange = range;     # pylint: disable=redefined-builtin,invalid-name
+else:
+    xrange = xrange;    # pylint: disable=redefined-builtin,invalid-name,self-assigning-variable
+    long = long;        # pylint: disable=redefined-builtin,invalid-name,self-assigning-variable
+
+
 
 def limitString(sString, cLimit = 128):
     """
@@ -670,8 +675,9 @@ class tdTestFileOpenAndWrite(tdTestFileOpen):
     The chunks are a list of tuples(offset, bytes), where offset can be None
     if no seeking should be performed.
     """
-    def __init__(self, sFile = "", eAccessMode = None, eAction = None, eSharing = None, # pylint: disable=too-many-arguments
-                 fCreationMode = 0o660, atChunks = None, fUseAtApi = False, abContent = None, oCreds = None):
+    def __init__(self, sFile = "", eAccessMode = None, # pylint: disable=too-many-arguments,too-many-positional-arguments
+                 eAction = None, eSharing = None,  fCreationMode = 0o660, atChunks = None, fUseAtApi = False,
+                 abContent = None, oCreds = None):
         tdTestFileOpen.__init__(self, sFile, eAccessMode if eAccessMode is not None else vboxcon.FileAccessMode_WriteOnly,
                                 eAction, eSharing, fCreationMode, oCreds);
         assert atChunks is not None;
@@ -4367,53 +4373,53 @@ class SubTstDrvAddGuestCtrl(base.SubTestDriverBase):
             fRc = oCurTest.setEnvironment(oSession, oTxsSession, oTestVm);
             if fRc:
                 fRc, oCurGuestSession = oCurTest.createSession('remove final');
-            if fRc is True:
+                if fRc is True:
 
-                #
-                # Delete all the files in the many subdir of the test set.
-                #
-                reporter.log('Deleting the file in "%s" ...' % (self.oTestFiles.oManyDir.sPath,));
-                for oFile in self.oTestFiles.oManyDir.aoChildren:
-                    reporter.log2('"%s"' % (limitString(oFile.sPath),));
+                    #
+                    # Delete all the files in the many subdir of the test set.
+                    #
+                    reporter.log('Deleting the file in "%s" ...' % (self.oTestFiles.oManyDir.sPath,));
+                    for oFile in self.oTestFiles.oManyDir.aoChildren:
+                        reporter.log2('"%s"' % (limitString(oFile.sPath),));
+                        try:
+                            if self.oTstDrv.fpApiVer >= 5.0:
+                                oCurGuestSession.fsObjRemove(oFile.sPath);
+                            else:
+                                oCurGuestSession.fileRemove(oFile.sPath);
+                        except:
+                            fRc = reporter.errorXcpt('Removing "%s" failed' % (oFile.sPath,));
+
+                    # Remove the directory itself to verify that we've removed all the files in it:
+                    reporter.log('Removing the directory "%s" ...' % (self.oTestFiles.oManyDir.sPath,));
                     try:
-                        if self.oTstDrv.fpApiVer >= 5.0:
-                            oCurGuestSession.fsObjRemove(oFile.sPath);
-                        else:
-                            oCurGuestSession.fileRemove(oFile.sPath);
+                        oCurGuestSession.directoryRemove(self.oTestFiles.oManyDir.sPath);
                     except:
-                        fRc = reporter.errorXcpt('Removing "%s" failed' % (oFile.sPath,));
+                        fRc = reporter.errorXcpt('Removing directory "%s" failed' % (self.oTestFiles.oManyDir.sPath,));
 
-                # Remove the directory itself to verify that we've removed all the files in it:
-                reporter.log('Removing the directory "%s" ...' % (self.oTestFiles.oManyDir.sPath,));
-                try:
-                    oCurGuestSession.directoryRemove(self.oTestFiles.oManyDir.sPath);
-                except:
-                    fRc = reporter.errorXcpt('Removing directory "%s" failed' % (self.oTestFiles.oManyDir.sPath,));
+                    #
+                    # Recursively delete the entire test file tree from the root up.
+                    #
+                    # Note! On unix we cannot delete the root dir itself since it is residing
+                    #       in /var/tmp where only the owner may delete it.  Root is the owner.
+                    #
+                    if oTestVm.isWindows() or oTestVm.isOS2():
+                        afFlags = [vboxcon.DirectoryRemoveRecFlag_ContentAndDir,];
+                    else:
+                        afFlags = [vboxcon.DirectoryRemoveRecFlag_ContentOnly,];
+                    try:
+                        oProgress = oCurGuestSession.directoryRemoveRecursive(self.oTestFiles.oRoot.sPath, afFlags);
+                    except:
+                        fRc = reporter.errorXcpt('Removing tree "%s" failed' % (self.oTestFiles.oRoot.sPath,));
+                    else:
+                        oWrappedProgress = vboxwrappers.ProgressWrapper(oProgress, self.oTstDrv.oVBoxMgr, self.oTstDrv,
+                                                                        "remove-tree-root: %s" % (self.oTestFiles.oRoot.sPath,));
+                        reporter.log2('waiting ...')
+                        oWrappedProgress.wait();
+                        reporter.log2('isSuccess=%s' % (oWrappedProgress.isSuccess(),));
+                        if not oWrappedProgress.isSuccess():
+                            fRc = oWrappedProgress.logResult();
 
-                #
-                # Recursively delete the entire test file tree from the root up.
-                #
-                # Note! On unix we cannot delete the root dir itself since it is residing
-                #       in /var/tmp where only the owner may delete it.  Root is the owner.
-                #
-                if oTestVm.isWindows() or oTestVm.isOS2():
-                    afFlags = [vboxcon.DirectoryRemoveRecFlag_ContentAndDir,];
-                else:
-                    afFlags = [vboxcon.DirectoryRemoveRecFlag_ContentOnly,];
-                try:
-                    oProgress = oCurGuestSession.directoryRemoveRecursive(self.oTestFiles.oRoot.sPath, afFlags);
-                except:
-                    fRc = reporter.errorXcpt('Removing tree "%s" failed' % (self.oTestFiles.oRoot.sPath,));
-                else:
-                    oWrappedProgress = vboxwrappers.ProgressWrapper(oProgress, self.oTstDrv.oVBoxMgr, self.oTstDrv,
-                                                                    "remove-tree-root: %s" % (self.oTestFiles.oRoot.sPath,));
-                    reporter.log2('waiting ...')
-                    oWrappedProgress.wait();
-                    reporter.log2('isSuccess=%s' % (oWrappedProgress.isSuccess(),));
-                    if not oWrappedProgress.isSuccess():
-                        fRc = oWrappedProgress.logResult();
-
-                fRc = oCurTest.closeSession() and fRc;
+                    fRc = oCurTest.closeSession() and fRc;
 
         return (fRc, oTxsSession);
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# $Id: wuihlpgraphmatplotlib.py 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+# $Id: wuihlpgraphmatplotlib.py 112446 2026-01-13 09:47:05Z knut.osmundsen@oracle.com $
 
 """
 Test Manager Web-UI - Graph Helpers - Implemented using matplotlib.
@@ -36,7 +36,7 @@ terms and conditions of either the GPL or the CDDL or both.
 
 SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 """
-__version__ = "$Revision: 111747 $"
+__version__ = "$Revision: 112446 $"
 
 # Standard Python Import and extensions installed on the system.
 import re;
@@ -141,10 +141,8 @@ class WuiHlpBarGraph(WuiHlpGraphMatplotlibBase):
             for j, oValue in enumerate(aoTable[i].aoValues):
                 fpValue = float(oValue);
                 aoSeries[j].append(fpValue);
-                if fpValue < fpMin:
-                    fpMin = fpValue;
-                if fpValue > fpMax:
-                    fpMax = fpValue;
+                fpMin = min(fpMin, fpValue);
+                fpMax = min(fpMax, fpValue);
 
         fpMid = fpMin + (fpMax - fpMin) / 2.0;
 

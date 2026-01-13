@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# $Id: wuireport.py 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+# $Id: wuireport.py 112446 2026-01-13 09:47:05Z knut.osmundsen@oracle.com $
 
 """
 Test Manager WUI - Reports.
@@ -36,7 +36,7 @@ terms and conditions of either the GPL or the CDDL or both.
 
 SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 """
-__version__ = "$Revision: 111747 $"
+__version__ = "$Revision: 112446 $"
 
 
 # Validation Kit imports.
@@ -620,8 +620,7 @@ class WuiReportFailureReasons(WuiReportFailuresBase):
 
                 if fIncludeWithoutReason:
                     aiValues.append(oPeriod.cWithoutReason);
-                    if oPeriod.cWithoutReason > cMax:
-                        cMax = oPeriod.cWithoutReason;
+                    cMax = max(cMax, oPeriod.cWithoutReason);
 
                 oTable.addRow(oPeriod.sDesc, aiValues);
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# $Id: vbox.py 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+# $Id: vbox.py 112446 2026-01-13 09:47:05Z knut.osmundsen@oracle.com $
 # pylint: disable=too-many-lines
 
 """
@@ -37,7 +37,7 @@ terms and conditions of either the GPL or the CDDL or both.
 
 SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 """
-__version__ = "$Revision: 111747 $"
+__version__ = "$Revision: 112446 $"
 
 # pylint: disable=unnecessary-semicolon
 
@@ -68,8 +68,12 @@ from testdriver import vboxtestvms;
 
 # Python 3 hacks:
 if sys.version_info[0] >= 3:
-    xrange = range; # pylint: disable=redefined-builtin,invalid-name
-    long = int;     # pylint: disable=redefined-builtin,invalid-name
+    xrange = range;     # pylint: disable=redefined-builtin,invalid-name
+    long = int;         # pylint: disable=redefined-builtin,invalid-name
+else:
+    xrange = xrange;    # pylint: disable=redefined-builtin,invalid-name,self-assigning-variable
+    long = long;        # pylint: disable=redefined-builtin,invalid-name,self-assigning-variable
+
 
 #
 # Exception and Error Unification Hacks.
@@ -603,8 +607,8 @@ class EventHandlerBase(object):
         return None;
 
     @staticmethod
-    def registerDerivedEventHandler(oVBoxMgr, fpApiVer, oSubClass, dArgsCopy, # pylint: disable=too-many-arguments
-                                    oSrcParent, sSrcParentNm, sICallbackNm,
+    def registerDerivedEventHandler(oVBoxMgr, fpApiVer, # pylint: disable=too-many-arguments,too-many-positional-arguments
+                                    oSubClass, dArgsCopy, oSrcParent, sSrcParentNm, sICallbackNm,
                                     fMustSucceed = True, sLogSuffix = '', aenmEvents = None):
         """
         Registers the callback / event listener.
@@ -2321,6 +2325,7 @@ class TestDriver(base.TestDriver):                                              
                     reporter.log("  HPET:               %s" % (oVM.HPETEnabled,));
                 else:
                     reporter.log("  HPET:               %s" % (oVM.hpetEnabled,));
+        fAccelerate2DVideoEnabled = False;
         if self.fpApiVer >= 6.1 and hasattr(oVM, 'graphicsAdapter'):
             if self.fpApiVer >= 7.1 and hasattr(oVM.graphicsAdapter, 'isFeatureEnabled'):
                 fAccelerate3DEnabled = \
@@ -2612,7 +2617,7 @@ class TestDriver(base.TestDriver):                                              
             reporter.errorXcpt('failed to create vm "%s"' % (sName));
         return None;
 
-    # pylint: disable=too-many-arguments,too-many-locals,too-many-statements,too-many-branches
+    # pylint: disable=too-many-arguments,too-many-positional-arguments,too-many-locals,too-many-statements,too-many-branches
     def createTestVM(self,
                      sName,
                      iGroup,
@@ -4544,11 +4549,11 @@ class TestDriver(base.TestDriver):                                              
                                           oStdErr = reporter.FileWrapper('stderr'), oStdOut = reporter.FileWrapper('stdout'),
                                           fIgnoreErrors = fIgnoreErrors);
 
-    def txsRunTest2(self, oTxsSession1, oTxsSession2, sTestName, cMsTimeout,
-            sExecName1, asArgs1,
-            sExecName2, asArgs2,
-            asAddEnv1 = (), sAsUser1 = '', fWithTestPipe1 = True,
-            asAddEnv2 = (), sAsUser2 = '', fWithTestPipe2 = True):
+    def txsRunTest2(self, oTxsSession1, oTxsSession2, sTestName, cMsTimeout, # pylint: disable=,too-many-positional-arguments
+                    sExecName1, asArgs1,
+                    sExecName2, asArgs2,
+                    asAddEnv1 = (), sAsUser1 = '', fWithTestPipe1 = True,
+                    asAddEnv2 = (), sAsUser2 = '', fWithTestPipe2 = True):
         """
         Executes the specified test tasks, waiting till they complete or
         times out.  The 1st task is started after the 2nd one.

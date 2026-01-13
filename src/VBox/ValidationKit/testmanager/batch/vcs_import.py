@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# $Id: vcs_import.py 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+# $Id: vcs_import.py 112446 2026-01-13 09:47:05Z knut.osmundsen@oracle.com $
 
 """
 Cron job for importing revision history for a repository.
@@ -39,7 +39,7 @@ terms and conditions of either the GPL or the CDDL or both.
 
 SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 """
-__version__ = "$Revision: 111747 $"
+__version__ = "$Revision: 112446 $"
 
 # Standard python imports
 import sys;
@@ -60,7 +60,9 @@ from common                             import utils;
 
 # Python 3 hacks:
 if sys.version_info[0] >= 3:
-    long = int;     # pylint: disable=redefined-builtin,invalid-name
+    long = int;        # pylint: disable=redefined-builtin,invalid-name
+else:
+    long = long;       # pylint: disable=redefined-builtin,invalid-name,self-assigning-variable
 
 
 class VcsImport(object): # pylint: disable=too-few-public-methods

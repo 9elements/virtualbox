@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# $Id: txsclient.py 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+# $Id: txsclient.py 112446 2026-01-13 09:47:05Z knut.osmundsen@oracle.com $
 # pylint: disable=too-many-lines
 
 """
@@ -36,7 +36,7 @@ terms and conditions of either the GPL or the CDDL or both.
 
 SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 """
-__version__ = "$Revision: 111747 $"
+__version__ = "$Revision: 112446 $"
 
 # Standard Python imports.
 import array;
@@ -58,7 +58,9 @@ from testdriver.base    import TdTaskBase;
 
 # Python 3 hacks:
 if sys.version_info[0] >= 3:
-    long = int;     # pylint: disable=redefined-builtin,invalid-name
+    long = int;         # pylint: disable=redefined-builtin,invalid-name
+else:
+    long = long;        # pylint: disable=redefined-builtin,invalid-name,self-assigning-variable
 
 #
 # Helpers for decoding data received from the TXS.
@@ -549,6 +551,7 @@ class Session(TdTaskBase):
                 oTaskRc = None;
         else:
             reporter.log('taskThread: cancelled already');
+            oTaskRc = None;
 
         self.lockTask();
 
@@ -778,7 +781,8 @@ class Session(TdTaskBase):
     # pylint: disable=missing-docstring
     #
 
-    def taskExecEx(self, sExecName, fFlags, asArgs, asAddEnv, oStdIn, oStdOut, oStdErr, oTestPipe, sAsUser): # pylint: disable=too-many-arguments,too-many-locals,too-many-statements,line-too-long
+    def taskExecEx(self, # pylint: disable=too-many-arguments,too-many-locals,too-many-statements,too-many-positional-arguments
+                   sExecName, fFlags, asArgs, asAddEnv, oStdIn, oStdOut, oStdErr, oTestPipe, sAsUser):
         # Construct the payload.
         aoPayload = [long(fFlags), '%s' % (sExecName), long(len(asArgs))];
         for sArg in asArgs:
@@ -1456,8 +1460,8 @@ class Session(TdTaskBase):
     # Public methods - execution.
     #
 
-    def asyncExecEx(self, sExecName, asArgs = (), asAddEnv = (), # pylint: disable=too-many-arguments
-                    oStdIn = None, oStdOut = None, oStdErr = None, oTestPipe = None,
+    def asyncExecEx(self, sExecName, asArgs = (), # pylint: disable=too-many-arguments,too-many-positional-arguments
+                    asAddEnv = (), oStdIn = None, oStdOut = None, oStdErr = None, oTestPipe = None,
                     sAsUser = "", cMsTimeout = 3600000, fIgnoreErrors = False):
         """
         Initiates a exec process task.
@@ -1485,7 +1489,7 @@ class Session(TdTaskBase):
                               (sExecName, long(0), asArgs, asAddEnv, oStdIn,
                                oStdOut, oStdErr, oTestPipe, sAsUser));
 
-    def syncExecEx(self, sExecName, asArgs = (), asAddEnv = (), # pylint: disable=too-many-arguments
+    def syncExecEx(self, sExecName, asArgs = (), asAddEnv = (), # pylint: disable=too-many-arguments,too-many-positional-arguments
                    oStdIn = '/dev/null', oStdOut = '/dev/null',
                    oStdErr = '/dev/null', oTestPipe = '/dev/null',
                    sAsUser = '', cMsTimeout = 3600000, fIgnoreErrors = False):

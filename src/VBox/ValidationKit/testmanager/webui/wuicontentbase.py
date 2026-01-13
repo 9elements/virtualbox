@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# $Id: wuicontentbase.py 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+# $Id: wuicontentbase.py 112446 2026-01-13 09:47:05Z knut.osmundsen@oracle.com $
 
 """
 Test Manager Web-UI - Content Base Classes.
@@ -36,7 +36,7 @@ terms and conditions of either the GPL or the CDDL or both.
 
 SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 """
-__version__ = "$Revision: 111747 $"
+__version__ = "$Revision: 112446 $"
 
 
 # Standard python imports.
@@ -53,7 +53,9 @@ from testmanager.core.base          import AttributeChangeEntryPre;
 
 # Python 3 hacks:
 if sys.version_info[0] >= 3:
-    unicode = str;  # pylint: disable=redefined-builtin,invalid-name
+    unicode = str;     # pylint: disable=redefined-builtin,invalid-name
+else:
+    unicode = unicode; # pylint: disable=redefined-builtin,invalid-name,self-assigning-variable
 
 
 class WuiHtmlBase(object): # pylint: disable=too-few-public-methods

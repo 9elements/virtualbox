@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# $Id: schedulerbase.py 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+# $Id: schedulerbase.py 112446 2026-01-13 09:47:05Z knut.osmundsen@oracle.com $
 # pylint: disable=too-many-lines
 
 
@@ -38,7 +38,7 @@ terms and conditions of either the GPL or the CDDL or both.
 
 SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 """
-__version__ = "$Revision: 111747 $"
+__version__ = "$Revision: 112446 $"
 
 
 # Standard python imports.
@@ -62,7 +62,9 @@ from testmanager.core.testset           import TestSetData, TestSetLogic;
 
 # Python 3 hacks:
 if sys.version_info[0] >= 3:
-    xrange = range; # pylint: disable=redefined-builtin,invalid-name
+    xrange = range;  # pylint: disable=redefined-builtin,invalid-name
+else:
+    xrange = xrange; # pylint: disable=redefined-builtin,invalid-name,self-assigning-variable
 
 
 
@@ -364,8 +366,8 @@ class SchedQueueData(ModelDataBase):
         self.idTestSetGangLeader    = None;
         self.cMissingGangMembers    = 1;
 
-    def initFromValues(self, idSchedGroup, idGenTestCaseArgs, idTestGroup, aidTestGroupPreReqs, # pylint: disable=too-many-arguments
-                       bmHourlySchedule, cMissingGangMembers,
+    def initFromValues(self, idSchedGroup, idGenTestCaseArgs, # pylint: disable=too-many-arguments,too-many-positional-arguments
+                       idTestGroup, aidTestGroupPreReqs, bmHourlySchedule, cMissingGangMembers,
                        idItem = None, offQueue = None, tsConfig = None, tsLastScheduled = None, idTestSetGangLeader = None):
         """
         Reinitialize with all attributes potentially given as inputs.
@@ -573,7 +575,7 @@ class SchedulerBase(object):
     def getElapsedSecs(self):
         """ Returns the number of seconds this scheduling task has been running. """
         tsSecNow = utils.timestampSecond();
-        if tsSecNow < self._tsSecStart: # paranoia
+        if tsSecNow < self._tsSecStart: # paranoia  # pylint: disable=consider-using-min-builtin
             self._tsSecStart = tsSecNow;
         return tsSecNow - self._tsSecStart;
 

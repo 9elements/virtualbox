@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# $Id: report.py 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+# $Id: report.py 112446 2026-01-13 09:47:05Z knut.osmundsen@oracle.com $
 
 """
 Test Manager - Report models.
@@ -36,7 +36,7 @@ terms and conditions of either the GPL or the CDDL or both.
 
 SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 """
-__version__ = "$Revision: 111747 $"
+__version__ = "$Revision: 112446 $"
 
 
 # Standard Python imports.
@@ -55,7 +55,9 @@ from common                         import constants;
 
 # Python 3 hacks:
 if sys.version_info[0] >= 3:
-    xrange = range; # pylint: disable=redefined-builtin,invalid-name
+    xrange = range;  # pylint: disable=redefined-builtin,invalid-name
+else:
+    xrange = xrange; # pylint: disable=redefined-builtin,invalid-name,self-assigning-variable
 
 
 
@@ -237,8 +239,8 @@ class ReportModelBase(ModelLogicBase): # pylint: disable=too-few-public-methods
 
 class ReportTransientBase(object):
     """ Details on the test where a problem was first/last seen.  """
-    def __init__(self, idBuild, iRevision, sRepository, idTestSet, idTestResult, tsDone, # pylint: disable=too-many-arguments
-                 iPeriod, fEnter, idSubject, oSubject):
+    def __init__(self, idBuild, iRevision, sRepository, # pylint: disable=too-many-arguments,too-many-positional-arguments
+                 idTestSet, idTestResult, tsDone, iPeriod, fEnter, idSubject, oSubject):
         self.idBuild            = idBuild;      # Build ID.
         self.iRevision          = iRevision;    # SVN revision for build.
         self.sRepository        = sRepository;  # SVN repository for build.
@@ -252,8 +254,8 @@ class ReportTransientBase(object):
 
 class ReportFailureReasonTransient(ReportTransientBase):
     """ Details on the test where a failure reason was first/last seen.  """
-    def __init__(self, idBuild, iRevision, sRepository, idTestSet, idTestResult, tsDone,  # pylint: disable=too-many-arguments
-                 iPeriod, fEnter, oReason):
+    def __init__(self, idBuild, iRevision, sRepository, # pylint: disable=too-many-arguments,too-many-positional-arguments
+                 idTestSet, idTestResult, tsDone, iPeriod, fEnter, oReason):
         ReportTransientBase.__init__(self, idBuild, iRevision, sRepository, idTestSet, idTestResult, tsDone, iPeriod, fEnter,
                                      oReason.idFailureReason, oReason);
         self.oReason            = oReason;      # FailureReasonDataEx
@@ -318,10 +320,8 @@ class ReportPeriodBase(object):
             self.tsMax = oRow.tsMax;
 
         self.cHits += oRow.cHits;
-        if oRow.cHits > self.cMaxHits:
-            self.cMaxHits = oRow.cHits;
-        if oRow.cHits < self.cMinHits:
-            self.cMinHits = oRow.cHits;
+        self.cMaxHits = max(self.cMaxHits, oRow.cHits);
+        self.cMinHits = min(self.cMinHits, oRow.cHits);
 
         if idRow in self.oSet.dcHitsPerId:
             self.oSet.dcHitsPerId[idRow] += oRow.cHits;
@@ -373,14 +373,10 @@ class ReportPeriodWithTotalBase(ReportPeriodBase):
     def _doStatsForRow(self, oRow, idRow, oData):
         assert isinstance(oRow, ReportHitRowWithTotalBase);
         super(ReportPeriodWithTotalBase, self)._doStatsForRow(oRow, idRow, oData);
-        self.cTotal += oRow.cTotal;
-        if oRow.cTotal > self.cMaxTotal:
-            self.cMaxTotal = oRow.cTotal;
-        if oRow.cTotal < self.cMinTotal:
-            self.cMinTotal = oRow.cTotal;
-
-        if oRow.uPct > self.uMaxPct:
-            self.uMaxPct = oRow.uPct;
+        self.cTotal   += oRow.cTotal;
+        self.cMaxTotal = max(self.cMaxTotal, oRow.cTotal);
+        self.cMinTotal = min(self.cMinTotal, oRow.cTotal);
+        self.uMaxPct   = max(self.uMaxPct,   oRow.uPct);
 
         if idRow in self.oSet.dcTotalPerId:
             self.oSet.dcTotalPerId[idRow] += oRow.cTotal;
@@ -430,15 +426,11 @@ class ReportPeriodSetBase(object):
     def _doStatsForPeriod(self, oPeriod):
         """ Worker for appendPeriod and recalcStats. """
         self.cHits += oPeriod.cHits;
-        if oPeriod.cMaxHits > self.cMaxHits:
-            self.cMaxHits = oPeriod.cMaxHits;
-        if oPeriod.cMinHits < self.cMinHits:
-            self.cMinHits = oPeriod.cMinHits;
+        self.cMaxHits = max(self.cMaxHits, oPeriod.cMaxHits);
+        self.cMinHits = min(self.cMinHits, oPeriod.cMinHits);
 
-        if len(oPeriod.aoRows) > self.cMaxRows:
-            self.cMaxRows = len(oPeriod.aoRows);
-        if len(oPeriod.aoRows) < self.cMinRows:
-            self.cMinRows = len(oPeriod.aoRows);
+        self.cMaxRows = max(self.cMaxRows, len(oPeriod.aoRows));
+        self.cMinRows = min(self.cMinRows, len(oPeriod.aoRows));
 
     def recalcStats(self):
         """ Recalculates the statistics. ASSUMES finalizePass1 hasn't been done yet. """
@@ -511,14 +503,10 @@ class ReportPeriodSetWithTotalBase(ReportPeriodSetBase):
     def _doStatsForPeriod(self, oPeriod):
         assert isinstance(oPeriod, ReportPeriodWithTotalBase);
         super(ReportPeriodSetWithTotalBase, self)._doStatsForPeriod(oPeriod);
-        self.cTotal += oPeriod.cTotal;
-        if oPeriod.cMaxTotal > self.cMaxTotal:
-            self.cMaxTotal = oPeriod.cMaxTotal;
-        if oPeriod.cMinTotal < self.cMinTotal:
-            self.cMinTotal = oPeriod.cMinTotal;
-
-        if oPeriod.uMaxPct > self.uMaxPct:
-            self.uMaxPct = oPeriod.uMaxPct;
+        self.cTotal   += oPeriod.cTotal;
+        self.cMaxTotal = max(self.cMaxTotal, oPeriod.cMaxTotal);
+        self.cMinTotal = min(self.cMinTotal, oPeriod.cMinTotal);
+        self.uMaxPct   = max(self.uMaxPct,   oPeriod.uMaxPct);
 
     def recalcStats(self):
         self.dcTotalPerId       = {};
@@ -987,8 +975,8 @@ class ReportGraphModel(ReportModelBase): # pylint: disable=too-few-public-method
             return oDataSeries;
 
 
-    def __init__(self, oDb, tsNow, cPeriods, cHoursPerPeriod, sSubject, aidSubjects, # pylint: disable=too-many-arguments
-                 aidTestBoxes, aidBuildCats, aidTestCases, fSepTestVars):
+    def __init__(self, oDb, tsNow, cPeriods, cHoursPerPeriod, # pylint: disable=too-many-arguments,too-many-positional-arguments
+                 sSubject, aidSubjects, aidTestBoxes, aidBuildCats, aidTestCases, fSepTestVars):
         assert(sSubject == self.ksSubEverything); # dummy
         ReportModelBase.__init__(self, oDb, tsNow, cPeriods, cHoursPerPeriod, sSubject, aidSubjects, oFilter = None);
         self.aidTestBoxes = aidTestBoxes;
