@@ -1,4 +1,4 @@
-/* $Id: pecoff.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: pecoff.h 112450 2026-01-13 09:55:56Z knut.osmundsen@oracle.com $ */
 /** @file
  * IPRT - Windows NT PE & COFF Structures and Constants.
  */
@@ -85,6 +85,9 @@ typedef IMAGE_FILE_HEADER const *PCIMAGE_FILE_HEADER;
 
 /** Unknown target CPU. */
 #define IMAGE_FILE_MACHINE_UNKNOWN          UINT16_C(0x0000)
+/** Interacts with the host and not a WOW64 guest.
+ *  @since Windows 10, version 1607 and Windows Server 2016. */
+#define IMAGE_FILE_MACHINE_TARGET_HOST      UINT16_C(0x0001)
 /** Basic-16 (whatever that is). */
 #define IMAGE_FILE_MACHINE_BASIC_16         UINT16_C(0x0142)
 /** Basic-16 (whatever that is) w/ transfer vector(s?) (TV). */
