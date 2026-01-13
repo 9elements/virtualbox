@@ -1,4 +1,4 @@
-/* $Id: MachineDebuggerImpl.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: MachineDebuggerImpl.h 112469 2026-01-13 12:39:58Z knut.osmundsen@oracle.com $ */
 /** @file
  * VirtualBox COM class implementation
  */
@@ -63,6 +63,8 @@ private:
     HRESULT setSingleStep(BOOL aSingleStep) RT_OVERRIDE;
     HRESULT getExecuteAllInIEM(BOOL *aExecuteAllInIEM) RT_OVERRIDE;
     HRESULT setExecuteAllInIEM(BOOL aExecuteAllInIEM) RT_OVERRIDE;
+    HRESULT getRecompiledIEMExecution(BOOL *aRecompiledIEMExecution) RT_OVERRIDE;
+    HRESULT setRecompiledIEMExecution(BOOL aRecompiledIEMExecution) RT_OVERRIDE;
     HRESULT getLogEnabled(BOOL *aLogEnabled) RT_OVERRIDE;
     HRESULT setLogEnabled(BOOL aLogEnabled) RT_OVERRIDE;
     HRESULT getLogDbgFlags(com::Utf8Str &aLogDbgFlags) RT_OVERRIDE;

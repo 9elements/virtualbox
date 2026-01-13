@@ -1,4 +1,4 @@
-/* $Id: UISession.cpp 112393 2026-01-09 14:38:52Z sergey.dubov@oracle.com $ */
+/* $Id: UISession.cpp 112469 2026-01-13 12:39:58Z knut.osmundsen@oracle.com $ */
 /** @file
  * VBox Qt GUI - UISession class implementation.
  */
@@ -167,8 +167,10 @@ bool UISession::initialize()
     /* Apply debug settings from the command line. */
     if (!debugger().isNull() && debugger().isOk())
     {
-        if (uiCommon().areWeToExecuteAllInIem())
+        if (uiCommon().areWeToExecuteAllInIem() || uiCommon().areWeToExecuteAllInRecompiler())
             debugger().SetExecuteAllInIEM(true);
+        if (uiCommon().areWeToExecuteAllInRecompiler())
+            debugger().SetRecompiledIEMExecution(true);
         if (!uiCommon().isDefaultWarpPct())
             debugger().SetVirtualTimeRate(uiCommon().getWarpPct());
     }
