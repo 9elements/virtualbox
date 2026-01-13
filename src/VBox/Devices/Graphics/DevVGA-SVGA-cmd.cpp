@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA-cmd.cpp 112464 2026-01-13 12:20:14Z vitali.pelenjow@oracle.com $ */
+/* $Id: DevVGA-SVGA-cmd.cpp 112481 2026-01-13 13:11:43Z vitali.pelenjow@oracle.com $ */
 /** @file
  * VMware SVGA device - implementation of VMSVGA commands.
  */
@@ -3611,23 +3611,30 @@ static int vmsvga3dCmdDXBufferCopy(PVGASTATECC pThisCC, uint32_t idDXContext, SV
         rc = vmsvga3dSurfaceMap(pThisCC, &imageBufferDest, NULL, VMSVGA3D_SURFACE_MAP_WRITE, VMSVGA3D_MAP_F_NONE, &mapBufferDest);
         if (RT_SUCCESS(rc))
         {
-            /*
-             * Copy the source buffer to the destination.
-             */
-            uint8_t const *pu8BufferSrc = (uint8_t *)mapBufferSrc.pvData;
-            uint32_t const cbBufferSrc = mapBufferSrc.cbRow;
-
-            uint8_t *pu8BufferDest = (uint8_t *)mapBufferDest.pvData;
-            uint32_t const cbBufferDest = mapBufferDest.cbRow;
-
-            if (   pCmd->srcX < cbBufferSrc
-                && pCmd->width <= cbBufferSrc- pCmd->srcX
-                && pCmd->destX < cbBufferDest
-                && pCmd->width <= cbBufferDest - pCmd->destX)
+            /* Check that the source and destination are buffers. */
+            if (   mapBufferSrc.format == SVGA3D_BUFFER && mapBufferSrc.box.h == 1 && mapBufferSrc.box.d == 1
+                && mapBufferDest.format == SVGA3D_BUFFER && mapBufferDest.box.h == 1 && mapBufferDest.box.d == 1)
             {
-                RT_UNTRUSTED_VALIDATED_FENCE();
+                /*
+                 * Copy the source buffer to the destination.
+                 */
+                uint8_t const *pu8BufferSrc = (uint8_t *)mapBufferSrc.pvData;
+                uint32_t const cbBufferSrc = mapBufferSrc.cbRow;
 
-                memcpy(&pu8BufferDest[pCmd->destX], &pu8BufferSrc[pCmd->srcX], pCmd->width);
+                uint8_t *pu8BufferDest = (uint8_t *)mapBufferDest.pvData;
+                uint32_t const cbBufferDest = mapBufferDest.cbRow;
+
+                if (   pCmd->srcX < cbBufferSrc
+                    && pCmd->width <= cbBufferSrc- pCmd->srcX
+                    && pCmd->destX < cbBufferDest
+                    && pCmd->width <= cbBufferDest - pCmd->destX)
+                {
+                    RT_UNTRUSTED_VALIDATED_FENCE();
+
+                    memcpy(&pu8BufferDest[pCmd->destX], &pu8BufferSrc[pCmd->srcX], pCmd->width);
+                }
+                else
+                    ASSERT_GUEST_FAILED_STMT(rc = VERR_INVALID_PARAMETER);
             }
             else
                 ASSERT_GUEST_FAILED_STMT(rc = VERR_INVALID_PARAMETER);
@@ -3678,61 +3685,67 @@ static int vmsvga3dCmdDXTransferFromBuffer(PVGASTATECC pThisCC, SVGA3dCmdDXTrans
     rc = vmsvga3dSurfaceMap(pThisCC, &imageBuffer, NULL, VMSVGA3D_SURFACE_MAP_READ, VMSVGA3D_MAP_F_NONE, &mapBuffer);
     if (RT_SUCCESS(rc))
     {
-        /*
-         * Map the surface.
-         */
-        VMSVGA3D_MAPPED_SURFACE mapSurface;
-        uint32_t const mapFlags = vmsvga3dIsEntireImage(pThisCC, &imageSurface, &pCmd->destBox)
-                                ? 0 : (VMSVGA3D_MAP_F_DYNAMIC_INTERMEDIATE | VMSVGA3D_MAP_F_EXACT_REGION);
-        rc = vmsvga3dSurfaceMap(pThisCC, &imageSurface, &pCmd->destBox, VMSVGA3D_SURFACE_MAP_WRITE_DISCARD,
-            mapFlags, &mapSurface);
-        if (RT_SUCCESS(rc))
+        /* Check that the source is a buffer. */
+        if (mapBuffer.format == SVGA3D_BUFFER && mapBuffer.box.h == 1 && mapBuffer.box.d == 1)
         {
             /*
-             * Copy the mapped buffer to the surface. "Raw byte wise transfer"
+             * Map the surface.
              */
-            uint8_t const *pu8Buffer = (uint8_t *)mapBuffer.pvData;
-            uint32_t const cbBuffer = mapBuffer.cbRow;
-
-            if (pCmd->srcOffset <= cbBuffer)
+            VMSVGA3D_MAPPED_SURFACE mapSurface;
+            uint32_t const mapFlags = vmsvga3dIsEntireImage(pThisCC, &imageSurface, &pCmd->destBox)
+                                    ? 0 : (VMSVGA3D_MAP_F_DYNAMIC_INTERMEDIATE | VMSVGA3D_MAP_F_EXACT_REGION);
+            rc = vmsvga3dSurfaceMap(pThisCC, &imageSurface, &pCmd->destBox, VMSVGA3D_SURFACE_MAP_WRITE_DISCARD,
+                mapFlags, &mapSurface);
+            if (RT_SUCCESS(rc))
             {
-                RT_UNTRUSTED_VALIDATED_FENCE();
-                uint8_t const *pu8BufferBegin = pu8Buffer;
-                uint8_t const *pu8BufferEnd = pu8Buffer + cbBuffer;
+                /*
+                 * Copy the mapped buffer to the surface. "Raw byte wise transfer"
+                 */
+                uint8_t const *pu8Buffer = (uint8_t *)mapBuffer.pvData;
+                uint32_t const cbBuffer = mapBuffer.cbRow;
 
-                pu8Buffer += pCmd->srcOffset;
-
-                uint8_t *pu8Surface = (uint8_t *)mapSurface.pvData;
-
-                uint32_t const cbRowCopy = RT_MIN(pCmd->srcPitch, mapSurface.cbRow);
-                for (uint32_t z = 0; z < mapSurface.box.d && RT_SUCCESS(rc); ++z)
+                if (pCmd->srcOffset <= cbBuffer)
                 {
-                    uint8_t const *pu8BufferRow = pu8Buffer;
-                    uint8_t *pu8SurfaceRow = pu8Surface;
-                    for (uint32_t iRow = 0; iRow < mapSurface.cRows; ++iRow)
+                    RT_UNTRUSTED_VALIDATED_FENCE();
+                    uint8_t const *pu8BufferBegin = pu8Buffer;
+                    uint8_t const *pu8BufferEnd = pu8Buffer + cbBuffer;
+
+                    pu8Buffer += pCmd->srcOffset;
+
+                    uint8_t *pu8Surface = (uint8_t *)mapSurface.pvData;
+
+                    uint32_t const cbRowCopy = RT_MIN(pCmd->srcPitch, mapSurface.cbRow);
+                    for (uint32_t z = 0; z < mapSurface.box.d && RT_SUCCESS(rc); ++z)
                     {
-                        ASSERT_GUEST_STMT_BREAK(   (uintptr_t)pu8BufferRow >= (uintptr_t)pu8BufferBegin
-                                                && (uintptr_t)pu8BufferRow < (uintptr_t)pu8BufferEnd
-                                                && (uintptr_t)pu8BufferRow < (uintptr_t)(pu8BufferRow + cbRowCopy)
-                                                && (uintptr_t)(pu8BufferRow + cbRowCopy) > (uintptr_t)pu8BufferBegin
-                                                && (uintptr_t)(pu8BufferRow + cbRowCopy) <= (uintptr_t)pu8BufferEnd,
-                                                rc = VERR_INVALID_PARAMETER);
+                        uint8_t const *pu8BufferRow = pu8Buffer;
+                        uint8_t *pu8SurfaceRow = pu8Surface;
+                        for (uint32_t iRow = 0; iRow < mapSurface.cRows; ++iRow)
+                        {
+                            ASSERT_GUEST_STMT_BREAK(   (uintptr_t)pu8BufferRow >= (uintptr_t)pu8BufferBegin
+                                                    && (uintptr_t)pu8BufferRow < (uintptr_t)pu8BufferEnd
+                                                    && (uintptr_t)pu8BufferRow < (uintptr_t)(pu8BufferRow + cbRowCopy)
+                                                    && (uintptr_t)(pu8BufferRow + cbRowCopy) > (uintptr_t)pu8BufferBegin
+                                                    && (uintptr_t)(pu8BufferRow + cbRowCopy) <= (uintptr_t)pu8BufferEnd,
+                                                    rc = VERR_INVALID_PARAMETER);
 
-                        memcpy(pu8SurfaceRow, pu8BufferRow, cbRowCopy);
+                            memcpy(pu8SurfaceRow, pu8BufferRow, cbRowCopy);
 
-                        pu8SurfaceRow += mapSurface.cbRowPitch;
-                        pu8BufferRow += pCmd->srcPitch;
+                            pu8SurfaceRow += mapSurface.cbRowPitch;
+                            pu8BufferRow += pCmd->srcPitch;
+                        }
+
+                        pu8Buffer += pCmd->srcSlicePitch;
+                        pu8Surface += mapSurface.cbDepthPitch;
                     }
-
-                    pu8Buffer += pCmd->srcSlicePitch;
-                    pu8Surface += mapSurface.cbDepthPitch;
                 }
-            }
-            else
-                ASSERT_GUEST_FAILED_STMT(rc = VERR_INVALID_PARAMETER);
+                else
+                    ASSERT_GUEST_FAILED_STMT(rc = VERR_INVALID_PARAMETER);
 
-            vmsvga3dSurfaceUnmap(pThisCC, &imageSurface, &mapSurface, true);
+                vmsvga3dSurfaceUnmap(pThisCC, &imageSurface, &mapSurface, true);
+            }
         }
+        else
+            ASSERT_GUEST_FAILED_STMT(rc = VERR_INVALID_PARAMETER);
 
         vmsvga3dSurfaceUnmap(pThisCC, &imageBuffer, &mapBuffer, false);
     }

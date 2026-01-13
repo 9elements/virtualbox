@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA3d.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: DevVGA-SVGA3d.cpp 112481 2026-01-13 13:11:43Z vitali.pelenjow@oracle.com $ */
 /** @file
  * DevSVGA3d - VMWare SVGA device, 3D parts - Common core code.
  */
@@ -108,6 +108,9 @@ int vmsvga3dSurfaceDefine(PVGASTATECC pThisCC, uint32_t sid, SVGA3dSurfaceAllFla
 
     ASSERT_GUEST_RETURN(sid < SVGA3D_MAX_SURFACE_IDS, VERR_INVALID_PARAMETER);
     ASSERT_GUEST_RETURN(numMipLevels >= 1 && numMipLevels <= SVGA3D_MAX_MIP_LEVELS, VERR_INVALID_PARAMETER);
+    ASSERT_GUEST_RETURN(pMipLevel0Size->width > 0, VERR_INVALID_PARAMETER);
+    ASSERT_GUEST_RETURN(pMipLevel0Size->height > 0, VERR_INVALID_PARAMETER);
+    ASSERT_GUEST_RETURN(pMipLevel0Size->depth > 0, VERR_INVALID_PARAMETER);
     ASSERT_GUEST_RETURN(arraySize <= SVGA3D_MAX_SURFACE_ARRAYSIZE, VERR_INVALID_PARAMETER);
 
     if (sid >= pState->cSurfaces)
@@ -1808,7 +1811,6 @@ int vmsvga3dSurfaceMap(PVGASTATECC pThisCC, SVGA3dSurfaceImageId const *pImage, 
     {
         clipBox = *pBox;
         vmsvgaR3ClipBox(&pMipLevel->mipmapSize, &clipBox);
-        ASSERT_GUEST_RETURN(clipBox.w && clipBox.h && clipBox.d, VERR_INVALID_PARAMETER);
     }
     else
     {
@@ -1819,6 +1821,7 @@ int vmsvga3dSurfaceMap(PVGASTATECC pThisCC, SVGA3dSurfaceImageId const *pImage, 
         clipBox.h = pMipLevel->mipmapSize.height;
         clipBox.d = pMipLevel->mipmapSize.depth;
     }
+    ASSERT_GUEST_RETURN(clipBox.w && clipBox.h && clipBox.d, VERR_INVALID_PARAMETER);
 
     /// @todo Zero the box?
     //if (enmMapType == VMSVGA3D_SURFACE_MAP_WRITE_DISCARD)
@@ -1966,7 +1969,6 @@ int vmsvga3dGetBoxDimensions(PVGASTATECC pThisCC, SVGA3dSurfaceImageId const *pI
     {
         clipBox = *pBox;
         vmsvgaR3ClipBox(&pMipLevel->mipmapSize, &clipBox);
-        ASSERT_GUEST_RETURN(clipBox.w && clipBox.h && clipBox.d, VERR_INVALID_PARAMETER);
     }
     else
     {
@@ -1977,6 +1979,7 @@ int vmsvga3dGetBoxDimensions(PVGASTATECC pThisCC, SVGA3dSurfaceImageId const *pI
         clipBox.h = pMipLevel->mipmapSize.height;
         clipBox.d = pMipLevel->mipmapSize.depth;
     }
+    ASSERT_GUEST_RETURN(clipBox.w && clipBox.h && clipBox.d, VERR_INVALID_PARAMETER);
 
     uint32_t const cBlocksX = (clipBox.w + pSurface->cxBlock - 1) / pSurface->cxBlock;
     uint32_t const cBlocksY = (clipBox.h + pSurface->cyBlock - 1) / pSurface->cyBlock;
