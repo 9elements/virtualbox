@@ -1,4 +1,4 @@
-/* $Id: http-curl.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: http-curl.cpp 112502 2026-01-13 14:42:59Z alexander.rudnev@oracle.com $ */
 /** @file
  * IPRT - HTTP client API, cURL based.
  *
@@ -10,7 +10,7 @@
  */
 
 /*
- * Copyright (C) 2012-2025 Oracle and/or its affiliates.
+ * Copyright (C) 2012-2026 Oracle and/or its affiliates.
  *
  * This file is part of VirtualBox base platform packages, as
  * available from https://www.virtualbox.org.
@@ -188,7 +188,7 @@ typedef struct RTHTTPINTERNAL
     /** Proxy port number (UINT32_MAX if not specified). */
     uint32_t            uProxyPort;
     /** The proxy type (CURLPROXY_HTTP, CURLPROXY_SOCKS5, ++). */
-    curl_proxytype      enmProxyType;
+    long                enmProxyType;
     /** Proxy username (RTStrFree). */
     char               *pszProxyUsername;
     /** Proxy password (RTStrFree). */
@@ -591,7 +591,7 @@ RTR3DECL(int) RTHttpUseSystemProxySettings(RTHTTP hHttp)
  * @param   pszUsername     The proxy username, or NULL if none.
  * @param   pszPassword     The proxy password, or NULL if none.
  */
-static int rtHttpUpdateProxyConfig(PRTHTTPINTERNAL pThis, curl_proxytype enmProxyType, const char *pszHost,
+static int rtHttpUpdateProxyConfig(PRTHTTPINTERNAL pThis, long enmProxyType, const char *pszHost,
                                    uint32_t uPort, const char *pszUsername, const char *pszPassword)
 {
     CURLcode rcCurl;
@@ -871,7 +871,7 @@ static int rtHttpConfigureProxyFromUrl(PRTHTTPINTERNAL pThis, const char *pszPro
             char    *pszPassword = RTUriParsedAuthorityPassword(pszProxyUrl, &Parsed);
             uint32_t uProxyPort  = RTUriParsedAuthorityPort(pszProxyUrl, &Parsed);
             bool     fUnknownProxyType = false;
-            curl_proxytype enmProxyType;
+            long     enmProxyType;
             if (RTUriIsSchemeMatch(pszProxyUrl, "http"))
             {
                 enmProxyType  = CURLPROXY_HTTP;
@@ -1352,7 +1352,7 @@ static int rtHttpDarwinTryConfigProxy(PRTHTTPINTERNAL pThis, CFDictionaryRef hDi
      * Determine the proxy type (not entirely sure about type == proxy type and
      * not scheme/protocol)...
      */
-    curl_proxytype  enmProxyType      = CURLPROXY_HTTP;
+    long  enmProxyType      = CURLPROXY_HTTP;
     uint32_t        uDefaultProxyPort = 8080;
     if (   CFEqual(hStrProxyType, kCFProxyTypeHTTP)
         || CFEqual(hStrProxyType, kCFProxyTypeHTTPS))
