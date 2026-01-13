@@ -1,4 +1,4 @@
-# $Id: Config.kmk 112452 2026-01-13 10:00:32Z knut.osmundsen@oracle.com $
+# $Id: Config.kmk 112480 2026-01-13 13:07:22Z knut.osmundsen@oracle.com $
 ## @file
 # The global build configuration file for VBox.
 #
@@ -512,8 +512,6 @@ else
 endif
 # Enable safe STR (store task register) emulation for raw-mode.
 VBOX_WITH_SAFE_STR = 1
-# Enable support for 64-bit guests.
-VBOX_WITH_64_BITS_GUESTS = 1
 # Enable multi-core VCPUs.
 VBOX_WITH_MULTI_CORE = 1
 # Activate this to force the VM to pre-allocate the guest RAM before startup
@@ -2069,9 +2067,6 @@ endif
 ifdef VBOX_OSE
  DEFS += VBOX_OSE
 endif
-ifdef VBOX_WITH_64_BITS_GUESTS
- DEFS += VBOX_WITH_64_BITS_GUESTS
-endif
 ifdef VBOX_WITH_REM
  DEFS += VBOX_WITH_REM
 endif
@@ -2222,13 +2217,6 @@ else if1of ($(KBUILD_TARGET_ARCH), x86 sparc32)
 else
  $(error VBox: KBUILD_TARGET_ARCH=$(KBUILD_TARGET_ARCH))
 endif
-
-ifdef VBOX_WITH_64_BITS_GUESTS
- VBOX_GC_ARCH_BITS_DEFS := GC_ARCH_BITS=64
-else
- VBOX_GC_ARCH_BITS_DEFS := GC_ARCH_BITS=32
-endif
-ARCH_BITS_DEFS += $(VBOX_GC_ARCH_BITS_DEFS)
 
 #
 # Add the output dir(s) to the dynamic loader search path.
@@ -6350,7 +6338,7 @@ $(foreach arch,$(VBOX_TARGET_ARCHES)\
 ,$(eval TEMPLATE_VBoxR3Exe_ASTOOL.$(KBUILD_TARGET).$(arch) := $(VBOX_ASTOOL.$(KBUILD_TARGET).$(arch))))
 $(foreach arch,$(VBOX_TARGET_ARCHES)\
 ,$(eval TEMPLATE_VBoxR3Exe_ASFLAGS.$(KBUILD_TARGET).$(arch) = $$(VBOX_ASFLAGS.$(KBUILD_TARGET).$(arch))))
-TEMPLATE_VBoxR3Exe_DEFS                = IN_RING3 $(VBOX_GC_ARCH_BITS_DEFS)
+TEMPLATE_VBoxR3Exe_DEFS                = IN_RING3
 TEMPLATE_VBoxR3Exe_DEFS.x86            = HC_ARCH_BITS=32
 TEMPLATE_VBoxR3Exe_DEFS.arm32          = HC_ARCH_BITS=32
 TEMPLATE_VBoxR3Exe_DEFS.sparc32        = HC_ARCH_BITS=32
@@ -8841,7 +8829,6 @@ TEMPLATE_VBoxGuestR3ExeBase_DEFS     := \
 	IN_GUEST_R3 \
 	IN_RT_R3 \
 	IN_RT_STATIC \
-	$(VBOX_GC_ARCH_BITS_DEFS) \
 	RT_NEED_NEW_AND_DELETE
 ifeq ($(KBUILD_TARGET),linux) # As few libs as possible on linux.
  TEMPLATE_VBoxGuestR3ExeBase_LATE_LIBS = pthread rt m dl
@@ -9461,7 +9448,7 @@ SVN                    ?= svn$(HOSTSUFF_EXE)
 GIT                    ?= git$(HOSTSUFF_EXE)
 VBOX_SVN_REV_KMK        = $(PATH_OUT)/revision.kmk
 ifndef VBOX_SVN_REV
- VBOX_SVN_REV_CONFIG_FALLBACK := $(patsubst %:,,  $Rev: 112452 $  )
+ VBOX_SVN_REV_CONFIG_FALLBACK := $(patsubst %:,,  $Rev: 112480 $  )
  VBOX_SVN_REV_FALLBACK := $(if-expr $(VBOX_SVN_REV_CONFIG_FALLBACK) > $(VBOX_SVN_REV_VERSION_FALLBACK),$(VBOX_SVN_REV_CONFIG_FALLBACK),$(VBOX_SVN_REV_VERSION_FALLBACK))
  VBOX_SVN_DEP          := $(firstword $(wildcard $(PATH_ROOT)/.svn/wc.db $(abspath $(PATH_ROOT)/../.svn/wc.db) $(abspath $(PATH_ROOT)/../../.svn/wc.db) $(PATH_ROOT)/.svn/entries))
  VBOX_GIT_DEP          := $(firstword $(wildcard $(PATH_ROOT)/.git/config $(abspath $(PATH_ROOT)/../.git/config) $(abspath $(PATH_ROOT)/../../.git/config)))
@@ -9475,7 +9462,7 @@ ifndef VBOX_SVN_REV
  ifneq ($(VBOX_GIT_DEP),)
   #
   # VBOX_SVN_REV_CONFIG_FALLBACK is not properly populated for a git checkout,
-  # as the $Rev: 112452 $ is not expanded, so we have to set it based on the information in the repo.
+  # as the $Rev: 112480 $ is not expanded, so we have to set it based on the information in the repo.
   #
   VBOX_SVN_REV_FALLBACK := $(shell $(GIT) log -1 $(PATH_ROOT)/Config.kmk | $(SED) -e 's/^[ \t]*//' -e '/svn:sync-xref-src-repo-rev\: r/!d' -e 's/svn:sync-xref-src-repo-rev\: r*//; t a; :a q')
  endif
