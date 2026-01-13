@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# $Id: wuiadmin.py 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+# $Id: wuiadmin.py 112445 2026-01-13 09:40:32Z knut.osmundsen@oracle.com $
 
 """
 Test Manager Core - WUI - Admin Main page.
@@ -36,11 +36,10 @@ terms and conditions of either the GPL or the CDDL or both.
 
 SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 """
-__version__ = "$Revision: 111747 $"
+__version__ = "$Revision: 112445 $"
 
 
 # Standard python imports.
-import cgitb;   # pylint: disable=deprecated-module ## @todo these will be retired in python 3.13!
 import sys;
 
 # Validation Kit imports.
@@ -424,7 +423,7 @@ class WuiAdmin(WuiDispatcherBase):
             self._sPageTitle  = 'Unable to delete record'
             self._sPageBody   = str(oXcpt);
             if config.g_kfDebugDbXcpt:
-                self._sPageBody += cgitb.html(sys.exc_info());
+                self._sPageBody += self._oSrvGlue.formatExceptionAsHtml(sys.exc_info());
             self._sRedirectTo = None
 
         return False
@@ -753,7 +752,7 @@ class WuiAdmin(WuiDispatcherBase):
                     self._oDb.rollback();
                     self._sPageBody += '<p>SchedulerBase.recreateQueue threw an exception: %s</p>' \
                                     % (webutils.escapeElem(str(oXcpt)),);
-                    self._sPageBody += cgitb.html(sys.exc_info());
+                    self._sPageBody += self._oSrvGlue.formatExceptionAsHtml(sys.exc_info());
                 else:
                     if not aoErrors:
                         self._sPageBody += '<p>Successfully regenerated.</p>';

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# $Id: webservergluebase.py 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+# $Id: webservergluebase.py 112445 2026-01-13 09:40:32Z knut.osmundsen@oracle.com $
 
 """
 Test Manager Core - Web Server Abstraction Base Class.
@@ -36,11 +36,11 @@ terms and conditions of either the GPL or the CDDL or both.
 
 SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 """
-__version__ = "$Revision: 111747 $"
+__version__ = "$Revision: 112445 $"
 
 
 # Standard python imports.
-import cgitb;   # pylint: disable=deprecated-module ## @todo these will be retired in python 3.13!
+import cgitb;   # pylint: disable=deprecated-module     # Retired in python 3.13. Install (python3-)legacy-cgi.
 import codecs;
 import os
 import sys
@@ -520,7 +520,7 @@ class WebServerGlueBase(object):
         if aXcptInfo[0] is not None:
             if self._fHtmlDebugOutput:
                 self.write('<h1>Backtrace:</h1>\n');
-                self.write(cgitb.html(aXcptInfo, 5));
+                self.write(self.formatExceptionAsHtml(aXcptInfo, 5));
             else:
                 self.write('Backtrace\n'
                            '---------\n'
@@ -714,4 +714,12 @@ class WebServerGlueBase(object):
             try:    self._afnDebugInfo.remove(fnDebugInfo);
             except: pass;
         return True;
+
+    def formatExceptionAsHtml(self, oXcptInfo = None, cLinesContext = 5):
+        """
+        Wrapper around cgitb.html.
+        """
+        if not oXcptInfo:
+            oXcptInfo = sys.exc_info();
+        return cgitb.html(oXcptInfo, cLinesContext);
 
