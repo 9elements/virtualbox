@@ -1,4 +1,4 @@
-/* $Id: PGMR3Dbg.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: PGMR3Dbg.cpp 112434 2026-01-13 08:30:05Z knut.osmundsen@oracle.com $ */
 /** @file
  * PGM - Page Manager and Monitor - Debugger & Debugging APIs.
  */
@@ -551,7 +551,7 @@ static DECLCALLBACK(uint8_t const *) pgmR3DbgFixedMemScan8Wide1Step(uint8_t cons
         uint8_t const *pbHit = (uint8_t const *)memchr(pbHaystack, (uint8_t)uNeedle, cbHaystack - sizeof(uint64_t) + 1);
         if (pbHit)
         {
-            uint32_t const uFound = !((uintptr_t)pbHit & 7) ? *(const uint32_t *)pbHit
+            uint64_t const uFound = !((uintptr_t)pbHit & 7) ? *(const uint64_t *)pbHit
                                   : RT_MAKE_U64_FROM_U8(pbHit[0], pbHit[1], pbHit[2], pbHit[3],
                                                         pbHit[4], pbHit[5], pbHit[6], pbHit[7]);
             if (uFound == uNeedle)
