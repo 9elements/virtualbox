@@ -1,4 +1,4 @@
-/* $Id: ApplianceImplImport.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: ApplianceImplImport.cpp 112463 2026-01-13 12:16:25Z knut.osmundsen@oracle.com $ */
 /** @file
  * IAppliance and IVirtualSystem COM class implementations.
  */
@@ -470,7 +470,7 @@ HRESULT Appliance::interpret()
 #ifdef VBOX_WITH_E1000
                     defaultAdapterVBox = NetworkAdapterType_I82540EM;
 #else
-                    defaultAdapterVBox = NetworkAdapterType_Am79C973A;
+                    defaultAdapterVBox = NetworkAdapterType_Am79C973;
 #endif
                 }
 

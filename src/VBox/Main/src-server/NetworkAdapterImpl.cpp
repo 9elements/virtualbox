@@ -1,4 +1,4 @@
-/* $Id: NetworkAdapterImpl.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: NetworkAdapterImpl.cpp 112463 2026-01-13 12:16:25Z knut.osmundsen@oracle.com $ */
 /** @file
  * Implementation of INetworkAdapter in VBoxSVC.
  */
@@ -1385,7 +1385,7 @@ void NetworkAdapter::i_applyDefaults(GuestOSType *aOsType)
 #ifdef VBOX_WITH_E1000
         defaultType = NetworkAdapterType_I82540EM;
 #else
-        defaultType = NetworkAdapterType_Am79C973A;
+        defaultType = NetworkAdapterType_Am79C973;
 #endif
     }
 

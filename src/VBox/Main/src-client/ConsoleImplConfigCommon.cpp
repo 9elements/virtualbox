@@ -1,4 +1,4 @@
-/* $Id: ConsoleImplConfigCommon.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: ConsoleImplConfigCommon.cpp 112463 2026-01-13 12:16:25Z knut.osmundsen@oracle.com $ */
 /** @file
  * VBox Console COM Class implementation - VM Configuration Bits.
  *
@@ -2743,6 +2743,8 @@ int Console::i_configNetwork(const char *pszDevice,
 /// @todo aleksey: is there anything to be done here?
 #elif defined(RT_OS_FREEBSD)
 /** @todo FreeBSD: Check out this later (HIF networking). */
+#elif defined(RT_OS_DARWIN)
+/** @todo is there anything to be done here? */
 #else
 # error "Port me"
 #endif
