@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA3d-dx-savedstate.cpp 106320 2024-10-15 12:08:41Z klaus.espenlaub@oracle.com $ */
+/* $Id: DevVGA-SVGA3d-dx-savedstate.cpp 112581 2026-01-14 20:10:07Z vitali.pelenjow@oracle.com $ */
 /** @file
  * DevSVGA3d - VMWare SVGA device, 3D parts - DX backend saved state.
  */
@@ -112,7 +112,7 @@ static int vmsvga3dDXLoadSurface(PCPDMDEVHLPR3 pHlp, PVGASTATECC pThisCC, PSSMHA
     return VINF_SUCCESS;
 }
 
-static int vmsvga3dDXLoadContext(PCPDMDEVHLPR3 pHlp, PVGASTATECC pThisCC, PSSMHANDLE pSSM)
+static int vmsvga3dDXLoadContext(PCPDMDEVHLPR3 pHlp, PVGASTATECC pThisCC, PSSMHANDLE pSSM, uint32_t uVersion)
 {
     PVMSVGAR3STATE pSvgaR3State = pThisCC->svga.pSvgaR3State;
     PVMSVGA3DSTATE p3dState = pThisCC->svga.p3dState;
@@ -198,7 +198,41 @@ static int vmsvga3dDXLoadContext(PCPDMDEVHLPR3 pHlp, PVGASTATECC pThisCC, PSSMHA
         AssertReturn(u32 == cot[i].cbEntry, VERR_INVALID_STATE);
 
         *cot[i].pcEntries = cEntries;
+#ifdef COTABLE_NO_BACKING
+        if (cEntries > 0)
+        {
+            uint32_t const cbCOT = vmsvgaR3MobSize(pDXContext->aCOTMobs[i]);
+            uint32_t const cbEntries = cEntries * cot[i].cbEntry;
+            AssertReturn(cbEntries <= cbCOT, VERR_INVALID_STATE);
+
+            *cot[i].ppaEntries = RTMemAllocZ(cbCOT);
+            AssertReturn(*cot[i].ppaEntries, VERR_NO_MEMORY);
+
+            if (uVersion >= VGA_SAVEDSTATE_VERSION_VMSVGA_COTABLES)
+            {
+                /* Read the content of COTable to the host buffer. */
+                rc = pHlp->pfnSSMGetMem(pSSM, *cot[i].ppaEntries, cbEntries);
+                AssertRCReturn(rc, rc);
+            }
+            else
+            {
+                /* COTable content must be in the MOB host buffer. */
+                void const *pvMobData = vmsvgaR3MobBackingStorePtr(pDXContext->aCOTMobs[idxCOTable], 0);
+                Assert(pvMobData);
+                if (pvMobData)
+                    memcpy(*cot[i].ppaEntries, pvMobData, cbEntries);
+            }
+        }
+        else
+            *cot[i].ppaEntries = NULL;
+#else
         *cot[i].ppaEntries = vmsvgaR3MobBackingStorePtr(pDXContext->aCOTMobs[idxCOTable], 0);
+        if (uVersion >= VGA_SAVEDSTATE_VERSION_VMSVGA_COTABLES)
+        {
+            if (cEntries > 0)
+                pHlp->pfnSSMSkip(pSSM, cEntries * cot[i].cbEntry);
+        }
+#endif
 
         if (cEntries)
         {
@@ -271,7 +305,7 @@ int vmsvga3dDXLoadExec(PPDMDEVINS pDevIns, PVGASTATE pThis, PVGASTATECC pThisCC,
 
         for (uint32_t i = 0; i < p3dState->cDXContexts; ++i)
         {
-            rc = vmsvga3dDXLoadContext(pHlp, pThisCC, pSSM);
+            rc = vmsvga3dDXLoadContext(pHlp, pThisCC, pSSM, uVersion);
             AssertRCReturn(rc, rc);
         }
     }
@@ -449,6 +483,13 @@ static int vmsvga3dDXSaveContext(PCPDMDEVHLPR3 pHlp, PVGASTATECC pThisCC, PSSMHA
         pHlp->pfnSSMPutU32(pSSM, cot[i].cEntries);
         rc = pHlp->pfnSSMPutU32(pSSM, cot[i].cbEntry);
         AssertLogRelRCReturn(rc, rc);
+
+        /* VGA_SAVEDSTATE_VERSION_VMSVGA_COTABLES */
+        if (cot[i].cEntries)
+        {
+            rc = pHlp->pfnSSMPutMem(pSSM, cot[i].paEntries, cot[i].cEntries * cot[i].cbEntry);
+            AssertLogRelRCReturn(rc, rc);
+        }
     }
 
     rc = pSvgaR3State->pFuncsDX->pfnDXSaveState(pThisCC, pDXContext, pHlp, pSSM);
