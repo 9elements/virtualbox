@@ -136,15 +136,13 @@ CryptGetHashDef(
 /*     Return Value	Meaning */
 /*     TRUE(1)	hashAlg is a valid, implemented hash on this TPM */
 /*     FALSE(0)	hashAlg is not valid for this TPM */
-BOOL
-CryptHashIsValidAlg(
-		    TPM_ALG_ID       hashAlg,           // IN: the algorithm to check
-		    BOOL             flag               // IN: TRUE if TPM_ALG_NULL is to be treated
-		    //     as a valid hash
-		    )
+BOOL CryptHashIsValidAlg(TPM_ALG_ID hashAlg,        // IN: the algorithm to check
+			 BOOL       isAlgNullValid  // IN: TRUE if TPM_ALG_NULL is to be treated
+						    //     as a valid hash
+			 )
 {
     if(hashAlg == TPM_ALG_NULL)
-	return flag;
+	return isAlgNullValid;
     return CryptGetHashDef(hashAlg) != &NULL_Def;
 }
 /* 10.2.13.4.4 CryptHashGetAlgByIndex() */

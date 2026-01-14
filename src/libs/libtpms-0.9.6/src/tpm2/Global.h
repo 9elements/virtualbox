@@ -232,7 +232,9 @@ typedef struct OBJECT
     // handle of an object slot.
     TPM2B_NAME          name;               // Name of the object name. Kept here
     // to avoid repeatedly computing it.
-
+#if __LONG_WIDTH__ == 32
+    UINT8               _pad1[4]; /* 32 bit targets need padding */
+#endif
     // libtpms added: SEED_COMPAT_LEVEL to use for deriving child keys
     SEED_COMPAT_LEVEL   seedCompatLevel;
     // libtpms added: OBJECT lies in NVRAM; to avoid that it needs different number
