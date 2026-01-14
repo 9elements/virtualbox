@@ -189,5 +189,19 @@ typedef int SOCKET;
 // #ifdef TPM_POSIX
 // typedef int SOCKET;
 // #endif
-#endif // _COMPILER_DEPENDENCIES_H_
 
+#ifdef TPM_WINDOWS
+#ifdef TPM_STATIC_ASSERT
+#  error TPM_STATIC_ASSERT already defined
+#endif
+// MSVC: failure results in error C2118: negative subscript error
+#define TPM_STATIC_ASSERT(e) typedef char __C_ASSERT__[(e) ? 1 : -1]
+#endif // WINDOWS
+
+#if defined(__GNUC__)
+#define TPM_STATIC_ASSERT(e) _Static_assert(e, "static assert")
+#endif
+
+#define MUST_BE(e) TPM_STATIC_ASSERT(e)
+
+#endif // _COMPILER_DEPENDENCIES_H_
