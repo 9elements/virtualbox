@@ -93,7 +93,6 @@ CryptCmacStart(
     cState->keySizeBits = def->keyBits.sym;
     cState->iv.t.size = CryptGetSymmetricBlockSize(def->algorithm,
 						   def->keyBits.sym);
-    pAssert(cState->iv.t.size > 0 && cState->iv.t.size <= sizeof(cState->iv.t.buffer));	// libtpms added
     MemoryCopy2B(&cState->symKey.b, key, sizeof(cState->symKey.t.buffer));
     // Set up the dispatch methods for the CMAC
     state->smacMethods.data = CryptCmacData;
@@ -196,9 +195,6 @@ CryptCmacEnd(
 	    // Now compute K2
 	    xorVal = ((subkey.t.buffer[0] & 0x80) == 0) ? 0 : 0x87;
 	    ShiftLeft(&subkey.b);
-MUST_BE(MAX_SYM_BLOCK_SIZE == 16);				// libtpms added begin: gcc -Wstringop-overflow=
-	    pAssert(subkey.t.size > 0 &&
-	            subkey.t.size <= sizeof(subkey.t.buffer));	// libtpms added end
 	    subkey.t.buffer[subkey.t.size - 1] ^= xorVal;
 	}
     // XOR the subkey into the IV

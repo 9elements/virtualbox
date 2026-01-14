@@ -74,16 +74,11 @@ PHASH_DEF
 CryptGetHashDef(
 		TPM_ALG_ID       hashAlg
 		);
-//*** CryptHashIsValidAlg()
-// This function tests to see if an algorithm ID is a valid hash algorithm. If
-// flag is true, then TPM_ALG_NULL is a valid hash.
-//  Return Type: BOOL
-//      TRUE(1)         hashAlg is a valid, implemented hash on this TPM
-//      FALSE(0)        hashAlg is not valid for this TPM
-BOOL CryptHashIsValidAlg(TPM_ALG_ID hashAlg,        // IN: the algorithm to check
-			 BOOL       isAlgNullValid  // IN: TRUE if TPM_ALG_NULL is to be treated
-						    //     as a valid hash
-			 );
+BOOL
+CryptHashIsValidAlg(
+		    TPM_ALG_ID       hashAlg,
+		    BOOL             flag
+		    );
 LIB_EXPORT TPM_ALG_ID
 CryptHashGetAlgByIndex(
 		       UINT32           index          // IN: the index
