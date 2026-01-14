@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA3d-internal.h 112484 2026-01-13 13:22:33Z vitali.pelenjow@oracle.com $ */
+/* $Id: DevVGA-SVGA3d-internal.h 112580 2026-01-14 20:06:50Z vitali.pelenjow@oracle.com $ */
 /** @file
  * DevVMWare - VMWare SVGA device - 3D part, internal header.
  */
@@ -982,6 +982,9 @@ static SSMFIELD const g_aVMSVGA3DCONTEXTFields[] =
 #ifdef VMSVGA3D_DX
 /* The 3D backend DX context. The actual structure is 3D API specific. */
 typedef struct VMSVGA3DBACKENDDXCONTEXT *PVMSVGA3DBACKENDDXCONTEXT;
+
+/** @todo Make it default and remove. */
+#define COTABLE_NO_BACKING
 
 /**
  * VMSVGA3D DX context (VGPU10+). DX contexts ids are a separate namespace from legacy context ids.
