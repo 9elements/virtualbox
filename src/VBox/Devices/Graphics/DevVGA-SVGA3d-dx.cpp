@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA3d-dx.cpp 112581 2026-01-14 20:10:07Z vitali.pelenjow@oracle.com $ */
+/* $Id: DevVGA-SVGA3d-dx.cpp 112603 2026-01-15 12:09:44Z vitali.pelenjow@oracle.com $ */
 /** @file
  * DevSVGA3d - VMWare SVGA device, 3D parts - Common code for DX backend interface.
  */
@@ -2216,7 +2216,7 @@ static int dxSetOrGrowCOTable(PVGASTATECC pThisCC, PVMSVGA3DDXCONTEXT pDXContext
         /* When growing a COTable, the valid size can't be greater than the old COTable size. */
         if (fGrow)
         {
-            uint32_t const cbOldCOT = vmsvgaR3MobSize(pDXContext->aCOTMobs[idxCOTable]);
+            uint32_t const cbOldCOT = vmsvgaR3MobSize(vmsvgaR3MobGet(pSvgaR3State, pDXContext->aCOTMobs[idxCOTable]));
             validSizeInBytes = RT_MIN(validSizeInBytes, cbOldCOT);
         }
 
@@ -2322,7 +2322,7 @@ static int dxSetOrGrowCOTable(PVGASTATECC pThisCC, PVMSVGA3DDXCONTEXT pDXContext
 
     RTMemFree(pvOldCOT);
 
-    pDXContext->aCOTMobs[idxCOTable] = pMob;
+    pDXContext->aCOTMobs[idxCOTable] = vmsvgaR3MobId(pMob);
 
     rc = pSvgaR3State->pFuncsDX->pfnDXSetCOTable(pThisCC, pDXContext, enmType, cValidEntries);
 #else
@@ -2539,7 +2539,7 @@ int vmsvga3dDXReadbackCOTable(PVGASTATECC pThisCC, SVGA3dCmdDXReadbackCOTable co
         ASSERT_GUEST_FAILED_RETURN(VERR_INVALID_PARAMETER);
     RT_UNTRUSTED_VALIDATED_FENCE();
 
-    PVMSVGAMOB pMob = pDXContext->aCOTMobs[idxCOTable];
+    PVMSVGAMOB pMob = vmsvgaR3MobGet(pSvgaR3State, pDXContext->aCOTMobs[idxCOTable]);
     AssertReturn(pMob, VERR_INVALID_STATE);
 
     void *pvCOT = NULL;
