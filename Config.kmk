@@ -1,4 +1,4 @@
-# $Id: Config.kmk 112512 2026-01-13 15:27:21Z alexander.rudnev@oracle.com $
+# $Id: Config.kmk 112617 2026-01-15 14:41:42Z alexander.rudnev@oracle.com $
 ## @file
 # The global build configuration file for VBox.
 #
@@ -5248,7 +5248,7 @@ endif
 
 ifdef VBOX_WITH_LIBTPMS
  SDK_VBoxLibTpms                 := libtpms for dll linking.
- SDK_VBoxLibTpms_DEFAULT_INCS    := $(PATH_ROOT)/src/libs/libtpms-0.9.6/include
+ SDK_VBoxLibTpms_DEFAULT_INCS    := $(PATH_ROOT)/src/libs/libtpms-0.9.7/include
  SDK_VBoxLibTpms_INCS            ?= $(SDK_VBoxLibTpms_DEFAULT_INCS)
  SDK_VBoxLibTpms_LIBS            ?= $(PATH_STAGE_LIB)/VBox-libtpms$(VBOX_SUFF_LIB)
 endif
@@ -9267,7 +9267,7 @@ endif
 SVN                    ?= svn$(HOSTSUFF_EXE)
 VBOX_SVN_REV_KMK        = $(PATH_OUT)/revision.kmk
 ifndef VBOX_SVN_REV
- VBOX_SVN_REV_CONFIG_FALLBACK := $(patsubst %:,,  $Rev: 112512 $  )
+ VBOX_SVN_REV_CONFIG_FALLBACK := $(patsubst %:,,  $Rev: 112617 $  )
  VBOX_SVN_REV_FALLBACK := $(if-expr $(VBOX_SVN_REV_CONFIG_FALLBACK) > $(VBOX_SVN_REV_VERSION_FALLBACK),$(VBOX_SVN_REV_CONFIG_FALLBACK),$(VBOX_SVN_REV_VERSION_FALLBACK))
  VBOX_SVN_DEP          := $(firstword $(wildcard $(PATH_ROOT)/.svn/wc.db $(abspath $(PATH_ROOT)/../.svn/wc.db) $(abspath $(PATH_ROOT)/../../.svn/wc.db) $(PATH_ROOT)/.svn/entries))
  ifeq ($(which $(SVN)),)
