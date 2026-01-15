@@ -115,7 +115,7 @@ Rules for adding a changelog entry to make them look more uniform:
       </listitem>
 
       <listitem>
-        <para>VBoxManage: Fixed issue when VM could not be started from commandline
+        <para>VBoxManage: Fixed issue when VM could not be started from command line
           in some circumstances (github:gh-418)</para>
       </listitem>
 
@@ -130,7 +130,7 @@ Rules for adding a changelog entry to make them look more uniform:
       </listitem>
 
       <listitem>
-        <para>Linux Guest Additions: Fixed building issue for kernels 2.5.52 and older</para>
+        <para>Linux Guest Additions: Fixed build issue for kernels 2.5.52 and older</para>
       </listitem>
 
       <listitem>
