@@ -3,7 +3,6 @@
 /*			Interfaces to the Crypto Engine				*/
 /*			     Written by Ken Goldman				*/
 /*		       IBM Thomas J. Watson Research Center			*/
-/*            $Id: CryptUtil.c 1658 2021-01-22 23:14:01Z kgoldman $		*/
 /*										*/
 /*  Licenses and Notices							*/
 /*										*/
@@ -55,7 +54,7 @@
 /*    arising in any way out of use or reliance upon this specification or any 	*/
 /*    information herein.							*/
 /*										*/
-/*  (c) Copyright IBM Corp. and others, 2016 - 2021				*/
+/*  (c) Copyright IBM Corp. and others, 2016 - 2023				*/
 /*										*/
 /********************************************************************************/
 
@@ -67,7 +66,7 @@
 #include "Tpm.h"
 /* 10.2.6.3 Hash/HMAC Functions */
 /* 10.2.6.3.1 CryptHmacSign() */
-/* Sign a digest using an HMAC key. This an HMAC of a digest, not an HMAC of a message. */
+/* Sign a digest using an HMAC key. This is an HMAC of a digest, not an HMAC of a message. */
 /* Error Returns Meaning */
 /* TPM_RC_HASH not a valid hash */
 static TPM_RC
@@ -79,12 +78,18 @@ CryptHmacSign(
 {
     HMAC_STATE       hmacState;
     UINT32           digestSize;
-    digestSize = CryptHmacStart2B(&hmacState, signature->signature.any.hashAlg,
-				  &signKey->sensitive.sensitive.bits.b);
-    CryptDigestUpdate2B(&hmacState.hashState, &hashData->b);
-    CryptHmacEnd(&hmacState, digestSize,
-		 (BYTE *)&signature->signature.hmac.digest);
-    return TPM_RC_SUCCESS;
+
+    if(signature->sigAlg == TPM_ALG_HMAC)
+	{
+	    digestSize = CryptHmacStart2B(&hmacState,
+					  signature->signature.any.hashAlg,
+					  &signKey->sensitive.sensitive.bits.b);
+	    CryptDigestUpdate2B(&hmacState.hashState, &hashData->b);
+	    CryptHmacEnd(&hmacState, digestSize,
+			 (BYTE *)&signature->signature.hmac.digest);
+	    return TPM_RC_SUCCESS;
+	}
+    return TPM_RC_SCHEME;
 }
 /* 10.2.6.3.2 CryptHMACVerifySignature() */
 /* This function will verify a signature signed by a HMAC key. Note that a caller needs to prepare
@@ -640,6 +645,9 @@ CryptSecretDecrypt(
 		  TPMS_ECC_POINT       eccSecret;
 		  BYTE                *buffer = secret->t.secret;
 		  INT32                size = secret->t.size;
+
+		  MemorySet(&eccPublic, 0, sizeof(eccPublic));		// libtpms added: Coverity
+
 		  // Retrieve ECC point from secret buffer
 		  result = TPMS_ECC_POINT_Unmarshal(&eccPublic, &buffer, &size);
 		  if(result == TPM_RC_SUCCESS)
@@ -756,6 +764,7 @@ void
 CryptParameterEncryption(
 			 TPM_HANDLE       handle,            // IN: encrypt session handle
 			 TPM2B           *nonceCaller,       // IN: nonce caller
+			 INT32            bufferSize,	     // IN: size of parameter buffer
 			 UINT16           leadingSizeInByte, // IN: the size of the leading size field in
 			 //     bytes
 			 TPM2B_AUTH      *extraKey,          // IN: additional key material other than
@@ -767,28 +776,29 @@ CryptParameterEncryption(
     TPM2B_TYPE(TEMP_KEY, (sizeof(extraKey->t.buffer)
 			  + sizeof(session->sessionKey.t.buffer)));
     TPM2B_TEMP_KEY        key;               // encryption key
-    UINT32               cipherSize = 0;    // size of cipher text
-    // Retrieve encrypted data size.
-    if(leadingSizeInByte == 2)
-	{
-	    // Extract the first two bytes as the size field as the data size
-	    // encrypt
-	    cipherSize = (UINT32)BYTE_ARRAY_TO_UINT16(buffer);
-	    // advance the buffer
-	    buffer = &buffer[2];
-	}
-#ifdef      TPM4B
-    else if(leadingSizeInByte == 4)
-	{
-	    // use the first four bytes to indicate the number of bytes to encrypt
-	    cipherSize = BYTE_ARRAY_TO_UINT32(buffer);
-	    //advance pointer
-	    buffer = &buffer[4];
-	}
-#endif
-    else
+    UINT16                cipherSize = 0;    // size of cipher text
+
+    if(bufferSize < leadingSizeInByte)
 	{
 	    FAIL(FATAL_ERROR_INTERNAL);
+	    return;
+	}
+    // Parameter encryption for a non-2B is not supported.
+    if(leadingSizeInByte != 2)
+	{
+	    FAIL(FATAL_ERROR_INTERNAL);
+	    return;
+	}
+    // Retrieve encrypted data size.
+    if(UINT16_Unmarshal(&cipherSize, &buffer, &bufferSize) != TPM_RC_SUCCESS)
+	{
+	    FAIL(FATAL_ERROR_INTERNAL);
+	    return;
+	}
+    if(cipherSize > bufferSize)
+	{
+	    FAIL(FATAL_ERROR_INTERNAL);
+	    return;
 	}
     // Compute encryption key by concatenating sessionKey with extra key
     MemoryCopy2B(&key.b, &session->sessionKey.b, sizeof(key.t.buffer));
@@ -796,14 +806,21 @@ CryptParameterEncryption(
     if(session->symmetric.algorithm == TPM_ALG_XOR)
 	// XOR parameter encryption formulation:
 	//    XOR(parameter, hash, sessionAuth, nonceNewer, nonceOlder)
-	CryptXORObfuscation(session->authHashAlg, &(key.b),
+	CryptXORObfuscation(session->authHashAlg,
+			    &(key.b),
 			    &(session->nonceTPM.b),
-			    nonceCaller, cipherSize, buffer);
+			    nonceCaller,
+			    (UINT32)cipherSize,
+			    buffer);
     else
-	ParmEncryptSym(session->symmetric.algorithm, session->authHashAlg,
-		       session->symmetric.keyBits.aes, &(key.b),
-		       nonceCaller, &(session->nonceTPM.b),
-		       cipherSize, buffer);
+	ParmEncryptSym(session->symmetric.algorithm,
+		       session->authHashAlg,
+		       session->symmetric.keyBits.aes,
+		       &(key.b),
+		       nonceCaller,
+		       &(session->nonceTPM.b),
+		       (UINT32)cipherSize,
+		       buffer);
     return;
 }
 /* 10.2.6.6.6 CryptParameterDecryption() */
@@ -815,7 +832,7 @@ TPM_RC
 CryptParameterDecryption(
 			 TPM_HANDLE       handle,            // IN: encrypted session handle
 			 TPM2B           *nonceCaller,       // IN: nonce caller
-			 UINT32           bufferSize,        // IN: size of parameter buffer
+			 INT32            bufferSize,        // IN: size of parameter buffer
 			 UINT16           leadingSizeInByte, // IN: the size of the leading size field in
 			 //     byte
 			 TPM2B_AUTH      *extraKey,          // IN: the authValue
@@ -829,35 +846,27 @@ CryptParameterDecryption(
     TPM2B_TYPE(HMAC_KEY, (sizeof(extraKey->t.buffer)
 			  + sizeof(session->sessionKey.t.buffer)));
     TPM2B_HMAC_KEY          key;            // decryption key
-    UINT32                  cipherSize = 0; // size of cipher text
+    UINT16                  cipherSize = 0; // size of cipher text
 
-    if (leadingSizeInByte > bufferSize)
-	return TPM_RC_INSUFFICIENT;
-
-    // Retrieve encrypted data size.
-    if(leadingSizeInByte == 2)
+    if(bufferSize < leadingSizeInByte)
 	{
-	    // The first two bytes of the buffer are the size of the
-	    // data to be decrypted
-	    cipherSize = (UINT32)BYTE_ARRAY_TO_UINT16(buffer);
-	    buffer = &buffer[2];   // advance the buffer
-	    bufferSize -= 2;
+	    return TPM_RC_INSUFFICIENT;
 	}
-#ifdef  TPM4B
-    else if(leadingSizeInByte == 4)
-	{
-	    // the leading size is four bytes so get the four byte size field
-	    cipherSize = BYTE_ARRAY_TO_UINT32(buffer);
-	    buffer = &buffer[4];   //advance pointer
-	    bufferSize -= 4;
-	}
-#endif
-    else
+    // Parameter encryption for a non-2B is not supported.
+    if(leadingSizeInByte != 2)
 	{
 	    FAIL(FATAL_ERROR_INTERNAL);
+	    return TPM_RC_FAILURE;
+	}
+    // Retrieve encrypted data size.
+    if(UINT16_Unmarshal(&cipherSize, &buffer, &bufferSize) != TPM_RC_SUCCESS)
+	{
+	    return TPM_RC_INSUFFICIENT;
 	}
     if(cipherSize > bufferSize)
+	{
 	return TPM_RC_SIZE;
+	}
     // Compute decryption key by concatenating sessionAuth with extra input key
     MemoryCopy2B(&key.b, &session->sessionKey.b, sizeof(key.t.buffer));
     MemoryConcat2B(&key.b, &extraKey->b, sizeof(key.t.buffer));
@@ -865,14 +874,22 @@ CryptParameterDecryption(
 	// XOR parameter decryption formulation:
 	//    XOR(parameter, hash, sessionAuth, nonceNewer, nonceOlder)
 	// Call XOR obfuscation function
-	CryptXORObfuscation(session->authHashAlg, &key.b, nonceCaller,
-			    &(session->nonceTPM.b), cipherSize, buffer);
+	CryptXORObfuscation(session->authHashAlg,
+			    &key.b,
+			    nonceCaller,
+			    &(session->nonceTPM.b),
+			    (UINT32)cipherSize,
+			    buffer);
     else
 	// Assume that it is one of the symmetric block ciphers.
-	ParmDecryptSym(session->symmetric.algorithm, session->authHashAlg,
+	ParmDecryptSym(session->symmetric.algorithm,
+		       session->authHashAlg,
 		       session->symmetric.keyBits.sym,
-		       &key.b, nonceCaller, &session->nonceTPM.b,
-		       cipherSize, buffer);
+		       &key.b,
+		       nonceCaller,
+		       &session->nonceTPM.b,
+		       (UINT32)cipherSize,
+		       buffer);
     return TPM_RC_SUCCESS;
 }
 /* 10.2.6.6.7 CryptComputeSymmetricUnique() */
@@ -1096,7 +1113,7 @@ CryptIsSplitSign(
 	}
 }
 /* 10.2.6.6.11 CryptIsAsymSignScheme() */
-/* This function indicates if a scheme algorithm is a sign algorithm. */
+/* This function indicates if a scheme algorithm is a sign algorithm valid for the public key type. */
 BOOL
 CryptIsAsymSignScheme(
 		      TPMI_ALG_PUBLIC          publicType,        // IN: Type of the object
@@ -1125,9 +1142,11 @@ CryptIsAsymSignScheme(
 #if ALG_ECC
 	    // If ECC is implemented ECDSA is required
 	  case TPM_ALG_ECC:
+#  if !ALG_ECDSA
+#    error "ECDSA required if ECC enabled."
+#  endif
 	    switch(scheme)
 		{
-		    // Support for ECDSA is required for ECC
 		  case TPM_ALG_ECDSA:
 #if ALG_ECDAA // ECDAA is optional
 		  case TPM_ALG_ECDAA:
@@ -1150,6 +1169,58 @@ CryptIsAsymSignScheme(
 	    break;
 	}
     return isSignScheme;
+}
+//*** CryptIsValidSignScheme()
+// This function checks that a signing scheme is valid. This includes verifying
+// that the scheme signing algorithm is compatible with the signing object type
+// and that the scheme specifies a valid hash algorithm.
+static BOOL CryptIsValidSignScheme(TPMI_ALG_PUBLIC   publicType,  // IN: Type of the object
+                                   TPMT_SIG_SCHEME*  scheme       // IN: the signing scheme
+)
+{
+    BOOL isValidSignScheme = TRUE;
+
+    switch(publicType)
+    {
+#if ALG_RSA
+        case TPM_ALG_RSA:
+            isValidSignScheme = CryptIsAsymSignScheme(publicType, scheme->scheme);
+            break;
+#endif  // ALG_RSA
+
+#if ALG_ECC
+        case TPM_ALG_ECC:
+            isValidSignScheme = CryptIsAsymSignScheme(publicType, scheme->scheme);
+            break;
+#endif  // ALG_ECC
+
+        case TPM_ALG_KEYEDHASH:
+            if(scheme->scheme != TPM_ALG_HMAC)
+            {
+                isValidSignScheme = FALSE;
+            }
+            break;
+
+        default:
+            isValidSignScheme = FALSE;
+            break;
+    }
+
+    // Ensure that a valid hash algorithm is specified. Pass 'flag' = FALSE to
+    // indicate that TPM_ALG_NULL should not be treated as valid.
+    //
+    // NOTE: 'details' is of type TPMU_SIG_SCHEME which is a union of many
+    // different signature scheme types. In all these types (including the type
+    // of 'any'), the very first member is of type TPMI_ALG_HASH. Therefore,
+    // when 'any.hashAlg' is set to a valid hash algorithm ID, the hash for any
+    // signature scheme type will also be a valid hash algorithm ID. (All valid
+    // hash algorithm IDs are the same for all signature scheme types.)
+    if(!CryptHashIsValidAlg(scheme->details.any.hashAlg, /* flag = */ FALSE))
+    {
+        isValidSignScheme = FALSE;
+    }
+
+    return isValidSignScheme;
 }
 /* 10.2.6.6.12 CryptIsAsymDecryptScheme() */
 /* This function indicate if a scheme algorithm is a decrypt algorithm. */
@@ -1205,8 +1276,9 @@ CryptIsAsymDecryptScheme(
 }
 /* 10.2.6.6.13 CryptSelectSignScheme() */
 /* This function is used by the attestation and signing commands.  It implements the rules for
-   selecting the signature scheme to use in signing. This function requires that the signing key
-   either be TPM_RH_NULL or be loaded. */
+   selecting the signature scheme to use in signing and validates that the selected scheme is
+   compatible with the key type. It also ensures the selected scheme specifies a valid hash
+   algorithm. This function requires that the signing key either be TPM_RH_NULL or be loaded. */
 /* If a default scheme is defined in object, the default scheme should be chosen, otherwise, the
    input scheme should be chosen. In the case that both object and input scheme has a non-NULL
    scheme algorithm, if the schemes are compatible, the input scheme will be chosen. */
@@ -1237,25 +1309,32 @@ CryptSelectSignScheme(
 	{
 	    // assignment to save typing.
 	    publicArea = &signObject->publicArea;
-	    // A symmetric cipher can be used to encrypt and decrypt but it can't
-	    // be used for signing
-	    if(publicArea->type == TPM_ALG_SYMCIPHER)
-		return FALSE;
-	    // Point to the scheme object
+
+	    // Get a point to the scheme object
 	    if(CryptIsAsymAlgorithm(publicArea->type))
-		objectScheme =
-		    (TPMT_SIG_SCHEME *)&publicArea->parameters.asymDetail.scheme;
+		{
+		    objectScheme =
+			(TPMT_SIG_SCHEME *)&publicArea->parameters.asymDetail.scheme;
+		}
+	    else if(publicArea->type == TPM_ALG_KEYEDHASH)
+		{
+		    objectScheme =
+			(TPMT_SIG_SCHEME *)&publicArea->parameters.keyedHashDetail.scheme;
+		}
 	    else
-		objectScheme =
-		    (TPMT_SIG_SCHEME *)&publicArea->parameters.keyedHashDetail.scheme;
+		{
+		    // Only asymmetric key types (RSA, ECC) and keyed hashes can be
+		    // used for signing. A symmetric cipher can be used to encrypt and
+		    // decrypt but can't be used for signing.
+		    return FALSE;
+		}
+
 	    // If the object doesn't have a default scheme, then use the
 	    // input scheme.
 	    if(objectScheme->scheme == TPM_ALG_NULL)
 		{
 		    // Input and default can't both be NULL
 		    OK = (scheme->scheme != TPM_ALG_NULL);
-		    // Assume that the scheme is compatible with the key. If not,
-		    // an error will be generated in the signing operation.
 		}
 	    else if(scheme->scheme == TPM_ALG_NULL)
 		{
@@ -1281,6 +1360,13 @@ CryptSelectSignScheme(
 		    OK = (objectScheme->scheme == scheme->scheme)
 			 && (objectScheme->details.any.hashAlg
 			     == scheme->details.any.hashAlg);
+		}
+
+	    if(OK)
+		{
+		    // Check that the scheme is compatible with the key type and has a
+		    // valid hash algorithm specified.
+		    OK = CryptIsValidSignScheme(publicArea->type, scheme);
 		}
 	}
     return OK;

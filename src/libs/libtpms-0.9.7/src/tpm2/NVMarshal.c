@@ -815,7 +815,7 @@ pcrbanks_algs_active(const TPML_PCR_SELECTION *pcrAllocated)
         for (j = 0; j < pcrAllocated->pcrSelections[i].sizeofSelect; j++) {
             if (pcrAllocated->pcrSelections[i].pcrSelect[j]) {
 #ifndef VBOX
-                algs_active |= 1 << pcrAllocated->pcrSelections[i].hash;
+                algs_active |= ((UINT64)1 << pcrAllocated->pcrSelections[i].hash);
 #else
                 algs_active |= RT_BIT_64(pcrAllocated->pcrSelections[i].hash);
 #endif
@@ -4542,9 +4542,8 @@ USER_NVRAM_Display(const char *msg)
             fprintf(stderr, " (NV_INDEX)  ");
             /* NV_INDEX has the index again at offset 0! */
             NvReadNvIndexInfo(entryRef + offset, &nvi);
-            offset += sizeof(nvi);
             datasize = entrysize - sizeof(UINT32) - sizeof(nvi);
-            fprintf(stderr, " datasize: %u\n",datasize);
+            fprintf(stderr, " datasize: %u\n", datasize);
             break;
         break;
         case TPM_HT_PERSISTENT:
@@ -4638,7 +4637,6 @@ USER_NVRAM_Marshal(BYTE **buffer, INT32 *size)
             offset += sizeof(handle);
 
             NvRead(&obj, entryRef + offset, sizeof(obj));
-            offset += sizeof(obj);
             written += ANY_OBJECT_Marshal(&obj, buffer, size);
         break;
         default:
