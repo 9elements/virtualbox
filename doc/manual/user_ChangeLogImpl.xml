@@ -81,7 +81,93 @@ Rules for adding a changelog entry to make them look more uniform:
     <itemizedlist>
 
       <listitem>
-        <para></para>
+        <para>VMM: Fixed issue when VM process was crashing during RHEL5 guest boot</para>
+      </listitem>
+
+      <listitem>
+        <para>VMM: Fixed issue when VMX nested-guest VM-entry was checking the wrong
+          VM-execution control bit in the virtual VMCS (github:gh-313)</para>
+      </listitem>
+
+      <listitem>
+        <para>VMM: Fixed issue when VM was crashing on start after recent
+          Windows update (KB5066793) (github:gh-360)</para>
+      </listitem>
+
+      <listitem>
+        <para>VMM: Fixed issue when guest process was crashing inside Windows
+          guest on AMD system (github:gh-400)</para>
+      </listitem>
+
+      <listitem>
+        <para>VMM: Fixed issue when VM process was crashing on Windows host (github:gh-426,
+          github:gh-407, github:gh-404, github:gh-369, github:gh-238, github:gh-207,
+          github:gh-187, github:gh-178)</para>
+      </listitem>
+
+      <listitem>
+        <para>GUI: Fixed issue when machine-windows were not properly configured for
+          i3 window manager within the VBOX_GUI_WITH_CUSTOMIZATIONS1 option set</para>
+      </listitem>
+
+      <listitem>
+        <para>GUI: Fixed issue when downloading update files was
+          failing (github:gh-327, github:gh-372)</para>
+      </listitem>
+
+      <listitem>
+        <para>Main: Improved filename check for drag-and-drop operations (github:gh-68)</para>
+      </listitem>
+
+      <listitem>
+        <para>VBoxManage: Fixed issue when VM could not be started from commandline
+          in some circumstances (github:gh-418)</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux Host: Fixed issue when vboxautostart-service did not start
+          corresponding VMs on system boot (github:gh-309)</para>
+      </listitem>
+
+      <listitem>
+        <para>Guest Additions: Fixed issue when guest process was crashing due to
+          low memory in the system (github:gh-410)</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux Guest Additions: Fixed building issue for kernels 2.5.52 and older</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux Guest Additions: Fixed issue when VBoxService was not started
+          due to abandoned pid file</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux Guest Additions: Fixed issue when user session services were
+          not started on old Linux distributions</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux Guest Additions: Fixed check if kernel modules were loaded
+          for old Linux distributions</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux Guest Additions: Fixed issue when Guest Additions processes
+          were left running on system reboot or shutdown (github:gh-311)</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux Guest Additions: Added additional fixes for RHEL 9.8, 10.1 and 10.2 kernels</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux Guest Additions: Added initial support for kernel 6.19 (github:gh-467)</para>
+      </listitem>
+
+      <listitem>
+        <para>BIOS: Fixed issue with booting VM using IPXE (github:gh-417)</para>
       </listitem>
 
     </itemizedlist>
