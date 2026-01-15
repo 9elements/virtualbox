@@ -1,4 +1,4 @@
-/* $Id: CPUMR3CpuId-x86.cpp 112429 2026-01-13 07:50:56Z alexander.eichner@oracle.com $ */
+/* $Id: CPUMR3CpuId-x86.cpp 112607 2026-01-15 13:15:23Z knut.osmundsen@oracle.com $ */
 /** @file
  * CPUM - CPU ID part.
  */
@@ -946,7 +946,7 @@ static int cpumR3CpuIdInstallAndExplodeLeaves(PVM pVM, PCPUM pCpum, PCPUMCPUIDLE
      */
     PVMCPU const pVCpu0 = pVM->apCpusR3[0];
     AssertCompile(sizeof(pVCpu0->cpum.s.Guest.abXState) == CPUM_MAX_XSAVE_AREA_SIZE);
-    AssertLogRelReturn(   pVM->cpum.s.GuestFeatures.cbMaxExtendedState >= sizeof(X86FXSTATE)
+    AssertLogRelReturn(   pVM->cpum.s.GuestFeatures.cbMaxExtendedState >= sizeof(X86FPUSTATE)
                        && pVM->cpum.s.GuestFeatures.cbMaxExtendedState <= sizeof(pVCpu0->cpum.s.Guest.abXState),
                        VERR_CPUM_IPE_2);
     memset(&pVCpu0->cpum.s.Guest.aoffXState[0], 0xff, sizeof(pVCpu0->cpum.s.Guest.aoffXState));
