@@ -1,4 +1,4 @@
-; $Id: VBoxBiosAlternative8086.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ 
+; $Id: VBoxBiosAlternative8086.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $ 
 ;; @file
 ; Auto Generated source file. Do not edit.
 ;
@@ -6,7 +6,7 @@
 ;
 ; Source file: post.c
 ;
-;  $Id: VBoxBiosAlternative8086.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative8086.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  BIOS POST routines. Used only during initialization.
 ;  
 ;  
@@ -34,7 +34,7 @@
 ;
 ; Source file: bios.c
 ;
-;  $Id: VBoxBiosAlternative8086.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative8086.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  PC BIOS - ???
 ;  
 ;  
@@ -90,7 +90,7 @@
 ;
 ; Source file: print.c
 ;
-;  $Id: VBoxBiosAlternative8086.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative8086.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  PC BIOS - ???
 ;  
 ;  
@@ -146,7 +146,7 @@
 ;
 ; Source file: ata.c
 ;
-;  $Id: VBoxBiosAlternative8086.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative8086.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  PC BIOS - ATA disk support.
 ;  
 ;  
@@ -202,7 +202,7 @@
 ;
 ; Source file: floppy.c
 ;
-;  $Id: VBoxBiosAlternative8086.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative8086.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  PC BIOS - ???
 ;  
 ;  
@@ -258,7 +258,7 @@
 ;
 ; Source file: floppyt.c
 ;
-;  $Id: VBoxBiosAlternative8086.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative8086.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  Floppy drive tables.
 ;  
 ;  
@@ -286,7 +286,7 @@
 ;
 ; Source file: eltorito.c
 ;
-;  $Id: VBoxBiosAlternative8086.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative8086.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  PC BIOS - ???
 ;  
 ;  
@@ -342,7 +342,7 @@
 ;
 ; Source file: boot.c
 ;
-;  $Id: VBoxBiosAlternative8086.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative8086.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  PC BIOS - ???
 ;  
 ;  
@@ -398,7 +398,7 @@
 ;
 ; Source file: keyboard.c
 ;
-;  $Id: VBoxBiosAlternative8086.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative8086.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  PC BIOS - ???
 ;  
 ;  
@@ -454,7 +454,7 @@
 ;
 ; Source file: disk.c
 ;
-;  $Id: VBoxBiosAlternative8086.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative8086.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  PC BIOS - ???
 ;  
 ;  
@@ -510,7 +510,7 @@
 ;
 ; Source file: serial.c
 ;
-;  $Id: VBoxBiosAlternative8086.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative8086.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  PC BIOS - ???
 ;  
 ;  
@@ -566,7 +566,7 @@
 ;
 ; Source file: system.c
 ;
-;  $Id: VBoxBiosAlternative8086.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative8086.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  PC BIOS - ???
 ;  
 ;  
@@ -622,7 +622,7 @@
 ;
 ; Source file: invop.c
 ;
-;  $Id: VBoxBiosAlternative8086.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative8086.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  Real mode invalid opcode handler.
 ;  
 ;  
@@ -702,7 +702,7 @@
 ;
 ; Source file: ps2mouse.c
 ;
-;  $Id: VBoxBiosAlternative8086.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative8086.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  PC BIOS - ???
 ;  
 ;  
@@ -758,7 +758,7 @@
 ;
 ; Source file: parallel.c
 ;
-;  $Id: VBoxBiosAlternative8086.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative8086.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  PC BIOS - ???
 ;  
 ;  
@@ -814,7 +814,7 @@
 ;
 ; Source file: logo.c
 ;
-;  $Id: VBoxBiosAlternative8086.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative8086.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  Stuff for drawing the BIOS logo.
 ;  
 ;  
@@ -842,7 +842,7 @@
 ;
 ; Source file: apm.c
 ;
-;  $Id: VBoxBiosAlternative8086.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative8086.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  APM BIOS support. Implements APM version 1.2.
 ;  
 ;  
@@ -870,7 +870,7 @@
 ;
 ; Source file: __U4M.asm
 ;
-;  $Id: VBoxBiosAlternative8086.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative8086.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  Compiler support routines.
 ;  
 ;  
@@ -899,7 +899,7 @@
 ;
 ; Source file: __U4D.asm
 ;
-;  $Id: VBoxBiosAlternative8086.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative8086.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  Compiler support routines.
 ;  
 ;  
@@ -928,7 +928,7 @@
 ;
 ; Source file: __U8RS.asm
 ;
-;  $Id: VBoxBiosAlternative8086.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative8086.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  Compiler support routines.
 ;  
 ;  
@@ -957,7 +957,7 @@
 ;
 ; Source file: __U8LS.asm
 ;
-;  $Id: VBoxBiosAlternative8086.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative8086.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  Compiler support routines.
 ;  
 ;  
@@ -986,7 +986,7 @@
 ;
 ; Source file: fmemset.asm
 ;
-;  $Id: VBoxBiosAlternative8086.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative8086.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  Compiler support routines.
 ;  
 ;  
@@ -1015,7 +1015,7 @@
 ;
 ; Source file: fmemcpy.asm
 ;
-;  $Id: VBoxBiosAlternative8086.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative8086.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  Compiler support routines.
 ;  
 ;  
@@ -1044,7 +1044,7 @@
 ;
 ; Source file: orgs.asm
 ;
-;  $Id: VBoxBiosAlternative8086.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative8086.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  ???
 ;  
 ;  
@@ -1100,7 +1100,7 @@
 ;
 ; Source file: DoUInt32Div.c
 ;
-;  $Id: VBoxBiosAlternative8086.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative8086.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  AHCI host adapter driver to boot from SATA disks.
 ;  
 ;  
@@ -1128,7 +1128,7 @@
 ;
 ; Source file: ASMBitLastSetU16.asm
 ;
-;  $Id: VBoxBiosAlternative8086.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative8086.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  BiosCommonCode - ASMBitLastSetU16() - borrowed from IPRT.
 ;  
 ;  
@@ -1282,7 +1282,7 @@ section CONST progbits vstart=0x9a align=1 ; size=0xa5a class=DATA group=DGROUP
 section CONST2 progbits vstart=0xaf4 align=1 ; size=0x40e class=DATA group=DGROUP
   ; disGetNextSymbol 0xf0af4 LB 0x40e -> off=0x0 cb=0000000000000012 uValue=00000000000f0af4 'bios_cvs_version_string'
 bios_cvs_version_string:                     ; 0xf0af4 LB 0x12
-    db  'VirtualBox 7.2.4', 000h, 000h
+    db  'VirtualBox 7.2.6', 000h, 000h
   ; disGetNextSymbol 0xf0b06 LB 0x3fc -> off=0x0 cb=0000000000000008 uValue=00000000000f0b06 '_bios_prefix_string'
 _bios_prefix_string:                         ; 0xf0b06 LB 0x8
     db  'BIOS: ', 000h, 000h
@@ -6232,37 +6232,37 @@ cdrom_boot:                                  ; 0xf4198 LB 0x2b7
     je short 04276h                           ; 74 06                       ; 0xf426e
     mov ax, strict word 00007h                ; b8 07 00                    ; 0xf4270 eltorito.c:441
     jmp near 04445h                           ; e9 cf 01                    ; 0xf4273
-    cmp byte [bp-00812h], 001h                ; 80 be ee f7 01              ; 0xf4276 eltorito.c:446
+    cmp byte [bp-00812h], 001h                ; 80 be ee f7 01              ; 0xf4276 eltorito.c:447
     je short 04283h                           ; 74 06                       ; 0xf427b
-    mov ax, strict word 00008h                ; b8 08 00                    ; 0xf427d eltorito.c:447
+    mov ax, strict word 00008h                ; b8 08 00                    ; 0xf427d eltorito.c:448
     jmp near 04445h                           ; e9 c2 01                    ; 0xf4280
-    cmp byte [bp-00811h], 000h                ; 80 be ef f7 00              ; 0xf4283 eltorito.c:448
+    cmp byte [bp-00811h], 000h                ; 80 be ef f7 00              ; 0xf4283 eltorito.c:449
     je short 04290h                           ; 74 06                       ; 0xf4288
-    mov ax, strict word 00009h                ; b8 09 00                    ; 0xf428a eltorito.c:449
+    mov ax, strict word 00009h                ; b8 09 00                    ; 0xf428a eltorito.c:450
     jmp near 04445h                           ; e9 b5 01                    ; 0xf428d
-    cmp byte [bp-007f4h], 055h                ; 80 be 0c f8 55              ; 0xf4290 eltorito.c:450
+    cmp byte [bp-007f4h], 055h                ; 80 be 0c f8 55              ; 0xf4290 eltorito.c:451
     je short 0429dh                           ; 74 06                       ; 0xf4295
-    mov ax, strict word 0000ah                ; b8 0a 00                    ; 0xf4297 eltorito.c:451
+    mov ax, strict word 0000ah                ; b8 0a 00                    ; 0xf4297 eltorito.c:452
     jmp near 04445h                           ; e9 a8 01                    ; 0xf429a
-    cmp byte [bp-007f3h], 0aah                ; 80 be 0d f8 aa              ; 0xf429d eltorito.c:452
+    cmp byte [bp-007f3h], 0aah                ; 80 be 0d f8 aa              ; 0xf429d eltorito.c:453
     jne short 04297h                          ; 75 f3                       ; 0xf42a2
-    cmp byte [bp-007f2h], 088h                ; 80 be 0e f8 88              ; 0xf42a4 eltorito.c:453
+    cmp byte [bp-007f2h], 088h                ; 80 be 0e f8 88              ; 0xf42a4 eltorito.c:454
     je short 042b1h                           ; 74 06                       ; 0xf42a9
-    mov ax, strict word 0000bh                ; b8 0b 00                    ; 0xf42ab eltorito.c:457
+    mov ax, strict word 0000bh                ; b8 0b 00                    ; 0xf42ab eltorito.c:458
     jmp near 04445h                           ; e9 94 01                    ; 0xf42ae
-    mov al, byte [bp-007f1h]                  ; 8a 86 0f f8                 ; 0xf42b1 eltorito.c:459
+    mov al, byte [bp-007f1h]                  ; 8a 86 0f f8                 ; 0xf42b1 eltorito.c:460
     mov es, [bp-012h]                         ; 8e 46 ee                    ; 0xf42b5
     mov byte [es:si+001h], al                 ; 26 88 44 01                 ; 0xf42b8
-    cmp byte [bp-007f1h], 000h                ; 80 be 0f f8 00              ; 0xf42bc eltorito.c:460
+    cmp byte [bp-007f1h], 000h                ; 80 be 0f f8 00              ; 0xf42bc eltorito.c:461
     jne short 042cah                          ; 75 07                       ; 0xf42c1
-    mov byte [es:si+002h], 0e0h               ; 26 c6 44 02 e0              ; 0xf42c3 eltorito.c:463
-    jmp short 042ddh                          ; eb 13                       ; 0xf42c8 eltorito.c:465
+    mov byte [es:si+002h], 0e0h               ; 26 c6 44 02 e0              ; 0xf42c3 eltorito.c:464
+    jmp short 042ddh                          ; eb 13                       ; 0xf42c8 eltorito.c:466
     cmp byte [bp-007f1h], 004h                ; 80 be 0f f8 04              ; 0xf42ca
     jnc short 042d8h                          ; 73 07                       ; 0xf42cf
-    mov byte [es:si+002h], 000h               ; 26 c6 44 02 00              ; 0xf42d1 eltorito.c:466
-    jmp short 042ddh                          ; eb 05                       ; 0xf42d6 eltorito.c:467
-    mov byte [es:si+002h], 080h               ; 26 c6 44 02 80              ; 0xf42d8 eltorito.c:468
-    mov bl, byte [bp-00ch]                    ; 8a 5e f4                    ; 0xf42dd eltorito.c:470
+    mov byte [es:si+002h], 000h               ; 26 c6 44 02 00              ; 0xf42d1 eltorito.c:467
+    jmp short 042ddh                          ; eb 05                       ; 0xf42d6 eltorito.c:468
+    mov byte [es:si+002h], 080h               ; 26 c6 44 02 80              ; 0xf42d8 eltorito.c:469
+    mov bl, byte [bp-00ch]                    ; 8a 5e f4                    ; 0xf42dd eltorito.c:471
     xor bh, bh                                ; 30 ff                       ; 0xf42e0
     mov ax, bx                                ; 89 d8                       ; 0xf42e2
     cwd                                       ; 99                          ; 0xf42e4
@@ -6271,43 +6271,43 @@ cdrom_boot:                                  ; 0xf4198 LB 0x2b7
     sar ax, 1                                 ; d1 f8                       ; 0xf42e7
     mov es, [bp-012h]                         ; 8e 46 ee                    ; 0xf42e9
     mov byte [es:si+003h], al                 ; 26 88 44 03                 ; 0xf42ec
-    mov ax, bx                                ; 89 d8                       ; 0xf42f0 eltorito.c:471
+    mov ax, bx                                ; 89 d8                       ; 0xf42f0 eltorito.c:472
     cwd                                       ; 99                          ; 0xf42f2
     mov bx, strict word 00002h                ; bb 02 00                    ; 0xf42f3
     idiv bx                                   ; f7 fb                       ; 0xf42f6
     mov word [es:si+004h], dx                 ; 26 89 54 04                 ; 0xf42f8
-    mov di, word [bp-007f0h]                  ; 8b be 10 f8                 ; 0xf42fc eltorito.c:473
-    test di, di                               ; 85 ff                       ; 0xf4300 eltorito.c:474
+    mov di, word [bp-007f0h]                  ; 8b be 10 f8                 ; 0xf42fc eltorito.c:474
+    test di, di                               ; 85 ff                       ; 0xf4300 eltorito.c:475
     jne short 04307h                          ; 75 03                       ; 0xf4302
-    mov di, 007c0h                            ; bf c0 07                    ; 0xf4304 eltorito.c:475
-    mov es, [bp-012h]                         ; 8e 46 ee                    ; 0xf4307 eltorito.c:477
+    mov di, 007c0h                            ; bf c0 07                    ; 0xf4304 eltorito.c:476
+    mov es, [bp-012h]                         ; 8e 46 ee                    ; 0xf4307 eltorito.c:478
     mov word [es:si+00ch], di                 ; 26 89 7c 0c                 ; 0xf430a
-    mov word [es:si+006h], strict word 00000h ; 26 c7 44 06 00 00           ; 0xf430e eltorito.c:478
-    mov dx, word [bp-007ech]                  ; 8b 96 14 f8                 ; 0xf4314 eltorito.c:480
-    mov word [es:si+00eh], dx                 ; 26 89 54 0e                 ; 0xf4318 eltorito.c:481
-    test dx, dx                               ; 85 d2                       ; 0xf431c eltorito.c:486
+    mov word [es:si+006h], strict word 00000h ; 26 c7 44 06 00 00           ; 0xf430e eltorito.c:479
+    mov dx, word [bp-007ech]                  ; 8b 96 14 f8                 ; 0xf4314 eltorito.c:481
+    mov word [es:si+00eh], dx                 ; 26 89 54 0e                 ; 0xf4318 eltorito.c:482
+    test dx, dx                               ; 85 d2                       ; 0xf431c eltorito.c:487
     je short 04326h                           ; 74 06                       ; 0xf431e
     cmp dx, 00400h                            ; 81 fa 00 04                 ; 0xf4320
     jbe short 0432ch                          ; 76 06                       ; 0xf4324
-    mov ax, strict word 0000ch                ; b8 0c 00                    ; 0xf4326 eltorito.c:487
+    mov ax, strict word 0000ch                ; b8 0c 00                    ; 0xf4326 eltorito.c:488
     jmp near 04445h                           ; e9 19 01                    ; 0xf4329
-    mov ax, word [bp-007eah]                  ; 8b 86 16 f8                 ; 0xf432c eltorito.c:489
+    mov ax, word [bp-007eah]                  ; 8b 86 16 f8                 ; 0xf432c eltorito.c:490
     mov bx, word [bp-007e8h]                  ; 8b 9e 18 f8                 ; 0xf4330
-    mov word [es:si+008h], ax                 ; 26 89 44 08                 ; 0xf4334 eltorito.c:490
+    mov word [es:si+008h], ax                 ; 26 89 44 08                 ; 0xf4334 eltorito.c:491
     mov word [es:si+00ah], bx                 ; 26 89 5c 0a                 ; 0xf4338
-    call 03d66h                               ; e8 27 fa                    ; 0xf433c eltorito.c:496
+    call 03d66h                               ; e8 27 fa                    ; 0xf433c eltorito.c:497
     mov es, [bp-012h]                         ; 8e 46 ee                    ; 0xf433f
     mov word [es:si+016h], strict word 00000h ; 26 c7 44 16 00 00           ; 0xf4342
     mov word [es:si+018h], ax                 ; 26 89 44 18                 ; 0xf4348
-    mov ax, word [es:si+016h]                 ; 26 8b 44 16                 ; 0xf434c eltorito.c:497
+    mov ax, word [es:si+016h]                 ; 26 8b 44 16                 ; 0xf434c eltorito.c:498
     mov bx, word [es:si+018h]                 ; 26 8b 5c 18                 ; 0xf4350
     test bx, bx                               ; 85 db                       ; 0xf4354
     jne short 04362h                          ; 75 0a                       ; 0xf4356
     test ax, ax                               ; 85 c0                       ; 0xf4358
     jne short 04362h                          ; 75 06                       ; 0xf435a
-    mov ax, strict word 0000dh                ; b8 0d 00                    ; 0xf435c eltorito.c:498
+    mov ax, strict word 0000dh                ; b8 0d 00                    ; 0xf435c eltorito.c:499
     jmp near 04445h                           ; e9 e3 00                    ; 0xf435f
-    push di                                   ; 57                          ; 0xf4362 eltorito.c:501
+    push di                                   ; 57                          ; 0xf4362 eltorito.c:502
     xor ax, ax                                ; 31 c0                       ; 0xf4363
     push ax                                   ; 50                          ; 0xf4365
     mov al, byte [bp-00ch]                    ; 8a 46 f4                    ; 0xf4366
@@ -6315,11 +6315,11 @@ cdrom_boot:                                  ; 0xf4198 LB 0x2b7
     xor bx, bx                                ; 31 db                       ; 0xf436b
     xor cx, cx                                ; 31 c9                       ; 0xf436d
     call 04024h                               ; e8 b2 fc                    ; 0xf436f
-    test ax, ax                               ; 85 c0                       ; 0xf4372 eltorito.c:502
+    test ax, ax                               ; 85 c0                       ; 0xf4372 eltorito.c:503
     je short 0437ch                           ; 74 06                       ; 0xf4374
-    mov ax, strict word 0000eh                ; b8 0e 00                    ; 0xf4376 eltorito.c:503
+    mov ax, strict word 0000eh                ; b8 0e 00                    ; 0xf4376 eltorito.c:504
     jmp near 04445h                           ; e9 c9 00                    ; 0xf4379
-    mov es, [bp-012h]                         ; 8e 46 ee                    ; 0xf437c eltorito.c:508
+    mov es, [bp-012h]                         ; 8e 46 ee                    ; 0xf437c eltorito.c:509
     mov al, byte [es:si+001h]                 ; 26 8a 44 01                 ; 0xf437f
     cmp AL, strict byte 002h                  ; 3c 02                       ; 0xf4383
     jc short 04393h                           ; 72 0c                       ; 0xf4385
@@ -6331,14 +6331,14 @@ cdrom_boot:                                  ; 0xf4198 LB 0x2b7
     jmp short 04400h                          ; eb 6d                       ; 0xf4391
     cmp AL, strict byte 001h                  ; 3c 01                       ; 0xf4393
     jne short 04400h                          ; 75 69                       ; 0xf4395
-    mov es, [bp-012h]                         ; 8e 46 ee                    ; 0xf4397 eltorito.c:510
+    mov es, [bp-012h]                         ; 8e 46 ee                    ; 0xf4397 eltorito.c:511
     mov word [es:si+014h], strict word 0000fh ; 26 c7 44 14 0f 00           ; 0xf439a
-    mov word [es:si+012h], strict word 00050h ; 26 c7 44 12 50 00           ; 0xf43a0 eltorito.c:511
-    mov word [es:si+010h], strict word 00002h ; 26 c7 44 10 02 00           ; 0xf43a6 eltorito.c:512
-    jmp short 04400h                          ; eb 52                       ; 0xf43ac eltorito.c:513
-    mov word [es:si+014h], strict word 00012h ; 26 c7 44 14 12 00           ; 0xf43ae eltorito.c:515
+    mov word [es:si+012h], strict word 00050h ; 26 c7 44 12 50 00           ; 0xf43a0 eltorito.c:512
+    mov word [es:si+010h], strict word 00002h ; 26 c7 44 10 02 00           ; 0xf43a6 eltorito.c:513
+    jmp short 04400h                          ; eb 52                       ; 0xf43ac eltorito.c:514
+    mov word [es:si+014h], strict word 00012h ; 26 c7 44 14 12 00           ; 0xf43ae eltorito.c:516
     jmp short 043a0h                          ; eb ea                       ; 0xf43b4
-    mov word [es:si+014h], strict word 00024h ; 26 c7 44 14 24 00           ; 0xf43b6 eltorito.c:520
+    mov word [es:si+014h], strict word 00024h ; 26 c7 44 14 24 00           ; 0xf43b6 eltorito.c:521
     jmp short 043a0h                          ; eb e2                       ; 0xf43bc
     mov bx, 001c4h                            ; bb c4 01                    ; 0xf43be eltorito.c:48
     mov es, di                                ; 8e c7                       ; 0xf43c1
@@ -6366,31 +6366,31 @@ cdrom_boot:                                  ; 0xf4198 LB 0x2b7
     inc ax                                    ; 40                          ; 0xf43f8
     mov es, [bp-012h]                         ; 8e 46 ee                    ; 0xf43f9
     mov word [es:si+010h], ax                 ; 26 89 44 10                 ; 0xf43fc
-    mov es, [bp-012h]                         ; 8e 46 ee                    ; 0xf4400 eltorito.c:533
+    mov es, [bp-012h]                         ; 8e 46 ee                    ; 0xf4400 eltorito.c:534
     cmp byte [es:si+001h], 000h               ; 26 80 7c 01 00              ; 0xf4403
     je short 0442eh                           ; 74 24                       ; 0xf4408
-    cmp byte [es:si+002h], 000h               ; 26 80 7c 02 00              ; 0xf440a eltorito.c:535
+    cmp byte [es:si+002h], 000h               ; 26 80 7c 02 00              ; 0xf440a eltorito.c:536
     jne short 04420h                          ; 75 0f                       ; 0xf440f
     mov bx, strict word 00010h                ; bb 10 00                    ; 0xf4411 eltorito.c:48
     mov ax, strict word 00040h                ; b8 40 00                    ; 0xf4414
     mov es, ax                                ; 8e c0                       ; 0xf4417
     mov al, byte [es:bx]                      ; 26 8a 07                    ; 0xf4419
     or AL, strict byte 041h                   ; 0c 41                       ; 0xf441c eltorito.c:49
-    jmp short 0442bh                          ; eb 0b                       ; 0xf441e eltorito.c:537
+    jmp short 0442bh                          ; eb 0b                       ; 0xf441e eltorito.c:538
     mov bx, 0015ch                            ; bb 5c 01                    ; 0xf4420 eltorito.c:48
     mov es, [bp-010h]                         ; 8e 46 f0                    ; 0xf4423
     mov al, byte [es:bx]                      ; 26 8a 07                    ; 0xf4426
     db  0feh, 0c0h
     ; inc al                                    ; fe c0                     ; 0xf4429 eltorito.c:49
     mov byte [es:bx], al                      ; 26 88 07                    ; 0xf442b eltorito.c:53
-    mov es, [bp-012h]                         ; 8e 46 ee                    ; 0xf442e eltorito.c:542
+    mov es, [bp-012h]                         ; 8e 46 ee                    ; 0xf442e eltorito.c:543
     cmp byte [es:si+001h], 000h               ; 26 80 7c 01 00              ; 0xf4431
     je short 0443ch                           ; 74 04                       ; 0xf4436
-    mov byte [es:si], 001h                    ; 26 c6 04 01                 ; 0xf4438 eltorito.c:543
-    mov es, [bp-012h]                         ; 8e 46 ee                    ; 0xf443c eltorito.c:546
+    mov byte [es:si], 001h                    ; 26 c6 04 01                 ; 0xf4438 eltorito.c:544
+    mov es, [bp-012h]                         ; 8e 46 ee                    ; 0xf443c eltorito.c:547
     mov ah, byte [es:si+002h]                 ; 26 8a 64 02                 ; 0xf443f
     xor al, al                                ; 30 c0                       ; 0xf4443
-    lea sp, [bp-00ah]                         ; 8d 66 f6                    ; 0xf4445 eltorito.c:547
+    lea sp, [bp-00ah]                         ; 8d 66 f6                    ; 0xf4445 eltorito.c:548
     pop di                                    ; 5f                          ; 0xf4448
     pop si                                    ; 5e                          ; 0xf4449
     pop dx                                    ; 5a                          ; 0xf444a
@@ -6406,7 +6406,7 @@ cdrom_boot:                                  ; 0xf4198 LB 0x2b7
     db  047h, 088h, 048h, 064h, 047h, 076h, 047h, 088h, 048h, 076h, 047h, 088h, 048h, 088h, 048h, 076h
     db  047h, 04ch, 048h, 088h, 048h, 088h, 048h, 088h, 048h
 int13_cdemu:                                 ; 0xf44a8 LB 0x3ff
-    push bp                                   ; 55                          ; 0xf44a8 eltorito.c:557
+    push bp                                   ; 55                          ; 0xf44a8 eltorito.c:558
     mov bp, sp                                ; 89 e5                       ; 0xf44a9
     push si                                   ; 56                          ; 0xf44ab
     push di                                   ; 57                          ; 0xf44ac
@@ -6415,23 +6415,23 @@ int13_cdemu:                                 ; 0xf44a8 LB 0x3ff
     mov ax, strict word 00040h                ; b8 40 00                    ; 0xf44b3
     mov es, ax                                ; 8e c0                       ; 0xf44b6
     mov ax, word [es:bx]                      ; 26 8b 07                    ; 0xf44b8
-    mov si, 00196h                            ; be 96 01                    ; 0xf44bb eltorito.c:572
+    mov si, 00196h                            ; be 96 01                    ; 0xf44bb eltorito.c:573
     mov dx, ax                                ; 89 c2                       ; 0xf44be
     mov bx, si                                ; 89 f3                       ; 0xf44c0
     mov word [bp-01ah], ax                    ; 89 46 e6                    ; 0xf44c2
-    mov word [bp-014h], strict word 0005eh    ; c7 46 ec 5e 00              ; 0xf44c5 eltorito.c:573
+    mov word [bp-014h], strict word 0005eh    ; c7 46 ec 5e 00              ; 0xf44c5 eltorito.c:574
     mov word [bp-01ch], ax                    ; 89 46 e4                    ; 0xf44ca
-    mov es, ax                                ; 8e c0                       ; 0xf44cd eltorito.c:580
+    mov es, ax                                ; 8e c0                       ; 0xf44cd eltorito.c:581
     mov al, byte [es:si+003h]                 ; 26 8a 44 03                 ; 0xf44cf
     sal al, 1                                 ; d0 e0                       ; 0xf44d3
     mov byte [bp-006h], al                    ; 88 46 fa                    ; 0xf44d5
-    mov al, byte [es:si+004h]                 ; 26 8a 44 04                 ; 0xf44d8 eltorito.c:581
+    mov al, byte [es:si+004h]                 ; 26 8a 44 04                 ; 0xf44d8 eltorito.c:582
     add byte [bp-006h], al                    ; 00 46 fa                    ; 0xf44dc
     mov di, strict word 00074h                ; bf 74 00                    ; 0xf44df eltorito.c:53
     mov ax, strict word 00040h                ; b8 40 00                    ; 0xf44e2
     mov es, ax                                ; 8e c0                       ; 0xf44e5
     mov byte [es:di], 000h                    ; 26 c6 05 00                 ; 0xf44e7
-    mov es, dx                                ; 8e c2                       ; 0xf44eb eltorito.c:586
+    mov es, dx                                ; 8e c2                       ; 0xf44eb eltorito.c:587
     cmp byte [es:si], 000h                    ; 26 80 3c 00                 ; 0xf44ed
     je short 04502h                           ; 74 0f                       ; 0xf44f1
     mov al, byte [es:si+002h]                 ; 26 8a 44 02                 ; 0xf44f3
@@ -6440,7 +6440,7 @@ int13_cdemu:                                 ; 0xf44a8 LB 0x3ff
     xor dh, dh                                ; 30 f6                       ; 0xf44fc
     cmp ax, dx                                ; 39 d0                       ; 0xf44fe
     je short 0452ch                           ; 74 2a                       ; 0xf4500
-    mov bx, 00b06h                            ; bb 06 0b                    ; 0xf4502 eltorito.c:587
+    mov bx, 00b06h                            ; bb 06 0b                    ; 0xf4502 eltorito.c:588
     mov cx, ds                                ; 8c d9                       ; 0xf4505
     mov ax, strict word 00004h                ; b8 04 00                    ; 0xf4507
     call 019b8h                               ; e8 ab d4                    ; 0xf450a
@@ -6457,8 +6457,8 @@ int13_cdemu:                                 ; 0xf44a8 LB 0x3ff
     push ax                                   ; 50                          ; 0xf4522
     call 019fbh                               ; e8 d5 d4                    ; 0xf4523
     add sp, strict byte 0000ah                ; 83 c4 0a                    ; 0xf4526
-    jmp near 04866h                           ; e9 3a 03                    ; 0xf4529 eltorito.c:588
-    mov al, byte [bp+017h]                    ; 8a 46 17                    ; 0xf452c eltorito.c:591
+    jmp near 04866h                           ; e9 3a 03                    ; 0xf4529 eltorito.c:589
+    mov al, byte [bp+017h]                    ; 8a 46 17                    ; 0xf452c eltorito.c:592
     xor ah, ah                                ; 30 e4                       ; 0xf452f
     mov dx, ax                                ; 89 c2                       ; 0xf4531
     cmp ax, strict word 00050h                ; 3d 50 00                    ; 0xf4533
@@ -6474,7 +6474,7 @@ int13_cdemu:                                 ; 0xf44a8 LB 0x3ff
     mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf454b
     xor ah, ah                                ; 30 e4                       ; 0xf454e
     jmp dx                                    ; ff e2                       ; 0xf4550
-    mov al, byte [bp-006h]                    ; 8a 46 fa                    ; 0xf4552 eltorito.c:594
+    mov al, byte [bp-006h]                    ; 8a 46 fa                    ; 0xf4552 eltorito.c:595
     xor ah, ah                                ; 30 e4                       ; 0xf4555
     mov dx, strict word 0001ch                ; ba 1c 00                    ; 0xf4557
     imul dx                                   ; f7 ea                       ; 0xf455a
@@ -6486,34 +6486,34 @@ int13_cdemu:                                 ; 0xf44a8 LB 0x3ff
     sal bx, 1                                 ; d1 e3                       ; 0xf456a
     cmp word [word bx+0006ah], strict byte 00000h ; 83 bf 6a 00 00          ; 0xf456c
     je short 045e6h                           ; 74 73                       ; 0xf4571
-    mov al, byte [bp-006h]                    ; 8a 46 fa                    ; 0xf4573 eltorito.c:596
+    mov al, byte [bp-006h]                    ; 8a 46 fa                    ; 0xf4573 eltorito.c:597
     xor ah, ah                                ; 30 e4                       ; 0xf4576
     call word [word bx+00076h]                ; ff 97 76 00                 ; 0xf4578
-    jmp short 045e6h                          ; eb 68                       ; 0xf457c eltorito.c:598
-    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf457e eltorito.c:614
+    jmp short 045e6h                          ; eb 68                       ; 0xf457c eltorito.c:599
+    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf457e eltorito.c:615
     xor ah, ah                                ; 30 e4                       ; 0xf4581
     or ah, 003h                               ; 80 cc 03                    ; 0xf4583
-    jmp near 0486eh                           ; e9 e5 02                    ; 0xf4586 eltorito.c:615
+    jmp near 0486eh                           ; e9 e5 02                    ; 0xf4586 eltorito.c:616
     mov bx, strict word 00074h                ; bb 74 00                    ; 0xf4589 eltorito.c:48
     mov dx, strict word 00040h                ; ba 40 00                    ; 0xf458c
     mov es, dx                                ; 8e c2                       ; 0xf458f
     mov dl, byte [es:bx]                      ; 26 8a 17                    ; 0xf4591
-    mov ah, dl                                ; 88 d4                       ; 0xf4594 eltorito.c:620
+    mov ah, dl                                ; 88 d4                       ; 0xf4594 eltorito.c:621
     mov word [bp+016h], ax                    ; 89 46 16                    ; 0xf4596
     mov byte [es:bx], 000h                    ; 26 c6 07 00                 ; 0xf4599 eltorito.c:53
-    test dl, dl                               ; 84 d2                       ; 0xf459d eltorito.c:624
+    test dl, dl                               ; 84 d2                       ; 0xf459d eltorito.c:625
     je short 04606h                           ; 74 65                       ; 0xf459f
-    jmp near 04881h                           ; e9 dd 02                    ; 0xf45a1 eltorito.c:625
+    jmp near 04881h                           ; e9 dd 02                    ; 0xf45a1 eltorito.c:626
     jmp near 04888h                           ; e9 e1 02                    ; 0xf45a4
-    mov es, [bp-01ah]                         ; 8e 46 e6                    ; 0xf45a7 eltorito.c:632
+    mov es, [bp-01ah]                         ; 8e 46 e6                    ; 0xf45a7 eltorito.c:633
     mov si, word [es:bx+014h]                 ; 26 8b 77 14                 ; 0xf45aa
-    mov ax, word [es:bx+012h]                 ; 26 8b 47 12                 ; 0xf45ae eltorito.c:633
-    mov dx, word [es:bx+010h]                 ; 26 8b 57 10                 ; 0xf45b2 eltorito.c:634
+    mov ax, word [es:bx+012h]                 ; 26 8b 47 12                 ; 0xf45ae eltorito.c:634
+    mov dx, word [es:bx+010h]                 ; 26 8b 57 10                 ; 0xf45b2 eltorito.c:635
     mov word [bp-016h], dx                    ; 89 56 ea                    ; 0xf45b6
-    mov dx, word [bp+014h]                    ; 8b 56 14                    ; 0xf45b9 eltorito.c:636
+    mov dx, word [bp+014h]                    ; 8b 56 14                    ; 0xf45b9 eltorito.c:637
     and dx, strict byte 0003fh                ; 83 e2 3f                    ; 0xf45bc
     mov word [bp-00ah], dx                    ; 89 56 f6                    ; 0xf45bf
-    mov dx, word [bp+014h]                    ; 8b 56 14                    ; 0xf45c2 eltorito.c:637
+    mov dx, word [bp+014h]                    ; 8b 56 14                    ; 0xf45c2 eltorito.c:638
     xor dh, dh                                ; 30 f6                       ; 0xf45c5
     and dl, 0c0h                              ; 80 e2 c0                    ; 0xf45c7
     sal dx, 1                                 ; d1 e2                       ; 0xf45ca
@@ -6521,36 +6521,36 @@ int13_cdemu:                                 ; 0xf44a8 LB 0x3ff
     mov bl, byte [bp+015h]                    ; 8a 5e 15                    ; 0xf45ce
     xor bh, bh                                ; 30 ff                       ; 0xf45d1
     or bx, dx                                 ; 09 d3                       ; 0xf45d3
-    mov dl, byte [bp+013h]                    ; 8a 56 13                    ; 0xf45d5 eltorito.c:638
+    mov dl, byte [bp+013h]                    ; 8a 56 13                    ; 0xf45d5 eltorito.c:639
     xor dh, dh                                ; 30 f6                       ; 0xf45d8
     mov word [bp-00eh], dx                    ; 89 56 f2                    ; 0xf45da
-    mov di, word [bp+016h]                    ; 8b 7e 16                    ; 0xf45dd eltorito.c:639
+    mov di, word [bp+016h]                    ; 8b 7e 16                    ; 0xf45dd eltorito.c:640
     and di, 000ffh                            ; 81 e7 ff 00                 ; 0xf45e0
-    jne short 045e9h                          ; 75 03                       ; 0xf45e4 eltorito.c:647
-    jmp near 04741h                           ; e9 58 01                    ; 0xf45e6 eltorito.c:648
-    cmp si, word [bp-00ah]                    ; 3b 76 f6                    ; 0xf45e9 eltorito.c:651
+    jne short 045e9h                          ; 75 03                       ; 0xf45e4 eltorito.c:648
+    jmp near 04741h                           ; e9 58 01                    ; 0xf45e6 eltorito.c:649
+    cmp si, word [bp-00ah]                    ; 3b 76 f6                    ; 0xf45e9 eltorito.c:652
     jc short 045f7h                           ; 72 09                       ; 0xf45ec
     cmp bx, ax                                ; 39 c3                       ; 0xf45ee
     jnc short 045f7h                          ; 73 05                       ; 0xf45f0
     cmp dx, word [bp-016h]                    ; 3b 56 ea                    ; 0xf45f2
     jc short 045fah                           ; 72 03                       ; 0xf45f5
-    jmp near 04866h                           ; e9 6c 02                    ; 0xf45f7 eltorito.c:654
-    mov al, byte [bp+017h]                    ; 8a 46 17                    ; 0xf45fa eltorito.c:658
+    jmp near 04866h                           ; e9 6c 02                    ; 0xf45f7 eltorito.c:655
+    mov al, byte [bp+017h]                    ; 8a 46 17                    ; 0xf45fa eltorito.c:659
     xor ah, ah                                ; 30 e4                       ; 0xf45fd
     cmp ax, strict word 00004h                ; 3d 04 00                    ; 0xf45ff
     jne short 04609h                          ; 75 05                       ; 0xf4602
-    jmp short 045e6h                          ; eb e0                       ; 0xf4604 eltorito.c:659
+    jmp short 045e6h                          ; eb e0                       ; 0xf4604 eltorito.c:660
     jmp near 04745h                           ; e9 3c 01                    ; 0xf4606
-    mov CL, strict byte 004h                  ; b1 04                       ; 0xf4609 eltorito.c:661
+    mov CL, strict byte 004h                  ; b1 04                       ; 0xf4609 eltorito.c:662
     mov ax, word [bp+010h]                    ; 8b 46 10                    ; 0xf460b
     shr ax, CL                                ; d3 e8                       ; 0xf460e
     mov dx, word [bp+006h]                    ; 8b 56 06                    ; 0xf4610
     add dx, ax                                ; 01 c2                       ; 0xf4613
     mov word [bp-010h], dx                    ; 89 56 f0                    ; 0xf4615
-    mov ax, word [bp+010h]                    ; 8b 46 10                    ; 0xf4618 eltorito.c:662
+    mov ax, word [bp+010h]                    ; 8b 46 10                    ; 0xf4618 eltorito.c:663
     and ax, strict word 0000fh                ; 25 0f 00                    ; 0xf461b
     mov word [bp-008h], ax                    ; 89 46 f8                    ; 0xf461e
-    mov ax, bx                                ; 89 d8                       ; 0xf4621 eltorito.c:665
+    mov ax, bx                                ; 89 d8                       ; 0xf4621 eltorito.c:666
     xor dx, dx                                ; 31 d2                       ; 0xf4623
     mov bx, word [bp-016h]                    ; 8b 5e ea                    ; 0xf4625
     xor cx, cx                                ; 31 c9                       ; 0xf4628
@@ -6566,20 +6566,20 @@ int13_cdemu:                                 ; 0xf44a8 LB 0x3ff
     xor cx, cx                                ; 31 c9                       ; 0xf463f
     add bx, ax                                ; 01 c3                       ; 0xf4641
     adc cx, dx                                ; 11 d1                       ; 0xf4643
-    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4645 eltorito.c:668
+    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4645 eltorito.c:669
     xor al, al                                ; 30 c0                       ; 0xf4648
     or ax, di                                 ; 09 f8                       ; 0xf464a
     mov word [bp+016h], ax                    ; 89 46 16                    ; 0xf464c
-    push word [bp-010h]                       ; ff 76 f0                    ; 0xf464f eltorito.c:670
+    push word [bp-010h]                       ; ff 76 f0                    ; 0xf464f eltorito.c:671
     push word [bp-008h]                       ; ff 76 f8                    ; 0xf4652
     mov al, byte [bp-006h]                    ; 8a 46 fa                    ; 0xf4655
     xor ah, ah                                ; 30 e4                       ; 0xf4658
     mov dx, di                                ; 89 fa                       ; 0xf465a
     call 04024h                               ; e8 c5 f9                    ; 0xf465c
     mov dx, ax                                ; 89 c2                       ; 0xf465f
-    test al, al                               ; 84 c0                       ; 0xf4661 eltorito.c:671
+    test al, al                               ; 84 c0                       ; 0xf4661 eltorito.c:672
     je short 045e6h                           ; 74 81                       ; 0xf4663
-    mov bx, 00b06h                            ; bb 06 0b                    ; 0xf4665 eltorito.c:672
+    mov bx, 00b06h                            ; bb 06 0b                    ; 0xf4665 eltorito.c:673
     mov cx, ds                                ; 8c d9                       ; 0xf4668
     mov ax, strict word 00004h                ; b8 04 00                    ; 0xf466a
     call 019b8h                               ; e8 48 d3                    ; 0xf466d
@@ -6596,23 +6596,23 @@ int13_cdemu:                                 ; 0xf44a8 LB 0x3ff
     push ax                                   ; 50                          ; 0xf4684
     call 019fbh                               ; e8 73 d3                    ; 0xf4685
     add sp, strict byte 0000ah                ; 83 c4 0a                    ; 0xf4688
-    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf468b eltorito.c:673
+    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf468b eltorito.c:674
     xor ah, ah                                ; 30 e4                       ; 0xf468e
     or ah, 002h                               ; 80 cc 02                    ; 0xf4690
     mov word [bp+016h], ax                    ; 89 46 16                    ; 0xf4693
-    mov byte [bp+016h], 000h                  ; c6 46 16 00                 ; 0xf4696 eltorito.c:674
-    jmp near 04871h                           ; e9 d4 01                    ; 0xf469a eltorito.c:675
-    mov es, [bp-01ah]                         ; 8e 46 e6                    ; 0xf469d eltorito.c:682
+    mov byte [bp+016h], 000h                  ; c6 46 16 00                 ; 0xf4696 eltorito.c:675
+    jmp near 04871h                           ; e9 d4 01                    ; 0xf469a eltorito.c:676
+    mov es, [bp-01ah]                         ; 8e 46 e6                    ; 0xf469d eltorito.c:683
     mov si, word [es:bx+014h]                 ; 26 8b 77 14                 ; 0xf46a0
-    mov ax, word [es:bx+012h]                 ; 26 8b 47 12                 ; 0xf46a4 eltorito.c:683
+    mov ax, word [es:bx+012h]                 ; 26 8b 47 12                 ; 0xf46a4 eltorito.c:684
     dec ax                                    ; 48                          ; 0xf46a8
-    mov dx, word [es:bx+010h]                 ; 26 8b 57 10                 ; 0xf46a9 eltorito.c:684
+    mov dx, word [es:bx+010h]                 ; 26 8b 57 10                 ; 0xf46a9 eltorito.c:685
     dec dx                                    ; 4a                          ; 0xf46ad
     mov word [bp-016h], dx                    ; 89 56 ea                    ; 0xf46ae
-    mov byte [bp+016h], 000h                  ; c6 46 16 00                 ; 0xf46b1 eltorito.c:686
-    mov dx, word [bp+010h]                    ; 8b 56 10                    ; 0xf46b5 eltorito.c:687
+    mov byte [bp+016h], 000h                  ; c6 46 16 00                 ; 0xf46b1 eltorito.c:687
+    mov dx, word [bp+010h]                    ; 8b 56 10                    ; 0xf46b5 eltorito.c:688
     xor dl, dl                                ; 30 d2                       ; 0xf46b8
-    mov di, word [bp+014h]                    ; 8b 7e 14                    ; 0xf46ba eltorito.c:688
+    mov di, word [bp+014h]                    ; 8b 7e 14                    ; 0xf46ba eltorito.c:689
     and di, 000ffh                            ; 81 e7 ff 00                 ; 0xf46bd
     mov cx, ax                                ; 89 c1                       ; 0xf46c1
     xor ch, ah                                ; 30 e5                       ; 0xf46c3
@@ -6623,7 +6623,7 @@ int13_cdemu:                                 ; 0xf44a8 LB 0x3ff
     mov cx, word [bp-012h]                    ; 8b 4e ee                    ; 0xf46d1
     or cx, di                                 ; 09 f9                       ; 0xf46d4
     mov word [bp+014h], cx                    ; 89 4e 14                    ; 0xf46d6
-    shr ax, 1                                 ; d1 e8                       ; 0xf46d9 eltorito.c:689
+    shr ax, 1                                 ; d1 e8                       ; 0xf46d9 eltorito.c:690
     shr ax, 1                                 ; d1 e8                       ; 0xf46db
     xor ah, ah                                ; 30 e4                       ; 0xf46dd
     and AL, strict byte 0c0h                  ; 24 c0                       ; 0xf46df
@@ -6633,14 +6633,14 @@ int13_cdemu:                                 ; 0xf44a8 LB 0x3ff
     xor al, cl                                ; 30 c8                       ; 0xf46e8
     or ax, si                                 ; 09 f0                       ; 0xf46ea
     mov word [bp+014h], ax                    ; 89 46 14                    ; 0xf46ec
-    mov cx, word [bp+012h]                    ; 8b 4e 12                    ; 0xf46ef eltorito.c:690
+    mov cx, word [bp+012h]                    ; 8b 4e 12                    ; 0xf46ef eltorito.c:691
     mov ch, byte [bp-016h]                    ; 8a 6e ea                    ; 0xf46f2
     mov word [bp+012h], cx                    ; 89 4e 12                    ; 0xf46f5
-    mov ax, cx                                ; 89 c8                       ; 0xf46f8 eltorito.c:691
+    mov ax, cx                                ; 89 c8                       ; 0xf46f8 eltorito.c:692
     xor al, cl                                ; 30 c8                       ; 0xf46fa
     or AL, strict byte 002h                   ; 0c 02                       ; 0xf46fc
     mov word [bp+012h], ax                    ; 89 46 12                    ; 0xf46fe
-    mov al, byte [es:bx+001h]                 ; 26 8a 47 01                 ; 0xf4701 eltorito.c:694
+    mov al, byte [es:bx+001h]                 ; 26 8a 47 01                 ; 0xf4701 eltorito.c:695
     mov word [bp+010h], dx                    ; 89 56 10                    ; 0xf4705
     cmp AL, strict byte 003h                  ; 3c 03                       ; 0xf4708
     je short 04728h                           ; 74 1c                       ; 0xf470a
@@ -6648,22 +6648,22 @@ int13_cdemu:                                 ; 0xf44a8 LB 0x3ff
     je short 04720h                           ; 74 10                       ; 0xf470e
     cmp AL, strict byte 001h                  ; 3c 01                       ; 0xf4710
     jne short 0472dh                          ; 75 19                       ; 0xf4712
-    mov ax, word [bp+010h]                    ; 8b 46 10                    ; 0xf4714 eltorito.c:695
+    mov ax, word [bp+010h]                    ; 8b 46 10                    ; 0xf4714 eltorito.c:696
     xor al, al                                ; 30 c0                       ; 0xf4717
     or AL, strict byte 002h                   ; 0c 02                       ; 0xf4719
     mov word [bp+010h], ax                    ; 89 46 10                    ; 0xf471b
     jmp short 0472dh                          ; eb 0d                       ; 0xf471e
-    or dl, 004h                               ; 80 ca 04                    ; 0xf4720 eltorito.c:696
+    or dl, 004h                               ; 80 ca 04                    ; 0xf4720 eltorito.c:697
     mov word [bp+010h], dx                    ; 89 56 10                    ; 0xf4723
     jmp short 0472dh                          ; eb 05                       ; 0xf4726
-    or dl, 005h                               ; 80 ca 05                    ; 0xf4728 eltorito.c:697
+    or dl, 005h                               ; 80 ca 05                    ; 0xf4728 eltorito.c:698
     jmp short 04723h                          ; eb f6                       ; 0xf472b
-    mov es, [bp-01ah]                         ; 8e 46 e6                    ; 0xf472d eltorito.c:701
+    mov es, [bp-01ah]                         ; 8e 46 e6                    ; 0xf472d eltorito.c:702
     cmp byte [es:bx+001h], 004h               ; 26 80 7f 01 04              ; 0xf4730
     jnc short 04741h                          ; 73 0a                       ; 0xf4735
-    mov word [bp+008h], 0efc7h                ; c7 46 08 c7 ef              ; 0xf4737 eltorito.c:702
-    mov word [bp+006h], 0f000h                ; c7 46 06 00 f0              ; 0xf473c eltorito.c:703
-    mov byte [bp+017h], 000h                  ; c6 46 17 00                 ; 0xf4741 eltorito.c:705
+    mov word [bp+008h], 0efc7h                ; c7 46 08 c7 ef              ; 0xf4737 eltorito.c:703
+    mov word [bp+006h], 0f000h                ; c7 46 06 00 f0              ; 0xf473c eltorito.c:704
+    mov byte [bp+017h], 000h                  ; c6 46 17 00                 ; 0xf4741 eltorito.c:706
     mov bx, strict word 00074h                ; bb 74 00                    ; 0xf4745
     mov ax, strict word 00040h                ; b8 40 00                    ; 0xf4748
     mov es, ax                                ; 8e c0                       ; 0xf474b
@@ -6674,28 +6674,28 @@ int13_cdemu:                                 ; 0xf44a8 LB 0x3ff
     pop si                                    ; 5e                          ; 0xf4759
     pop bp                                    ; 5d                          ; 0xf475a
     retn                                      ; c3                          ; 0xf475b
-    or ah, 003h                               ; 80 cc 03                    ; 0xf475c eltorito.c:710
+    or ah, 003h                               ; 80 cc 03                    ; 0xf475c eltorito.c:711
     mov word [bp+016h], ax                    ; 89 46 16                    ; 0xf475f
-    jmp short 04745h                          ; eb e1                       ; 0xf4762 eltorito.c:711
-    mov word [bp+010h], 0aa55h                ; c7 46 10 55 aa              ; 0xf4764 eltorito.c:715
-    or ah, 030h                               ; 80 cc 30                    ; 0xf4769 eltorito.c:716
+    jmp short 04745h                          ; eb e1                       ; 0xf4762 eltorito.c:712
+    mov word [bp+010h], 0aa55h                ; c7 46 10 55 aa              ; 0xf4764 eltorito.c:716
+    or ah, 030h                               ; 80 cc 30                    ; 0xf4769 eltorito.c:717
     mov word [bp+016h], ax                    ; 89 46 16                    ; 0xf476c
-    mov word [bp+014h], strict word 00007h    ; c7 46 14 07 00              ; 0xf476f eltorito.c:717
-    jmp short 04745h                          ; eb cf                       ; 0xf4774 eltorito.c:718
-    mov bx, word [bp+00ah]                    ; 8b 5e 0a                    ; 0xf4776 eltorito.c:726
+    mov word [bp+014h], strict word 00007h    ; c7 46 14 07 00              ; 0xf476f eltorito.c:718
+    jmp short 04745h                          ; eb cf                       ; 0xf4774 eltorito.c:719
+    mov bx, word [bp+00ah]                    ; 8b 5e 0a                    ; 0xf4776 eltorito.c:727
     mov es, [bp+004h]                         ; 8e 46 04                    ; 0xf4779
     mov si, bx                                ; 89 de                       ; 0xf477c
     mov di, es                                ; 8c c7                       ; 0xf477e
-    mov dx, word [es:bx+002h]                 ; 26 8b 57 02                 ; 0xf4780 eltorito.c:728
-    mov ax, word [es:bx+006h]                 ; 26 8b 47 06                 ; 0xf4784 eltorito.c:729
+    mov dx, word [es:bx+002h]                 ; 26 8b 57 02                 ; 0xf4780 eltorito.c:729
+    mov ax, word [es:bx+006h]                 ; 26 8b 47 06                 ; 0xf4784 eltorito.c:730
     mov word [bp-010h], ax                    ; 89 46 f0                    ; 0xf4788
-    mov ax, word [es:bx+004h]                 ; 26 8b 47 04                 ; 0xf478b eltorito.c:730
+    mov ax, word [es:bx+004h]                 ; 26 8b 47 04                 ; 0xf478b eltorito.c:731
     mov word [bp-008h], ax                    ; 89 46 f8                    ; 0xf478f
-    mov ax, word [es:bx+00ch]                 ; 26 8b 47 0c                 ; 0xf4792 eltorito.c:733
+    mov ax, word [es:bx+00ch]                 ; 26 8b 47 0c                 ; 0xf4792 eltorito.c:734
     mov cx, word [es:bx+00eh]                 ; 26 8b 4f 0e                 ; 0xf4796
-    or ax, cx                                 ; 09 c8                       ; 0xf479a eltorito.c:734
+    or ax, cx                                 ; 09 c8                       ; 0xf479a eltorito.c:735
     je short 047b9h                           ; 74 1b                       ; 0xf479c
-    mov al, byte [bp+017h]                    ; 8a 46 17                    ; 0xf479e eltorito.c:735
+    mov al, byte [bp+017h]                    ; 8a 46 17                    ; 0xf479e eltorito.c:736
     xor ah, ah                                ; 30 e4                       ; 0xf47a1
     push ax                                   ; 50                          ; 0xf47a3
     mov ax, 0033eh                            ; b8 3e 03                    ; 0xf47a4
@@ -6706,11 +6706,11 @@ int13_cdemu:                                 ; 0xf44a8 LB 0x3ff
     push ax                                   ; 50                          ; 0xf47af
     call 019fbh                               ; e8 48 d2                    ; 0xf47b0
     add sp, strict byte 00008h                ; 83 c4 08                    ; 0xf47b3
-    jmp near 04866h                           ; e9 ad 00                    ; 0xf47b6 eltorito.c:736
-    mov es, di                                ; 8e c7                       ; 0xf47b9 eltorito.c:740
+    jmp near 04866h                           ; e9 ad 00                    ; 0xf47b6 eltorito.c:737
+    mov es, di                                ; 8e c7                       ; 0xf47b9 eltorito.c:741
     mov ax, word [es:si+008h]                 ; 26 8b 44 08                 ; 0xf47bb
     mov cx, word [es:si+00ah]                 ; 26 8b 4c 0a                 ; 0xf47bf
-    mov bl, byte [bp+017h]                    ; 8a 5e 17                    ; 0xf47c3 eltorito.c:743
+    mov bl, byte [bp+017h]                    ; 8a 5e 17                    ; 0xf47c3 eltorito.c:744
     mov byte [bp-018h], bl                    ; 88 5e e8                    ; 0xf47c6
     mov byte [bp-017h], 000h                  ; c6 46 e9 00                 ; 0xf47c9
     cmp word [bp-018h], strict byte 00044h    ; 83 7e e8 44                 ; 0xf47cd
@@ -6718,8 +6718,8 @@ int13_cdemu:                                 ; 0xf44a8 LB 0x3ff
     jmp near 04741h                           ; e9 6b ff                    ; 0xf47d3
     cmp word [bp-018h], strict byte 00047h    ; 83 7e e8 47                 ; 0xf47d6
     jne short 047deh                          ; 75 02                       ; 0xf47da
-    jmp short 047d3h                          ; eb f5                       ; 0xf47dc eltorito.c:744
-    push word [bp-010h]                       ; ff 76 f0                    ; 0xf47de eltorito.c:749
+    jmp short 047d3h                          ; eb f5                       ; 0xf47dc eltorito.c:745
+    push word [bp-010h]                       ; ff 76 f0                    ; 0xf47de eltorito.c:750
     push word [bp-008h]                       ; ff 76 f8                    ; 0xf47e1
     mov bl, byte [bp-006h]                    ; 8a 5e fa                    ; 0xf47e4
     mov byte [bp-012h], bl                    ; 88 5e ee                    ; 0xf47e7
@@ -6728,7 +6728,7 @@ int13_cdemu:                                 ; 0xf44a8 LB 0x3ff
     mov ax, word [bp-012h]                    ; 8b 46 ee                    ; 0xf47f0
     call 04024h                               ; e8 2e f8                    ; 0xf47f3
     mov word [bp-00ch], ax                    ; 89 46 f4                    ; 0xf47f6
-    mov es, [bp-01ch]                         ; 8e 46 e4                    ; 0xf47f9 eltorito.c:750
+    mov es, [bp-01ch]                         ; 8e 46 e4                    ; 0xf47f9 eltorito.c:751
     mov bx, word [bp-014h]                    ; 8b 5e ec                    ; 0xf47fc
     mov ax, word [es:bx+01ah]                 ; 26 8b 47 1a                 ; 0xf47ff
     mov dx, word [es:bx+01ch]                 ; 26 8b 57 1c                 ; 0xf4803
@@ -6736,11 +6736,11 @@ int13_cdemu:                                 ; 0xf44a8 LB 0x3ff
     shr dx, 1                                 ; d1 ea                       ; 0xf480a
     rcr ax, 1                                 ; d1 d8                       ; 0xf480c
     loop 0480ah                               ; e2 fa                       ; 0xf480e
-    mov es, di                                ; 8e c7                       ; 0xf4810 eltorito.c:751
+    mov es, di                                ; 8e c7                       ; 0xf4810 eltorito.c:752
     mov word [es:si+002h], ax                 ; 26 89 44 02                 ; 0xf4812
-    cmp byte [bp-00ch], 000h                  ; 80 7e f4 00                 ; 0xf4816 eltorito.c:753
+    cmp byte [bp-00ch], 000h                  ; 80 7e f4 00                 ; 0xf4816 eltorito.c:754
     je short 047d3h                           ; 74 b7                       ; 0xf481a
-    mov bx, 00b06h                            ; bb 06 0b                    ; 0xf481c eltorito.c:754
+    mov bx, 00b06h                            ; bb 06 0b                    ; 0xf481c eltorito.c:755
     mov cx, ds                                ; 8c d9                       ; 0xf481f
     mov ax, strict word 00004h                ; b8 04 00                    ; 0xf4821
     call 019b8h                               ; e8 91 d1                    ; 0xf4824
@@ -6756,11 +6756,11 @@ int13_cdemu:                                 ; 0xf44a8 LB 0x3ff
     push ax                                   ; 50                          ; 0xf483b
     call 019fbh                               ; e8 bc d1                    ; 0xf483c
     add sp, strict byte 0000ah                ; 83 c4 0a                    ; 0xf483f
-    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4842 eltorito.c:755
+    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4842 eltorito.c:756
     xor ah, ah                                ; 30 e4                       ; 0xf4845
     or ah, 00ch                               ; 80 cc 0c                    ; 0xf4847
     jmp short 0486eh                          ; eb 22                       ; 0xf484a
-    mov al, byte [bp-006h]                    ; 8a 46 fa                    ; 0xf484c eltorito.c:763
+    mov al, byte [bp-006h]                    ; 8a 46 fa                    ; 0xf484c eltorito.c:764
     push ax                                   ; 50                          ; 0xf484f
     mov ax, word [bp+00ah]                    ; 8b 46 0a                    ; 0xf4850
     mov dx, word [bp+004h]                    ; 8b 56 04                    ; 0xf4853
@@ -6770,7 +6770,7 @@ int13_cdemu:                                 ; 0xf44a8 LB 0x3ff
     test ax, ax                               ; 85 c0                       ; 0xf485f
     jne short 04866h                          ; 75 03                       ; 0xf4861
     jmp near 04741h                           ; e9 db fe                    ; 0xf4863
-    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4866 eltorito.c:764
+    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4866 eltorito.c:765
     xor ah, ah                                ; 30 e4                       ; 0xf4869
     or ah, 001h                               ; 80 cc 01                    ; 0xf486b
     mov word [bp+016h], ax                    ; 89 46 16                    ; 0xf486e
@@ -6782,7 +6782,7 @@ int13_cdemu:                                 ; 0xf44a8 LB 0x3ff
     mov byte [es:bx], al                      ; 26 88 07                    ; 0xf487e
     or byte [bp+01ch], 001h                   ; 80 4e 1c 01                 ; 0xf4881
     jmp near 04755h                           ; e9 cd fe                    ; 0xf4885
-    mov bx, 00b06h                            ; bb 06 0b                    ; 0xf4888 eltorito.c:780
+    mov bx, 00b06h                            ; bb 06 0b                    ; 0xf4888 eltorito.c:781
     mov cx, ds                                ; 8c d9                       ; 0xf488b
     mov ax, strict word 00004h                ; b8 04 00                    ; 0xf488d
     call 019b8h                               ; e8 25 d1                    ; 0xf4890
@@ -6803,7 +6803,7 @@ int13_cdemu:                                 ; 0xf44a8 LB 0x3ff
     db  04bh, 0ddh, 049h, 0cah, 049h, 0fbh, 049h, 09ah, 049h, 0fbh, 049h, 0d0h, 04ah, 070h, 04bh, 0fbh
     db  049h, 099h, 04bh, 0b3h, 04bh, 0bbh, 04bh, 0ddh, 049h
 int13_cdrom:                                 ; 0xf4900 LB 0x30d
-    push bp                                   ; 55                          ; 0xf4900 eltorito.c:805
+    push bp                                   ; 55                          ; 0xf4900 eltorito.c:806
     mov bp, sp                                ; 89 e5                       ; 0xf4901
     push si                                   ; 56                          ; 0xf4903
     push di                                   ; 57                          ; 0xf4904
@@ -6812,17 +6812,17 @@ int13_cdrom:                                 ; 0xf4900 LB 0x30d
     mov ax, strict word 00040h                ; b8 40 00                    ; 0xf490b
     mov es, ax                                ; 8e c0                       ; 0xf490e
     mov ax, word [es:bx]                      ; 26 8b 07                    ; 0xf4910
-    mov si, strict word 0005eh                ; be 5e 00                    ; 0xf4913 eltorito.c:814
+    mov si, strict word 0005eh                ; be 5e 00                    ; 0xf4913 eltorito.c:815
     mov word [bp-010h], ax                    ; 89 46 f0                    ; 0xf4916
     mov bx, strict word 00074h                ; bb 74 00                    ; 0xf4919 eltorito.c:53
     mov byte [es:bx], 000h                    ; 26 c6 07 00                 ; 0xf491c
-    mov ax, word [bp+00eh]                    ; 8b 46 0e                    ; 0xf4920 eltorito.c:821
+    mov ax, word [bp+00eh]                    ; 8b 46 0e                    ; 0xf4920 eltorito.c:822
     xor ah, ah                                ; 30 e4                       ; 0xf4923
     cmp ax, 000e0h                            ; 3d e0 00                    ; 0xf4925
     jc short 0492fh                           ; 72 05                       ; 0xf4928
     cmp ax, 000e8h                            ; 3d e8 00                    ; 0xf492a
     jc short 0494eh                           ; 72 1f                       ; 0xf492d
-    mov ax, word [bp+00eh]                    ; 8b 46 0e                    ; 0xf492f eltorito.c:822
+    mov ax, word [bp+00eh]                    ; 8b 46 0e                    ; 0xf492f eltorito.c:823
     xor ah, ah                                ; 30 e4                       ; 0xf4932
     push ax                                   ; 50                          ; 0xf4934
     mov al, byte [bp+017h]                    ; 8a 46 17                    ; 0xf4935
@@ -6835,24 +6835,24 @@ int13_cdrom:                                 ; 0xf4900 LB 0x30d
     push ax                                   ; 50                          ; 0xf4944
     call 019fbh                               ; e8 b3 d0                    ; 0xf4945
     add sp, strict byte 0000ah                ; 83 c4 0a                    ; 0xf4948
-    jmp near 04bd1h                           ; e9 83 02                    ; 0xf494b eltorito.c:823
-    mov ax, word [bp+00eh]                    ; 8b 46 0e                    ; 0xf494e eltorito.c:827
+    jmp near 04bd1h                           ; e9 83 02                    ; 0xf494b eltorito.c:824
+    mov ax, word [bp+00eh]                    ; 8b 46 0e                    ; 0xf494e eltorito.c:828
     xor ah, ah                                ; 30 e4                       ; 0xf4951
     mov es, [bp-010h]                         ; 8e 46 f0                    ; 0xf4953
     mov bx, si                                ; 89 f3                       ; 0xf4956
     add bx, ax                                ; 01 c3                       ; 0xf4958
     mov dl, byte [es:bx+028h]                 ; 26 8a 57 28                 ; 0xf495a
     mov byte [bp-006h], dl                    ; 88 56 fa                    ; 0xf495e
-    cmp dl, 008h                              ; 80 fa 08                    ; 0xf4961 eltorito.c:830
+    cmp dl, 008h                              ; 80 fa 08                    ; 0xf4961 eltorito.c:831
     jc short 04974h                           ; 72 0e                       ; 0xf4964
-    push ax                                   ; 50                          ; 0xf4966 eltorito.c:831
+    push ax                                   ; 50                          ; 0xf4966 eltorito.c:832
     mov al, byte [bp+017h]                    ; 8a 46 17                    ; 0xf4967
     push ax                                   ; 50                          ; 0xf496a
     mov ax, 0041ch                            ; b8 1c 04                    ; 0xf496b
     push ax                                   ; 50                          ; 0xf496e
     mov ax, 00453h                            ; b8 53 04                    ; 0xf496f
     jmp short 04940h                          ; eb cc                       ; 0xf4972
-    mov al, byte [bp+017h]                    ; 8a 46 17                    ; 0xf4974 eltorito.c:835
+    mov al, byte [bp+017h]                    ; 8a 46 17                    ; 0xf4974 eltorito.c:836
     xor ah, ah                                ; 30 e4                       ; 0xf4977
     mov dx, ax                                ; 89 c2                       ; 0xf4979
     cmp ax, strict word 00050h                ; 3d 50 00                    ; 0xf497b
@@ -6868,29 +6868,29 @@ int13_cdrom:                                 ; 0xf4900 LB 0x30d
     mov bx, word [bp+016h]                    ; 8b 5e 16                    ; 0xf4993
     xor bh, bh                                ; 30 ff                       ; 0xf4996
     jmp ax                                    ; ff e0                       ; 0xf4998
-    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf499a eltorito.c:853
+    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf499a eltorito.c:854
     xor ah, ah                                ; 30 e4                       ; 0xf499d
     or ah, 003h                               ; 80 cc 03                    ; 0xf499f
-    jmp near 04bd9h                           ; e9 34 02                    ; 0xf49a2 eltorito.c:854
+    jmp near 04bd9h                           ; e9 34 02                    ; 0xf49a2 eltorito.c:855
     mov si, strict word 00074h                ; be 74 00                    ; 0xf49a5 eltorito.c:48
     mov ax, strict word 00040h                ; b8 40 00                    ; 0xf49a8
     mov es, ax                                ; 8e c0                       ; 0xf49ab
     mov al, byte [es:si]                      ; 26 8a 04                    ; 0xf49ad
-    mov bh, al                                ; 88 c7                       ; 0xf49b0 eltorito.c:859
+    mov bh, al                                ; 88 c7                       ; 0xf49b0 eltorito.c:860
     mov word [bp+016h], bx                    ; 89 5e 16                    ; 0xf49b2
     mov bx, si                                ; 89 f3                       ; 0xf49b5 eltorito.c:53
     mov byte [es:bx], dh                      ; 26 88 37                    ; 0xf49b7
-    test al, al                               ; 84 c0                       ; 0xf49ba eltorito.c:863
+    test al, al                               ; 84 c0                       ; 0xf49ba eltorito.c:864
     je short 049dah                           ; 74 1c                       ; 0xf49bc
-    jmp near 04bech                           ; e9 2b 02                    ; 0xf49be eltorito.c:864
-    or bh, 002h                               ; 80 cf 02                    ; 0xf49c1 eltorito.c:870
+    jmp near 04bech                           ; e9 2b 02                    ; 0xf49be eltorito.c:865
+    or bh, 002h                               ; 80 cf 02                    ; 0xf49c1 eltorito.c:871
     mov word [bp+016h], bx                    ; 89 5e 16                    ; 0xf49c4
-    jmp near 04bdch                           ; e9 12 02                    ; 0xf49c7 eltorito.c:871
-    mov word [bp+010h], 0aa55h                ; c7 46 10 55 aa              ; 0xf49ca eltorito.c:875
-    or bh, 030h                               ; 80 cf 30                    ; 0xf49cf eltorito.c:876
+    jmp near 04bdch                           ; e9 12 02                    ; 0xf49c7 eltorito.c:872
+    mov word [bp+010h], 0aa55h                ; c7 46 10 55 aa              ; 0xf49ca eltorito.c:876
+    or bh, 030h                               ; 80 cf 30                    ; 0xf49cf eltorito.c:877
     mov word [bp+016h], bx                    ; 89 5e 16                    ; 0xf49d2
-    mov word [bp+014h], strict word 00007h    ; c7 46 14 07 00              ; 0xf49d5 eltorito.c:877
-    jmp near 04bf6h                           ; e9 19 02                    ; 0xf49da eltorito.c:878
+    mov word [bp+014h], strict word 00007h    ; c7 46 14 07 00              ; 0xf49d5 eltorito.c:878
+    jmp near 04bf6h                           ; e9 19 02                    ; 0xf49da eltorito.c:879
     mov bx, 00b06h                            ; bb 06 0b                    ; 0xf49dd
     mov cx, ds                                ; 8c d9                       ; 0xf49e0
     mov ax, strict word 00004h                ; b8 04 00                    ; 0xf49e2
@@ -6904,20 +6904,20 @@ int13_cdrom:                                 ; 0xf4900 LB 0x30d
     push ax                                   ; 50                          ; 0xf49f5
     mov ax, strict word 00004h                ; b8 04 00                    ; 0xf49f6
     jmp short 04a35h                          ; eb 3a                       ; 0xf49f9
-    mov bx, word [bp+00ah]                    ; 8b 5e 0a                    ; 0xf49fb eltorito.c:886
+    mov bx, word [bp+00ah]                    ; 8b 5e 0a                    ; 0xf49fb eltorito.c:887
     mov es, [bp+004h]                         ; 8e 46 04                    ; 0xf49fe
     mov di, bx                                ; 89 df                       ; 0xf4a01
     mov [bp-008h], es                         ; 8c 46 f8                    ; 0xf4a03
-    mov dx, word [es:bx+002h]                 ; 26 8b 57 02                 ; 0xf4a06 eltorito.c:888
-    mov ax, word [es:bx+006h]                 ; 26 8b 47 06                 ; 0xf4a0a eltorito.c:889
+    mov dx, word [es:bx+002h]                 ; 26 8b 57 02                 ; 0xf4a06 eltorito.c:889
+    mov ax, word [es:bx+006h]                 ; 26 8b 47 06                 ; 0xf4a0a eltorito.c:890
     mov word [bp-00eh], ax                    ; 89 46 f2                    ; 0xf4a0e
-    mov ax, word [es:bx+004h]                 ; 26 8b 47 04                 ; 0xf4a11 eltorito.c:890
+    mov ax, word [es:bx+004h]                 ; 26 8b 47 04                 ; 0xf4a11 eltorito.c:891
     mov word [bp-00ch], ax                    ; 89 46 f4                    ; 0xf4a15
-    mov ax, word [es:bx+00ch]                 ; 26 8b 47 0c                 ; 0xf4a18 eltorito.c:893
+    mov ax, word [es:bx+00ch]                 ; 26 8b 47 0c                 ; 0xf4a18 eltorito.c:894
     mov cx, word [es:bx+00eh]                 ; 26 8b 4f 0e                 ; 0xf4a1c
-    or ax, cx                                 ; 09 c8                       ; 0xf4a20 eltorito.c:894
+    or ax, cx                                 ; 09 c8                       ; 0xf4a20 eltorito.c:895
     je short 04a3fh                           ; 74 1b                       ; 0xf4a22
-    mov al, byte [bp+017h]                    ; 8a 46 17                    ; 0xf4a24 eltorito.c:895
+    mov al, byte [bp+017h]                    ; 8a 46 17                    ; 0xf4a24 eltorito.c:896
     xor ah, ah                                ; 30 e4                       ; 0xf4a27
     push ax                                   ; 50                          ; 0xf4a29
     mov ax, 0041ch                            ; b8 1c 04                    ; 0xf4a2a
@@ -6928,19 +6928,19 @@ int13_cdrom:                                 ; 0xf4900 LB 0x30d
     push ax                                   ; 50                          ; 0xf4a35
     call 019fbh                               ; e8 c2 cf                    ; 0xf4a36
     add sp, strict byte 00008h                ; 83 c4 08                    ; 0xf4a39
-    jmp near 04bd1h                           ; e9 92 01                    ; 0xf4a3c eltorito.c:896
-    mov es, [bp-008h]                         ; 8e 46 f8                    ; 0xf4a3f eltorito.c:900
+    jmp near 04bd1h                           ; e9 92 01                    ; 0xf4a3c eltorito.c:897
+    mov es, [bp-008h]                         ; 8e 46 f8                    ; 0xf4a3f eltorito.c:901
     mov ax, word [es:di+008h]                 ; 26 8b 45 08                 ; 0xf4a42
     mov cx, word [es:di+00ah]                 ; 26 8b 4d 0a                 ; 0xf4a46
-    mov bl, byte [bp+017h]                    ; 8a 5e 17                    ; 0xf4a4a eltorito.c:903
+    mov bl, byte [bp+017h]                    ; 8a 5e 17                    ; 0xf4a4a eltorito.c:904
     mov byte [bp-012h], bl                    ; 88 5e ee                    ; 0xf4a4d
     mov byte [bp-011h], 000h                  ; c6 46 ef 00                 ; 0xf4a50
     cmp word [bp-012h], strict byte 00044h    ; 83 7e ee 44                 ; 0xf4a54
     je short 04a60h                           ; 74 06                       ; 0xf4a58
     cmp word [bp-012h], strict byte 00047h    ; 83 7e ee 47                 ; 0xf4a5a
     jne short 04a63h                          ; 75 03                       ; 0xf4a5e
-    jmp near 04bf2h                           ; e9 8f 01                    ; 0xf4a60 eltorito.c:904
-    push word [bp-00eh]                       ; ff 76 f2                    ; 0xf4a63 eltorito.c:909
+    jmp near 04bf2h                           ; e9 8f 01                    ; 0xf4a60 eltorito.c:905
+    push word [bp-00eh]                       ; ff 76 f2                    ; 0xf4a63 eltorito.c:910
     push word [bp-00ch]                       ; ff 76 f4                    ; 0xf4a66
     mov bl, byte [bp-006h]                    ; 8a 5e fa                    ; 0xf4a69
     mov byte [bp-014h], bl                    ; 88 5e ec                    ; 0xf4a6c
@@ -6949,18 +6949,18 @@ int13_cdrom:                                 ; 0xf4900 LB 0x30d
     mov ax, word [bp-014h]                    ; 8b 46 ec                    ; 0xf4a75
     call 03f98h                               ; e8 1d f5                    ; 0xf4a78
     mov word [bp-00ah], ax                    ; 89 46 f6                    ; 0xf4a7b
-    mov es, [bp-010h]                         ; 8e 46 f0                    ; 0xf4a7e eltorito.c:910
+    mov es, [bp-010h]                         ; 8e 46 f0                    ; 0xf4a7e eltorito.c:911
     mov ax, word [es:si+01ah]                 ; 26 8b 44 1a                 ; 0xf4a81
     mov dx, word [es:si+01ch]                 ; 26 8b 54 1c                 ; 0xf4a85
     mov cx, strict word 0000bh                ; b9 0b 00                    ; 0xf4a89
     shr dx, 1                                 ; d1 ea                       ; 0xf4a8c
     rcr ax, 1                                 ; d1 d8                       ; 0xf4a8e
     loop 04a8ch                               ; e2 fa                       ; 0xf4a90
-    mov es, [bp-008h]                         ; 8e 46 f8                    ; 0xf4a92 eltorito.c:911
+    mov es, [bp-008h]                         ; 8e 46 f8                    ; 0xf4a92 eltorito.c:912
     mov word [es:di+002h], ax                 ; 26 89 45 02                 ; 0xf4a95
-    cmp byte [bp-00ah], 000h                  ; 80 7e f6 00                 ; 0xf4a99 eltorito.c:913
+    cmp byte [bp-00ah], 000h                  ; 80 7e f6 00                 ; 0xf4a99 eltorito.c:914
     je short 04a60h                           ; 74 c1                       ; 0xf4a9d
-    mov bx, 00b06h                            ; bb 06 0b                    ; 0xf4a9f eltorito.c:914
+    mov bx, 00b06h                            ; bb 06 0b                    ; 0xf4a9f eltorito.c:915
     mov cx, ds                                ; 8c d9                       ; 0xf4aa2
     mov ax, strict word 00004h                ; b8 04 00                    ; 0xf4aa4
     call 019b8h                               ; e8 0e cf                    ; 0xf4aa7
@@ -6976,13 +6976,13 @@ int13_cdrom:                                 ; 0xf4900 LB 0x30d
     push ax                                   ; 50                          ; 0xf4abe
     call 019fbh                               ; e8 39 cf                    ; 0xf4abf
     add sp, strict byte 0000ah                ; 83 c4 0a                    ; 0xf4ac2
-    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4ac5 eltorito.c:915
+    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4ac5 eltorito.c:916
     xor ah, ah                                ; 30 e4                       ; 0xf4ac8
     or ah, 00ch                               ; 80 cc 0c                    ; 0xf4aca
     jmp near 04bd9h                           ; e9 09 01                    ; 0xf4acd
-    cmp bx, strict byte 00002h                ; 83 fb 02                    ; 0xf4ad0 eltorito.c:923
+    cmp bx, strict byte 00002h                ; 83 fb 02                    ; 0xf4ad0 eltorito.c:924
     jnbe short 04b40h                         ; 77 6b                       ; 0xf4ad3
-    mov al, byte [bp-006h]                    ; 8a 46 fa                    ; 0xf4ad5 eltorito.c:926
+    mov al, byte [bp-006h]                    ; 8a 46 fa                    ; 0xf4ad5 eltorito.c:927
     xor ah, ah                                ; 30 e4                       ; 0xf4ad8
     mov dx, strict word 0001ch                ; ba 1c 00                    ; 0xf4ada
     imul dx                                   ; f7 ea                       ; 0xf4add
@@ -6990,52 +6990,52 @@ int13_cdrom:                                 ; 0xf4900 LB 0x30d
     mov di, si                                ; 89 f7                       ; 0xf4ae2
     add di, ax                                ; 01 c7                       ; 0xf4ae4
     mov cl, byte [es:di+021h]                 ; 26 8a 4d 21                 ; 0xf4ae6
-    cmp bx, strict byte 00002h                ; 83 fb 02                    ; 0xf4aea eltorito.c:928
+    cmp bx, strict byte 00002h                ; 83 fb 02                    ; 0xf4aea eltorito.c:929
     je short 04b58h                           ; 74 69                       ; 0xf4aed
     cmp bx, strict byte 00001h                ; 83 fb 01                    ; 0xf4aef
     je short 04b30h                           ; 74 3c                       ; 0xf4af2
     test bx, bx                               ; 85 db                       ; 0xf4af4
     jne short 04b68h                          ; 75 70                       ; 0xf4af6
-    cmp cl, 0ffh                              ; 80 f9 ff                    ; 0xf4af8 eltorito.c:930
+    cmp cl, 0ffh                              ; 80 f9 ff                    ; 0xf4af8 eltorito.c:931
     jne short 04b0fh                          ; 75 12                       ; 0xf4afb
-    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4afd eltorito.c:931
+    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4afd eltorito.c:932
     xor ah, ah                                ; 30 e4                       ; 0xf4b00
     or ah, 0b4h                               ; 80 cc b4                    ; 0xf4b02
     mov word [bp+016h], ax                    ; 89 46 16                    ; 0xf4b05
-    xor al, al                                ; 30 c0                       ; 0xf4b08 eltorito.c:932
+    xor al, al                                ; 30 c0                       ; 0xf4b08 eltorito.c:933
     or AL, strict byte 001h                   ; 0c 01                       ; 0xf4b0a
     jmp near 04bd9h                           ; e9 ca 00                    ; 0xf4b0c
-    mov al, byte [bp-006h]                    ; 8a 46 fa                    ; 0xf4b0f eltorito.c:934
+    mov al, byte [bp-006h]                    ; 8a 46 fa                    ; 0xf4b0f eltorito.c:935
     xor ah, ah                                ; 30 e4                       ; 0xf4b12
     mov dx, strict word 0001ch                ; ba 1c 00                    ; 0xf4b14
     imul dx                                   ; f7 ea                       ; 0xf4b17
     db  0feh, 0c1h
-    ; inc cl                                    ; fe c1                     ; 0xf4b19 eltorito.c:935
+    ; inc cl                                    ; fe c1                     ; 0xf4b19 eltorito.c:936
     mov es, [bp-010h]                         ; 8e 46 f0                    ; 0xf4b1b
     add si, ax                                ; 01 c6                       ; 0xf4b1e
     mov byte [es:si+021h], cl                 ; 26 88 4c 21                 ; 0xf4b20
-    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4b24 eltorito.c:936
+    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4b24 eltorito.c:937
     xor al, al                                ; 30 c0                       ; 0xf4b27
     or AL, strict byte 001h                   ; 0c 01                       ; 0xf4b29
     mov word [bp+016h], ax                    ; 89 46 16                    ; 0xf4b2b
-    jmp short 04b68h                          ; eb 38                       ; 0xf4b2e eltorito.c:937
-    test cl, cl                               ; 84 c9                       ; 0xf4b30 eltorito.c:939
+    jmp short 04b68h                          ; eb 38                       ; 0xf4b2e eltorito.c:938
+    test cl, cl                               ; 84 c9                       ; 0xf4b30 eltorito.c:940
     jne short 04b43h                          ; 75 0f                       ; 0xf4b32
-    or bh, 0b0h                               ; 80 cf b0                    ; 0xf4b34 eltorito.c:940
+    or bh, 0b0h                               ; 80 cf b0                    ; 0xf4b34 eltorito.c:941
     mov word [bp+016h], bx                    ; 89 5e 16                    ; 0xf4b37
-    mov byte [bp+016h], cl                    ; 88 4e 16                    ; 0xf4b3a eltorito.c:941
-    jmp near 04bdch                           ; e9 9c 00                    ; 0xf4b3d eltorito.c:942
+    mov byte [bp+016h], cl                    ; 88 4e 16                    ; 0xf4b3a eltorito.c:942
+    jmp near 04bdch                           ; e9 9c 00                    ; 0xf4b3d eltorito.c:943
     jmp near 04bd1h                           ; e9 8e 00                    ; 0xf4b40
-    mov al, byte [bp-006h]                    ; 8a 46 fa                    ; 0xf4b43 eltorito.c:943
+    mov al, byte [bp-006h]                    ; 8a 46 fa                    ; 0xf4b43 eltorito.c:944
     xor ah, ah                                ; 30 e4                       ; 0xf4b46
     mov dx, strict word 0001ch                ; ba 1c 00                    ; 0xf4b48
     imul dx                                   ; f7 ea                       ; 0xf4b4b
     db  0feh, 0c9h
-    ; dec cl                                    ; fe c9                     ; 0xf4b4d eltorito.c:944
+    ; dec cl                                    ; fe c9                     ; 0xf4b4d eltorito.c:945
     mov es, [bp-010h]                         ; 8e 46 f0                    ; 0xf4b4f
     add si, ax                                ; 01 c6                       ; 0xf4b52
     mov byte [es:si+021h], cl                 ; 26 88 4c 21                 ; 0xf4b54
-    test cl, cl                               ; 84 c9                       ; 0xf4b58 eltorito.c:945
+    test cl, cl                               ; 84 c9                       ; 0xf4b58 eltorito.c:946
     jne short 04b6bh                          ; 75 0f                       ; 0xf4b5a
     xor ax, ax                                ; 31 c0                       ; 0xf4b5c
     mov dx, word [bp+016h]                    ; 8b 56 16                    ; 0xf4b5e
@@ -7045,23 +7045,23 @@ int13_cdrom:                                 ; 0xf4900 LB 0x30d
     jmp near 04bf2h                           ; e9 87 00                    ; 0xf4b68
     mov ax, strict word 00001h                ; b8 01 00                    ; 0xf4b6b
     jmp short 04b5eh                          ; eb ee                       ; 0xf4b6e
-    mov al, byte [bp-006h]                    ; 8a 46 fa                    ; 0xf4b70 eltorito.c:955
+    mov al, byte [bp-006h]                    ; 8a 46 fa                    ; 0xf4b70 eltorito.c:956
     xor ah, ah                                ; 30 e4                       ; 0xf4b73
     mov dx, strict word 0001ch                ; ba 1c 00                    ; 0xf4b75
     imul dx                                   ; f7 ea                       ; 0xf4b78
     mov es, [bp-010h]                         ; 8e 46 f0                    ; 0xf4b7a
     add si, ax                                ; 01 c6                       ; 0xf4b7d
     mov cl, byte [es:si+021h]                 ; 26 8a 4c 21                 ; 0xf4b7f
-    test cl, cl                               ; 84 c9                       ; 0xf4b83 eltorito.c:957
+    test cl, cl                               ; 84 c9                       ; 0xf4b83 eltorito.c:958
     je short 04b8dh                           ; 74 06                       ; 0xf4b85
-    or bh, 0b1h                               ; 80 cf b1                    ; 0xf4b87 eltorito.c:958
+    or bh, 0b1h                               ; 80 cf b1                    ; 0xf4b87 eltorito.c:959
     jmp near 049c4h                           ; e9 37 fe                    ; 0xf4b8a
-    je short 04bf2h                           ; 74 63                       ; 0xf4b8d eltorito.c:980
-    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4b8f eltorito.c:981
+    je short 04bf2h                           ; 74 63                       ; 0xf4b8d eltorito.c:981
+    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4b8f eltorito.c:982
     xor ah, ah                                ; 30 e4                       ; 0xf4b92
     or ah, 0b1h                               ; 80 cc b1                    ; 0xf4b94
     jmp short 04bd9h                          ; eb 40                       ; 0xf4b97
-    mov al, byte [bp-006h]                    ; 8a 46 fa                    ; 0xf4b99 eltorito.c:989
+    mov al, byte [bp-006h]                    ; 8a 46 fa                    ; 0xf4b99 eltorito.c:990
     xor ah, ah                                ; 30 e4                       ; 0xf4b9c
     push ax                                   ; 50                          ; 0xf4b9e
     mov ax, word [bp+00ah]                    ; 8b 46 0a                    ; 0xf4b9f
@@ -7071,11 +7071,11 @@ int13_cdrom:                                 ; 0xf4900 LB 0x30d
     call 05b3ch                               ; e8 8f 0f                    ; 0xf4baa
     test ax, ax                               ; 85 c0                       ; 0xf4bad
     je short 04bf2h                           ; 74 41                       ; 0xf4baf
-    jmp short 04bd1h                          ; eb 1e                       ; 0xf4bb1 eltorito.c:990
-    or bh, 006h                               ; 80 cf 06                    ; 0xf4bb3 eltorito.c:997
+    jmp short 04bd1h                          ; eb 1e                       ; 0xf4bb1 eltorito.c:991
+    or bh, 006h                               ; 80 cf 06                    ; 0xf4bb3 eltorito.c:998
     mov word [bp+016h], bx                    ; 89 5e 16                    ; 0xf4bb6
-    jmp short 04bech                          ; eb 31                       ; 0xf4bb9 eltorito.c:998
-    cmp bx, strict byte 00006h                ; 83 fb 06                    ; 0xf4bbb eltorito.c:1003
+    jmp short 04bech                          ; eb 31                       ; 0xf4bb9 eltorito.c:999
+    cmp bx, strict byte 00006h                ; 83 fb 06                    ; 0xf4bbb eltorito.c:1004
     je short 04bf2h                           ; 74 32                       ; 0xf4bbe
     cmp bx, strict byte 00001h                ; 83 fb 01                    ; 0xf4bc0
     jc short 04bd1h                           ; 72 0c                       ; 0xf4bc3
@@ -7084,25 +7084,25 @@ int13_cdrom:                                 ; 0xf4900 LB 0x30d
     jc short 04bd1h                           ; 72 05                       ; 0xf4bca
     cmp bx, strict byte 00004h                ; 83 fb 04                    ; 0xf4bcc
     jbe short 04bf2h                          ; 76 21                       ; 0xf4bcf
-    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4bd1 eltorito.c:1030
+    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4bd1 eltorito.c:1031
     xor ah, ah                                ; 30 e4                       ; 0xf4bd4
     or ah, 001h                               ; 80 cc 01                    ; 0xf4bd6
     mov word [bp+016h], ax                    ; 89 46 16                    ; 0xf4bd9
-    mov al, byte [bp+017h]                    ; 8a 46 17                    ; 0xf4bdc eltorito.c:1032
+    mov al, byte [bp+017h]                    ; 8a 46 17                    ; 0xf4bdc eltorito.c:1033
     xor ah, ah                                ; 30 e4                       ; 0xf4bdf
     mov bx, strict word 00074h                ; bb 74 00                    ; 0xf4be1 eltorito.c:53
     mov dx, strict word 00040h                ; ba 40 00                    ; 0xf4be4
     mov es, dx                                ; 8e c2                       ; 0xf4be7
     mov byte [es:bx], al                      ; 26 88 07                    ; 0xf4be9
-    or byte [bp+01ch], 001h                   ; 80 4e 1c 01                 ; 0xf4bec eltorito.c:1034
-    jmp short 04c06h                          ; eb 14                       ; 0xf4bf0 eltorito.c:1035
-    mov byte [bp+017h], 000h                  ; c6 46 17 00                 ; 0xf4bf2 eltorito.c:1038
+    or byte [bp+01ch], 001h                   ; 80 4e 1c 01                 ; 0xf4bec eltorito.c:1035
+    jmp short 04c06h                          ; eb 14                       ; 0xf4bf0 eltorito.c:1036
+    mov byte [bp+017h], 000h                  ; c6 46 17 00                 ; 0xf4bf2 eltorito.c:1039
     mov bx, strict word 00074h                ; bb 74 00                    ; 0xf4bf6 eltorito.c:53
     mov ax, strict word 00040h                ; b8 40 00                    ; 0xf4bf9
     mov es, ax                                ; 8e c0                       ; 0xf4bfc
     mov byte [es:bx], 000h                    ; 26 c6 07 00                 ; 0xf4bfe
-    and byte [bp+01ch], 0feh                  ; 80 66 1c fe                 ; 0xf4c02 eltorito.c:1041
-    lea sp, [bp-004h]                         ; 8d 66 fc                    ; 0xf4c06 eltorito.c:1043
+    and byte [bp+01ch], 0feh                  ; 80 66 1c fe                 ; 0xf4c02 eltorito.c:1042
+    lea sp, [bp-004h]                         ; 8d 66 fc                    ; 0xf4c06 eltorito.c:1044
     pop di                                    ; 5f                          ; 0xf4c09
     pop si                                    ; 5e                          ; 0xf4c0a
     pop bp                                    ; 5d                          ; 0xf4c0b
@@ -13741,4 +13741,4 @@ biosorg_check_before_or_at_0FFEEh:           ; 0xfff80 LB 0x70
 cpu_reset:                                   ; 0xffff0 LB 0x10
     jmp far 0f000h:0e05bh                     ; ea 5b e0 00 f0              ; 0xffff0 orgs.asm:2117
   ; disGetNextSymbol 0xffff5 LB 0xb -> off=0xb cb=0000000000000000 uValue=0000000000100000 '_dummy_addr_0x100000'
-    db  030h, 036h, 02fh, 032h, 033h, 02fh, 039h, 039h, 000h, 0fbh, 0adh
+    db  030h, 036h, 02fh, 032h, 033h, 02fh, 039h, 039h, 000h, 0fbh, 0abh

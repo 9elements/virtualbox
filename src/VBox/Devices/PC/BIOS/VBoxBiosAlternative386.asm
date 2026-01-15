@@ -1,4 +1,4 @@
-; $Id: VBoxBiosAlternative386.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ 
+; $Id: VBoxBiosAlternative386.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $ 
 ;; @file
 ; Auto Generated source file. Do not edit.
 ;
@@ -6,7 +6,7 @@
 ;
 ; Source file: post.c
 ;
-;  $Id: VBoxBiosAlternative386.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative386.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  BIOS POST routines. Used only during initialization.
 ;  
 ;  
@@ -34,7 +34,7 @@
 ;
 ; Source file: bios.c
 ;
-;  $Id: VBoxBiosAlternative386.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative386.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  PC BIOS - ???
 ;  
 ;  
@@ -90,7 +90,7 @@
 ;
 ; Source file: print.c
 ;
-;  $Id: VBoxBiosAlternative386.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative386.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  PC BIOS - ???
 ;  
 ;  
@@ -146,7 +146,7 @@
 ;
 ; Source file: ata.c
 ;
-;  $Id: VBoxBiosAlternative386.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative386.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  PC BIOS - ATA disk support.
 ;  
 ;  
@@ -202,7 +202,7 @@
 ;
 ; Source file: floppy.c
 ;
-;  $Id: VBoxBiosAlternative386.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative386.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  PC BIOS - ???
 ;  
 ;  
@@ -258,7 +258,7 @@
 ;
 ; Source file: floppyt.c
 ;
-;  $Id: VBoxBiosAlternative386.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative386.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  Floppy drive tables.
 ;  
 ;  
@@ -286,7 +286,7 @@
 ;
 ; Source file: eltorito.c
 ;
-;  $Id: VBoxBiosAlternative386.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative386.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  PC BIOS - ???
 ;  
 ;  
@@ -342,7 +342,7 @@
 ;
 ; Source file: boot.c
 ;
-;  $Id: VBoxBiosAlternative386.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative386.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  PC BIOS - ???
 ;  
 ;  
@@ -398,7 +398,7 @@
 ;
 ; Source file: keyboard.c
 ;
-;  $Id: VBoxBiosAlternative386.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative386.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  PC BIOS - ???
 ;  
 ;  
@@ -454,7 +454,7 @@
 ;
 ; Source file: disk.c
 ;
-;  $Id: VBoxBiosAlternative386.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative386.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  PC BIOS - ???
 ;  
 ;  
@@ -510,7 +510,7 @@
 ;
 ; Source file: serial.c
 ;
-;  $Id: VBoxBiosAlternative386.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative386.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  PC BIOS - ???
 ;  
 ;  
@@ -566,7 +566,7 @@
 ;
 ; Source file: system.c
 ;
-;  $Id: VBoxBiosAlternative386.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative386.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  PC BIOS - ???
 ;  
 ;  
@@ -622,7 +622,7 @@
 ;
 ; Source file: invop.c
 ;
-;  $Id: VBoxBiosAlternative386.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative386.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  Real mode invalid opcode handler.
 ;  
 ;  
@@ -702,7 +702,7 @@
 ;
 ; Source file: ps2mouse.c
 ;
-;  $Id: VBoxBiosAlternative386.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative386.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  PC BIOS - ???
 ;  
 ;  
@@ -758,7 +758,7 @@
 ;
 ; Source file: parallel.c
 ;
-;  $Id: VBoxBiosAlternative386.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative386.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  PC BIOS - ???
 ;  
 ;  
@@ -814,7 +814,7 @@
 ;
 ; Source file: logo.c
 ;
-;  $Id: VBoxBiosAlternative386.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative386.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  Stuff for drawing the BIOS logo.
 ;  
 ;  
@@ -842,7 +842,7 @@
 ;
 ; Source file: apm.c
 ;
-;  $Id: VBoxBiosAlternative386.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative386.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  APM BIOS support. Implements APM version 1.2.
 ;  
 ;  
@@ -870,7 +870,7 @@
 ;
 ; Source file: __U4M.asm
 ;
-;  $Id: VBoxBiosAlternative386.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative386.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  Compiler support routines.
 ;  
 ;  
@@ -899,7 +899,7 @@
 ;
 ; Source file: __U4D.asm
 ;
-;  $Id: VBoxBiosAlternative386.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative386.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  Compiler support routines.
 ;  
 ;  
@@ -928,7 +928,7 @@
 ;
 ; Source file: __U8RS.asm
 ;
-;  $Id: VBoxBiosAlternative386.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative386.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  Compiler support routines.
 ;  
 ;  
@@ -957,7 +957,7 @@
 ;
 ; Source file: __U8LS.asm
 ;
-;  $Id: VBoxBiosAlternative386.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative386.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  Compiler support routines.
 ;  
 ;  
@@ -986,7 +986,7 @@
 ;
 ; Source file: fmemset.asm
 ;
-;  $Id: VBoxBiosAlternative386.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative386.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  Compiler support routines.
 ;  
 ;  
@@ -1015,7 +1015,7 @@
 ;
 ; Source file: fmemcpy.asm
 ;
-;  $Id: VBoxBiosAlternative386.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative386.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  Compiler support routines.
 ;  
 ;  
@@ -1044,7 +1044,7 @@
 ;
 ; Source file: orgs.asm
 ;
-;  $Id: VBoxBiosAlternative386.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative386.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  ???
 ;  
 ;  
@@ -1100,7 +1100,7 @@
 ;
 ; Source file: pcibios.c
 ;
-;  $Id: VBoxBiosAlternative386.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative386.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  PCI BIOS support.
 ;  
 ;  
@@ -1128,7 +1128,7 @@
 ;
 ; Source file: pciutil.c
 ;
-;  $Id: VBoxBiosAlternative386.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative386.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  Utility routines for calling the PCI BIOS.
 ;  
 ;  
@@ -1156,7 +1156,7 @@
 ;
 ; Source file: ahci.c
 ;
-;  $Id: VBoxBiosAlternative386.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative386.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  AHCI host adapter driver to boot from SATA disks.
 ;  
 ;  
@@ -1184,7 +1184,7 @@
 ;
 ; Source file: scsi.c
 ;
-;  $Id: VBoxBiosAlternative386.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative386.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  SCSI host adapter driver to boot from SCSI disks
 ;  
 ;  
@@ -1212,7 +1212,7 @@
 ;
 ; Source file: buslogic.c
 ;
-;  $Id: VBoxBiosAlternative386.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative386.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  BusLogic SCSI host adapter driver to boot from disks.
 ;  
 ;  
@@ -1240,7 +1240,7 @@
 ;
 ; Source file: lsilogic.c
 ;
-;  $Id: VBoxBiosAlternative386.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative386.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  LsiLogic SCSI host adapter driver to boot from disks.
 ;  
 ;  
@@ -1268,7 +1268,7 @@
 ;
 ; Source file: virtio.c
 ;
-;  $Id: VBoxBiosAlternative386.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative386.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  VirtIO-SCSI host adapter driver to boot from disks.
 ;  
 ;  
@@ -1296,7 +1296,7 @@
 ;
 ; Source file: vds.c
 ;
-;  $Id: VBoxBiosAlternative386.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative386.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  Utility routines for calling the Virtual DMA Services.
 ;  
 ;  
@@ -1353,7 +1353,7 @@
 ;
 ; Source file: pcibio32.asm
 ;
-;  $Id: VBoxBiosAlternative386.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative386.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  BIOS32 service directory and 32-bit PCI BIOS entry point
 ;  
 ;  
@@ -1382,7 +1382,7 @@
 ;
 ; Source file: pci32.c
 ;
-;  $Id: VBoxBiosAlternative386.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+;  $Id: VBoxBiosAlternative386.asm 112613 2026-01-15 14:10:54Z vadim.galitsyn@oracle.com $
 ;  32-bit PCI BIOS wrapper.
 ;  
 ;  
@@ -1565,7 +1565,7 @@ section CONST progbits vstart=0xf0 align=1 ; size=0xcdc class=DATA group=DGROUP
 section CONST2 progbits vstart=0xdcc align=1 ; size=0x40e class=DATA group=DGROUP
   ; disGetNextSymbol 0xf0dcc LB 0x40e -> off=0x0 cb=0000000000000012 uValue=00000000000f0dcc 'bios_cvs_version_string'
 bios_cvs_version_string:                     ; 0xf0dcc LB 0x12
-    db  'VirtualBox 7.2.4', 000h, 000h
+    db  'VirtualBox 7.2.6', 000h, 000h
   ; disGetNextSymbol 0xf0dde LB 0x3fc -> off=0x0 cb=0000000000000008 uValue=00000000000f0dde '_bios_prefix_string'
 _bios_prefix_string:                         ; 0xf0dde LB 0x8
     db  'BIOS: ', 000h, 000h
@@ -1646,8 +1646,8 @@ panic_msg_keyb_buffer_full:                  ; 0xf11ba LB 0x20
   ; Padding 0x426 bytes at 0xf11da
   times 1062 db 0
 
-section _TEXT progbits vstart=0x1600 align=1 ; size=0x9aec class=CODE group=AUTO
-  ; disGetNextSymbol 0xf1600 LB 0x9aec -> off=0x0 cb=0000000000000064 uValue=00000000000f0000 'rom_scan'
+section _TEXT progbits vstart=0x1600 align=1 ; size=0x9b46 class=CODE group=AUTO
+  ; disGetNextSymbol 0xf1600 LB 0x9b46 -> off=0x0 cb=0000000000000064 uValue=00000000000f0000 'rom_scan'
 rom_scan:                                    ; 0xf1600 LB 0x64
     push bp                                   ; 55                          ; 0xf1600 post.c:106
     mov bp, sp                                ; 89 e5                       ; 0xf1601
@@ -1694,7 +1694,7 @@ rom_scan:                                    ; 0xf1600 LB 0x64
     pop bx                                    ; 5b                          ; 0xf1661
     pop bp                                    ; 5d                          ; 0xf1662
     retn                                      ; c3                          ; 0xf1663
-  ; disGetNextSymbol 0xf1664 LB 0x9a88 -> off=0x0 cb=0000000000000042 uValue=00000000000f0064 'is_cpuid_supported'
+  ; disGetNextSymbol 0xf1664 LB 0x9ae2 -> off=0x0 cb=0000000000000042 uValue=00000000000f0064 'is_cpuid_supported'
 is_cpuid_supported:                          ; 0xf1664 LB 0x42
     push bp                                   ; 55                          ; 0xf1664 post.c:145
     mov bp, sp                                ; 89 e5                       ; 0xf1665
@@ -1732,7 +1732,7 @@ is_cpuid_supported:                          ; 0xf1664 LB 0x42
     pop bx                                    ; 5b                          ; 0xf16a3
     pop bp                                    ; 5d                          ; 0xf16a4
     retn                                      ; c3                          ; 0xf16a5
-  ; disGetNextSymbol 0xf16a6 LB 0x9a46 -> off=0x0 cb=00000000000000c4 uValue=00000000000f00a6 'apic_setup'
+  ; disGetNextSymbol 0xf16a6 LB 0x9aa0 -> off=0x0 cb=00000000000000c4 uValue=00000000000f00a6 'apic_setup'
 apic_setup:                                  ; 0xf16a6 LB 0xc4
     push bp                                   ; 55                          ; 0xf16a6 post.c:179
     mov bp, sp                                ; 89 e5                       ; 0xf16a7
@@ -1826,7 +1826,7 @@ apic_setup:                                  ; 0xf16a6 LB 0xc4
     pop si                                    ; 5e                          ; 0xf1767
     pop bp                                    ; 5d                          ; 0xf1768
     retn                                      ; c3                          ; 0xf1769
-  ; disGetNextSymbol 0xf176a LB 0x9982 -> off=0x0 cb=000000000000009c uValue=00000000000f016a 'conv_mem_alloc'
+  ; disGetNextSymbol 0xf176a LB 0x99dc -> off=0x0 cb=000000000000009c uValue=00000000000f016a 'conv_mem_alloc'
 conv_mem_alloc:                              ; 0xf176a LB 0x9c
     push bp                                   ; 55                          ; 0xf176a post.c:248
     mov bp, sp                                ; 89 e5                       ; 0xf176b
@@ -1900,7 +1900,7 @@ conv_mem_alloc:                              ; 0xf176a LB 0x9c
     pop bx                                    ; 5b                          ; 0xf1803
     pop bp                                    ; 5d                          ; 0xf1804
     retn                                      ; c3                          ; 0xf1805
-  ; disGetNextSymbol 0xf1806 LB 0x98e6 -> off=0x0 cb=000000000000001d uValue=00000000000f0206 'inb_cmos'
+  ; disGetNextSymbol 0xf1806 LB 0x9940 -> off=0x0 cb=000000000000001d uValue=00000000000f0206 'inb_cmos'
 inb_cmos:                                    ; 0xf1806 LB 0x1d
     push bp                                   ; 55                          ; 0xf1806 bios.c:76
     mov bp, sp                                ; 89 e5                       ; 0xf1807
@@ -1920,7 +1920,7 @@ inb_cmos:                                    ; 0xf1806 LB 0x1d
     pop dx                                    ; 5a                          ; 0xf1820
     pop bp                                    ; 5d                          ; 0xf1821
     retn                                      ; c3                          ; 0xf1822
-  ; disGetNextSymbol 0xf1823 LB 0x98c9 -> off=0x0 cb=000000000000001f uValue=00000000000f0223 'outb_cmos'
+  ; disGetNextSymbol 0xf1823 LB 0x9923 -> off=0x0 cb=000000000000001f uValue=00000000000f0223 'outb_cmos'
 outb_cmos:                                   ; 0xf1823 LB 0x1f
     push bp                                   ; 55                          ; 0xf1823 bios.c:86
     mov bp, sp                                ; 89 e5                       ; 0xf1824
@@ -1940,7 +1940,7 @@ outb_cmos:                                   ; 0xf1823 LB 0x1f
     pop bx                                    ; 5b                          ; 0xf183f
     pop bp                                    ; 5d                          ; 0xf1840
     retn                                      ; c3                          ; 0xf1841
-  ; disGetNextSymbol 0xf1842 LB 0x98aa -> off=0x0 cb=0000000000000025 uValue=00000000000f0242 'get_cmos_word'
+  ; disGetNextSymbol 0xf1842 LB 0x9904 -> off=0x0 cb=0000000000000025 uValue=00000000000f0242 'get_cmos_word'
 get_cmos_word:                               ; 0xf1842 LB 0x25
     push bp                                   ; 55                          ; 0xf1842 bios.c:99
     mov bp, sp                                ; 89 e5                       ; 0xf1843
@@ -1962,7 +1962,7 @@ get_cmos_word:                               ; 0xf1842 LB 0x25
     pop bx                                    ; 5b                          ; 0xf1864
     pop bp                                    ; 5d                          ; 0xf1865
     retn                                      ; c3                          ; 0xf1866
-  ; disGetNextSymbol 0xf1867 LB 0x9885 -> off=0x0 cb=000000000000006a uValue=00000000000f0267 'dummy_isr_function'
+  ; disGetNextSymbol 0xf1867 LB 0x98df -> off=0x0 cb=000000000000006a uValue=00000000000f0267 'dummy_isr_function'
 dummy_isr_function:                          ; 0xf1867 LB 0x6a
     push bp                                   ; 55                          ; 0xf1867 bios.c:105
     mov bp, sp                                ; 89 e5                       ; 0xf1868
@@ -2019,7 +2019,7 @@ dummy_isr_function:                          ; 0xf1867 LB 0x6a
     mov sp, bp                                ; 89 ec                       ; 0xf18cd bios.c:133
     pop bp                                    ; 5d                          ; 0xf18cf
     retn                                      ; c3                          ; 0xf18d0
-  ; disGetNextSymbol 0xf18d1 LB 0x981b -> off=0x0 cb=0000000000000012 uValue=00000000000f02d1 'nmi_handler_msg'
+  ; disGetNextSymbol 0xf18d1 LB 0x9875 -> off=0x0 cb=0000000000000012 uValue=00000000000f02d1 'nmi_handler_msg'
 nmi_handler_msg:                             ; 0xf18d1 LB 0x12
     push bp                                   ; 55                          ; 0xf18d1 bios.c:136
     mov bp, sp                                ; 89 e5                       ; 0xf18d2
@@ -2030,7 +2030,7 @@ nmi_handler_msg:                             ; 0xf18d1 LB 0x12
     mov sp, bp                                ; 89 ec                       ; 0xf18df bios.c:139
     pop bp                                    ; 5d                          ; 0xf18e1
     retn                                      ; c3                          ; 0xf18e2
-  ; disGetNextSymbol 0xf18e3 LB 0x9809 -> off=0x0 cb=000000000000002d uValue=00000000000f02e3 'int18_panic_msg'
+  ; disGetNextSymbol 0xf18e3 LB 0x9863 -> off=0x0 cb=000000000000002d uValue=00000000000f02e3 'int18_panic_msg'
 int18_panic_msg:                             ; 0xf18e3 LB 0x2d
     push bp                                   ; 55                          ; 0xf18e3 bios.c:141
     mov bp, sp                                ; 89 e5                       ; 0xf18e4
@@ -2054,7 +2054,7 @@ int18_panic_msg:                             ; 0xf18e3 LB 0x2d
     mov sp, bp                                ; 89 ec                       ; 0xf190c bios.c:145
     pop bp                                    ; 5d                          ; 0xf190e
     retn                                      ; c3                          ; 0xf190f
-  ; disGetNextSymbol 0xf1910 LB 0x97dc -> off=0x0 cb=0000000000000020 uValue=00000000000f0310 'log_bios_start'
+  ; disGetNextSymbol 0xf1910 LB 0x9836 -> off=0x0 cb=0000000000000020 uValue=00000000000f0310 'log_bios_start'
 log_bios_start:                              ; 0xf1910 LB 0x20
     push bp                                   ; 55                          ; 0xf1910 bios.c:147
     mov bp, sp                                ; 89 e5                       ; 0xf1911
@@ -2070,7 +2070,7 @@ log_bios_start:                              ; 0xf1910 LB 0x20
     mov sp, bp                                ; 89 ec                       ; 0xf192c bios.c:153
     pop bp                                    ; 5d                          ; 0xf192e
     retn                                      ; c3                          ; 0xf192f
-  ; disGetNextSymbol 0xf1930 LB 0x97bc -> off=0x0 cb=0000000000000027 uValue=00000000000f0330 'print_bios_banner'
+  ; disGetNextSymbol 0xf1930 LB 0x9816 -> off=0x0 cb=0000000000000027 uValue=00000000000f0330 'print_bios_banner'
 print_bios_banner:                           ; 0xf1930 LB 0x27
     push bp                                   ; 55                          ; 0xf1930 bios.c:172
     mov bp, sp                                ; 89 e5                       ; 0xf1931
@@ -2089,7 +2089,7 @@ print_bios_banner:                           ; 0xf1930 LB 0x27
     mov sp, bp                                ; 89 ec                       ; 0xf1953 bios.c:212
     pop bp                                    ; 5d                          ; 0xf1955
     retn                                      ; c3                          ; 0xf1956
-  ; disGetNextSymbol 0xf1957 LB 0x9795 -> off=0x0 cb=000000000000003b uValue=00000000000f0357 'send'
+  ; disGetNextSymbol 0xf1957 LB 0x97ef -> off=0x0 cb=000000000000003b uValue=00000000000f0357 'send'
 send:                                        ; 0xf1957 LB 0x3b
     push bp                                   ; 55                          ; 0xf1957 print.c:82
     mov bp, sp                                ; 89 e5                       ; 0xf1958
@@ -2122,7 +2122,7 @@ send:                                        ; 0xf1957 LB 0x3b
     pop bx                                    ; 5b                          ; 0xf198f
     pop bp                                    ; 5d                          ; 0xf1990
     retn                                      ; c3                          ; 0xf1991
-  ; disGetNextSymbol 0xf1992 LB 0x975a -> off=0x0 cb=000000000000005f uValue=00000000000f0392 'put_int'
+  ; disGetNextSymbol 0xf1992 LB 0x97b4 -> off=0x0 cb=000000000000005f uValue=00000000000f0392 'put_int'
 put_int:                                     ; 0xf1992 LB 0x5f
     push bp                                   ; 55                          ; 0xf1992 print.c:102
     mov bp, sp                                ; 89 e5                       ; 0xf1993
@@ -2171,7 +2171,7 @@ put_int:                                     ; 0xf1992 LB 0x5f
     pop si                                    ; 5e                          ; 0xf19ee
     pop bp                                    ; 5d                          ; 0xf19ef
     retn                                      ; c3                          ; 0xf19f0
-  ; disGetNextSymbol 0xf19f1 LB 0x96fb -> off=0x0 cb=0000000000000060 uValue=00000000000f03f1 'put_uint'
+  ; disGetNextSymbol 0xf19f1 LB 0x9755 -> off=0x0 cb=0000000000000060 uValue=00000000000f03f1 'put_uint'
 put_uint:                                    ; 0xf19f1 LB 0x60
     push bp                                   ; 55                          ; 0xf19f1 print.c:116
     mov bp, sp                                ; 89 e5                       ; 0xf19f2
@@ -2220,7 +2220,7 @@ put_uint:                                    ; 0xf19f1 LB 0x60
     pop si                                    ; 5e                          ; 0xf1a4e
     pop bp                                    ; 5d                          ; 0xf1a4f
     retn                                      ; c3                          ; 0xf1a50
-  ; disGetNextSymbol 0xf1a51 LB 0x969b -> off=0x0 cb=0000000000000072 uValue=00000000000f0451 'put_luint'
+  ; disGetNextSymbol 0xf1a51 LB 0x96f5 -> off=0x0 cb=0000000000000072 uValue=00000000000f0451 'put_luint'
 put_luint:                                   ; 0xf1a51 LB 0x72
     push bp                                   ; 55                          ; 0xf1a51 print.c:130
     mov bp, sp                                ; 89 e5                       ; 0xf1a52
@@ -2274,7 +2274,7 @@ put_luint:                                   ; 0xf1a51 LB 0x72
     pop si                                    ; 5e                          ; 0xf1abe
     pop bp                                    ; 5d                          ; 0xf1abf
     retn 00002h                               ; c2 02 00                    ; 0xf1ac0
-  ; disGetNextSymbol 0xf1ac3 LB 0x9629 -> off=0x0 cb=0000000000000021 uValue=00000000000f04c3 'put_str'
+  ; disGetNextSymbol 0xf1ac3 LB 0x9683 -> off=0x0 cb=0000000000000021 uValue=00000000000f04c3 'put_str'
 put_str:                                     ; 0xf1ac3 LB 0x21
     push bp                                   ; 55                          ; 0xf1ac3 print.c:144
     mov bp, sp                                ; 89 e5                       ; 0xf1ac4
@@ -2295,7 +2295,7 @@ put_str:                                     ; 0xf1ac3 LB 0x21
     pop dx                                    ; 5a                          ; 0xf1ae1
     pop bp                                    ; 5d                          ; 0xf1ae2
     retn                                      ; c3                          ; 0xf1ae3
-  ; disGetNextSymbol 0xf1ae4 LB 0x9608 -> off=0x0 cb=0000000000000020 uValue=00000000000f04e4 'put_str_near'
+  ; disGetNextSymbol 0xf1ae4 LB 0x9662 -> off=0x0 cb=0000000000000020 uValue=00000000000f04e4 'put_str_near'
 put_str_near:                                ; 0xf1ae4 LB 0x20
     push bp                                   ; 55                          ; 0xf1ae4 print.c:154
     mov bp, sp                                ; 89 e5                       ; 0xf1ae5
@@ -2316,7 +2316,7 @@ put_str_near:                                ; 0xf1ae4 LB 0x20
     pop bx                                    ; 5b                          ; 0xf1b01
     pop bp                                    ; 5d                          ; 0xf1b02
     retn                                      ; c3                          ; 0xf1b03
-  ; disGetNextSymbol 0xf1b04 LB 0x95e8 -> off=0x0 cb=000000000000033d uValue=00000000000f0504 'bios_printf'
+  ; disGetNextSymbol 0xf1b04 LB 0x9642 -> off=0x0 cb=000000000000033d uValue=00000000000f0504 'bios_printf'
 bios_printf:                                 ; 0xf1b04 LB 0x33d
     push bp                                   ; 55                          ; 0xf1b04 print.c:175
     mov bp, sp                                ; 89 e5                       ; 0xf1b05
@@ -2626,7 +2626,7 @@ bios_printf:                                 ; 0xf1b04 LB 0x33d
     pop bx                                    ; 5b                          ; 0xf1e3e
     pop bp                                    ; 5d                          ; 0xf1e3f
     retn                                      ; c3                          ; 0xf1e40
-  ; disGetNextSymbol 0xf1e41 LB 0x92ab -> off=0x0 cb=00000000000000cc uValue=00000000000f0841 'ata_init'
+  ; disGetNextSymbol 0xf1e41 LB 0x9305 -> off=0x0 cb=00000000000000cc uValue=00000000000f0841 'ata_init'
 ata_init:                                    ; 0xf1e41 LB 0xcc
     push si                                   ; 56                          ; 0xf1e41 ata.c:89
     push bp                                   ; 55                          ; 0xf1e42
@@ -2696,7 +2696,7 @@ ata_init:                                    ; 0xf1e41 LB 0xcc
     pop bp                                    ; 5d                          ; 0xf1f0a ata.c:130
     pop si                                    ; 5e                          ; 0xf1f0b
     retn                                      ; c3                          ; 0xf1f0c
-  ; disGetNextSymbol 0xf1f0d LB 0x91df -> off=0x0 cb=00000000000000be uValue=00000000000f090d 'ata_set_params'
+  ; disGetNextSymbol 0xf1f0d LB 0x9239 -> off=0x0 cb=00000000000000be uValue=00000000000f090d 'ata_set_params'
 ata_set_params:                              ; 0xf1f0d LB 0xbe
     push bp                                   ; 55                          ; 0xf1f0d ata.c:135
     mov bp, sp                                ; 89 e5                       ; 0xf1f0e
@@ -2787,7 +2787,7 @@ ata_set_params:                              ; 0xf1f0d LB 0xbe
     pop cx                                    ; 59                          ; 0xf1fc8
     pop bp                                    ; 5d                          ; 0xf1fc9
     retn                                      ; c3                          ; 0xf1fca
-  ; disGetNextSymbol 0xf1fcb LB 0x9121 -> off=0x0 cb=00000000000000ef uValue=00000000000f09cb 'ata_reset'
+  ; disGetNextSymbol 0xf1fcb LB 0x917b -> off=0x0 cb=00000000000000ef uValue=00000000000f09cb 'ata_reset'
 ata_reset:                                   ; 0xf1fcb LB 0xef
     push bp                                   ; 55                          ; 0xf1fcb ata.c:192
     mov bp, sp                                ; 89 e5                       ; 0xf1fcc
@@ -2903,7 +2903,7 @@ ata_reset:                                   ; 0xf1fcb LB 0xef
     pop bx                                    ; 5b                          ; 0xf20b7
     pop bp                                    ; 5d                          ; 0xf20b8
     retn                                      ; c3                          ; 0xf20b9
-  ; disGetNextSymbol 0xf20ba LB 0x9032 -> off=0x0 cb=00000000000002e2 uValue=00000000000f0aba 'ata_cmd_data_in'
+  ; disGetNextSymbol 0xf20ba LB 0x908c -> off=0x0 cb=00000000000002e2 uValue=00000000000f0aba 'ata_cmd_data_in'
 ata_cmd_data_in:                             ; 0xf20ba LB 0x2e2
     push bp                                   ; 55                          ; 0xf20ba ata.c:272
     mov bp, sp                                ; 89 e5                       ; 0xf20bb
@@ -3193,7 +3193,7 @@ ata_cmd_data_in:                             ; 0xf20ba LB 0x2e2
     pop si                                    ; 5e                          ; 0xf2399
     pop bp                                    ; 5d                          ; 0xf239a
     retn                                      ; c3                          ; 0xf239b
-  ; disGetNextSymbol 0xf239c LB 0x8d50 -> off=0x0 cb=0000000000000094 uValue=00000000000f0d9c 'ata_signature'
+  ; disGetNextSymbol 0xf239c LB 0x8daa -> off=0x0 cb=0000000000000094 uValue=00000000000f0d9c 'ata_signature'
 ata_signature:                               ; 0xf239c LB 0x94
     push bp                                   ; 55                          ; 0xf239c ata.c:423
     mov bp, sp                                ; 89 e5                       ; 0xf239d
@@ -3268,7 +3268,7 @@ ata_signature:                               ; 0xf239c LB 0x94
     pop cx                                    ; 59                          ; 0xf242d
     pop bp                                    ; 5d                          ; 0xf242e
     retn                                      ; c3                          ; 0xf242f
-  ; disGetNextSymbol 0xf2430 LB 0x8cbc -> off=0x0 cb=0000000000000674 uValue=00000000000f0e30 'ata_detect'
+  ; disGetNextSymbol 0xf2430 LB 0x8d16 -> off=0x0 cb=0000000000000674 uValue=00000000000f0e30 'ata_detect'
 ata_detect:                                  ; 0xf2430 LB 0x674
     push bp                                   ; 55                          ; 0xf2430 ata.c:475
     mov bp, sp                                ; 89 e5                       ; 0xf2431
@@ -3852,7 +3852,7 @@ ata_detect:                                  ; 0xf2430 LB 0x674
     pop si                                    ; 5e                          ; 0xf2aa1
     pop bp                                    ; 5d                          ; 0xf2aa2
     retn                                      ; c3                          ; 0xf2aa3
-  ; disGetNextSymbol 0xf2aa4 LB 0x8648 -> off=0x0 cb=00000000000002bc uValue=00000000000f14a4 'ata_cmd_data_out'
+  ; disGetNextSymbol 0xf2aa4 LB 0x86a2 -> off=0x0 cb=00000000000002bc uValue=00000000000f14a4 'ata_cmd_data_out'
 ata_cmd_data_out:                            ; 0xf2aa4 LB 0x2bc
     push bp                                   ; 55                          ; 0xf2aa4 ata.c:867
     mov bp, sp                                ; 89 e5                       ; 0xf2aa5
@@ -4131,7 +4131,7 @@ ata_cmd_data_out:                            ; 0xf2aa4 LB 0x2bc
     pop si                                    ; 5e                          ; 0xf2d5d
     pop bp                                    ; 5d                          ; 0xf2d5e
     retn                                      ; c3                          ; 0xf2d5f
-  ; disGetNextSymbol 0xf2d60 LB 0x838c -> off=0x0 cb=00000000000000b5 uValue=00000000000f1760 'ata_read_sectors'
+  ; disGetNextSymbol 0xf2d60 LB 0x83e6 -> off=0x0 cb=00000000000000b5 uValue=00000000000f1760 'ata_read_sectors'
 ata_read_sectors:                            ; 0xf2d60 LB 0xb5
     push bp                                   ; 55                          ; 0xf2d60 ata.c:1014
     mov bp, sp                                ; 89 e5                       ; 0xf2d61
@@ -4202,7 +4202,7 @@ ata_read_sectors:                            ; 0xf2d60 LB 0xb5
     pop si                                    ; 5e                          ; 0xf2e10
     pop bp                                    ; 5d                          ; 0xf2e11
     retn 00004h                               ; c2 04 00                    ; 0xf2e12
-  ; disGetNextSymbol 0xf2e15 LB 0x82d7 -> off=0x0 cb=000000000000005b uValue=00000000000f1815 'ata_write_sectors'
+  ; disGetNextSymbol 0xf2e15 LB 0x8331 -> off=0x0 cb=000000000000005b uValue=00000000000f1815 'ata_write_sectors'
 ata_write_sectors:                           ; 0xf2e15 LB 0x5b
     push bp                                   ; 55                          ; 0xf2e15 ata.c:1051
     mov bp, sp                                ; 89 e5                       ; 0xf2e16
@@ -4243,7 +4243,7 @@ ata_write_sectors:                           ; 0xf2e15 LB 0x5b
     pop si                                    ; 5e                          ; 0xf2e6b
     pop bp                                    ; 5d                          ; 0xf2e6c
     retn 00004h                               ; c2 04 00                    ; 0xf2e6d
-  ; disGetNextSymbol 0xf2e70 LB 0x827c -> off=0x0 cb=000000000000023f uValue=00000000000f1870 'ata_cmd_packet'
+  ; disGetNextSymbol 0xf2e70 LB 0x82d6 -> off=0x0 cb=000000000000023f uValue=00000000000f1870 'ata_cmd_packet'
 ata_cmd_packet:                              ; 0xf2e70 LB 0x23f
     push bp                                   ; 55                          ; 0xf2e70 ata.c:1079
     mov bp, sp                                ; 89 e5                       ; 0xf2e71
@@ -4483,7 +4483,7 @@ ata_cmd_packet:                              ; 0xf2e70 LB 0x23f
     pop si                                    ; 5e                          ; 0xf30aa
     pop bp                                    ; 5d                          ; 0xf30ab
     retn 0000ah                               ; c2 0a 00                    ; 0xf30ac
-  ; disGetNextSymbol 0xf30af LB 0x803d -> off=0x0 cb=000000000000007a uValue=00000000000f1aaf 'ata_soft_reset'
+  ; disGetNextSymbol 0xf30af LB 0x8097 -> off=0x0 cb=000000000000007a uValue=00000000000f1aaf 'ata_soft_reset'
 ata_soft_reset:                              ; 0xf30af LB 0x7a
     push bp                                   ; 55                          ; 0xf30af ata.c:1263
     mov bp, sp                                ; 89 e5                       ; 0xf30b0
@@ -4543,7 +4543,7 @@ ata_soft_reset:                              ; 0xf30af LB 0x7a
     pop bx                                    ; 5b                          ; 0xf3126
     pop bp                                    ; 5d                          ; 0xf3127
     retn                                      ; c3                          ; 0xf3128
-  ; disGetNextSymbol 0xf3129 LB 0x7fc3 -> off=0x0 cb=000000000000002a uValue=00000000000f1b29 'set_diskette_current_cyl'
+  ; disGetNextSymbol 0xf3129 LB 0x801d -> off=0x0 cb=000000000000002a uValue=00000000000f1b29 'set_diskette_current_cyl'
 set_diskette_current_cyl:                    ; 0xf3129 LB 0x2a
     push bp                                   ; 55                          ; 0xf3129 floppy.c:81
     mov bp, sp                                ; 89 e5                       ; 0xf312a
@@ -4564,7 +4564,7 @@ set_diskette_current_cyl:                    ; 0xf3129 LB 0x2a
     pop bx                                    ; 5b                          ; 0xf3150
     pop bp                                    ; 5d                          ; 0xf3151
     retn                                      ; c3                          ; 0xf3152
-  ; disGetNextSymbol 0xf3153 LB 0x7f99 -> off=0x0 cb=0000000000000058 uValue=00000000000f1b53 'translate_error'
+  ; disGetNextSymbol 0xf3153 LB 0x7ff3 -> off=0x0 cb=0000000000000058 uValue=00000000000f1b53 'translate_error'
 translate_error:                             ; 0xf3153 LB 0x58
     push bx                                   ; 53                          ; 0xf3153 floppy.c:88
     push dx                                   ; 52                          ; 0xf3154
@@ -4607,7 +4607,7 @@ translate_error:                             ; 0xf3153 LB 0x58
     pop dx                                    ; 5a                          ; 0xf31a8
     pop bx                                    ; 5b                          ; 0xf31a9
     retn                                      ; c3                          ; 0xf31aa
-  ; disGetNextSymbol 0xf31ab LB 0x7f41 -> off=0x0 cb=0000000000000023 uValue=00000000000f1bab 'floppy_wait_for_interrupt'
+  ; disGetNextSymbol 0xf31ab LB 0x7f9b -> off=0x0 cb=0000000000000023 uValue=00000000000f1bab 'floppy_wait_for_interrupt'
 floppy_wait_for_interrupt:                   ; 0xf31ab LB 0x23
     push bp                                   ; 55                          ; 0xf31ab floppy.c:135
     mov bp, sp                                ; 89 e5                       ; 0xf31ac
@@ -4629,7 +4629,7 @@ floppy_wait_for_interrupt:                   ; 0xf31ab LB 0x23
     pop bx                                    ; 5b                          ; 0xf31cb
     pop bp                                    ; 5d                          ; 0xf31cc
     retn                                      ; c3                          ; 0xf31cd
-  ; disGetNextSymbol 0xf31ce LB 0x7f1e -> off=0x0 cb=0000000000000038 uValue=00000000000f1bce 'floppy_wait_for_interrupt_or_timeout'
+  ; disGetNextSymbol 0xf31ce LB 0x7f78 -> off=0x0 cb=0000000000000038 uValue=00000000000f1bce 'floppy_wait_for_interrupt_or_timeout'
 floppy_wait_for_interrupt_or_timeout:        ; 0xf31ce LB 0x38
     push bp                                   ; 55                          ; 0xf31ce floppy.c:155
     mov bp, sp                                ; 89 e5                       ; 0xf31cf
@@ -4660,7 +4660,7 @@ floppy_wait_for_interrupt_or_timeout:        ; 0xf31ce LB 0x38
     pop bx                                    ; 5b                          ; 0xf3203
     pop bp                                    ; 5d                          ; 0xf3204
     retn                                      ; c3                          ; 0xf3205
-  ; disGetNextSymbol 0xf3206 LB 0x7ee6 -> off=0x0 cb=0000000000000042 uValue=00000000000f1c06 'floppy_reset_controller'
+  ; disGetNextSymbol 0xf3206 LB 0x7f40 -> off=0x0 cb=0000000000000042 uValue=00000000000f1c06 'floppy_reset_controller'
 floppy_reset_controller:                     ; 0xf3206 LB 0x42
     push bp                                   ; 55                          ; 0xf3206 floppy.c:177
     mov bp, sp                                ; 89 e5                       ; 0xf3207
@@ -4699,7 +4699,7 @@ floppy_reset_controller:                     ; 0xf3206 LB 0x42
     pop bx                                    ; 5b                          ; 0xf3245
     pop bp                                    ; 5d                          ; 0xf3246
     retn                                      ; c3                          ; 0xf3247
-  ; disGetNextSymbol 0xf3248 LB 0x7ea4 -> off=0x0 cb=0000000000000074 uValue=00000000000f1c48 'floppy_prepare_controller'
+  ; disGetNextSymbol 0xf3248 LB 0x7efe -> off=0x0 cb=0000000000000074 uValue=00000000000f1c48 'floppy_prepare_controller'
 floppy_prepare_controller:                   ; 0xf3248 LB 0x74
     push bp                                   ; 55                          ; 0xf3248 floppy.c:198
     mov bp, sp                                ; 89 e5                       ; 0xf3249
@@ -4757,7 +4757,7 @@ floppy_prepare_controller:                   ; 0xf3248 LB 0x74
     pop bx                                    ; 5b                          ; 0xf32b9
     pop bp                                    ; 5d                          ; 0xf32ba
     retn                                      ; c3                          ; 0xf32bb
-  ; disGetNextSymbol 0xf32bc LB 0x7e30 -> off=0x0 cb=0000000000000049 uValue=00000000000f1cbc 'floppy_media_known'
+  ; disGetNextSymbol 0xf32bc LB 0x7e8a -> off=0x0 cb=0000000000000049 uValue=00000000000f1cbc 'floppy_media_known'
 floppy_media_known:                          ; 0xf32bc LB 0x49
     push bx                                   ; 53                          ; 0xf32bc floppy.c:247
     push dx                                   ; 52                          ; 0xf32bd
@@ -4794,7 +4794,7 @@ floppy_media_known:                          ; 0xf32bc LB 0x49
     pop dx                                    ; 5a                          ; 0xf3302
     pop bx                                    ; 5b                          ; 0xf3303
     retn                                      ; c3                          ; 0xf3304
-  ; disGetNextSymbol 0xf3305 LB 0x7de7 -> off=0x0 cb=000000000000004e uValue=00000000000f1d05 'floppy_read_id'
+  ; disGetNextSymbol 0xf3305 LB 0x7e41 -> off=0x0 cb=000000000000004e uValue=00000000000f1d05 'floppy_read_id'
 floppy_read_id:                              ; 0xf3305 LB 0x4e
     push bp                                   ; 55                          ; 0xf3305 floppy.c:272
     mov bp, sp                                ; 89 e5                       ; 0xf3306
@@ -4837,7 +4837,7 @@ floppy_read_id:                              ; 0xf3305 LB 0x4e
     pop bx                                    ; 5b                          ; 0xf3350
     pop bp                                    ; 5d                          ; 0xf3351
     retn                                      ; c3                          ; 0xf3352
-  ; disGetNextSymbol 0xf3353 LB 0x7d99 -> off=0x0 cb=0000000000000041 uValue=00000000000f1d53 'floppy_drive_recal'
+  ; disGetNextSymbol 0xf3353 LB 0x7df3 -> off=0x0 cb=0000000000000041 uValue=00000000000f1d53 'floppy_drive_recal'
 floppy_drive_recal:                          ; 0xf3353 LB 0x41
     push bp                                   ; 55                          ; 0xf3353 floppy.c:311
     mov bp, sp                                ; 89 e5                       ; 0xf3354
@@ -4871,7 +4871,7 @@ floppy_drive_recal:                          ; 0xf3353 LB 0x41
     pop bx                                    ; 5b                          ; 0xf3391
     pop bp                                    ; 5d                          ; 0xf3392
     retn                                      ; c3                          ; 0xf3393
-  ; disGetNextSymbol 0xf3394 LB 0x7d58 -> off=0x0 cb=00000000000000e4 uValue=00000000000f1d94 'floppy_media_sense'
+  ; disGetNextSymbol 0xf3394 LB 0x7db2 -> off=0x0 cb=00000000000000e4 uValue=00000000000f1d94 'floppy_media_sense'
 floppy_media_sense:                          ; 0xf3394 LB 0xe4
     push bp                                   ; 55                          ; 0xf3394 floppy.c:357
     mov bp, sp                                ; 89 e5                       ; 0xf3395
@@ -4978,7 +4978,7 @@ floppy_media_sense:                          ; 0xf3394 LB 0xe4
     pop bx                                    ; 5b                          ; 0xf3475
     pop bp                                    ; 5d                          ; 0xf3476
     retn                                      ; c3                          ; 0xf3477
-  ; disGetNextSymbol 0xf3478 LB 0x7c74 -> off=0x0 cb=0000000000000024 uValue=00000000000f1e78 'floppy_drive_exists'
+  ; disGetNextSymbol 0xf3478 LB 0x7cce -> off=0x0 cb=0000000000000024 uValue=00000000000f1e78 'floppy_drive_exists'
 floppy_drive_exists:                         ; 0xf3478 LB 0x24
     push bp                                   ; 55                          ; 0xf3478 floppy.c:479
     mov bp, sp                                ; 89 e5                       ; 0xf3479
@@ -4999,7 +4999,7 @@ floppy_drive_exists:                         ; 0xf3478 LB 0x24
     pop dx                                    ; 5a                          ; 0xf3499
     pop bp                                    ; 5d                          ; 0xf349a
     retn                                      ; c3                          ; 0xf349b
-  ; disGetNextSymbol 0xf349c LB 0x7c50 -> off=0x23 cb=0000000000000946 uValue=00000000000f1ebf 'int13_diskette_function'
+  ; disGetNextSymbol 0xf349c LB 0x7caa -> off=0x23 cb=0000000000000946 uValue=00000000000f1ebf 'int13_diskette_function'
     db  018h, 017h, 016h, 015h, 008h, 005h, 004h, 003h, 002h, 001h, 000h, 0e2h, 03dh, 016h, 035h, 08ch
     db  035h, 0ach, 035h, 0ach, 035h, 0ach, 035h, 0fbh, 038h, 0b5h, 03ah, 0a5h, 03bh, 0e7h, 03bh, 01bh
     db  03ch, 08ah, 03ch
@@ -5940,7 +5940,7 @@ int13_diskette_function:                     ; 0xf34bf LB 0x946
     call 01b04h                               ; e8 05 dd                    ; 0xf3dfc
     add sp, strict byte 00008h                ; 83 c4 08                    ; 0xf3dff
     jmp near 0351eh                           ; e9 19 f7                    ; 0xf3e02 floppy.c:78
-  ; disGetNextSymbol 0xf3e05 LB 0x72e7 -> off=0x0 cb=000000000000002f uValue=00000000000f2805 'get_floppy_dpt'
+  ; disGetNextSymbol 0xf3e05 LB 0x7341 -> off=0x0 cb=000000000000002f uValue=00000000000f2805 'get_floppy_dpt'
 get_floppy_dpt:                              ; 0xf3e05 LB 0x2f
     push bx                                   ; 53                          ; 0xf3e05 floppyt.c:104
     push dx                                   ; 52                          ; 0xf3e06
@@ -5965,14 +5965,14 @@ get_floppy_dpt:                              ; 0xf3e05 LB 0x2f
     pop dx                                    ; 5a                          ; 0xf3e31
     pop bx                                    ; 5b                          ; 0xf3e32
     retn                                      ; c3                          ; 0xf3e33
-  ; disGetNextSymbol 0xf3e34 LB 0x72b8 -> off=0x0 cb=0000000000000007 uValue=00000000000f2834 'dummy_soft_reset'
+  ; disGetNextSymbol 0xf3e34 LB 0x7312 -> off=0x0 cb=0000000000000007 uValue=00000000000f2834 'dummy_soft_reset'
 dummy_soft_reset:                            ; 0xf3e34 LB 0x7
     push bp                                   ; 55                          ; 0xf3e34 eltorito.c:137
     mov bp, sp                                ; 89 e5                       ; 0xf3e35
     xor ax, ax                                ; 31 c0                       ; 0xf3e37 eltorito.c:140
     pop bp                                    ; 5d                          ; 0xf3e39
     retn                                      ; c3                          ; 0xf3e3a
-  ; disGetNextSymbol 0xf3e3b LB 0x72b1 -> off=0x0 cb=000000000000003b uValue=00000000000f283b 'cdemu_bounce_buf_alloc'
+  ; disGetNextSymbol 0xf3e3b LB 0x730b -> off=0x0 cb=000000000000003b uValue=00000000000f283b 'cdemu_bounce_buf_alloc'
 cdemu_bounce_buf_alloc:                      ; 0xf3e3b LB 0x3b
     push bx                                   ; 53                          ; 0xf3e3b eltorito.c:169
     push cx                                   ; 51                          ; 0xf3e3c
@@ -6007,7 +6007,7 @@ cdemu_bounce_buf_alloc:                      ; 0xf3e3b LB 0x3b
     pop cx                                    ; 59                          ; 0xf3e73
     pop bx                                    ; 5b                          ; 0xf3e74
     retn                                      ; c3                          ; 0xf3e75
-  ; disGetNextSymbol 0xf3e76 LB 0x7276 -> off=0x0 cb=0000000000000017 uValue=00000000000f2876 'cdemu_init'
+  ; disGetNextSymbol 0xf3e76 LB 0x72d0 -> off=0x0 cb=0000000000000017 uValue=00000000000f2876 'cdemu_init'
 cdemu_init:                                  ; 0xf3e76 LB 0x17
     push bp                                   ; 55                          ; 0xf3e76 eltorito.c:186
     mov bp, sp                                ; 89 e5                       ; 0xf3e77
@@ -6019,7 +6019,7 @@ cdemu_init:                                  ; 0xf3e76 LB 0x17
     mov byte [es:bx], 000h                    ; 26 c6 07 00                 ; 0xf3e87 eltorito.c:193
     pop bp                                    ; 5d                          ; 0xf3e8b eltorito.c:194
     retn                                      ; c3                          ; 0xf3e8c
-  ; disGetNextSymbol 0xf3e8d LB 0x725f -> off=0x0 cb=0000000000000016 uValue=00000000000f288d 'cdemu_isactive'
+  ; disGetNextSymbol 0xf3e8d LB 0x72b9 -> off=0x0 cb=0000000000000016 uValue=00000000000f288d 'cdemu_isactive'
 cdemu_isactive:                              ; 0xf3e8d LB 0x16
     push bp                                   ; 55                          ; 0xf3e8d eltorito.c:196
     mov bp, sp                                ; 89 e5                       ; 0xf3e8e
@@ -6031,7 +6031,7 @@ cdemu_isactive:                              ; 0xf3e8d LB 0x16
     mov al, byte [es:bx]                      ; 26 8a 07                    ; 0xf3e9e
     pop bp                                    ; 5d                          ; 0xf3ea1 eltorito.c:202
     retn                                      ; c3                          ; 0xf3ea2
-  ; disGetNextSymbol 0xf3ea3 LB 0x7249 -> off=0x0 cb=0000000000000016 uValue=00000000000f28a3 'cdemu_emulated_drive'
+  ; disGetNextSymbol 0xf3ea3 LB 0x72a3 -> off=0x0 cb=0000000000000016 uValue=00000000000f28a3 'cdemu_emulated_drive'
 cdemu_emulated_drive:                        ; 0xf3ea3 LB 0x16
     push bp                                   ; 55                          ; 0xf3ea3 eltorito.c:204
     mov bp, sp                                ; 89 e5                       ; 0xf3ea4
@@ -6043,7 +6043,7 @@ cdemu_emulated_drive:                        ; 0xf3ea3 LB 0x16
     mov al, byte [es:bx]                      ; 26 8a 07                    ; 0xf3eb4
     pop bp                                    ; 5d                          ; 0xf3eb7 eltorito.c:210
     retn                                      ; c3                          ; 0xf3eb8
-  ; disGetNextSymbol 0xf3eb9 LB 0x7233 -> off=0x0 cb=000000000000017a uValue=00000000000f28b9 'int13_eltorito'
+  ; disGetNextSymbol 0xf3eb9 LB 0x728d -> off=0x0 cb=000000000000017a uValue=00000000000f28b9 'int13_eltorito'
 int13_eltorito:                              ; 0xf3eb9 LB 0x17a
     push bp                                   ; 55                          ; 0xf3eb9 eltorito.c:216
     mov bp, sp                                ; 89 e5                       ; 0xf3eba
@@ -6184,7 +6184,7 @@ int13_eltorito:                              ; 0xf3eb9 LB 0x17a
     mov byte [es:bx], al                      ; 26 88 07                    ; 0xf402a
     or byte [bp+01ch], 001h                   ; 80 4e 1c 01                 ; 0xf402d eltorito.c:272
     jmp short 03ff2h                          ; eb bf                       ; 0xf4031 eltorito.c:273
-  ; disGetNextSymbol 0xf4033 LB 0x70b9 -> off=0x0 cb=0000000000000032 uValue=00000000000f2a33 'device_is_cdrom'
+  ; disGetNextSymbol 0xf4033 LB 0x7113 -> off=0x0 cb=0000000000000032 uValue=00000000000f2a33 'device_is_cdrom'
 device_is_cdrom:                             ; 0xf4033 LB 0x32
     push bx                                   ; 53                          ; 0xf4033 eltorito.c:288
     push dx                                   ; 52                          ; 0xf4034
@@ -6210,7 +6210,7 @@ device_is_cdrom:                             ; 0xf4033 LB 0x32
     pop dx                                    ; 5a                          ; 0xf4062
     pop bx                                    ; 5b                          ; 0xf4063
     retn                                      ; c3                          ; 0xf4064
-  ; disGetNextSymbol 0xf4065 LB 0x7087 -> off=0x0 cb=000000000000007f uValue=00000000000f2a65 'cdrom_read'
+  ; disGetNextSymbol 0xf4065 LB 0x70e1 -> off=0x0 cb=000000000000007f uValue=00000000000f2a65 'cdrom_read'
 cdrom_read:                                  ; 0xf4065 LB 0x7f
     push bp                                   ; 55                          ; 0xf4065 eltorito.c:306
     mov bp, sp                                ; 89 e5                       ; 0xf4066
@@ -6261,7 +6261,7 @@ cdrom_read:                                  ; 0xf4065 LB 0x7f
     pop si                                    ; 5e                          ; 0xf40df
     pop bp                                    ; 5d                          ; 0xf40e0
     retn 00004h                               ; c2 04 00                    ; 0xf40e1
-  ; disGetNextSymbol 0xf40e4 LB 0x7008 -> off=0x0 cb=0000000000000167 uValue=00000000000f2ae4 'cdemu_read'
+  ; disGetNextSymbol 0xf40e4 LB 0x7062 -> off=0x0 cb=0000000000000167 uValue=00000000000f2ae4 'cdemu_read'
 cdemu_read:                                  ; 0xf40e4 LB 0x167
     push bp                                   ; 55                          ; 0xf40e4 eltorito.c:322
     mov bp, sp                                ; 89 e5                       ; 0xf40e5
@@ -6394,7 +6394,7 @@ cdemu_read:                                  ; 0xf40e4 LB 0x167
     pop si                                    ; 5e                          ; 0xf4246
     pop bp                                    ; 5d                          ; 0xf4247
     retn 00004h                               ; c2 04 00                    ; 0xf4248
-  ; disGetNextSymbol 0xf424b LB 0x6ea1 -> off=0x0 cb=00000000000002ba uValue=00000000000f2c4b 'cdrom_boot'
+  ; disGetNextSymbol 0xf424b LB 0x6efb -> off=0x0 cb=00000000000002ba uValue=00000000000f2c4b 'cdrom_boot'
 cdrom_boot:                                  ; 0xf424b LB 0x2ba
     push bp                                   ; 55                          ; 0xf424b eltorito.c:387
     mov bp, sp                                ; 89 e5                       ; 0xf424c
@@ -6479,37 +6479,37 @@ cdrom_boot:                                  ; 0xf424b LB 0x2ba
     je short 04326h                           ; 74 06                       ; 0xf431e
     mov ax, strict word 00007h                ; b8 07 00                    ; 0xf4320 eltorito.c:441
     jmp near 044fbh                           ; e9 d5 01                    ; 0xf4323
-    cmp byte [bp-00812h], 001h                ; 80 be ee f7 01              ; 0xf4326 eltorito.c:446
+    cmp byte [bp-00812h], 001h                ; 80 be ee f7 01              ; 0xf4326 eltorito.c:447
     je short 04333h                           ; 74 06                       ; 0xf432b
-    mov ax, strict word 00008h                ; b8 08 00                    ; 0xf432d eltorito.c:447
+    mov ax, strict word 00008h                ; b8 08 00                    ; 0xf432d eltorito.c:448
     jmp near 044fbh                           ; e9 c8 01                    ; 0xf4330
-    cmp byte [bp-00811h], 000h                ; 80 be ef f7 00              ; 0xf4333 eltorito.c:448
+    cmp byte [bp-00811h], 000h                ; 80 be ef f7 00              ; 0xf4333 eltorito.c:449
     je short 04340h                           ; 74 06                       ; 0xf4338
-    mov ax, strict word 00009h                ; b8 09 00                    ; 0xf433a eltorito.c:449
+    mov ax, strict word 00009h                ; b8 09 00                    ; 0xf433a eltorito.c:450
     jmp near 044fbh                           ; e9 bb 01                    ; 0xf433d
-    cmp byte [bp-007f4h], 055h                ; 80 be 0c f8 55              ; 0xf4340 eltorito.c:450
+    cmp byte [bp-007f4h], 055h                ; 80 be 0c f8 55              ; 0xf4340 eltorito.c:451
     je short 0434dh                           ; 74 06                       ; 0xf4345
-    mov ax, strict word 0000ah                ; b8 0a 00                    ; 0xf4347 eltorito.c:451
+    mov ax, strict word 0000ah                ; b8 0a 00                    ; 0xf4347 eltorito.c:452
     jmp near 044fbh                           ; e9 ae 01                    ; 0xf434a
-    cmp byte [bp-007f3h], 0aah                ; 80 be 0d f8 aa              ; 0xf434d eltorito.c:452
+    cmp byte [bp-007f3h], 0aah                ; 80 be 0d f8 aa              ; 0xf434d eltorito.c:453
     jne short 04347h                          ; 75 f3                       ; 0xf4352
-    cmp byte [bp-007f2h], 088h                ; 80 be 0e f8 88              ; 0xf4354 eltorito.c:453
+    cmp byte [bp-007f2h], 088h                ; 80 be 0e f8 88              ; 0xf4354 eltorito.c:454
     je short 04361h                           ; 74 06                       ; 0xf4359
-    mov ax, strict word 0000bh                ; b8 0b 00                    ; 0xf435b eltorito.c:457
+    mov ax, strict word 0000bh                ; b8 0b 00                    ; 0xf435b eltorito.c:458
     jmp near 044fbh                           ; e9 9a 01                    ; 0xf435e
-    mov al, byte [bp-007f1h]                  ; 8a 86 0f f8                 ; 0xf4361 eltorito.c:459
+    mov al, byte [bp-007f1h]                  ; 8a 86 0f f8                 ; 0xf4361 eltorito.c:460
     mov es, [bp-010h]                         ; 8e 46 f0                    ; 0xf4365
     mov byte [es:si+001h], al                 ; 26 88 44 01                 ; 0xf4368
-    cmp byte [bp-007f1h], 000h                ; 80 be 0f f8 00              ; 0xf436c eltorito.c:460
+    cmp byte [bp-007f1h], 000h                ; 80 be 0f f8 00              ; 0xf436c eltorito.c:461
     jne short 0437ah                          ; 75 07                       ; 0xf4371
-    mov byte [es:si+002h], 0e0h               ; 26 c6 44 02 e0              ; 0xf4373 eltorito.c:463
-    jmp short 0438dh                          ; eb 13                       ; 0xf4378 eltorito.c:465
+    mov byte [es:si+002h], 0e0h               ; 26 c6 44 02 e0              ; 0xf4373 eltorito.c:464
+    jmp short 0438dh                          ; eb 13                       ; 0xf4378 eltorito.c:466
     cmp byte [bp-007f1h], 004h                ; 80 be 0f f8 04              ; 0xf437a
     jnc short 04388h                          ; 73 07                       ; 0xf437f
-    mov byte [es:si+002h], 000h               ; 26 c6 44 02 00              ; 0xf4381 eltorito.c:466
-    jmp short 0438dh                          ; eb 05                       ; 0xf4386 eltorito.c:467
-    mov byte [es:si+002h], 080h               ; 26 c6 44 02 80              ; 0xf4388 eltorito.c:468
-    movzx di, byte [bp-00ch]                  ; 0f b6 7e f4                 ; 0xf438d eltorito.c:470
+    mov byte [es:si+002h], 000h               ; 26 c6 44 02 00              ; 0xf4381 eltorito.c:467
+    jmp short 0438dh                          ; eb 05                       ; 0xf4386 eltorito.c:468
+    mov byte [es:si+002h], 080h               ; 26 c6 44 02 80              ; 0xf4388 eltorito.c:469
+    movzx di, byte [bp-00ch]                  ; 0f b6 7e f4                 ; 0xf438d eltorito.c:471
     mov ax, di                                ; 89 f8                       ; 0xf4391
     cwd                                       ; 99                          ; 0xf4393
     db  02bh, 0c2h
@@ -6517,53 +6517,53 @@ cdrom_boot:                                  ; 0xf424b LB 0x2ba
     sar ax, 1                                 ; d1 f8                       ; 0xf4396
     mov es, [bp-010h]                         ; 8e 46 f0                    ; 0xf4398
     mov byte [es:si+003h], al                 ; 26 88 44 03                 ; 0xf439b
-    mov ax, di                                ; 89 f8                       ; 0xf439f eltorito.c:471
+    mov ax, di                                ; 89 f8                       ; 0xf439f eltorito.c:472
     cwd                                       ; 99                          ; 0xf43a1
     mov bx, strict word 00002h                ; bb 02 00                    ; 0xf43a2
     idiv bx                                   ; f7 fb                       ; 0xf43a5
     mov word [es:si+004h], dx                 ; 26 89 54 04                 ; 0xf43a7
-    mov di, word [bp-007f0h]                  ; 8b be 10 f8                 ; 0xf43ab eltorito.c:473
-    test di, di                               ; 85 ff                       ; 0xf43af eltorito.c:474
+    mov di, word [bp-007f0h]                  ; 8b be 10 f8                 ; 0xf43ab eltorito.c:474
+    test di, di                               ; 85 ff                       ; 0xf43af eltorito.c:475
     jne short 043b6h                          ; 75 03                       ; 0xf43b1
-    mov di, 007c0h                            ; bf c0 07                    ; 0xf43b3 eltorito.c:475
-    mov es, [bp-010h]                         ; 8e 46 f0                    ; 0xf43b6 eltorito.c:477
+    mov di, 007c0h                            ; bf c0 07                    ; 0xf43b3 eltorito.c:476
+    mov es, [bp-010h]                         ; 8e 46 f0                    ; 0xf43b6 eltorito.c:478
     mov word [es:si+00ch], di                 ; 26 89 7c 0c                 ; 0xf43b9
-    mov word [es:si+006h], strict word 00000h ; 26 c7 44 06 00 00           ; 0xf43bd eltorito.c:478
-    mov dx, word [bp-007ech]                  ; 8b 96 14 f8                 ; 0xf43c3 eltorito.c:480
-    mov word [es:si+00eh], dx                 ; 26 89 54 0e                 ; 0xf43c7 eltorito.c:481
-    test dx, dx                               ; 85 d2                       ; 0xf43cb eltorito.c:486
+    mov word [es:si+006h], strict word 00000h ; 26 c7 44 06 00 00           ; 0xf43bd eltorito.c:479
+    mov dx, word [bp-007ech]                  ; 8b 96 14 f8                 ; 0xf43c3 eltorito.c:481
+    mov word [es:si+00eh], dx                 ; 26 89 54 0e                 ; 0xf43c7 eltorito.c:482
+    test dx, dx                               ; 85 d2                       ; 0xf43cb eltorito.c:487
     je short 043d5h                           ; 74 06                       ; 0xf43cd
     cmp dx, 00400h                            ; 81 fa 00 04                 ; 0xf43cf
     jbe short 043dbh                          ; 76 06                       ; 0xf43d3
-    mov ax, strict word 0000ch                ; b8 0c 00                    ; 0xf43d5 eltorito.c:487
+    mov ax, strict word 0000ch                ; b8 0c 00                    ; 0xf43d5 eltorito.c:488
     jmp near 044fbh                           ; e9 20 01                    ; 0xf43d8
-    mov ax, word [bp-007eah]                  ; 8b 86 16 f8                 ; 0xf43db eltorito.c:489
+    mov ax, word [bp-007eah]                  ; 8b 86 16 f8                 ; 0xf43db eltorito.c:490
     mov bx, word [bp-007e8h]                  ; 8b 9e 18 f8                 ; 0xf43df
-    mov word [es:si+008h], ax                 ; 26 89 44 08                 ; 0xf43e3 eltorito.c:490
+    mov word [es:si+008h], ax                 ; 26 89 44 08                 ; 0xf43e3 eltorito.c:491
     mov word [es:si+00ah], bx                 ; 26 89 5c 0a                 ; 0xf43e7
-    call 03e3bh                               ; e8 4d fa                    ; 0xf43eb eltorito.c:496
+    call 03e3bh                               ; e8 4d fa                    ; 0xf43eb eltorito.c:497
     mov es, [bp-010h]                         ; 8e 46 f0                    ; 0xf43ee
     mov word [es:si+016h], strict word 00000h ; 26 c7 44 16 00 00           ; 0xf43f1
     mov word [es:si+018h], ax                 ; 26 89 44 18                 ; 0xf43f7
-    mov ax, word [es:si+016h]                 ; 26 8b 44 16                 ; 0xf43fb eltorito.c:497
+    mov ax, word [es:si+016h]                 ; 26 8b 44 16                 ; 0xf43fb eltorito.c:498
     mov bx, word [es:si+018h]                 ; 26 8b 5c 18                 ; 0xf43ff
     test bx, bx                               ; 85 db                       ; 0xf4403
     jne short 04411h                          ; 75 0a                       ; 0xf4405
     test ax, ax                               ; 85 c0                       ; 0xf4407
     jne short 04411h                          ; 75 06                       ; 0xf4409
-    mov ax, strict word 0000dh                ; b8 0d 00                    ; 0xf440b eltorito.c:498
+    mov ax, strict word 0000dh                ; b8 0d 00                    ; 0xf440b eltorito.c:499
     jmp near 044fbh                           ; e9 ea 00                    ; 0xf440e
-    push di                                   ; 57                          ; 0xf4411 eltorito.c:501
+    push di                                   ; 57                          ; 0xf4411 eltorito.c:502
     push strict byte 00000h                   ; 6a 00                       ; 0xf4412
     movzx ax, byte [bp-00ch]                  ; 0f b6 46 f4                 ; 0xf4414
     xor bx, bx                                ; 31 db                       ; 0xf4418
     xor cx, cx                                ; 31 c9                       ; 0xf441a
     call 040e4h                               ; e8 c5 fc                    ; 0xf441c
-    test ax, ax                               ; 85 c0                       ; 0xf441f eltorito.c:502
+    test ax, ax                               ; 85 c0                       ; 0xf441f eltorito.c:503
     je short 04429h                           ; 74 06                       ; 0xf4421
-    mov ax, strict word 0000eh                ; b8 0e 00                    ; 0xf4423 eltorito.c:503
+    mov ax, strict word 0000eh                ; b8 0e 00                    ; 0xf4423 eltorito.c:504
     jmp near 044fbh                           ; e9 d2 00                    ; 0xf4426
-    mov es, [bp-010h]                         ; 8e 46 f0                    ; 0xf4429 eltorito.c:508
+    mov es, [bp-010h]                         ; 8e 46 f0                    ; 0xf4429 eltorito.c:509
     mov al, byte [es:si+001h]                 ; 26 8a 44 01                 ; 0xf442c
     cmp AL, strict byte 002h                  ; 3c 02                       ; 0xf4430
     jc short 04440h                           ; 72 0c                       ; 0xf4432
@@ -6575,16 +6575,16 @@ cdrom_boot:                                  ; 0xf424b LB 0x2ba
     jmp short 044b2h                          ; eb 72                       ; 0xf443e
     cmp AL, strict byte 001h                  ; 3c 01                       ; 0xf4440
     jne short 044b2h                          ; 75 6e                       ; 0xf4442
-    mov es, [bp-010h]                         ; 8e 46 f0                    ; 0xf4444 eltorito.c:510
+    mov es, [bp-010h]                         ; 8e 46 f0                    ; 0xf4444 eltorito.c:511
     db  066h, 026h, 0c7h, 044h, 012h, 050h, 000h, 00fh, 000h
     ; mov dword [es:si+012h], strict dword 0000f0050h ; 66 26 c7 44 12 50 00 0f 00; 0xf4447
-    mov word [es:si+010h], strict word 00002h ; 26 c7 44 10 02 00           ; 0xf4450 eltorito.c:512
-    jmp short 044b2h                          ; eb 5a                       ; 0xf4456 eltorito.c:513
+    mov word [es:si+010h], strict word 00002h ; 26 c7 44 10 02 00           ; 0xf4450 eltorito.c:513
+    jmp short 044b2h                          ; eb 5a                       ; 0xf4456 eltorito.c:514
     db  066h, 026h, 0c7h, 044h, 012h, 050h, 000h, 012h, 000h
-    ; mov dword [es:si+012h], strict dword 000120050h ; 66 26 c7 44 12 50 00 12 00; 0xf4458 eltorito.c:515
+    ; mov dword [es:si+012h], strict dword 000120050h ; 66 26 c7 44 12 50 00 12 00; 0xf4458 eltorito.c:516
     jmp short 04450h                          ; eb ed                       ; 0xf4461
     db  066h, 026h, 0c7h, 044h, 012h, 050h, 000h, 024h, 000h
-    ; mov dword [es:si+012h], strict dword 000240050h ; 66 26 c7 44 12 50 00 24 00; 0xf4463 eltorito.c:520
+    ; mov dword [es:si+012h], strict dword 000240050h ; 66 26 c7 44 12 50 00 24 00; 0xf4463 eltorito.c:521
     jmp short 04450h                          ; eb e2                       ; 0xf446c
     mov bx, 001c4h                            ; bb c4 01                    ; 0xf446e eltorito.c:48
     mov es, di                                ; 8e c7                       ; 0xf4471
@@ -6612,10 +6612,10 @@ cdrom_boot:                                  ; 0xf424b LB 0x2ba
     inc ax                                    ; 40                          ; 0xf44aa
     mov es, [bp-010h]                         ; 8e 46 f0                    ; 0xf44ab
     mov word [es:si+010h], ax                 ; 26 89 44 10                 ; 0xf44ae
-    mov es, [bp-010h]                         ; 8e 46 f0                    ; 0xf44b2 eltorito.c:533
+    mov es, [bp-010h]                         ; 8e 46 f0                    ; 0xf44b2 eltorito.c:534
     cmp byte [es:si+001h], 000h               ; 26 80 7c 01 00              ; 0xf44b5
     je short 044e2h                           ; 74 26                       ; 0xf44ba
-    cmp byte [es:si+002h], 000h               ; 26 80 7c 02 00              ; 0xf44bc eltorito.c:535
+    cmp byte [es:si+002h], 000h               ; 26 80 7c 02 00              ; 0xf44bc eltorito.c:536
     jne short 044d4h                          ; 75 11                       ; 0xf44c1
     mov bx, strict word 00010h                ; bb 10 00                    ; 0xf44c3 eltorito.c:48
     mov ax, strict word 00040h                ; b8 40 00                    ; 0xf44c6
@@ -6623,21 +6623,21 @@ cdrom_boot:                                  ; 0xf424b LB 0x2ba
     mov al, byte [es:bx]                      ; 26 8a 07                    ; 0xf44cb
     or AL, strict byte 041h                   ; 0c 41                       ; 0xf44ce eltorito.c:49
     mov di, bx                                ; 89 df                       ; 0xf44d0 eltorito.c:53
-    jmp short 044dfh                          ; eb 0b                       ; 0xf44d2 eltorito.c:537
+    jmp short 044dfh                          ; eb 0b                       ; 0xf44d2 eltorito.c:538
     mov di, 0023ch                            ; bf 3c 02                    ; 0xf44d4 eltorito.c:48
     mov es, [bp-012h]                         ; 8e 46 ee                    ; 0xf44d7
     mov al, byte [es:di]                      ; 26 8a 05                    ; 0xf44da
     db  0feh, 0c0h
     ; inc al                                    ; fe c0                     ; 0xf44dd eltorito.c:49
     mov byte [es:di], al                      ; 26 88 05                    ; 0xf44df eltorito.c:53
-    mov es, [bp-010h]                         ; 8e 46 f0                    ; 0xf44e2 eltorito.c:542
+    mov es, [bp-010h]                         ; 8e 46 f0                    ; 0xf44e2 eltorito.c:543
     cmp byte [es:si+001h], 000h               ; 26 80 7c 01 00              ; 0xf44e5
     je short 044f0h                           ; 74 04                       ; 0xf44ea
-    mov byte [es:si], 001h                    ; 26 c6 04 01                 ; 0xf44ec eltorito.c:543
-    mov es, [bp-010h]                         ; 8e 46 f0                    ; 0xf44f0 eltorito.c:546
+    mov byte [es:si], 001h                    ; 26 c6 04 01                 ; 0xf44ec eltorito.c:544
+    mov es, [bp-010h]                         ; 8e 46 f0                    ; 0xf44f0 eltorito.c:547
     movzx ax, byte [es:si+002h]               ; 26 0f b6 44 02              ; 0xf44f3
     sal ax, 008h                              ; c1 e0 08                    ; 0xf44f8
-    lea sp, [bp-00ah]                         ; 8d 66 f6                    ; 0xf44fb eltorito.c:547
+    lea sp, [bp-00ah]                         ; 8d 66 f6                    ; 0xf44fb eltorito.c:548
     pop di                                    ; 5f                          ; 0xf44fe
     pop si                                    ; 5e                          ; 0xf44ff
     pop dx                                    ; 5a                          ; 0xf4500
@@ -6645,7 +6645,7 @@ cdrom_boot:                                  ; 0xf424b LB 0x2ba
     pop bx                                    ; 5b                          ; 0xf4502
     pop bp                                    ; 5d                          ; 0xf4503
     retn                                      ; c3                          ; 0xf4504
-  ; disGetNextSymbol 0xf4505 LB 0x6be7 -> off=0x59 cb=00000000000003eb uValue=00000000000f2f5e 'int13_cdemu'
+  ; disGetNextSymbol 0xf4505 LB 0x6c41 -> off=0x59 cb=00000000000003eb uValue=00000000000f2f5e 'int13_cdemu'
     db  050h, 04eh, 049h, 048h, 047h, 046h, 045h, 044h, 043h, 042h, 041h, 018h, 016h, 015h, 014h, 011h
     db  010h, 00dh, 00ch, 00bh, 00ah, 009h, 008h, 005h, 004h, 003h, 002h, 001h, 000h, 02ch, 049h, 007h
     db  046h, 052h, 046h, 076h, 046h, 047h, 046h, 076h, 046h, 047h, 046h, 067h, 047h, 02ch, 046h, 02ch
@@ -6653,7 +6653,7 @@ cdrom_boot:                                  ; 0xf424b LB 0x2ba
     db  046h, 02ch, 049h, 017h, 048h, 02ah, 048h, 02ch, 049h, 02ah, 048h, 02ch, 049h, 02ch, 049h, 02ah
     db  048h, 0efh, 048h, 02ch, 049h, 02ch, 049h, 02ch, 049h
 int13_cdemu:                                 ; 0xf455e LB 0x3eb
-    push bp                                   ; 55                          ; 0xf455e eltorito.c:557
+    push bp                                   ; 55                          ; 0xf455e eltorito.c:558
     mov bp, sp                                ; 89 e5                       ; 0xf455f
     push si                                   ; 56                          ; 0xf4561
     push di                                   ; 57                          ; 0xf4562
@@ -6662,23 +6662,23 @@ int13_cdemu:                                 ; 0xf455e LB 0x3eb
     mov ax, strict word 00040h                ; b8 40 00                    ; 0xf4569
     mov es, ax                                ; 8e c0                       ; 0xf456c
     mov ax, word [es:bx]                      ; 26 8b 07                    ; 0xf456e
-    mov si, 0029eh                            ; be 9e 02                    ; 0xf4571 eltorito.c:572
+    mov si, 0029eh                            ; be 9e 02                    ; 0xf4571 eltorito.c:573
     mov dx, ax                                ; 89 c2                       ; 0xf4574
     mov bx, si                                ; 89 f3                       ; 0xf4576
     mov word [bp-008h], ax                    ; 89 46 f8                    ; 0xf4578
-    mov word [bp-00ch], strict word 0005eh    ; c7 46 f4 5e 00              ; 0xf457b eltorito.c:573
+    mov word [bp-00ch], strict word 0005eh    ; c7 46 f4 5e 00              ; 0xf457b eltorito.c:574
     mov word [bp-00ah], ax                    ; 89 46 f6                    ; 0xf4580
-    mov es, ax                                ; 8e c0                       ; 0xf4583 eltorito.c:580
+    mov es, ax                                ; 8e c0                       ; 0xf4583 eltorito.c:581
     mov al, byte [es:si+003h]                 ; 26 8a 44 03                 ; 0xf4585
     add al, al                                ; 00 c0                       ; 0xf4589
     mov byte [bp-006h], al                    ; 88 46 fa                    ; 0xf458b
-    mov al, byte [es:si+004h]                 ; 26 8a 44 04                 ; 0xf458e eltorito.c:581
+    mov al, byte [es:si+004h]                 ; 26 8a 44 04                 ; 0xf458e eltorito.c:582
     add byte [bp-006h], al                    ; 00 46 fa                    ; 0xf4592
     mov di, strict word 00074h                ; bf 74 00                    ; 0xf4595 eltorito.c:53
     mov ax, strict word 00040h                ; b8 40 00                    ; 0xf4598
     mov es, ax                                ; 8e c0                       ; 0xf459b
     mov byte [es:di], 000h                    ; 26 c6 05 00                 ; 0xf459d
-    mov es, dx                                ; 8e c2                       ; 0xf45a1 eltorito.c:586
+    mov es, dx                                ; 8e c2                       ; 0xf45a1 eltorito.c:587
     cmp byte [es:si], 000h                    ; 26 80 3c 00                 ; 0xf45a3
     je short 045b7h                           ; 74 0e                       ; 0xf45a7
     movzx dx, byte [es:si+002h]               ; 26 0f b6 54 02              ; 0xf45a9
@@ -6686,7 +6686,7 @@ int13_cdemu:                                 ; 0xf455e LB 0x3eb
     xor ah, ah                                ; 30 e4                       ; 0xf45b1
     cmp dx, ax                                ; 39 c2                       ; 0xf45b3
     je short 045e0h                           ; 74 29                       ; 0xf45b5
-    mov bx, 00ddeh                            ; bb de 0d                    ; 0xf45b7 eltorito.c:587
+    mov bx, 00ddeh                            ; bb de 0d                    ; 0xf45b7 eltorito.c:588
     mov cx, ds                                ; 8c d9                       ; 0xf45ba
     mov ax, strict word 00004h                ; b8 04 00                    ; 0xf45bc
     call 01ac3h                               ; e8 01 d5                    ; 0xf45bf
@@ -6701,8 +6701,8 @@ int13_cdemu:                                 ; 0xf455e LB 0x3eb
     push strict byte 00004h                   ; 6a 04                       ; 0xf45d5
     call 01b04h                               ; e8 2a d5                    ; 0xf45d7
     add sp, strict byte 0000ah                ; 83 c4 0a                    ; 0xf45da
-    jmp near 04909h                           ; e9 29 03                    ; 0xf45dd eltorito.c:588
-    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf45e0 eltorito.c:591
+    jmp near 04909h                           ; e9 29 03                    ; 0xf45dd eltorito.c:589
+    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf45e0 eltorito.c:592
     shr ax, 008h                              ; c1 e8 08                    ; 0xf45e3
     cmp ax, strict word 00050h                ; 3d 50 00                    ; 0xf45e6
     jnbe near 0492ch                          ; 0f 87 3f 03                 ; 0xf45e9
@@ -6717,7 +6717,7 @@ int13_cdemu:                                 ; 0xf455e LB 0x3eb
     mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4600
     xor ah, ah                                ; 30 e4                       ; 0xf4603
     jmp dx                                    ; ff e2                       ; 0xf4605
-    movzx bx, byte [bp-006h]                  ; 0f b6 5e fa                 ; 0xf4607 eltorito.c:594
+    movzx bx, byte [bp-006h]                  ; 0f b6 5e fa                 ; 0xf4607 eltorito.c:595
     imul bx, bx, strict byte 0001ch           ; 6b db 1c                    ; 0xf460b
     mov es, [bp-00ah]                         ; 8e 46 f6                    ; 0xf460e
     add bx, word [bp-00ch]                    ; 03 5e f4                    ; 0xf4611
@@ -6725,9 +6725,9 @@ int13_cdemu:                                 ; 0xf455e LB 0x3eb
     add bx, bx                                ; 01 db                       ; 0xf4619
     cmp word [word bx+0006ah], strict byte 00000h ; 83 bf 6a 00 00          ; 0xf461b
     je near 0462ch                            ; 0f 84 08 00                 ; 0xf4620
-    movzx ax, byte [bp-006h]                  ; 0f b6 46 fa                 ; 0xf4624 eltorito.c:596
+    movzx ax, byte [bp-006h]                  ; 0f b6 46 fa                 ; 0xf4624 eltorito.c:597
     call word [word bx+00076h]                ; ff 97 76 00                 ; 0xf4628
-    mov byte [bp+017h], 000h                  ; c6 46 17 00                 ; 0xf462c eltorito.c:598
+    mov byte [bp+017h], 000h                  ; c6 46 17 00                 ; 0xf462c eltorito.c:599
     mov bx, strict word 00074h                ; bb 74 00                    ; 0xf4630
     mov ax, strict word 00040h                ; b8 40 00                    ; 0xf4633
     mov es, ax                                ; 8e c0                       ; 0xf4636
@@ -6738,63 +6738,63 @@ int13_cdemu:                                 ; 0xf455e LB 0x3eb
     pop si                                    ; 5e                          ; 0xf4644
     pop bp                                    ; 5d                          ; 0xf4645
     retn                                      ; c3                          ; 0xf4646
-    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4647 eltorito.c:614
+    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4647 eltorito.c:615
     xor ah, ah                                ; 30 e4                       ; 0xf464a
     or ah, 003h                               ; 80 cc 03                    ; 0xf464c
-    jmp near 04911h                           ; e9 bf 02                    ; 0xf464f eltorito.c:615
+    jmp near 04911h                           ; e9 bf 02                    ; 0xf464f eltorito.c:616
     mov bx, strict word 00074h                ; bb 74 00                    ; 0xf4652 eltorito.c:48
     mov dx, strict word 00040h                ; ba 40 00                    ; 0xf4655
     mov es, dx                                ; 8e c2                       ; 0xf4658
     mov dl, byte [es:bx]                      ; 26 8a 17                    ; 0xf465a
-    movzx bx, dl                              ; 0f b6 da                    ; 0xf465d eltorito.c:620
+    movzx bx, dl                              ; 0f b6 da                    ; 0xf465d eltorito.c:621
     sal bx, 008h                              ; c1 e3 08                    ; 0xf4660
     or ax, bx                                 ; 09 d8                       ; 0xf4663
     mov word [bp+016h], ax                    ; 89 46 16                    ; 0xf4665
     mov bx, strict word 00074h                ; bb 74 00                    ; 0xf4668 eltorito.c:53
     mov byte [es:bx], 000h                    ; 26 c6 07 00                 ; 0xf466b
-    test dl, dl                               ; 84 d2                       ; 0xf466f eltorito.c:624
+    test dl, dl                               ; 84 d2                       ; 0xf466f eltorito.c:625
     je short 04630h                           ; 74 bd                       ; 0xf4671
-    jmp near 04925h                           ; e9 af 02                    ; 0xf4673 eltorito.c:625
-    mov es, [bp-008h]                         ; 8e 46 f8                    ; 0xf4676 eltorito.c:632
+    jmp near 04925h                           ; e9 af 02                    ; 0xf4673 eltorito.c:626
+    mov es, [bp-008h]                         ; 8e 46 f8                    ; 0xf4676 eltorito.c:633
     mov si, word [es:bx+014h]                 ; 26 8b 77 14                 ; 0xf4679
-    mov ax, word [es:bx+012h]                 ; 26 8b 47 12                 ; 0xf467d eltorito.c:633
-    mov cx, word [es:bx+010h]                 ; 26 8b 4f 10                 ; 0xf4681 eltorito.c:634
-    mov dx, word [bp+014h]                    ; 8b 56 14                    ; 0xf4685 eltorito.c:636
+    mov ax, word [es:bx+012h]                 ; 26 8b 47 12                 ; 0xf467d eltorito.c:634
+    mov cx, word [es:bx+010h]                 ; 26 8b 4f 10                 ; 0xf4681 eltorito.c:635
+    mov dx, word [bp+014h]                    ; 8b 56 14                    ; 0xf4685 eltorito.c:637
     and dx, strict byte 0003fh                ; 83 e2 3f                    ; 0xf4688
     mov word [bp-018h], dx                    ; 89 56 e8                    ; 0xf468b
-    mov bx, word [bp+014h]                    ; 8b 5e 14                    ; 0xf468e eltorito.c:637
+    mov bx, word [bp+014h]                    ; 8b 5e 14                    ; 0xf468e eltorito.c:638
     and bx, 000c0h                            ; 81 e3 c0 00                 ; 0xf4691
     sal bx, 002h                              ; c1 e3 02                    ; 0xf4695
     mov dx, word [bp+014h]                    ; 8b 56 14                    ; 0xf4698
     shr dx, 008h                              ; c1 ea 08                    ; 0xf469b
     or dx, bx                                 ; 09 da                       ; 0xf469e
-    mov bx, word [bp+012h]                    ; 8b 5e 12                    ; 0xf46a0 eltorito.c:638
+    mov bx, word [bp+012h]                    ; 8b 5e 12                    ; 0xf46a0 eltorito.c:639
     shr bx, 008h                              ; c1 eb 08                    ; 0xf46a3
     mov word [bp-014h], bx                    ; 89 5e ec                    ; 0xf46a6
-    mov di, word [bp+016h]                    ; 8b 7e 16                    ; 0xf46a9 eltorito.c:639
+    mov di, word [bp+016h]                    ; 8b 7e 16                    ; 0xf46a9 eltorito.c:640
     and di, 000ffh                            ; 81 e7 ff 00                 ; 0xf46ac
-    jne short 046b5h                          ; 75 03                       ; 0xf46b0 eltorito.c:647
-    jmp near 0462ch                           ; e9 77 ff                    ; 0xf46b2 eltorito.c:648
-    cmp si, word [bp-018h]                    ; 3b 76 e8                    ; 0xf46b5 eltorito.c:651
+    jne short 046b5h                          ; 75 03                       ; 0xf46b0 eltorito.c:648
+    jmp near 0462ch                           ; e9 77 ff                    ; 0xf46b2 eltorito.c:649
+    cmp si, word [bp-018h]                    ; 3b 76 e8                    ; 0xf46b5 eltorito.c:652
     jc near 04909h                            ; 0f 82 4d 02                 ; 0xf46b8
     cmp dx, ax                                ; 39 c2                       ; 0xf46bc
     jnc near 04909h                           ; 0f 83 47 02                 ; 0xf46be
     cmp cx, bx                                ; 39 d9                       ; 0xf46c2
     jbe near 04909h                           ; 0f 86 41 02                 ; 0xf46c4
-    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf46c8 eltorito.c:658
+    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf46c8 eltorito.c:659
     shr ax, 008h                              ; c1 e8 08                    ; 0xf46cb
     cmp ax, strict word 00004h                ; 3d 04 00                    ; 0xf46ce
     jne short 046d6h                          ; 75 03                       ; 0xf46d1
-    jmp near 0462ch                           ; e9 56 ff                    ; 0xf46d3 eltorito.c:659
-    mov ax, word [bp+010h]                    ; 8b 46 10                    ; 0xf46d6 eltorito.c:661
+    jmp near 0462ch                           ; e9 56 ff                    ; 0xf46d3 eltorito.c:660
+    mov ax, word [bp+010h]                    ; 8b 46 10                    ; 0xf46d6 eltorito.c:662
     shr ax, 004h                              ; c1 e8 04                    ; 0xf46d9
     mov bx, word [bp+006h]                    ; 8b 5e 06                    ; 0xf46dc
     add bx, ax                                ; 01 c3                       ; 0xf46df
     mov word [bp-010h], bx                    ; 89 5e f0                    ; 0xf46e1
-    mov ax, word [bp+010h]                    ; 8b 46 10                    ; 0xf46e4 eltorito.c:662
+    mov ax, word [bp+010h]                    ; 8b 46 10                    ; 0xf46e4 eltorito.c:663
     and ax, strict word 0000fh                ; 25 0f 00                    ; 0xf46e7
     mov word [bp-00eh], ax                    ; 89 46 f2                    ; 0xf46ea
-    mov ax, dx                                ; 89 d0                       ; 0xf46ed eltorito.c:665
+    mov ax, dx                                ; 89 d0                       ; 0xf46ed eltorito.c:666
     xor dx, dx                                ; 31 d2                       ; 0xf46ef
     mov bx, cx                                ; 89 cb                       ; 0xf46f1
     xor cx, cx                                ; 31 c9                       ; 0xf46f3
@@ -6810,19 +6810,19 @@ int13_cdemu:                                 ; 0xf455e LB 0x3eb
     xor cx, cx                                ; 31 c9                       ; 0xf470a
     add bx, ax                                ; 01 c3                       ; 0xf470c
     adc cx, dx                                ; 11 d1                       ; 0xf470e
-    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4710 eltorito.c:668
+    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4710 eltorito.c:669
     xor al, al                                ; 30 c0                       ; 0xf4713
     or ax, di                                 ; 09 f8                       ; 0xf4715
     mov word [bp+016h], ax                    ; 89 46 16                    ; 0xf4717
-    push word [bp-010h]                       ; ff 76 f0                    ; 0xf471a eltorito.c:670
+    push word [bp-010h]                       ; ff 76 f0                    ; 0xf471a eltorito.c:671
     push word [bp-00eh]                       ; ff 76 f2                    ; 0xf471d
     movzx ax, byte [bp-006h]                  ; 0f b6 46 fa                 ; 0xf4720
     mov dx, di                                ; 89 fa                       ; 0xf4724
     call 040e4h                               ; e8 bb f9                    ; 0xf4726
     mov dx, ax                                ; 89 c2                       ; 0xf4729
-    test al, al                               ; 84 c0                       ; 0xf472b eltorito.c:671
+    test al, al                               ; 84 c0                       ; 0xf472b eltorito.c:672
     je near 0462ch                            ; 0f 84 fb fe                 ; 0xf472d
-    mov bx, 00ddeh                            ; bb de 0d                    ; 0xf4731 eltorito.c:672
+    mov bx, 00ddeh                            ; bb de 0d                    ; 0xf4731 eltorito.c:673
     mov cx, ds                                ; 8c d9                       ; 0xf4734
     mov ax, strict word 00004h                ; b8 04 00                    ; 0xf4736
     call 01ac3h                               ; e8 87 d3                    ; 0xf4739
@@ -6836,22 +6836,22 @@ int13_cdemu:                                 ; 0xf455e LB 0x3eb
     push strict byte 00004h                   ; 6a 04                       ; 0xf474d
     call 01b04h                               ; e8 b2 d3                    ; 0xf474f
     add sp, strict byte 0000ah                ; 83 c4 0a                    ; 0xf4752
-    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4755 eltorito.c:673
+    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4755 eltorito.c:674
     xor ah, ah                                ; 30 e4                       ; 0xf4758
     or ah, 002h                               ; 80 cc 02                    ; 0xf475a
     mov word [bp+016h], ax                    ; 89 46 16                    ; 0xf475d
-    mov byte [bp+016h], 000h                  ; c6 46 16 00                 ; 0xf4760 eltorito.c:674
-    jmp near 04914h                           ; e9 ad 01                    ; 0xf4764 eltorito.c:675
-    mov es, [bp-008h]                         ; 8e 46 f8                    ; 0xf4767 eltorito.c:682
+    mov byte [bp+016h], 000h                  ; c6 46 16 00                 ; 0xf4760 eltorito.c:675
+    jmp near 04914h                           ; e9 ad 01                    ; 0xf4764 eltorito.c:676
+    mov es, [bp-008h]                         ; 8e 46 f8                    ; 0xf4767 eltorito.c:683
     mov si, word [es:bx+014h]                 ; 26 8b 77 14                 ; 0xf476a
-    mov ax, word [es:bx+012h]                 ; 26 8b 47 12                 ; 0xf476e eltorito.c:683
+    mov ax, word [es:bx+012h]                 ; 26 8b 47 12                 ; 0xf476e eltorito.c:684
     dec ax                                    ; 48                          ; 0xf4772
-    mov cx, word [es:bx+010h]                 ; 26 8b 4f 10                 ; 0xf4773 eltorito.c:684
+    mov cx, word [es:bx+010h]                 ; 26 8b 4f 10                 ; 0xf4773 eltorito.c:685
     dec cx                                    ; 49                          ; 0xf4777
-    mov byte [bp+016h], 000h                  ; c6 46 16 00                 ; 0xf4778 eltorito.c:686
-    mov dx, word [bp+010h]                    ; 8b 56 10                    ; 0xf477c eltorito.c:687
+    mov byte [bp+016h], 000h                  ; c6 46 16 00                 ; 0xf4778 eltorito.c:687
+    mov dx, word [bp+010h]                    ; 8b 56 10                    ; 0xf477c eltorito.c:688
     xor dl, dl                                ; 30 d2                       ; 0xf477f
-    mov di, word [bp+014h]                    ; 8b 7e 14                    ; 0xf4781 eltorito.c:688
+    mov di, word [bp+014h]                    ; 8b 7e 14                    ; 0xf4781 eltorito.c:689
     and di, 000ffh                            ; 81 e7 ff 00                 ; 0xf4784
     mov word [bp-01ch], di                    ; 89 7e e4                    ; 0xf4788
     mov di, ax                                ; 89 c7                       ; 0xf478b
@@ -6861,7 +6861,7 @@ int13_cdemu:                                 ; 0xf455e LB 0x3eb
     mov di, word [bp-01ch]                    ; 8b 7e e4                    ; 0xf4797
     or di, word [bp-01ah]                     ; 0b 7e e6                    ; 0xf479a
     mov word [bp+014h], di                    ; 89 7e 14                    ; 0xf479d
-    shr ax, 002h                              ; c1 e8 02                    ; 0xf47a0 eltorito.c:689
+    shr ax, 002h                              ; c1 e8 02                    ; 0xf47a0 eltorito.c:690
     xor ah, ah                                ; 30 e4                       ; 0xf47a3
     and AL, strict byte 0c0h                  ; 24 c0                       ; 0xf47a5
     and si, strict byte 0003fh                ; 83 e6 3f                    ; 0xf47a7
@@ -6870,15 +6870,15 @@ int13_cdemu:                                 ; 0xf455e LB 0x3eb
     xor al, al                                ; 30 c0                       ; 0xf47ae
     or ax, si                                 ; 09 f0                       ; 0xf47b0
     mov word [bp+014h], ax                    ; 89 46 14                    ; 0xf47b2
-    mov ax, word [bp+012h]                    ; 8b 46 12                    ; 0xf47b5 eltorito.c:690
+    mov ax, word [bp+012h]                    ; 8b 46 12                    ; 0xf47b5 eltorito.c:691
     xor ah, ah                                ; 30 e4                       ; 0xf47b8
     sal cx, 008h                              ; c1 e1 08                    ; 0xf47ba
     or ax, cx                                 ; 09 c8                       ; 0xf47bd
     mov word [bp+012h], ax                    ; 89 46 12                    ; 0xf47bf
-    xor al, al                                ; 30 c0                       ; 0xf47c2 eltorito.c:691
+    xor al, al                                ; 30 c0                       ; 0xf47c2 eltorito.c:692
     or AL, strict byte 002h                   ; 0c 02                       ; 0xf47c4
     mov word [bp+012h], ax                    ; 89 46 12                    ; 0xf47c6
-    mov al, byte [es:bx+001h]                 ; 26 8a 47 01                 ; 0xf47c9 eltorito.c:694
+    mov al, byte [es:bx+001h]                 ; 26 8a 47 01                 ; 0xf47c9 eltorito.c:695
     mov word [bp+010h], dx                    ; 89 56 10                    ; 0xf47cd
     cmp AL, strict byte 003h                  ; 3c 03                       ; 0xf47d0
     je short 047f0h                           ; 74 1c                       ; 0xf47d2
@@ -6886,44 +6886,44 @@ int13_cdemu:                                 ; 0xf455e LB 0x3eb
     je short 047e8h                           ; 74 10                       ; 0xf47d6
     cmp AL, strict byte 001h                  ; 3c 01                       ; 0xf47d8
     jne short 047f5h                          ; 75 19                       ; 0xf47da
-    mov ax, word [bp+010h]                    ; 8b 46 10                    ; 0xf47dc eltorito.c:695
+    mov ax, word [bp+010h]                    ; 8b 46 10                    ; 0xf47dc eltorito.c:696
     xor al, al                                ; 30 c0                       ; 0xf47df
     or AL, strict byte 002h                   ; 0c 02                       ; 0xf47e1
     mov word [bp+010h], ax                    ; 89 46 10                    ; 0xf47e3
     jmp short 047f5h                          ; eb 0d                       ; 0xf47e6
-    or dl, 004h                               ; 80 ca 04                    ; 0xf47e8 eltorito.c:696
+    or dl, 004h                               ; 80 ca 04                    ; 0xf47e8 eltorito.c:697
     mov word [bp+010h], dx                    ; 89 56 10                    ; 0xf47eb
     jmp short 047f5h                          ; eb 05                       ; 0xf47ee
-    or dl, 005h                               ; 80 ca 05                    ; 0xf47f0 eltorito.c:697
+    or dl, 005h                               ; 80 ca 05                    ; 0xf47f0 eltorito.c:698
     jmp short 047ebh                          ; eb f6                       ; 0xf47f3
-    mov es, [bp-008h]                         ; 8e 46 f8                    ; 0xf47f5 eltorito.c:701
+    mov es, [bp-008h]                         ; 8e 46 f8                    ; 0xf47f5 eltorito.c:702
     cmp byte [es:bx+001h], 004h               ; 26 80 7f 01 04              ; 0xf47f8
     jnc near 0462ch                           ; 0f 83 2b fe                 ; 0xf47fd
-    mov word [bp+008h], 0efc7h                ; c7 46 08 c7 ef              ; 0xf4801 eltorito.c:702
-    mov word [bp+006h], 0f000h                ; c7 46 06 00 f0              ; 0xf4806 eltorito.c:703
-    jmp near 0462ch                           ; e9 1e fe                    ; 0xf480b eltorito.c:705
-    or ah, 003h                               ; 80 cc 03                    ; 0xf480e eltorito.c:710
+    mov word [bp+008h], 0efc7h                ; c7 46 08 c7 ef              ; 0xf4801 eltorito.c:703
+    mov word [bp+006h], 0f000h                ; c7 46 06 00 f0              ; 0xf4806 eltorito.c:704
+    jmp near 0462ch                           ; e9 1e fe                    ; 0xf480b eltorito.c:706
+    or ah, 003h                               ; 80 cc 03                    ; 0xf480e eltorito.c:711
     mov word [bp+016h], ax                    ; 89 46 16                    ; 0xf4811
-    jmp near 04630h                           ; e9 19 fe                    ; 0xf4814 eltorito.c:711
-    mov word [bp+010h], 0aa55h                ; c7 46 10 55 aa              ; 0xf4817 eltorito.c:715
-    or ah, 030h                               ; 80 cc 30                    ; 0xf481c eltorito.c:716
+    jmp near 04630h                           ; e9 19 fe                    ; 0xf4814 eltorito.c:712
+    mov word [bp+010h], 0aa55h                ; c7 46 10 55 aa              ; 0xf4817 eltorito.c:716
+    or ah, 030h                               ; 80 cc 30                    ; 0xf481c eltorito.c:717
     mov word [bp+016h], ax                    ; 89 46 16                    ; 0xf481f
-    mov word [bp+014h], strict word 00007h    ; c7 46 14 07 00              ; 0xf4822 eltorito.c:717
-    jmp near 04630h                           ; e9 06 fe                    ; 0xf4827 eltorito.c:718
-    mov bx, word [bp+00ah]                    ; 8b 5e 0a                    ; 0xf482a eltorito.c:726
+    mov word [bp+014h], strict word 00007h    ; c7 46 14 07 00              ; 0xf4822 eltorito.c:718
+    jmp near 04630h                           ; e9 06 fe                    ; 0xf4827 eltorito.c:719
+    mov bx, word [bp+00ah]                    ; 8b 5e 0a                    ; 0xf482a eltorito.c:727
     mov es, [bp+004h]                         ; 8e 46 04                    ; 0xf482d
     mov si, bx                                ; 89 de                       ; 0xf4830
     mov [bp-012h], es                         ; 8c 46 ee                    ; 0xf4832
-    mov dx, word [es:bx+002h]                 ; 26 8b 57 02                 ; 0xf4835 eltorito.c:728
-    mov ax, word [es:bx+006h]                 ; 26 8b 47 06                 ; 0xf4839 eltorito.c:729
+    mov dx, word [es:bx+002h]                 ; 26 8b 57 02                 ; 0xf4835 eltorito.c:729
+    mov ax, word [es:bx+006h]                 ; 26 8b 47 06                 ; 0xf4839 eltorito.c:730
     mov word [bp-010h], ax                    ; 89 46 f0                    ; 0xf483d
-    mov ax, word [es:bx+004h]                 ; 26 8b 47 04                 ; 0xf4840 eltorito.c:730
+    mov ax, word [es:bx+004h]                 ; 26 8b 47 04                 ; 0xf4840 eltorito.c:731
     mov word [bp-00eh], ax                    ; 89 46 f2                    ; 0xf4844
-    mov ax, word [es:bx+00ch]                 ; 26 8b 47 0c                 ; 0xf4847 eltorito.c:733
+    mov ax, word [es:bx+00ch]                 ; 26 8b 47 0c                 ; 0xf4847 eltorito.c:734
     mov cx, word [es:bx+00eh]                 ; 26 8b 4f 0e                 ; 0xf484b
-    or ax, cx                                 ; 09 c8                       ; 0xf484f eltorito.c:734
+    or ax, cx                                 ; 09 c8                       ; 0xf484f eltorito.c:735
     je short 0486bh                           ; 74 18                       ; 0xf4851
-    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4853 eltorito.c:735
+    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4853 eltorito.c:736
     shr ax, 008h                              ; c1 e8 08                    ; 0xf4856
     push ax                                   ; 50                          ; 0xf4859
     push 003ceh                               ; 68 ce 03                    ; 0xf485a
@@ -6931,18 +6931,18 @@ int13_cdemu:                                 ; 0xf455e LB 0x3eb
     push strict byte 00007h                   ; 6a 07                       ; 0xf4860
     call 01b04h                               ; e8 9f d2                    ; 0xf4862
     add sp, strict byte 00008h                ; 83 c4 08                    ; 0xf4865
-    jmp near 04909h                           ; e9 9e 00                    ; 0xf4868 eltorito.c:736
-    mov es, [bp-012h]                         ; 8e 46 ee                    ; 0xf486b eltorito.c:740
+    jmp near 04909h                           ; e9 9e 00                    ; 0xf4868 eltorito.c:737
+    mov es, [bp-012h]                         ; 8e 46 ee                    ; 0xf486b eltorito.c:741
     mov ax, word [es:si+008h]                 ; 26 8b 44 08                 ; 0xf486e
     mov cx, word [es:si+00ah]                 ; 26 8b 4c 0a                 ; 0xf4872
-    mov di, word [bp+016h]                    ; 8b 7e 16                    ; 0xf4876 eltorito.c:743
+    mov di, word [bp+016h]                    ; 8b 7e 16                    ; 0xf4876 eltorito.c:744
     shr di, 008h                              ; c1 ef 08                    ; 0xf4879
     cmp di, strict byte 00044h                ; 83 ff 44                    ; 0xf487c
     je near 0462ch                            ; 0f 84 a9 fd                 ; 0xf487f
     cmp di, strict byte 00047h                ; 83 ff 47                    ; 0xf4883
     jne short 0488bh                          ; 75 03                       ; 0xf4886
-    jmp near 0462ch                           ; e9 a1 fd                    ; 0xf4888 eltorito.c:744
-    push word [bp-010h]                       ; ff 76 f0                    ; 0xf488b eltorito.c:749
+    jmp near 0462ch                           ; e9 a1 fd                    ; 0xf4888 eltorito.c:745
+    push word [bp-010h]                       ; ff 76 f0                    ; 0xf488b eltorito.c:750
     push word [bp-00eh]                       ; ff 76 f2                    ; 0xf488e
     movzx bx, byte [bp-006h]                  ; 0f b6 5e fa                 ; 0xf4891
     mov word [bp-01ah], bx                    ; 89 5e e6                    ; 0xf4895
@@ -6950,18 +6950,18 @@ int13_cdemu:                                 ; 0xf455e LB 0x3eb
     mov ax, word [bp-01ah]                    ; 8b 46 e6                    ; 0xf489a
     call 040e4h                               ; e8 44 f8                    ; 0xf489d
     mov word [bp-016h], ax                    ; 89 46 ea                    ; 0xf48a0
-    les bx, [bp-00ch]                         ; c4 5e f4                    ; 0xf48a3 eltorito.c:750
+    les bx, [bp-00ch]                         ; c4 5e f4                    ; 0xf48a3 eltorito.c:751
     mov ax, word [es:bx+01ah]                 ; 26 8b 47 1a                 ; 0xf48a6
     mov dx, word [es:bx+01ch]                 ; 26 8b 57 1c                 ; 0xf48aa
     mov cx, strict word 00009h                ; b9 09 00                    ; 0xf48ae
     shr dx, 1                                 ; d1 ea                       ; 0xf48b1
     rcr ax, 1                                 ; d1 d8                       ; 0xf48b3
     loop 048b1h                               ; e2 fa                       ; 0xf48b5
-    mov es, [bp-012h]                         ; 8e 46 ee                    ; 0xf48b7 eltorito.c:751
+    mov es, [bp-012h]                         ; 8e 46 ee                    ; 0xf48b7 eltorito.c:752
     mov word [es:si+002h], ax                 ; 26 89 44 02                 ; 0xf48ba
-    cmp byte [bp-016h], 000h                  ; 80 7e ea 00                 ; 0xf48be eltorito.c:753
+    cmp byte [bp-016h], 000h                  ; 80 7e ea 00                 ; 0xf48be eltorito.c:754
     je near 0462ch                            ; 0f 84 66 fd                 ; 0xf48c2
-    mov bx, 00ddeh                            ; bb de 0d                    ; 0xf48c6 eltorito.c:754
+    mov bx, 00ddeh                            ; bb de 0d                    ; 0xf48c6 eltorito.c:755
     mov cx, ds                                ; 8c d9                       ; 0xf48c9
     mov ax, strict word 00004h                ; b8 04 00                    ; 0xf48cb
     call 01ac3h                               ; e8 f2 d1                    ; 0xf48ce
@@ -6973,11 +6973,11 @@ int13_cdemu:                                 ; 0xf455e LB 0x3eb
     push strict byte 00004h                   ; 6a 04                       ; 0xf48dd
     call 01b04h                               ; e8 22 d2                    ; 0xf48df
     add sp, strict byte 0000ah                ; 83 c4 0a                    ; 0xf48e2
-    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf48e5 eltorito.c:755
+    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf48e5 eltorito.c:756
     xor ah, ah                                ; 30 e4                       ; 0xf48e8
     or ah, 00ch                               ; 80 cc 0c                    ; 0xf48ea
     jmp short 04911h                          ; eb 22                       ; 0xf48ed
-    movzx ax, byte [bp-006h]                  ; 0f b6 46 fa                 ; 0xf48ef eltorito.c:763
+    movzx ax, byte [bp-006h]                  ; 0f b6 46 fa                 ; 0xf48ef eltorito.c:764
     push ax                                   ; 50                          ; 0xf48f3
     mov ax, word [bp+00ah]                    ; 8b 46 0a                    ; 0xf48f4
     mov dx, word [bp+004h]                    ; 8b 56 04                    ; 0xf48f7
@@ -6986,7 +6986,7 @@ int13_cdemu:                                 ; 0xf455e LB 0x3eb
     call 05b7bh                               ; e8 78 12                    ; 0xf4900
     test ax, ax                               ; 85 c0                       ; 0xf4903
     je near 0462ch                            ; 0f 84 23 fd                 ; 0xf4905
-    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4909 eltorito.c:764
+    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4909 eltorito.c:765
     xor ah, ah                                ; 30 e4                       ; 0xf490c
     or ah, 001h                               ; 80 cc 01                    ; 0xf490e
     mov word [bp+016h], ax                    ; 89 46 16                    ; 0xf4911
@@ -6998,7 +6998,7 @@ int13_cdemu:                                 ; 0xf455e LB 0x3eb
     mov byte [es:bx], al                      ; 26 88 07                    ; 0xf4922
     or byte [bp+01ch], 001h                   ; 80 4e 1c 01                 ; 0xf4925
     jmp near 04640h                           ; e9 14 fd                    ; 0xf4929
-    mov bx, 00ddeh                            ; bb de 0d                    ; 0xf492c eltorito.c:780
+    mov bx, 00ddeh                            ; bb de 0d                    ; 0xf492c eltorito.c:781
     mov cx, ds                                ; 8c d9                       ; 0xf492f
     mov ax, strict word 00004h                ; b8 04 00                    ; 0xf4931
     call 01ac3h                               ; e8 8c d1                    ; 0xf4934
@@ -7009,7 +7009,7 @@ int13_cdemu:                                 ; 0xf455e LB 0x3eb
     push 0047ch                               ; 68 7c 04                    ; 0xf4941
     push strict byte 00004h                   ; 6a 04                       ; 0xf4944
     jmp near 04862h                           ; e9 19 ff                    ; 0xf4946
-  ; disGetNextSymbol 0xf4949 LB 0x67a3 -> off=0x59 cb=0000000000000301 uValue=00000000000f33a2 'int13_cdrom'
+  ; disGetNextSymbol 0xf4949 LB 0x67fd -> off=0x59 cb=0000000000000301 uValue=00000000000f33a2 'int13_cdrom'
     db  050h, 04eh, 049h, 048h, 047h, 046h, 045h, 044h, 043h, 042h, 041h, 018h, 016h, 015h, 014h, 011h
     db  010h, 00dh, 00ch, 00bh, 00ah, 009h, 008h, 005h, 004h, 003h, 002h, 001h, 000h, 086h, 04ch, 0eah
     db  04bh, 047h, 04ah, 086h, 04ch, 03ch, 04ah, 086h, 04ch, 03ch, 04ah, 086h, 04ch, 0eah, 04bh, 086h
@@ -7017,7 +7017,7 @@ int13_cdemu:                                 ; 0xf455e LB 0x3eb
     db  04bh, 086h, 04ch, 073h, 04ah, 086h, 04ah, 03ch, 04ah, 086h, 04ah, 04eh, 04bh, 005h, 04ch, 086h
     db  04ah, 028h, 04ch, 060h, 04ch, 068h, 04ch, 086h, 04ch
 int13_cdrom:                                 ; 0xf49a2 LB 0x301
-    push bp                                   ; 55                          ; 0xf49a2 eltorito.c:805
+    push bp                                   ; 55                          ; 0xf49a2 eltorito.c:806
     mov bp, sp                                ; 89 e5                       ; 0xf49a3
     push si                                   ; 56                          ; 0xf49a5
     push di                                   ; 57                          ; 0xf49a6
@@ -7026,17 +7026,17 @@ int13_cdrom:                                 ; 0xf49a2 LB 0x301
     mov ax, strict word 00040h                ; b8 40 00                    ; 0xf49ad
     mov es, ax                                ; 8e c0                       ; 0xf49b0
     mov ax, word [es:bx]                      ; 26 8b 07                    ; 0xf49b2
-    mov si, strict word 0005eh                ; be 5e 00                    ; 0xf49b5 eltorito.c:814
+    mov si, strict word 0005eh                ; be 5e 00                    ; 0xf49b5 eltorito.c:815
     mov word [bp-006h], ax                    ; 89 46 fa                    ; 0xf49b8
     mov bx, strict word 00074h                ; bb 74 00                    ; 0xf49bb eltorito.c:53
     mov byte [es:bx], 000h                    ; 26 c6 07 00                 ; 0xf49be
-    mov ax, word [bp+00eh]                    ; 8b 46 0e                    ; 0xf49c2 eltorito.c:821
+    mov ax, word [bp+00eh]                    ; 8b 46 0e                    ; 0xf49c2 eltorito.c:822
     xor ah, ah                                ; 30 e4                       ; 0xf49c5
     cmp ax, 000e0h                            ; 3d e0 00                    ; 0xf49c7
     jc short 049d1h                           ; 72 05                       ; 0xf49ca
     cmp ax, 000f0h                            ; 3d f0 00                    ; 0xf49cc
     jc short 049efh                           ; 72 1e                       ; 0xf49cf
-    mov ax, word [bp+00eh]                    ; 8b 46 0e                    ; 0xf49d1 eltorito.c:822
+    mov ax, word [bp+00eh]                    ; 8b 46 0e                    ; 0xf49d1 eltorito.c:823
     xor ah, ah                                ; 30 e4                       ; 0xf49d4
     push ax                                   ; 50                          ; 0xf49d6
     mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf49d7
@@ -7047,23 +7047,23 @@ int13_cdrom:                                 ; 0xf49a2 LB 0x301
     push strict byte 00004h                   ; 6a 04                       ; 0xf49e4
     call 01b04h                               ; e8 1b d1                    ; 0xf49e6
     add sp, strict byte 0000ah                ; 83 c4 0a                    ; 0xf49e9
-    jmp near 04c3eh                           ; e9 4f 02                    ; 0xf49ec eltorito.c:823
-    mov ax, word [bp+00eh]                    ; 8b 46 0e                    ; 0xf49ef eltorito.c:827
+    jmp near 04c3eh                           ; e9 4f 02                    ; 0xf49ec eltorito.c:824
+    mov ax, word [bp+00eh]                    ; 8b 46 0e                    ; 0xf49ef eltorito.c:828
     xor ah, ah                                ; 30 e4                       ; 0xf49f2
     mov es, [bp-006h]                         ; 8e 46 fa                    ; 0xf49f4
     mov bx, si                                ; 89 f3                       ; 0xf49f7
     add bx, ax                                ; 01 c3                       ; 0xf49f9
     mov dl, byte [es:bx+00110h]               ; 26 8a 97 10 01              ; 0xf49fb
-    cmp dl, 010h                              ; 80 fa 10                    ; 0xf4a00 eltorito.c:830
+    cmp dl, 010h                              ; 80 fa 10                    ; 0xf4a00 eltorito.c:831
     jc short 04a15h                           ; 72 10                       ; 0xf4a03
-    push ax                                   ; 50                          ; 0xf4a05 eltorito.c:831
+    push ax                                   ; 50                          ; 0xf4a05 eltorito.c:832
     mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4a06
     shr ax, 008h                              ; c1 e8 08                    ; 0xf4a09
     push ax                                   ; 50                          ; 0xf4a0c
     push 004ach                               ; 68 ac 04                    ; 0xf4a0d
     push 004e3h                               ; 68 e3 04                    ; 0xf4a10
     jmp short 049e4h                          ; eb cf                       ; 0xf4a13
-    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4a15 eltorito.c:835
+    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4a15 eltorito.c:836
     shr ax, 008h                              ; c1 e8 08                    ; 0xf4a18
     cmp ax, strict word 00050h                ; 3d 50 00                    ; 0xf4a1b
     jnbe near 04c86h                          ; 0f 87 64 02                 ; 0xf4a1e
@@ -7078,7 +7078,7 @@ int13_cdrom:                                 ; 0xf49a2 LB 0x301
     mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4a35
     xor ah, ah                                ; 30 e4                       ; 0xf4a38
     jmp bx                                    ; ff e3                       ; 0xf4a3a
-    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4a3c eltorito.c:853
+    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4a3c eltorito.c:854
     xor ah, ah                                ; 30 e4                       ; 0xf4a3f
     or ah, 003h                               ; 80 cc 03                    ; 0xf4a41
     jmp near 04c46h                           ; e9 ff 01                    ; 0xf4a44
@@ -7086,37 +7086,37 @@ int13_cdrom:                                 ; 0xf49a2 LB 0x301
     mov dx, strict word 00040h                ; ba 40 00                    ; 0xf4a4a
     mov es, dx                                ; 8e c2                       ; 0xf4a4d
     mov dl, byte [es:bx]                      ; 26 8a 17                    ; 0xf4a4f
-    movzx bx, dl                              ; 0f b6 da                    ; 0xf4a52 eltorito.c:859
+    movzx bx, dl                              ; 0f b6 da                    ; 0xf4a52 eltorito.c:860
     sal bx, 008h                              ; c1 e3 08                    ; 0xf4a55
     or ax, bx                                 ; 09 d8                       ; 0xf4a58
     mov word [bp+016h], ax                    ; 89 46 16                    ; 0xf4a5a
     mov bx, strict word 00074h                ; bb 74 00                    ; 0xf4a5d eltorito.c:53
     mov byte [es:bx], 000h                    ; 26 c6 07 00                 ; 0xf4a60
-    test dl, dl                               ; 84 d2                       ; 0xf4a64 eltorito.c:863
+    test dl, dl                               ; 84 d2                       ; 0xf4a64 eltorito.c:864
     je near 04beeh                            ; 0f 84 84 01                 ; 0xf4a66
-    jmp near 04c5ah                           ; e9 ed 01                    ; 0xf4a6a eltorito.c:864
-    or ah, 002h                               ; 80 cc 02                    ; 0xf4a6d eltorito.c:870
+    jmp near 04c5ah                           ; e9 ed 01                    ; 0xf4a6a eltorito.c:865
+    or ah, 002h                               ; 80 cc 02                    ; 0xf4a6d eltorito.c:871
     jmp near 04c46h                           ; e9 d3 01                    ; 0xf4a70
-    mov word [bp+010h], 0aa55h                ; c7 46 10 55 aa              ; 0xf4a73 eltorito.c:875
-    or ah, 030h                               ; 80 cc 30                    ; 0xf4a78 eltorito.c:876
+    mov word [bp+010h], 0aa55h                ; c7 46 10 55 aa              ; 0xf4a73 eltorito.c:876
+    or ah, 030h                               ; 80 cc 30                    ; 0xf4a78 eltorito.c:877
     mov word [bp+016h], ax                    ; 89 46 16                    ; 0xf4a7b
-    mov word [bp+014h], strict word 00007h    ; c7 46 14 07 00              ; 0xf4a7e eltorito.c:877
-    jmp near 04beeh                           ; e9 68 01                    ; 0xf4a83 eltorito.c:878
-    mov bx, word [bp+00ah]                    ; 8b 5e 0a                    ; 0xf4a86 eltorito.c:886
+    mov word [bp+014h], strict word 00007h    ; c7 46 14 07 00              ; 0xf4a7e eltorito.c:878
+    jmp near 04beeh                           ; e9 68 01                    ; 0xf4a83 eltorito.c:879
+    mov bx, word [bp+00ah]                    ; 8b 5e 0a                    ; 0xf4a86 eltorito.c:887
     mov es, [bp+004h]                         ; 8e 46 04                    ; 0xf4a89
     mov di, bx                                ; 89 df                       ; 0xf4a8c
     mov [bp-00ah], es                         ; 8c 46 f6                    ; 0xf4a8e
-    mov ax, word [es:bx+002h]                 ; 26 8b 47 02                 ; 0xf4a91 eltorito.c:888
+    mov ax, word [es:bx+002h]                 ; 26 8b 47 02                 ; 0xf4a91 eltorito.c:889
     mov word [bp-00ch], ax                    ; 89 46 f4                    ; 0xf4a95
-    mov ax, word [es:bx+006h]                 ; 26 8b 47 06                 ; 0xf4a98 eltorito.c:889
+    mov ax, word [es:bx+006h]                 ; 26 8b 47 06                 ; 0xf4a98 eltorito.c:890
     mov word [bp-00eh], ax                    ; 89 46 f2                    ; 0xf4a9c
-    mov ax, word [es:bx+004h]                 ; 26 8b 47 04                 ; 0xf4a9f eltorito.c:890
+    mov ax, word [es:bx+004h]                 ; 26 8b 47 04                 ; 0xf4a9f eltorito.c:891
     mov word [bp-010h], ax                    ; 89 46 f0                    ; 0xf4aa3
-    mov ax, word [es:bx+00ch]                 ; 26 8b 47 0c                 ; 0xf4aa6 eltorito.c:893
+    mov ax, word [es:bx+00ch]                 ; 26 8b 47 0c                 ; 0xf4aa6 eltorito.c:894
     mov cx, word [es:bx+00eh]                 ; 26 8b 4f 0e                 ; 0xf4aaa
-    or ax, cx                                 ; 09 c8                       ; 0xf4aae eltorito.c:894
+    or ax, cx                                 ; 09 c8                       ; 0xf4aae eltorito.c:895
     je short 04acah                           ; 74 18                       ; 0xf4ab0
-    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4ab2 eltorito.c:895
+    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4ab2 eltorito.c:896
     shr ax, 008h                              ; c1 e8 08                    ; 0xf4ab5
     push ax                                   ; 50                          ; 0xf4ab8
     push 004ach                               ; 68 ac 04                    ; 0xf4ab9
@@ -7124,18 +7124,18 @@ int13_cdrom:                                 ; 0xf49a2 LB 0x301
     push strict byte 00007h                   ; 6a 07                       ; 0xf4abf
     call 01b04h                               ; e8 40 d0                    ; 0xf4ac1
     add sp, strict byte 00008h                ; 83 c4 08                    ; 0xf4ac4
-    jmp near 04c3eh                           ; e9 74 01                    ; 0xf4ac7 eltorito.c:896
-    mov es, [bp-00ah]                         ; 8e 46 f6                    ; 0xf4aca eltorito.c:900
+    jmp near 04c3eh                           ; e9 74 01                    ; 0xf4ac7 eltorito.c:897
+    mov es, [bp-00ah]                         ; 8e 46 f6                    ; 0xf4aca eltorito.c:901
     mov ax, word [es:di+008h]                 ; 26 8b 45 08                 ; 0xf4acd
     mov cx, word [es:di+00ah]                 ; 26 8b 4d 0a                 ; 0xf4ad1
-    mov bx, word [bp+016h]                    ; 8b 5e 16                    ; 0xf4ad5 eltorito.c:903
+    mov bx, word [bp+016h]                    ; 8b 5e 16                    ; 0xf4ad5 eltorito.c:904
     shr bx, 008h                              ; c1 eb 08                    ; 0xf4ad8
     mov word [bp-008h], bx                    ; 89 5e f8                    ; 0xf4adb
     cmp bx, strict byte 00044h                ; 83 fb 44                    ; 0xf4ade
     je near 04beah                            ; 0f 84 05 01                 ; 0xf4ae1
     cmp bx, strict byte 00047h                ; 83 fb 47                    ; 0xf4ae5
     je near 04beah                            ; 0f 84 fe 00                 ; 0xf4ae8
-    push dword [bp-010h]                      ; 66 ff 76 f0                 ; 0xf4aec eltorito.c:909
+    push dword [bp-010h]                      ; 66 ff 76 f0                 ; 0xf4aec eltorito.c:910
     xor dh, dh                                ; 30 f6                       ; 0xf4af0
     mov word [bp-012h], dx                    ; 89 56 ee                    ; 0xf4af2
     mov dx, word [bp-00ch]                    ; 8b 56 f4                    ; 0xf4af5
@@ -7143,18 +7143,18 @@ int13_cdrom:                                 ; 0xf49a2 LB 0x301
     mov ax, word [bp-012h]                    ; 8b 46 ee                    ; 0xf4afa
     call 04065h                               ; e8 65 f5                    ; 0xf4afd
     mov dx, ax                                ; 89 c2                       ; 0xf4b00
-    mov es, [bp-006h]                         ; 8e 46 fa                    ; 0xf4b02 eltorito.c:910
+    mov es, [bp-006h]                         ; 8e 46 fa                    ; 0xf4b02 eltorito.c:911
     mov ax, word [es:si+01ah]                 ; 26 8b 44 1a                 ; 0xf4b05
     mov bx, word [es:si+01ch]                 ; 26 8b 5c 1c                 ; 0xf4b09
     mov cx, strict word 0000bh                ; b9 0b 00                    ; 0xf4b0d
     shr bx, 1                                 ; d1 eb                       ; 0xf4b10
     rcr ax, 1                                 ; d1 d8                       ; 0xf4b12
     loop 04b10h                               ; e2 fa                       ; 0xf4b14
-    mov es, [bp-00ah]                         ; 8e 46 f6                    ; 0xf4b16 eltorito.c:911
+    mov es, [bp-00ah]                         ; 8e 46 f6                    ; 0xf4b16 eltorito.c:912
     mov word [es:di+002h], ax                 ; 26 89 45 02                 ; 0xf4b19
-    test dl, dl                               ; 84 d2                       ; 0xf4b1d eltorito.c:913
+    test dl, dl                               ; 84 d2                       ; 0xf4b1d eltorito.c:914
     je near 04beah                            ; 0f 84 c7 00                 ; 0xf4b1f
-    mov bx, 00ddeh                            ; bb de 0d                    ; 0xf4b23 eltorito.c:914
+    mov bx, 00ddeh                            ; bb de 0d                    ; 0xf4b23 eltorito.c:915
     mov cx, ds                                ; 8c d9                       ; 0xf4b26
     mov ax, strict word 00004h                ; b8 04 00                    ; 0xf4b28
     call 01ac3h                               ; e8 95 cf                    ; 0xf4b2b
@@ -7166,58 +7166,58 @@ int13_cdrom:                                 ; 0xf49a2 LB 0x301
     push strict byte 00004h                   ; 6a 04                       ; 0xf4b3b
     call 01b04h                               ; e8 c4 cf                    ; 0xf4b3d
     add sp, strict byte 0000ah                ; 83 c4 0a                    ; 0xf4b40
-    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4b43 eltorito.c:915
+    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4b43 eltorito.c:916
     xor ah, ah                                ; 30 e4                       ; 0xf4b46
     or ah, 00ch                               ; 80 cc 0c                    ; 0xf4b48
     jmp near 04c46h                           ; e9 f8 00                    ; 0xf4b4b
-    cmp ax, strict word 00002h                ; 3d 02 00                    ; 0xf4b4e eltorito.c:923
+    cmp ax, strict word 00002h                ; 3d 02 00                    ; 0xf4b4e eltorito.c:924
     jnbe near 04c3eh                          ; 0f 87 e9 00                 ; 0xf4b51
-    movzx bx, dl                              ; 0f b6 da                    ; 0xf4b55 eltorito.c:926
+    movzx bx, dl                              ; 0f b6 da                    ; 0xf4b55 eltorito.c:927
     imul bx, bx, strict byte 0001ch           ; 6b db 1c                    ; 0xf4b58
     mov es, [bp-006h]                         ; 8e 46 fa                    ; 0xf4b5b
     add bx, si                                ; 01 f3                       ; 0xf4b5e
     mov bl, byte [es:bx+021h]                 ; 26 8a 5f 21                 ; 0xf4b60
-    cmp ax, strict word 00002h                ; 3d 02 00                    ; 0xf4b64 eltorito.c:928
+    cmp ax, strict word 00002h                ; 3d 02 00                    ; 0xf4b64 eltorito.c:929
     je short 04bdbh                           ; 74 72                       ; 0xf4b67
     cmp ax, strict word 00001h                ; 3d 01 00                    ; 0xf4b69
     je short 04ba9h                           ; 74 3b                       ; 0xf4b6c
     test ax, ax                               ; 85 c0                       ; 0xf4b6e
     jne near 04beah                           ; 0f 85 76 00                 ; 0xf4b70
-    cmp bl, 0ffh                              ; 80 fb ff                    ; 0xf4b74 eltorito.c:930
+    cmp bl, 0ffh                              ; 80 fb ff                    ; 0xf4b74 eltorito.c:931
     jne short 04b8bh                          ; 75 12                       ; 0xf4b77
-    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4b79 eltorito.c:931
+    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4b79 eltorito.c:932
     xor ah, ah                                ; 30 e4                       ; 0xf4b7c
     or ah, 0b4h                               ; 80 cc b4                    ; 0xf4b7e
     mov word [bp+016h], ax                    ; 89 46 16                    ; 0xf4b81
-    xor al, al                                ; 30 c0                       ; 0xf4b84 eltorito.c:932
+    xor al, al                                ; 30 c0                       ; 0xf4b84 eltorito.c:933
     or AL, strict byte 001h                   ; 0c 01                       ; 0xf4b86
     jmp near 04c46h                           ; e9 bb 00                    ; 0xf4b88
-    movzx ax, dl                              ; 0f b6 c2                    ; 0xf4b8b eltorito.c:934
+    movzx ax, dl                              ; 0f b6 c2                    ; 0xf4b8b eltorito.c:935
     imul ax, ax, strict byte 0001ch           ; 6b c0 1c                    ; 0xf4b8e
     db  0feh, 0c3h
-    ; inc bl                                    ; fe c3                     ; 0xf4b91 eltorito.c:935
+    ; inc bl                                    ; fe c3                     ; 0xf4b91 eltorito.c:936
     mov es, [bp-006h]                         ; 8e 46 fa                    ; 0xf4b93
     add si, ax                                ; 01 c6                       ; 0xf4b96
     mov byte [es:si+021h], bl                 ; 26 88 5c 21                 ; 0xf4b98
-    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4b9c eltorito.c:936
+    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4b9c eltorito.c:937
     xor al, al                                ; 30 c0                       ; 0xf4b9f
     or AL, strict byte 001h                   ; 0c 01                       ; 0xf4ba1
     mov word [bp+016h], ax                    ; 89 46 16                    ; 0xf4ba3
-    jmp near 04beah                           ; e9 41 00                    ; 0xf4ba6 eltorito.c:937
-    test bl, bl                               ; 84 db                       ; 0xf4ba9 eltorito.c:939
+    jmp near 04beah                           ; e9 41 00                    ; 0xf4ba6 eltorito.c:938
+    test bl, bl                               ; 84 db                       ; 0xf4ba9 eltorito.c:940
     jne short 04bb9h                          ; 75 0c                       ; 0xf4bab
-    or ah, 0b0h                               ; 80 cc b0                    ; 0xf4bad eltorito.c:940
+    or ah, 0b0h                               ; 80 cc b0                    ; 0xf4bad eltorito.c:941
     mov word [bp+016h], ax                    ; 89 46 16                    ; 0xf4bb0
-    mov byte [bp+016h], bl                    ; 88 5e 16                    ; 0xf4bb3 eltorito.c:941
-    jmp near 04c49h                           ; e9 90 00                    ; 0xf4bb6 eltorito.c:942
-    movzx ax, dl                              ; 0f b6 c2                    ; 0xf4bb9 eltorito.c:943
+    mov byte [bp+016h], bl                    ; 88 5e 16                    ; 0xf4bb3 eltorito.c:942
+    jmp near 04c49h                           ; e9 90 00                    ; 0xf4bb6 eltorito.c:943
+    movzx ax, dl                              ; 0f b6 c2                    ; 0xf4bb9 eltorito.c:944
     imul ax, ax, strict byte 0001ch           ; 6b c0 1c                    ; 0xf4bbc
     db  0feh, 0cbh
-    ; dec bl                                    ; fe cb                     ; 0xf4bbf eltorito.c:944
+    ; dec bl                                    ; fe cb                     ; 0xf4bbf eltorito.c:945
     mov es, [bp-006h]                         ; 8e 46 fa                    ; 0xf4bc1
     add si, ax                                ; 01 c6                       ; 0xf4bc4
     mov byte [es:si+021h], bl                 ; 26 88 5c 21                 ; 0xf4bc6
-    test bl, bl                               ; 84 db                       ; 0xf4bca eltorito.c:945
+    test bl, bl                               ; 84 db                       ; 0xf4bca eltorito.c:946
     db  00fh, 095h, 0c0h
     ; setne al                                  ; 0f 95 c0                  ; 0xf4bcc
     movzx dx, al                              ; 0f b6 d0                    ; 0xf4bcf
@@ -7225,14 +7225,14 @@ int13_cdrom:                                 ; 0xf49a2 LB 0x301
     xor al, al                                ; 30 c0                       ; 0xf4bd5
     or ax, dx                                 ; 09 d0                       ; 0xf4bd7
     jmp short 04ba3h                          ; eb c8                       ; 0xf4bd9
-    test bl, bl                               ; 84 db                       ; 0xf4bdb eltorito.c:948
+    test bl, bl                               ; 84 db                       ; 0xf4bdb eltorito.c:949
     db  00fh, 095h, 0c0h
     ; setne al                                  ; 0f 95 c0                  ; 0xf4bdd
     xor ah, ah                                ; 30 e4                       ; 0xf4be0
     mov dx, word [bp+016h]                    ; 8b 56 16                    ; 0xf4be2
     mov dl, al                                ; 88 c2                       ; 0xf4be5
     mov word [bp+016h], dx                    ; 89 56 16                    ; 0xf4be7
-    mov byte [bp+017h], 000h                  ; c6 46 17 00                 ; 0xf4bea eltorito.c:951
+    mov byte [bp+017h], 000h                  ; c6 46 17 00                 ; 0xf4bea eltorito.c:952
     mov bx, strict word 00074h                ; bb 74 00                    ; 0xf4bee
     mov ax, strict word 00040h                ; b8 40 00                    ; 0xf4bf1
     mov es, ax                                ; 8e c0                       ; 0xf4bf4
@@ -7243,21 +7243,21 @@ int13_cdrom:                                 ; 0xf49a2 LB 0x301
     pop si                                    ; 5e                          ; 0xf4c02
     pop bp                                    ; 5d                          ; 0xf4c03
     retn                                      ; c3                          ; 0xf4c04
-    movzx bx, dl                              ; 0f b6 da                    ; 0xf4c05 eltorito.c:955
+    movzx bx, dl                              ; 0f b6 da                    ; 0xf4c05 eltorito.c:956
     imul bx, bx, strict byte 0001ch           ; 6b db 1c                    ; 0xf4c08
     mov es, [bp-006h]                         ; 8e 46 fa                    ; 0xf4c0b
     add bx, si                                ; 01 f3                       ; 0xf4c0e
     mov bl, byte [es:bx+021h]                 ; 26 8a 5f 21                 ; 0xf4c10
-    test bl, bl                               ; 84 db                       ; 0xf4c14 eltorito.c:957
+    test bl, bl                               ; 84 db                       ; 0xf4c14 eltorito.c:958
     je short 04c1dh                           ; 74 05                       ; 0xf4c16
-    or ah, 0b1h                               ; 80 cc b1                    ; 0xf4c18 eltorito.c:958
+    or ah, 0b1h                               ; 80 cc b1                    ; 0xf4c18 eltorito.c:959
     jmp short 04c46h                          ; eb 29                       ; 0xf4c1b
-    test dh, dh                               ; 84 f6                       ; 0xf4c1d eltorito.c:980
+    test dh, dh                               ; 84 f6                       ; 0xf4c1d eltorito.c:981
     je short 04beah                           ; 74 c9                       ; 0xf4c1f
-    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4c21 eltorito.c:981
+    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4c21 eltorito.c:982
     xor ah, ah                                ; 30 e4                       ; 0xf4c24
     jmp short 04c18h                          ; eb f0                       ; 0xf4c26
-    movzx ax, dl                              ; 0f b6 c2                    ; 0xf4c28 eltorito.c:989
+    movzx ax, dl                              ; 0f b6 c2                    ; 0xf4c28 eltorito.c:990
     push ax                                   ; 50                          ; 0xf4c2b
     mov ax, word [bp+00ah]                    ; 8b 46 0a                    ; 0xf4c2c
     mov dx, word [bp+004h]                    ; 8b 56 04                    ; 0xf4c2f
@@ -7266,7 +7266,7 @@ int13_cdrom:                                 ; 0xf49a2 LB 0x301
     call 05b7bh                               ; e8 41 0f                    ; 0xf4c37
     test ax, ax                               ; 85 c0                       ; 0xf4c3a
     je short 04beah                           ; 74 ac                       ; 0xf4c3c
-    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4c3e eltorito.c:990
+    mov ax, word [bp+016h]                    ; 8b 46 16                    ; 0xf4c3e eltorito.c:991
     xor ah, ah                                ; 30 e4                       ; 0xf4c41
     or ah, 001h                               ; 80 cc 01                    ; 0xf4c43
     mov word [bp+016h], ax                    ; 89 46 16                    ; 0xf4c46
@@ -7278,10 +7278,10 @@ int13_cdrom:                                 ; 0xf49a2 LB 0x301
     mov byte [es:bx], al                      ; 26 88 07                    ; 0xf4c57
     or byte [bp+01ch], 001h                   ; 80 4e 1c 01                 ; 0xf4c5a
     jmp short 04bfeh                          ; eb 9e                       ; 0xf4c5e
-    or ah, 006h                               ; 80 cc 06                    ; 0xf4c60 eltorito.c:997
+    or ah, 006h                               ; 80 cc 06                    ; 0xf4c60 eltorito.c:998
     mov word [bp+016h], ax                    ; 89 46 16                    ; 0xf4c63
-    jmp short 04c5ah                          ; eb f2                       ; 0xf4c66 eltorito.c:998
-    cmp ax, strict word 00006h                ; 3d 06 00                    ; 0xf4c68 eltorito.c:1003
+    jmp short 04c5ah                          ; eb f2                       ; 0xf4c66 eltorito.c:999
+    cmp ax, strict word 00006h                ; 3d 06 00                    ; 0xf4c68 eltorito.c:1004
     je near 04beah                            ; 0f 84 7b ff                 ; 0xf4c6b
     cmp ax, strict word 00001h                ; 3d 01 00                    ; 0xf4c6f
     jc short 04c3eh                           ; 72 ca                       ; 0xf4c72
@@ -7290,8 +7290,8 @@ int13_cdrom:                                 ; 0xf49a2 LB 0x301
     jc short 04c3eh                           ; 72 c1                       ; 0xf4c7b
     cmp ax, strict word 00004h                ; 3d 04 00                    ; 0xf4c7d
     jbe near 04beah                           ; 0f 86 66 ff                 ; 0xf4c80
-    jmp short 04c3eh                          ; eb b8                       ; 0xf4c84 eltorito.c:1011
-    mov bx, 00ddeh                            ; bb de 0d                    ; 0xf4c86 eltorito.c:1024
+    jmp short 04c3eh                          ; eb b8                       ; 0xf4c84 eltorito.c:1012
+    mov bx, 00ddeh                            ; bb de 0d                    ; 0xf4c86 eltorito.c:1025
     mov cx, ds                                ; 8c d9                       ; 0xf4c89
     mov ax, strict word 00004h                ; b8 04 00                    ; 0xf4c8b
     call 01ac3h                               ; e8 32 ce                    ; 0xf4c8e
@@ -7302,7 +7302,7 @@ int13_cdrom:                                 ; 0xf49a2 LB 0x301
     push 003b5h                               ; 68 b5 03                    ; 0xf4c9b
     push strict byte 00004h                   ; 6a 04                       ; 0xf4c9e
     jmp near 04ac1h                           ; e9 1e fe                    ; 0xf4ca0
-  ; disGetNextSymbol 0xf4ca3 LB 0x6449 -> off=0x0 cb=000000000000004b uValue=00000000000f36a3 'print_boot_device'
+  ; disGetNextSymbol 0xf4ca3 LB 0x64a3 -> off=0x0 cb=000000000000004b uValue=00000000000f36a3 'print_boot_device'
 print_boot_device:                           ; 0xf4ca3 LB 0x4b
     push bp                                   ; 55                          ; 0xf4ca3 boot.c:119
     mov bp, sp                                ; 89 e5                       ; 0xf4ca4
@@ -7337,7 +7337,7 @@ print_boot_device:                           ; 0xf4ca3 LB 0x4b
     pop cx                                    ; 59                          ; 0xf4ceb
     pop bp                                    ; 5d                          ; 0xf4cec
     retn                                      ; c3                          ; 0xf4ced
-  ; disGetNextSymbol 0xf4cee LB 0x63fe -> off=0x0 cb=00000000000000bf uValue=00000000000f36ee 'print_boot_failure'
+  ; disGetNextSymbol 0xf4cee LB 0x6458 -> off=0x0 cb=00000000000000bf uValue=00000000000f36ee 'print_boot_failure'
 print_boot_failure:                          ; 0xf4cee LB 0xbf
     push bp                                   ; 55                          ; 0xf4cee boot.c:141
     mov bp, sp                                ; 89 e5                       ; 0xf4cef
@@ -7415,7 +7415,7 @@ print_boot_failure:                          ; 0xf4cee LB 0xbf
     pop si                                    ; 5e                          ; 0xf4da8
     pop bp                                    ; 5d                          ; 0xf4da9
     retn 00002h                               ; c2 02 00                    ; 0xf4daa
-  ; disGetNextSymbol 0xf4dad LB 0x633f -> off=0x0 cb=0000000000000027 uValue=00000000000f37ad 'print_cdromboot_failure'
+  ; disGetNextSymbol 0xf4dad LB 0x6399 -> off=0x0 cb=0000000000000027 uValue=00000000000f37ad 'print_cdromboot_failure'
 print_cdromboot_failure:                     ; 0xf4dad LB 0x27
     push bp                                   ; 55                          ; 0xf4dad boot.c:174
     mov bp, sp                                ; 89 e5                       ; 0xf4dae
@@ -7438,7 +7438,7 @@ print_cdromboot_failure:                     ; 0xf4dad LB 0x27
     pop bx                                    ; 5b                          ; 0xf4dd1
     pop bp                                    ; 5d                          ; 0xf4dd2
     retn                                      ; c3                          ; 0xf4dd3
-  ; disGetNextSymbol 0xf4dd4 LB 0x6318 -> off=0x0 cb=0000000000000034 uValue=00000000000f37d4 'valid_bootsect'
+  ; disGetNextSymbol 0xf4dd4 LB 0x6372 -> off=0x0 cb=0000000000000034 uValue=00000000000f37d4 'valid_bootsect'
 valid_bootsect:                              ; 0xf4dd4 LB 0x34
     push bx                                   ; 53                          ; 0xf4dd4 boot.c:187
     push cx                                   ; 51                          ; 0xf4dd5
@@ -7469,7 +7469,7 @@ valid_bootsect:                              ; 0xf4dd4 LB 0x34
     pop cx                                    ; 59                          ; 0xf4e05
     pop bx                                    ; 5b                          ; 0xf4e06
     retn                                      ; c3                          ; 0xf4e07
-  ; disGetNextSymbol 0xf4e08 LB 0x62e4 -> off=0x0 cb=000000000000023e uValue=00000000000f3808 'int19_function'
+  ; disGetNextSymbol 0xf4e08 LB 0x633e -> off=0x0 cb=000000000000023e uValue=00000000000f3808 'int19_function'
 int19_function:                              ; 0xf4e08 LB 0x23e
     push bp                                   ; 55                          ; 0xf4e08 boot.c:202
     mov bp, sp                                ; 89 e5                       ; 0xf4e09
@@ -7680,7 +7680,7 @@ int19_function:                              ; 0xf4e08 LB 0x23e
     pop si                                    ; 5e                          ; 0xf5043
     pop bp                                    ; 5d                          ; 0xf5044
     retn                                      ; c3                          ; 0xf5045
-  ; disGetNextSymbol 0xf5046 LB 0x60a6 -> off=0x0 cb=0000000000000013 uValue=00000000000f3a46 'keyboard_panic'
+  ; disGetNextSymbol 0xf5046 LB 0x6100 -> off=0x0 cb=0000000000000013 uValue=00000000000f3a46 'keyboard_panic'
 keyboard_panic:                              ; 0xf5046 LB 0x13
     push bp                                   ; 55                          ; 0xf5046 keyboard.c:227
     mov bp, sp                                ; 89 e5                       ; 0xf5047
@@ -7692,7 +7692,7 @@ keyboard_panic:                              ; 0xf5046 LB 0x13
     mov sp, bp                                ; 89 ec                       ; 0xf5055 keyboard.c:233
     pop bp                                    ; 5d                          ; 0xf5057
     retn                                      ; c3                          ; 0xf5058
-  ; disGetNextSymbol 0xf5059 LB 0x6093 -> off=0x0 cb=000000000000026a uValue=00000000000f3a59 'keyboard_init'
+  ; disGetNextSymbol 0xf5059 LB 0x60ed -> off=0x0 cb=000000000000026a uValue=00000000000f3a59 'keyboard_init'
 keyboard_init:                               ; 0xf5059 LB 0x26a
     push bp                                   ; 55                          ; 0xf5059 keyboard.c:241
     mov bp, sp                                ; 89 e5                       ; 0xf505a
@@ -8004,7 +8004,7 @@ keyboard_init:                               ; 0xf5059 LB 0x26a
     mov sp, bp                                ; 89 ec                       ; 0xf52bf keyboard.c:369
     pop bp                                    ; 5d                          ; 0xf52c1
     retn                                      ; c3                          ; 0xf52c2
-  ; disGetNextSymbol 0xf52c3 LB 0x5e29 -> off=0x0 cb=0000000000000053 uValue=00000000000f3cc3 'enqueue_key'
+  ; disGetNextSymbol 0xf52c3 LB 0x5e83 -> off=0x0 cb=0000000000000053 uValue=00000000000f3cc3 'enqueue_key'
 enqueue_key:                                 ; 0xf52c3 LB 0x53
     push bx                                   ; 53                          ; 0xf52c3 keyboard.c:372
     push cx                                   ; 51                          ; 0xf52c4
@@ -8047,7 +8047,7 @@ enqueue_key:                                 ; 0xf52c3 LB 0x53
     pop cx                                    ; 59                          ; 0xf5313
     pop bx                                    ; 5b                          ; 0xf5314
     retn                                      ; c3                          ; 0xf5315
-  ; disGetNextSymbol 0xf5316 LB 0x5dd6 -> off=0x35 cb=0000000000000407 uValue=00000000000f3d4b 'int09_function'
+  ; disGetNextSymbol 0xf5316 LB 0x5e30 -> off=0x35 cb=0000000000000407 uValue=00000000000f3d4b 'int09_function'
     db  0d4h, 0c6h, 0c5h, 0bah, 0b8h, 0b6h, 0aah, 09dh, 054h, 053h, 046h, 045h, 03ah, 038h, 036h, 02ah
     db  01dh, 0afh, 055h, 0feh, 053h, 0ceh, 053h, 0ceh, 053h, 055h, 054h, 0a9h, 053h, 0bah, 054h, 015h
     db  055h, 094h, 055h, 077h, 055h, 02dh, 054h, 0ceh, 053h, 0ceh, 053h, 076h, 054h, 0c0h, 053h, 0fdh
@@ -8435,7 +8435,7 @@ int09_function:                              ; 0xf534b LB 0x407
     pop si                                    ; 5e                          ; 0xf574f
     pop bp                                    ; 5d                          ; 0xf5750
     retn                                      ; c3                          ; 0xf5751
-  ; disGetNextSymbol 0xf5752 LB 0x599a -> off=0x0 cb=000000000000006c uValue=00000000000f4152 'dequeue_key'
+  ; disGetNextSymbol 0xf5752 LB 0x59f4 -> off=0x0 cb=000000000000006c uValue=00000000000f4152 'dequeue_key'
 dequeue_key:                                 ; 0xf5752 LB 0x6c
     push si                                   ; 56                          ; 0xf5752 keyboard.c:682
     push di                                   ; 57                          ; 0xf5753
@@ -8482,7 +8482,7 @@ dequeue_key:                                 ; 0xf5752 LB 0x6c
     pop di                                    ; 5f                          ; 0xf57b9
     pop si                                    ; 5e                          ; 0xf57ba
     retn 00002h                               ; c2 02 00                    ; 0xf57bb
-  ; disGetNextSymbol 0xf57be LB 0x592e -> off=0x23 cb=00000000000002e7 uValue=00000000000f41e1 'int16_function'
+  ; disGetNextSymbol 0xf57be LB 0x5988 -> off=0x23 cb=00000000000002e7 uValue=00000000000f41e1 'int16_function'
     db  0a2h, 092h, 012h, 011h, 010h, 00ah, 009h, 005h, 002h, 001h, 000h, 07eh, 05ah, 096h, 058h, 0ddh
     db  058h, 02ah, 059h, 03ch, 059h, 066h, 059h, 06fh, 059h, 0e0h, 059h, 011h, 05ah, 03fh, 05ah, 073h
     db  05ah, 0c1h, 05ah
@@ -8793,7 +8793,7 @@ int16_function:                              ; 0xf57e1 LB 0x2e7
     pop si                                    ; 5e                          ; 0xf5ac5
     pop bp                                    ; 5d                          ; 0xf5ac6
     retn                                      ; c3                          ; 0xf5ac7
-  ; disGetNextSymbol 0xf5ac8 LB 0x5624 -> off=0x0 cb=00000000000000b3 uValue=00000000000f44c8 'set_geom_lba'
+  ; disGetNextSymbol 0xf5ac8 LB 0x567e -> off=0x0 cb=00000000000000b3 uValue=00000000000f44c8 'set_geom_lba'
 set_geom_lba:                                ; 0xf5ac8 LB 0xb3
     push bx                                   ; 53                          ; 0xf5ac8 disk.c:125
     push cx                                   ; 51                          ; 0xf5ac9
@@ -8866,7 +8866,7 @@ set_geom_lba:                                ; 0xf5ac8 LB 0xb3
     pop cx                                    ; 59                          ; 0xf5b76
     pop bx                                    ; 5b                          ; 0xf5b77
     retn 00008h                               ; c2 08 00                    ; 0xf5b78
-  ; disGetNextSymbol 0xf5b7b LB 0x5571 -> off=0x0 cb=00000000000002ed uValue=00000000000f457b 'edd_fill_dpt'
+  ; disGetNextSymbol 0xf5b7b LB 0x55cb -> off=0x0 cb=00000000000002ed uValue=00000000000f457b 'edd_fill_dpt'
 edd_fill_dpt:                                ; 0xf5b7b LB 0x2ed
     push si                                   ; 56                          ; 0xf5b7b disk.c:147
     push di                                   ; 57                          ; 0xf5b7c
@@ -9102,7 +9102,7 @@ edd_fill_dpt:                                ; 0xf5b7b LB 0x2ed
     pop di                                    ; 5f                          ; 0xf5e63
     pop si                                    ; 5e                          ; 0xf5e64
     retn 00002h                               ; c2 02 00                    ; 0xf5e65
-  ; disGetNextSymbol 0xf5e68 LB 0x5284 -> off=0x32 cb=000000000000042f uValue=00000000000f489a 'int13_harddisk'
+  ; disGetNextSymbol 0xf5e68 LB 0x52de -> off=0x32 cb=000000000000042f uValue=00000000000f489a 'int13_harddisk'
     db  030h, 05fh, 057h, 05fh, 07eh, 05fh, 07eh, 05fh, 07eh, 05fh, 063h, 061h, 08bh, 062h, 08bh, 062h
     db  07ch, 061h, 068h, 062h, 08bh, 062h, 08bh, 062h, 068h, 062h, 068h, 062h, 08bh, 062h, 08bh, 062h
     db  0e9h, 061h, 068h, 062h, 08bh, 062h, 08bh, 062h, 068h, 062h, 021h, 062h, 08bh, 062h, 08bh, 062h
@@ -9489,7 +9489,7 @@ int13_harddisk:                              ; 0xf5e9a LB 0x42f
     mov byte [es:bx], al                      ; 26 88 07                    ; 0xf62bf
     or byte [bp+01ch], 001h                   ; 80 4e 1c 01                 ; 0xf62c2 disk.c:493
     jmp near 05f53h                           ; e9 8a fc                    ; 0xf62c6 disk.c:494
-  ; disGetNextSymbol 0xf62c9 LB 0x4e23 -> off=0x20 cb=000000000000029e uValue=00000000000f4ce9 'int13_harddisk_ext'
+  ; disGetNextSymbol 0xf62c9 LB 0x4e7d -> off=0x20 cb=000000000000029e uValue=00000000000f4ce9 'int13_harddisk_ext'
     db  079h, 063h, 091h, 063h, 091h, 063h, 091h, 063h, 06fh, 065h, 0fbh, 064h, 091h, 063h, 003h, 065h
     db  06fh, 065h, 054h, 065h, 054h, 065h, 054h, 065h, 054h, 065h, 03ch, 065h, 054h, 065h, 054h, 065h
 int13_harddisk_ext:                          ; 0xf62e9 LB 0x29e
@@ -9725,7 +9725,7 @@ int13_harddisk_ext:                          ; 0xf62e9 LB 0x29e
     mov sp, bp                                ; 89 ec                       ; 0xf6583 disk.c:657
     pop bp                                    ; 5d                          ; 0xf6585
     retn                                      ; c3                          ; 0xf6586
-  ; disGetNextSymbol 0xf6587 LB 0x4b65 -> off=0x0 cb=0000000000000151 uValue=00000000000f4f87 'int14_function'
+  ; disGetNextSymbol 0xf6587 LB 0x4bbf -> off=0x0 cb=0000000000000151 uValue=00000000000f4f87 'int14_function'
 int14_function:                              ; 0xf6587 LB 0x151
     push bp                                   ; 55                          ; 0xf6587 serial.c:70
     mov bp, sp                                ; 89 e5                       ; 0xf6588
@@ -9887,7 +9887,7 @@ int14_function:                              ; 0xf6587 LB 0x151
     pop si                                    ; 5e                          ; 0xf66d5
     pop bp                                    ; 5d                          ; 0xf66d6
     retn                                      ; c3                          ; 0xf66d7
-  ; disGetNextSymbol 0xf66d8 LB 0x4a14 -> off=0x0 cb=000000000000002c uValue=00000000000f50d8 'set_enable_a20'
+  ; disGetNextSymbol 0xf66d8 LB 0x4a6e -> off=0x0 cb=000000000000002c uValue=00000000000f50d8 'set_enable_a20'
 set_enable_a20:                              ; 0xf66d8 LB 0x2c
     push bp                                   ; 55                          ; 0xf66d8 system.c:298
     mov bp, sp                                ; 89 e5                       ; 0xf66d9
@@ -9917,7 +9917,7 @@ set_enable_a20:                              ; 0xf66d8 LB 0x2c
     pop bx                                    ; 5b                          ; 0xf6701
     pop bp                                    ; 5d                          ; 0xf6702
     retn                                      ; c3                          ; 0xf6703
-  ; disGetNextSymbol 0xf6704 LB 0x49e8 -> off=0x3b cb=0000000000000349 uValue=00000000000f513f 'int15_function'
+  ; disGetNextSymbol 0xf6704 LB 0x4a42 -> off=0x3b cb=0000000000000349 uValue=00000000000f513f 'int15_function'
     db  0ech, 0e9h, 0d8h, 0c7h, 0c1h, 0c0h, 0bfh, 091h, 090h, 089h, 088h, 086h, 083h, 052h, 04fh, 041h
     db  024h, 022h, 000h, 069h, 06ah, 07ch, 067h, 004h, 06ah, 08fh, 067h, 004h, 06ah, 062h, 06ah, 0d3h
     db  067h, 009h, 068h, 0a3h, 068h, 011h, 069h, 026h, 069h, 09ch, 068h, 09ch, 068h, 0eeh, 069h, 016h
@@ -10246,7 +10246,7 @@ int15_function:                              ; 0xf673f LB 0x349
     call 01b04h                               ; e8 82 b0                    ; 0xf6a7f
     add sp, strict byte 00008h                ; 83 c4 08                    ; 0xf6a82
     jmp near 06a04h                           ; e9 7c ff                    ; 0xf6a85
-  ; disGetNextSymbol 0xf6a88 LB 0x4664 -> off=0x0 cb=0000000000000042 uValue=00000000000f5488 'set_e820_range_len'
+  ; disGetNextSymbol 0xf6a88 LB 0x46be -> off=0x0 cb=0000000000000042 uValue=00000000000f5488 'set_e820_range_len'
 set_e820_range_len:                          ; 0xf6a88 LB 0x42
     push si                                   ; 56                          ; 0xf6a88 system.c:605
     push bp                                   ; 55                          ; 0xf6a89
@@ -10269,7 +10269,7 @@ set_e820_range_len:                          ; 0xf6a88 LB 0x42
     pop bp                                    ; 5d                          ; 0xf6ac5 system.c:613
     pop si                                    ; 5e                          ; 0xf6ac6
     retn 00006h                               ; c2 06 00                    ; 0xf6ac7
-  ; disGetNextSymbol 0xf6aca LB 0x4622 -> off=0x0 cb=0000000000000039 uValue=00000000000f54ca 'set_e820_range_above_4g'
+  ; disGetNextSymbol 0xf6aca LB 0x467c -> off=0x0 cb=0000000000000039 uValue=00000000000f54ca 'set_e820_range_above_4g'
 set_e820_range_above_4g:                     ; 0xf6aca LB 0x39
     push si                                   ; 56                          ; 0xf6aca system.c:617
     push bp                                   ; 55                          ; 0xf6acb
@@ -10289,7 +10289,7 @@ set_e820_range_above_4g:                     ; 0xf6aca LB 0x39
     pop bp                                    ; 5d                          ; 0xf6b00 system.c:625
     pop si                                    ; 5e                          ; 0xf6b01
     retn                                      ; c3                          ; 0xf6b02
-  ; disGetNextSymbol 0xf6b03 LB 0x45e9 -> off=0x14 cb=00000000000002a4 uValue=00000000000f5517 'int15_function32'
+  ; disGetNextSymbol 0xf6b03 LB 0x4643 -> off=0x14 cb=00000000000002a4 uValue=00000000000f5517 'int15_function32'
     db  01bh, 06ch, 04eh, 06ch, 06eh, 06ch, 08ch, 06ch, 0aeh, 06ch, 0d0h, 06ch, 0f0h, 06ch, 010h, 06dh
     db  08ah, 06dh, 043h, 06dh
 int15_function32:                            ; 0xf6b17 LB 0x2a4
@@ -10517,7 +10517,7 @@ int15_function32:                            ; 0xf6b17 LB 0x2a4
     pop si                                    ; 5e                          ; 0xf6db8
     pop bp                                    ; 5d                          ; 0xf6db9
     retn                                      ; c3                          ; 0xf6dba
-  ; disGetNextSymbol 0xf6dbb LB 0x4331 -> off=0x0 cb=0000000000000156 uValue=00000000000f57bb 'int15_blkmove'
+  ; disGetNextSymbol 0xf6dbb LB 0x438b -> off=0x0 cb=0000000000000156 uValue=00000000000f57bb 'int15_blkmove'
 int15_blkmove:                               ; 0xf6dbb LB 0x156
     push bp                                   ; 55                          ; 0xf6dbb system.c:814
     mov bp, sp                                ; 89 e5                       ; 0xf6dbc
@@ -10649,7 +10649,7 @@ int15_blkmove:                               ; 0xf6dbb LB 0x156
     pop si                                    ; 5e                          ; 0xf6f0e
     pop bp                                    ; 5d                          ; 0xf6f0f
     retn                                      ; c3                          ; 0xf6f10
-  ; disGetNextSymbol 0xf6f11 LB 0x41db -> off=0x0 cb=0000000000000195 uValue=00000000000f5911 'inv_op_handler'
+  ; disGetNextSymbol 0xf6f11 LB 0x4235 -> off=0x0 cb=0000000000000195 uValue=00000000000f5911 'inv_op_handler'
 inv_op_handler:                              ; 0xf6f11 LB 0x195
     push bp                                   ; 55                          ; 0xf6f11 invop.c:247
     mov bp, sp                                ; 89 e5                       ; 0xf6f12
@@ -10788,7 +10788,7 @@ inv_op_handler:                              ; 0xf6f11 LB 0x195
     pop si                                    ; 5e                          ; 0xf70a3
     pop bp                                    ; 5d                          ; 0xf70a4
     retn                                      ; c3                          ; 0xf70a5
-  ; disGetNextSymbol 0xf70a6 LB 0x4046 -> off=0x0 cb=0000000000000028 uValue=00000000000f5aa6 'init_rtc'
+  ; disGetNextSymbol 0xf70a6 LB 0x40a0 -> off=0x0 cb=0000000000000028 uValue=00000000000f5aa6 'init_rtc'
 init_rtc:                                    ; 0xf70a6 LB 0x28
     push bp                                   ; 55                          ; 0xf70a6 timepci.c:84
     mov bp, sp                                ; 89 e5                       ; 0xf70a7
@@ -10807,7 +10807,7 @@ init_rtc:                                    ; 0xf70a6 LB 0x28
     pop dx                                    ; 5a                          ; 0xf70cb
     pop bp                                    ; 5d                          ; 0xf70cc
     retn                                      ; c3                          ; 0xf70cd
-  ; disGetNextSymbol 0xf70ce LB 0x401e -> off=0x0 cb=0000000000000021 uValue=00000000000f5ace 'rtc_updating'
+  ; disGetNextSymbol 0xf70ce LB 0x4078 -> off=0x0 cb=0000000000000021 uValue=00000000000f5ace 'rtc_updating'
 rtc_updating:                                ; 0xf70ce LB 0x21
     push bp                                   ; 55                          ; 0xf70ce timepci.c:92
     mov bp, sp                                ; 89 e5                       ; 0xf70cf
@@ -10826,7 +10826,7 @@ rtc_updating:                                ; 0xf70ce LB 0x21
     pop dx                                    ; 5a                          ; 0xf70ec
     pop bp                                    ; 5d                          ; 0xf70ed
     retn                                      ; c3                          ; 0xf70ee
-  ; disGetNextSymbol 0xf70ef LB 0x3ffd -> off=0x0 cb=0000000000000091 uValue=00000000000f5aef 'int70_function'
+  ; disGetNextSymbol 0xf70ef LB 0x4057 -> off=0x0 cb=0000000000000091 uValue=00000000000f5aef 'int70_function'
 int70_function:                              ; 0xf70ef LB 0x91
     push bp                                   ; 55                          ; 0xf70ef timepci.c:120
     mov bp, sp                                ; 89 e5                       ; 0xf70f0
@@ -10887,7 +10887,7 @@ int70_function:                              ; 0xf70ef LB 0x91
     pop si                                    ; 5e                          ; 0xf717d
     pop bp                                    ; 5d                          ; 0xf717e
     retn                                      ; c3                          ; 0xf717f
-  ; disGetNextSymbol 0xf7180 LB 0x3f6c -> off=0x10 cb=00000000000001c8 uValue=00000000000f5b90 'int1a_function'
+  ; disGetNextSymbol 0xf7180 LB 0x3fc6 -> off=0x10 cb=00000000000001c8 uValue=00000000000f5b90 'int1a_function'
     db  0a7h, 071h, 0d0h, 071h, 0f5h, 071h, 027h, 072h, 076h, 072h, 0aeh, 072h, 0f1h, 072h, 048h, 073h
 int1a_function:                              ; 0xf7190 LB 0x1c8
     push bp                                   ; 55                          ; 0xf7190 timepci.c:167
@@ -11056,7 +11056,7 @@ int1a_function:                              ; 0xf7190 LB 0x1c8
     and AL, strict byte 057h                  ; 24 57                       ; 0xf7350 timepci.c:324
     movzx dx, al                              ; 0f b6 d0                    ; 0xf7352
     jmp near 07266h                           ; e9 0e ff                    ; 0xf7355
-  ; disGetNextSymbol 0xf7358 LB 0x3d94 -> off=0x0 cb=0000000000000034 uValue=00000000000f5d58 'send_to_mouse_ctrl'
+  ; disGetNextSymbol 0xf7358 LB 0x3dee -> off=0x0 cb=0000000000000034 uValue=00000000000f5d58 'send_to_mouse_ctrl'
 send_to_mouse_ctrl:                          ; 0xf7358 LB 0x34
     push bp                                   ; 55                          ; 0xf7358 ps2mouse.c:87
     mov bp, sp                                ; 89 e5                       ; 0xf7359
@@ -11086,7 +11086,7 @@ send_to_mouse_ctrl:                          ; 0xf7358 LB 0x34
     pop bx                                    ; 5b                          ; 0xf7389
     pop bp                                    ; 5d                          ; 0xf738a
     retn                                      ; c3                          ; 0xf738b
-  ; disGetNextSymbol 0xf738c LB 0x3d60 -> off=0x0 cb=000000000000005c uValue=00000000000f5d8c 'get_mouse_data'
+  ; disGetNextSymbol 0xf738c LB 0x3dba -> off=0x0 cb=000000000000005c uValue=00000000000f5d8c 'get_mouse_data'
 get_mouse_data:                              ; 0xf738c LB 0x5c
     push bp                                   ; 55                          ; 0xf738c ps2mouse.c:99
     mov bp, sp                                ; 89 e5                       ; 0xf738d
@@ -11138,7 +11138,7 @@ get_mouse_data:                              ; 0xf738c LB 0x5c
     pop bx                                    ; 5b                          ; 0xf73e5
     pop bp                                    ; 5d                          ; 0xf73e6
     retn                                      ; c3                          ; 0xf73e7
-  ; disGetNextSymbol 0xf73e8 LB 0x3d04 -> off=0x0 cb=0000000000000032 uValue=00000000000f5de8 'set_kbd_command_byte'
+  ; disGetNextSymbol 0xf73e8 LB 0x3d5e -> off=0x0 cb=0000000000000032 uValue=00000000000f5de8 'set_kbd_command_byte'
 set_kbd_command_byte:                        ; 0xf73e8 LB 0x32
     push bp                                   ; 55                          ; 0xf73e8 ps2mouse.c:121
     mov bp, sp                                ; 89 e5                       ; 0xf73e9
@@ -11167,7 +11167,7 @@ set_kbd_command_byte:                        ; 0xf73e8 LB 0x32
     pop bx                                    ; 5b                          ; 0xf7417
     pop bp                                    ; 5d                          ; 0xf7418
     retn                                      ; c3                          ; 0xf7419
-  ; disGetNextSymbol 0xf741a LB 0x3cd2 -> off=0x0 cb=0000000000000094 uValue=00000000000f5e1a 'int74_function'
+  ; disGetNextSymbol 0xf741a LB 0x3d2c -> off=0x0 cb=0000000000000094 uValue=00000000000f5e1a 'int74_function'
 int74_function:                              ; 0xf741a LB 0x94
     push bp                                   ; 55                          ; 0xf741a ps2mouse.c:131
     mov bp, sp                                ; 89 e5                       ; 0xf741b
@@ -11232,7 +11232,7 @@ int74_function:                              ; 0xf741a LB 0x94
     pop si                                    ; 5e                          ; 0xf74ab
     pop bp                                    ; 5d                          ; 0xf74ac
     retn                                      ; c3                          ; 0xf74ad
-  ; disGetNextSymbol 0xf74ae LB 0x3c3e -> off=0x10 cb=0000000000000370 uValue=00000000000f5ebe 'int15_function_mouse'
+  ; disGetNextSymbol 0xf74ae LB 0x3c98 -> off=0x10 cb=0000000000000370 uValue=00000000000f5ebe 'int15_function_mouse'
     db  001h, 075h, 06fh, 075h, 0eah, 075h, 07bh, 076h, 0e9h, 076h, 04dh, 075h, 011h, 077h, 0d6h, 077h
 int15_function_mouse:                        ; 0xf74be LB 0x370
     push bp                                   ; 55                          ; 0xf74be ps2mouse.c:176
@@ -11554,7 +11554,7 @@ int15_function_mouse:                        ; 0xf74be LB 0x370
     mov sp, bp                                ; 89 ec                       ; 0xf782a ps2mouse.c:461
     pop bp                                    ; 5d                          ; 0xf782c
     retn                                      ; c3                          ; 0xf782d
-  ; disGetNextSymbol 0xf782e LB 0x38be -> off=0x0 cb=00000000000000b2 uValue=00000000000f622e 'int17_function'
+  ; disGetNextSymbol 0xf782e LB 0x3918 -> off=0x0 cb=00000000000000b2 uValue=00000000000f622e 'int17_function'
 int17_function:                              ; 0xf782e LB 0xb2
     push bp                                   ; 55                          ; 0xf782e parallel.c:70
     mov bp, sp                                ; 89 e5                       ; 0xf782f
@@ -11637,7 +11637,7 @@ int17_function:                              ; 0xf782e LB 0xb2
     pop si                                    ; 5e                          ; 0xf78dd
     pop bp                                    ; 5d                          ; 0xf78de
     retn                                      ; c3                          ; 0xf78df
-  ; disGetNextSymbol 0xf78e0 LB 0x380c -> off=0x0 cb=00000000000000b8 uValue=00000000000f62e0 '_wait_'
+  ; disGetNextSymbol 0xf78e0 LB 0x3866 -> off=0x0 cb=00000000000000b8 uValue=00000000000f62e0 '_wait_'
 _wait_:                                      ; 0xf78e0 LB 0xb8
     push bp                                   ; 55                          ; 0xf78e0 logo.c:181
     mov bp, sp                                ; 89 e5                       ; 0xf78e1
@@ -11725,7 +11725,7 @@ _wait_:                                      ; 0xf78e0 LB 0xb8
     pop bx                                    ; 5b                          ; 0xf7995
     pop bp                                    ; 5d                          ; 0xf7996
     retn                                      ; c3                          ; 0xf7997
-  ; disGetNextSymbol 0xf7998 LB 0x3754 -> off=0x0 cb=0000000000000016 uValue=00000000000f6398 'read_logo_byte'
+  ; disGetNextSymbol 0xf7998 LB 0x37ae -> off=0x0 cb=0000000000000016 uValue=00000000000f6398 'read_logo_byte'
 read_logo_byte:                              ; 0xf7998 LB 0x16
     push bp                                   ; 55                          ; 0xf7998 logo.c:226
     mov bp, sp                                ; 89 e5                       ; 0xf7999
@@ -11741,7 +11741,7 @@ read_logo_byte:                              ; 0xf7998 LB 0x16
     pop dx                                    ; 5a                          ; 0xf79ab
     pop bp                                    ; 5d                          ; 0xf79ac
     retn                                      ; c3                          ; 0xf79ad
-  ; disGetNextSymbol 0xf79ae LB 0x373e -> off=0x0 cb=0000000000000014 uValue=00000000000f63ae 'read_logo_word'
+  ; disGetNextSymbol 0xf79ae LB 0x3798 -> off=0x0 cb=0000000000000014 uValue=00000000000f63ae 'read_logo_word'
 read_logo_word:                              ; 0xf79ae LB 0x14
     push bp                                   ; 55                          ; 0xf79ae logo.c:232
     mov bp, sp                                ; 89 e5                       ; 0xf79af
@@ -11755,7 +11755,7 @@ read_logo_word:                              ; 0xf79ae LB 0x14
     pop dx                                    ; 5a                          ; 0xf79bf
     pop bp                                    ; 5d                          ; 0xf79c0
     retn                                      ; c3                          ; 0xf79c1
-  ; disGetNextSymbol 0xf79c2 LB 0x372a -> off=0x0 cb=0000000000000133 uValue=00000000000f63c2 'print_detected_harddisks'
+  ; disGetNextSymbol 0xf79c2 LB 0x3784 -> off=0x0 cb=0000000000000133 uValue=00000000000f63c2 'print_detected_harddisks'
 print_detected_harddisks:                    ; 0xf79c2 LB 0x133
     push bp                                   ; 55                          ; 0xf79c2 logo.c:255
     mov bp, sp                                ; 89 e5                       ; 0xf79c3
@@ -11892,7 +11892,7 @@ print_detected_harddisks:                    ; 0xf79c2 LB 0x133
     pop bx                                    ; 5b                          ; 0xf7af2
     pop bp                                    ; 5d                          ; 0xf7af3
     retn                                      ; c3                          ; 0xf7af4
-  ; disGetNextSymbol 0xf7af5 LB 0x35f7 -> off=0x0 cb=0000000000000024 uValue=00000000000f64f5 'get_boot_drive'
+  ; disGetNextSymbol 0xf7af5 LB 0x3651 -> off=0x0 cb=0000000000000024 uValue=00000000000f64f5 'get_boot_drive'
 get_boot_drive:                              ; 0xf7af5 LB 0x24
     push bx                                   ; 53                          ; 0xf7af5 logo.c:342
     push dx                                   ; 52                          ; 0xf7af6
@@ -11913,7 +11913,7 @@ get_boot_drive:                              ; 0xf7af5 LB 0x24
     pop dx                                    ; 5a                          ; 0xf7b16
     pop bx                                    ; 5b                          ; 0xf7b17
     retn                                      ; c3                          ; 0xf7b18
-  ; disGetNextSymbol 0xf7b19 LB 0x35d3 -> off=0x0 cb=0000000000000254 uValue=00000000000f6519 'show_logo'
+  ; disGetNextSymbol 0xf7b19 LB 0x362d -> off=0x0 cb=0000000000000254 uValue=00000000000f6519 'show_logo'
 show_logo:                                   ; 0xf7b19 LB 0x254
     push bp                                   ; 55                          ; 0xf7b19 logo.c:359
     mov bp, sp                                ; 89 e5                       ; 0xf7b1a
@@ -12160,7 +12160,7 @@ show_logo:                                   ; 0xf7b19 LB 0x254
     pop bx                                    ; 5b                          ; 0xf7d6a
     pop bp                                    ; 5d                          ; 0xf7d6b
     retn                                      ; c3                          ; 0xf7d6c
-  ; disGetNextSymbol 0xf7d6d LB 0x337f -> off=0x0 cb=0000000000000067 uValue=00000000000f676d 'delay_boot'
+  ; disGetNextSymbol 0xf7d6d LB 0x33d9 -> off=0x0 cb=0000000000000067 uValue=00000000000f676d 'delay_boot'
 delay_boot:                                  ; 0xf7d6d LB 0x67
     push bp                                   ; 55                          ; 0xf7d6d logo.c:549
     mov bp, sp                                ; 89 e5                       ; 0xf7d6e
@@ -12214,7 +12214,7 @@ delay_boot:                                  ; 0xf7d6d LB 0x67
     pop bx                                    ; 5b                          ; 0xf7dd1
     pop bp                                    ; 5d                          ; 0xf7dd2
     retn                                      ; c3                          ; 0xf7dd3
-  ; disGetNextSymbol 0xf7dd4 LB 0x3318 -> off=0x0 cb=0000000000000020 uValue=00000000000f67d4 'apm_out_str'
+  ; disGetNextSymbol 0xf7dd4 LB 0x3372 -> off=0x0 cb=0000000000000020 uValue=00000000000f67d4 'apm_out_str'
 apm_out_str:                                 ; 0xf7dd4 LB 0x20
     push bp                                   ; 55                          ; 0xf7dd4 apm.c:142
     mov bp, sp                                ; 89 e5                       ; 0xf7dd5
@@ -12236,7 +12236,7 @@ apm_out_str:                                 ; 0xf7dd4 LB 0x20
     pop bx                                    ; 5b                          ; 0xf7df1
     pop bp                                    ; 5d                          ; 0xf7df2
     retn                                      ; c3                          ; 0xf7df3
-  ; disGetNextSymbol 0xf7df4 LB 0x32f8 -> off=0x1e cb=00000000000000fb uValue=00000000000f6812 'apm_function'
+  ; disGetNextSymbol 0xf7df4 LB 0x3352 -> off=0x1e cb=00000000000000fb uValue=00000000000f6812 'apm_function'
     db  035h, 07eh, 007h, 07fh, 047h, 07eh, 062h, 07eh, 007h, 07fh, 08dh, 07eh, 007h, 07fh, 092h, 07eh
     db  0dch, 07eh, 0dch, 07eh, 0c8h, 07eh, 0d7h, 07eh, 0dch, 07eh, 0dch, 07eh, 0c1h, 07eh
 apm_function:                                ; 0xf7e12 LB 0xfb
@@ -12258,7 +12258,7 @@ apm_function:                                ; 0xf7e12 LB 0xfb
     mov word [bp+010h], strict word 00003h    ; c7 46 10 03 00              ; 0xf7e3f apm.c:157
     jmp near 07f07h                           ; e9 c0 00                    ; 0xf7e44 apm.c:158
     mov word [bp+012h], 0f000h                ; c7 46 12 00 f0              ; 0xf7e47 apm.c:169
-    mov word [bp+00ch], 0b0dbh                ; c7 46 0c db b0              ; 0xf7e4c apm.c:170
+    mov word [bp+00ch], 0b135h                ; c7 46 0c 35 b1              ; 0xf7e4c apm.c:170
     mov word [bp+010h], 0f000h                ; c7 46 10 00 f0              ; 0xf7e51 apm.c:171
     mov ax, strict word 0fff0h                ; b8 f0 ff                    ; 0xf7e56 apm.c:172
     mov word [bp+006h], ax                    ; 89 46 06                    ; 0xf7e59
@@ -12323,7 +12323,7 @@ apm_function:                                ; 0xf7e12 LB 0xfb
     pop si                                    ; 5e                          ; 0xf7f0a
     pop bp                                    ; 5d                          ; 0xf7f0b
     retn                                      ; c3                          ; 0xf7f0c
-  ; disGetNextSymbol 0xf7f0d LB 0x31df -> off=0x3 cb=0000000000000040 uValue=00000000000f6910 '__U4M'
+  ; disGetNextSymbol 0xf7f0d LB 0x3239 -> off=0x3 cb=0000000000000040 uValue=00000000000f6910 '__U4M'
     db  000h, 000h, 000h
 __U4M:                                       ; 0xf7f10 LB 0x40
     pushfw                                    ; 9c                          ; 0xf7f10 __U4M.asm:51
@@ -12351,7 +12351,7 @@ __U4M:                                       ; 0xf7f10 LB 0x40
     popfw                                     ; 9d                          ; 0xf7f3f __U4M.asm:119
     retn                                      ; c3                          ; 0xf7f40 __U4M.asm:120
     times 0xf db 0
-  ; disGetNextSymbol 0xf7f50 LB 0x319c -> off=0x0 cb=0000000000000040 uValue=00000000000f6950 '__U4D'
+  ; disGetNextSymbol 0xf7f50 LB 0x31f6 -> off=0x0 cb=0000000000000040 uValue=00000000000f6950 '__U4D'
 __U4D:                                       ; 0xf7f50 LB 0x40
     pushfw                                    ; 9c                          ; 0xf7f50 __U4D.asm:59
     push eax                                  ; 66 50                       ; 0xf7f51 __U4D.asm:62
@@ -12383,7 +12383,7 @@ __U4D:                                       ; 0xf7f50 LB 0x40
     popfw                                     ; 9d                          ; 0xf7f87 __U4D.asm:146
     retn                                      ; c3                          ; 0xf7f88 __U4D.asm:147
     times 0x7 db 0
-  ; disGetNextSymbol 0xf7f90 LB 0x315c -> off=0x0 cb=0000000000000010 uValue=00000000000f6990 '__U8RS'
+  ; disGetNextSymbol 0xf7f90 LB 0x31b6 -> off=0x0 cb=0000000000000010 uValue=00000000000f6990 '__U8RS'
 __U8RS:                                      ; 0xf7f90 LB 0x10
     test si, si                               ; 85 f6                       ; 0xf7f90 __U8RS.asm:50
     je short 07f9fh                           ; 74 0b                       ; 0xf7f92 __U8RS.asm:51
@@ -12394,7 +12394,7 @@ __U8RS:                                      ; 0xf7f90 LB 0x10
     dec si                                    ; 4e                          ; 0xf7f9c __U8RS.asm:57
     jne short 07f94h                          ; 75 f5                       ; 0xf7f9d __U8RS.asm:58
     retn                                      ; c3                          ; 0xf7f9f __U8RS.asm:60
-  ; disGetNextSymbol 0xf7fa0 LB 0x314c -> off=0x0 cb=0000000000000010 uValue=00000000000f69a0 '__U8LS'
+  ; disGetNextSymbol 0xf7fa0 LB 0x31a6 -> off=0x0 cb=0000000000000010 uValue=00000000000f69a0 '__U8LS'
 __U8LS:                                      ; 0xf7fa0 LB 0x10
     test si, si                               ; 85 f6                       ; 0xf7fa0 __U8LS.asm:50
     je short 07fafh                           ; 74 0b                       ; 0xf7fa2 __U8LS.asm:51
@@ -12405,7 +12405,7 @@ __U8LS:                                      ; 0xf7fa0 LB 0x10
     dec si                                    ; 4e                          ; 0xf7fac __U8LS.asm:57
     jne short 07fa4h                          ; 75 f5                       ; 0xf7fad __U8LS.asm:58
     retn                                      ; c3                          ; 0xf7faf __U8LS.asm:60
-  ; disGetNextSymbol 0xf7fb0 LB 0x313c -> off=0x0 cb=0000000000000010 uValue=00000000000f69b0 '_fmemset_'
+  ; disGetNextSymbol 0xf7fb0 LB 0x3196 -> off=0x0 cb=0000000000000010 uValue=00000000000f69b0 '_fmemset_'
 _fmemset_:                                   ; 0xf7fb0 LB 0x10
     push di                                   ; 57                          ; 0xf7fb0 fmemset.asm:52
     mov es, dx                                ; 8e c2                       ; 0xf7fb1 fmemset.asm:54
@@ -12417,7 +12417,7 @@ _fmemset_:                                   ; 0xf7fb0 LB 0x10
     pop di                                    ; 5f                          ; 0xf7fbb fmemset.asm:60
     retn                                      ; c3                          ; 0xf7fbc fmemset.asm:61
     times 0x3 db 0
-  ; disGetNextSymbol 0xf7fc0 LB 0x312c -> off=0x0 cb=000000000000001a uValue=00000000000f69c0 '_fmemcpy_'
+  ; disGetNextSymbol 0xf7fc0 LB 0x3186 -> off=0x0 cb=000000000000001a uValue=00000000000f69c0 '_fmemcpy_'
 _fmemcpy_:                                   ; 0xf7fc0 LB 0x1a
     push bp                                   ; 55                          ; 0xf7fc0 fmemcpy.asm:52
     db  08bh, 0ech
@@ -12440,7 +12440,7 @@ _fmemcpy_:                                   ; 0xf7fc0 LB 0x1a
     ; mov sp, bp                                ; 8b e5                     ; 0xf7fd6 fmemcpy.asm:68
     pop bp                                    ; 5d                          ; 0xf7fd8 fmemcpy.asm:69
     retn                                      ; c3                          ; 0xf7fd9 fmemcpy.asm:70
-  ; disGetNextSymbol 0xf7fda LB 0x3112 -> off=0x0 cb=0000000000000024 uValue=00000000000f69da 'pci16_select_reg'
+  ; disGetNextSymbol 0xf7fda LB 0x316c -> off=0x0 cb=0000000000000024 uValue=00000000000f69da 'pci16_select_reg'
 pci16_select_reg:                            ; 0xf7fda LB 0x24
     push bp                                   ; 55                          ; 0xf7fda pcibios.c:198
     mov bp, sp                                ; 89 e5                       ; 0xf7fdb
@@ -12458,7 +12458,7 @@ pci16_select_reg:                            ; 0xf7fda LB 0x24
     pop bx                                    ; 5b                          ; 0xf7ffb
     pop bp                                    ; 5d                          ; 0xf7ffc
     retn                                      ; c3                          ; 0xf7ffd
-  ; disGetNextSymbol 0xf7ffe LB 0x30ee -> off=0x0 cb=00000000000000f3 uValue=00000000000f69fe 'pci16_find_device'
+  ; disGetNextSymbol 0xf7ffe LB 0x3148 -> off=0x0 cb=00000000000000f3 uValue=00000000000f69fe 'pci16_find_device'
 pci16_find_device:                           ; 0xf7ffe LB 0xf3
     push bp                                   ; 55                          ; 0xf7ffe pcibios.c:233
     mov bp, sp                                ; 89 e5                       ; 0xf7fff
@@ -12562,7 +12562,7 @@ pci16_find_device:                           ; 0xf7ffe LB 0xf3
     pop si                                    ; 5e                          ; 0xf80ec
     pop bp                                    ; 5d                          ; 0xf80ed
     retn 00002h                               ; c2 02 00                    ; 0xf80ee
-  ; disGetNextSymbol 0xf80f1 LB 0x2ffb -> off=0xc cb=00000000000001db uValue=00000000000f6afd 'pci16_function'
+  ; disGetNextSymbol 0xf80f1 LB 0x3055 -> off=0xc cb=00000000000001db uValue=00000000000f6afd 'pci16_function'
     db  0e3h, 081h, 0fdh, 081h, 010h, 082h, 025h, 082h, 038h, 082h, 04bh, 082h
 pci16_function:                              ; 0xf80fd LB 0x1db
     push bp                                   ; 55                          ; 0xf80fd pcibios.c:326
@@ -12740,7 +12740,7 @@ pci16_function:                              ; 0xf80fd LB 0x1db
     pop si                                    ; 5e                          ; 0xf82d5
     pop bp                                    ; 5d                          ; 0xf82d6
     retn                                      ; c3                          ; 0xf82d7
-  ; disGetNextSymbol 0xf82d8 LB 0x2e14 -> off=0x0 cb=000000000000002b uValue=00000000000f6cd8 'pci_find_classcode'
+  ; disGetNextSymbol 0xf82d8 LB 0x2e6e -> off=0x0 cb=000000000000002b uValue=00000000000f6cd8 'pci_find_classcode'
 pci_find_classcode:                          ; 0xf82d8 LB 0x2b
     push bp                                   ; 55                          ; 0xf82d8 pciutil.c:135
     mov bp, sp                                ; 89 e5                       ; 0xf82d9
@@ -12765,7 +12765,7 @@ pci_find_classcode:                          ; 0xf82d8 LB 0x2b
     pop bx                                    ; 5b                          ; 0xf8300
     pop bp                                    ; 5d                          ; 0xf8301
     retn                                      ; c3                          ; 0xf8302
-  ; disGetNextSymbol 0xf8303 LB 0x2de9 -> off=0x0 cb=000000000000001a uValue=00000000000f6d03 'pci_find_class_noif'
+  ; disGetNextSymbol 0xf8303 LB 0x2e43 -> off=0x0 cb=000000000000001a uValue=00000000000f6d03 'pci_find_class_noif'
 pci_find_class_noif:                         ; 0xf8303 LB 0x1a
     push bp                                   ; 55                          ; 0xf8303 pciutil.c:155
     mov bp, sp                                ; 89 e5                       ; 0xf8304
@@ -12783,7 +12783,7 @@ pci_find_class_noif:                         ; 0xf8303 LB 0x1a
     pop bx                                    ; 5b                          ; 0xf831a
     pop bp                                    ; 5d                          ; 0xf831b
     retn                                      ; c3                          ; 0xf831c
-  ; disGetNextSymbol 0xf831d LB 0x2dcf -> off=0x0 cb=0000000000000025 uValue=00000000000f6d1d 'pci_find_device'
+  ; disGetNextSymbol 0xf831d LB 0x2e29 -> off=0x0 cb=0000000000000025 uValue=00000000000f6d1d 'pci_find_device'
 pci_find_device:                             ; 0xf831d LB 0x25
     push bp                                   ; 55                          ; 0xf831d pciutil.c:176
     mov bp, sp                                ; 89 e5                       ; 0xf831e
@@ -12805,7 +12805,7 @@ pci_find_device:                             ; 0xf831d LB 0x25
     pop bx                                    ; 5b                          ; 0xf833f
     pop bp                                    ; 5d                          ; 0xf8340
     retn                                      ; c3                          ; 0xf8341
-  ; disGetNextSymbol 0xf8342 LB 0x2daa -> off=0x0 cb=0000000000000024 uValue=00000000000f6d42 'pci_read_config_byte'
+  ; disGetNextSymbol 0xf8342 LB 0x2e04 -> off=0x0 cb=0000000000000024 uValue=00000000000f6d42 'pci_read_config_byte'
 pci_read_config_byte:                        ; 0xf8342 LB 0x24
     push bp                                   ; 55                          ; 0xf8342 pciutil.c:181
     mov bp, sp                                ; 89 e5                       ; 0xf8343
@@ -12825,7 +12825,7 @@ pci_read_config_byte:                        ; 0xf8342 LB 0x24
     pop cx                                    ; 59                          ; 0xf8363
     pop bp                                    ; 5d                          ; 0xf8364
     retn                                      ; c3                          ; 0xf8365
-  ; disGetNextSymbol 0xf8366 LB 0x2d86 -> off=0x0 cb=0000000000000022 uValue=00000000000f6d66 'pci_read_config_word'
+  ; disGetNextSymbol 0xf8366 LB 0x2de0 -> off=0x0 cb=0000000000000022 uValue=00000000000f6d66 'pci_read_config_word'
 pci_read_config_word:                        ; 0xf8366 LB 0x22
     push bp                                   ; 55                          ; 0xf8366 pciutil.c:186
     mov bp, sp                                ; 89 e5                       ; 0xf8367
@@ -12845,7 +12845,7 @@ pci_read_config_word:                        ; 0xf8366 LB 0x22
     pop cx                                    ; 59                          ; 0xf8385
     pop bp                                    ; 5d                          ; 0xf8386
     retn                                      ; c3                          ; 0xf8387
-  ; disGetNextSymbol 0xf8388 LB 0x2d64 -> off=0x0 cb=0000000000000027 uValue=00000000000f6d88 'pci_read_config_dword'
+  ; disGetNextSymbol 0xf8388 LB 0x2dbe -> off=0x0 cb=0000000000000027 uValue=00000000000f6d88 'pci_read_config_dword'
 pci_read_config_dword:                       ; 0xf8388 LB 0x27
     push bp                                   ; 55                          ; 0xf8388 pciutil.c:191
     mov bp, sp                                ; 89 e5                       ; 0xf8389
@@ -12867,7 +12867,7 @@ pci_read_config_dword:                       ; 0xf8388 LB 0x27
     pop cx                                    ; 59                          ; 0xf83ac
     pop bp                                    ; 5d                          ; 0xf83ad
     retn                                      ; c3                          ; 0xf83ae
-  ; disGetNextSymbol 0xf83af LB 0x2d3d -> off=0x0 cb=000000000000001c uValue=00000000000f6daf 'pci_write_config_word'
+  ; disGetNextSymbol 0xf83af LB 0x2d97 -> off=0x0 cb=000000000000001c uValue=00000000000f6daf 'pci_write_config_word'
 pci_write_config_word:                       ; 0xf83af LB 0x1c
     push bp                                   ; 55                          ; 0xf83af pciutil.c:201
     mov bp, sp                                ; 89 e5                       ; 0xf83b0
@@ -12883,7 +12883,7 @@ pci_write_config_word:                       ; 0xf83af LB 0x1c
     pop di                                    ; 5f                          ; 0xf83c8
     pop bp                                    ; 5d                          ; 0xf83c9
     retn                                      ; c3                          ; 0xf83ca
-  ; disGetNextSymbol 0xf83cb LB 0x2d21 -> off=0x0 cb=000000000000001c uValue=00000000000f6dcb 'pci_write_config_byte'
+  ; disGetNextSymbol 0xf83cb LB 0x2d7b -> off=0x0 cb=000000000000001c uValue=00000000000f6dcb 'pci_write_config_byte'
 pci_write_config_byte:                       ; 0xf83cb LB 0x1c
     push bp                                   ; 55                          ; 0xf83cb pciutil.c:206
     mov bp, sp                                ; 89 e5                       ; 0xf83cc
@@ -12899,7 +12899,7 @@ pci_write_config_byte:                       ; 0xf83cb LB 0x1c
     pop di                                    ; 5f                          ; 0xf83e4
     pop bp                                    ; 5d                          ; 0xf83e5
     retn                                      ; c3                          ; 0xf83e6
-  ; disGetNextSymbol 0xf83e7 LB 0x2d05 -> off=0x0 cb=000000000000002f uValue=00000000000f6de7 'pci_write_config_dword'
+  ; disGetNextSymbol 0xf83e7 LB 0x2d5f -> off=0x0 cb=000000000000002f uValue=00000000000f6de7 'pci_write_config_dword'
 pci_write_config_dword:                      ; 0xf83e7 LB 0x2f
     push bp                                   ; 55                          ; 0xf83e7 pciutil.c:211
     mov bp, sp                                ; 89 e5                       ; 0xf83e8
@@ -12923,7 +12923,7 @@ pci_write_config_dword:                      ; 0xf83e7 LB 0x2f
     pop cx                                    ; 59                          ; 0xf8411
     pop bp                                    ; 5d                          ; 0xf8412
     retn 00004h                               ; c2 04 00                    ; 0xf8413
-  ; disGetNextSymbol 0xf8416 LB 0x2cd6 -> off=0x0 cb=000000000000001b uValue=00000000000f6e16 'ahci_ctrl_extract_bits'
+  ; disGetNextSymbol 0xf8416 LB 0x2d30 -> off=0x0 cb=000000000000001b uValue=00000000000f6e16 'ahci_ctrl_extract_bits'
 ahci_ctrl_extract_bits:                      ; 0xf8416 LB 0x1b
     push si                                   ; 56                          ; 0xf8416 ahci.c:287
     push bp                                   ; 55                          ; 0xf8417
@@ -12939,7 +12939,7 @@ ahci_ctrl_extract_bits:                      ; 0xf8416 LB 0x1b
     pop bp                                    ; 5d                          ; 0xf842c ahci.c:290
     pop si                                    ; 5e                          ; 0xf842d
     retn 00002h                               ; c2 02 00                    ; 0xf842e
-  ; disGetNextSymbol 0xf8431 LB 0x2cbb -> off=0x0 cb=000000000000001e uValue=00000000000f6e31 'ahci_addr_to_phys'
+  ; disGetNextSymbol 0xf8431 LB 0x2d15 -> off=0x0 cb=000000000000001e uValue=00000000000f6e31 'ahci_addr_to_phys'
 ahci_addr_to_phys:                           ; 0xf8431 LB 0x1e
     push bx                                   ; 53                          ; 0xf8431 ahci.c:295
     push cx                                   ; 51                          ; 0xf8432
@@ -12959,7 +12959,7 @@ ahci_addr_to_phys:                           ; 0xf8431 LB 0x1e
     pop cx                                    ; 59                          ; 0xf844c
     pop bx                                    ; 5b                          ; 0xf844d
     retn                                      ; c3                          ; 0xf844e
-  ; disGetNextSymbol 0xf844f LB 0x2c9d -> off=0x0 cb=000000000000014b uValue=00000000000f6e4f 'ahci_port_cmd_sync'
+  ; disGetNextSymbol 0xf844f LB 0x2cf7 -> off=0x0 cb=000000000000014b uValue=00000000000f6e4f 'ahci_port_cmd_sync'
 ahci_port_cmd_sync:                          ; 0xf844f LB 0x14b
     push bp                                   ; 55                          ; 0xf844f ahci.c:303
     mov bp, sp                                ; 89 e5                       ; 0xf8450
@@ -13111,7 +13111,7 @@ ahci_port_cmd_sync:                          ; 0xf844f LB 0x14b
     pop cx                                    ; 59                          ; 0xf8597
     pop bp                                    ; 5d                          ; 0xf8598
     retn                                      ; c3                          ; 0xf8599
-  ; disGetNextSymbol 0xf859a LB 0x2b52 -> off=0x0 cb=000000000000022d uValue=00000000000f6f9a 'ahci_cmd_data'
+  ; disGetNextSymbol 0xf859a LB 0x2bac -> off=0x0 cb=000000000000022d uValue=00000000000f6f9a 'ahci_cmd_data'
 ahci_cmd_data:                               ; 0xf859a LB 0x22d
     push bp                                   ; 55                          ; 0xf859a ahci.c:348
     mov bp, sp                                ; 89 e5                       ; 0xf859b
@@ -13283,7 +13283,7 @@ ahci_cmd_data:                               ; 0xf859a LB 0x22d
     pop cx                                    ; 59                          ; 0xf87c4
     pop bp                                    ; 5d                          ; 0xf87c5
     retn                                      ; c3                          ; 0xf87c6
-  ; disGetNextSymbol 0xf87c7 LB 0x2925 -> off=0x0 cb=000000000000017f uValue=00000000000f71c7 'ahci_port_deinit_current'
+  ; disGetNextSymbol 0xf87c7 LB 0x297f -> off=0x0 cb=000000000000017f uValue=00000000000f71c7 'ahci_port_deinit_current'
 ahci_port_deinit_current:                    ; 0xf87c7 LB 0x17f
     push bp                                   ; 55                          ; 0xf87c7 ahci.c:427
     mov bp, sp                                ; 89 e5                       ; 0xf87c8
@@ -13466,7 +13466,7 @@ ahci_port_deinit_current:                    ; 0xf87c7 LB 0x17f
     pop bx                                    ; 5b                          ; 0xf8943
     pop bp                                    ; 5d                          ; 0xf8944
     retn                                      ; c3                          ; 0xf8945
-  ; disGetNextSymbol 0xf8946 LB 0x27a6 -> off=0x0 cb=000000000000024a uValue=00000000000f7346 'ahci_port_init'
+  ; disGetNextSymbol 0xf8946 LB 0x2800 -> off=0x0 cb=000000000000024a uValue=00000000000f7346 'ahci_port_init'
 ahci_port_init:                              ; 0xf8946 LB 0x24a
     push bp                                   ; 55                          ; 0xf8946 ahci.c:473
     mov bp, sp                                ; 89 e5                       ; 0xf8947
@@ -13712,7 +13712,7 @@ ahci_port_init:                              ; 0xf8946 LB 0x24a
     pop cx                                    ; 59                          ; 0xf8b8d
     pop bp                                    ; 5d                          ; 0xf8b8e
     retn                                      ; c3                          ; 0xf8b8f
-  ; disGetNextSymbol 0xf8b90 LB 0x255c -> off=0x0 cb=0000000000000084 uValue=00000000000f7590 'ahci_read_sectors'
+  ; disGetNextSymbol 0xf8b90 LB 0x25b6 -> off=0x0 cb=0000000000000084 uValue=00000000000f7590 'ahci_read_sectors'
 ahci_read_sectors:                           ; 0xf8b90 LB 0x84
     push bp                                   ; 55                          ; 0xf8b90 ahci.c:523
     mov bp, sp                                ; 89 e5                       ; 0xf8b91
@@ -13762,7 +13762,7 @@ ahci_read_sectors:                           ; 0xf8b90 LB 0x84
     pop si                                    ; 5e                          ; 0xf8c0f
     pop bp                                    ; 5d                          ; 0xf8c10
     retn 00004h                               ; c2 04 00                    ; 0xf8c11
-  ; disGetNextSymbol 0xf8c14 LB 0x24d8 -> off=0x0 cb=0000000000000084 uValue=00000000000f7614 'ahci_write_sectors'
+  ; disGetNextSymbol 0xf8c14 LB 0x2532 -> off=0x0 cb=0000000000000084 uValue=00000000000f7614 'ahci_write_sectors'
 ahci_write_sectors:                          ; 0xf8c14 LB 0x84
     push bp                                   ; 55                          ; 0xf8c14 ahci.c:552
     mov bp, sp                                ; 89 e5                       ; 0xf8c15
@@ -13812,7 +13812,7 @@ ahci_write_sectors:                          ; 0xf8c14 LB 0x84
     pop si                                    ; 5e                          ; 0xf8c93
     pop bp                                    ; 5d                          ; 0xf8c94
     retn 00004h                               ; c2 04 00                    ; 0xf8c95
-  ; disGetNextSymbol 0xf8c98 LB 0x2454 -> off=0x0 cb=0000000000000129 uValue=00000000000f7698 'ahci_cmd_packet'
+  ; disGetNextSymbol 0xf8c98 LB 0x24ae -> off=0x0 cb=0000000000000129 uValue=00000000000f7698 'ahci_cmd_packet'
 ahci_cmd_packet:                             ; 0xf8c98 LB 0x129
     push bp                                   ; 55                          ; 0xf8c98 ahci.c:579
     mov bp, sp                                ; 89 e5                       ; 0xf8c99
@@ -13913,7 +13913,7 @@ ahci_cmd_packet:                             ; 0xf8c98 LB 0x129
     pop si                                    ; 5e                          ; 0xf8dbc
     pop bp                                    ; 5d                          ; 0xf8dbd
     retn 0000ah                               ; c2 0a 00                    ; 0xf8dbe
-  ; disGetNextSymbol 0xf8dc1 LB 0x232b -> off=0x0 cb=000000000000049f uValue=00000000000f77c1 'ahci_port_detect_device'
+  ; disGetNextSymbol 0xf8dc1 LB 0x2385 -> off=0x0 cb=000000000000049f uValue=00000000000f77c1 'ahci_port_detect_device'
 ahci_port_detect_device:                     ; 0xf8dc1 LB 0x49f
     push bp                                   ; 55                          ; 0xf8dc1 ahci.c:625
     mov bp, sp                                ; 89 e5                       ; 0xf8dc2
@@ -14341,7 +14341,7 @@ ahci_port_detect_device:                     ; 0xf8dc1 LB 0x49f
     pop cx                                    ; 59                          ; 0xf925d
     pop bp                                    ; 5d                          ; 0xf925e
     retn                                      ; c3                          ; 0xf925f
-  ; disGetNextSymbol 0xf9260 LB 0x1e8c -> off=0x0 cb=000000000000014d uValue=00000000000f7c60 'ahci_hba_init'
+  ; disGetNextSymbol 0xf9260 LB 0x1ee6 -> off=0x0 cb=000000000000014d uValue=00000000000f7c60 'ahci_hba_init'
 ahci_hba_init:                               ; 0xf9260 LB 0x14d
     push bp                                   ; 55                          ; 0xf9260 ahci.c:824
     mov bp, sp                                ; 89 e5                       ; 0xf9261
@@ -14497,7 +14497,7 @@ ahci_hba_init:                               ; 0xf9260 LB 0x14d
     pop bx                                    ; 5b                          ; 0xf93aa
     pop bp                                    ; 5d                          ; 0xf93ab
     retn                                      ; c3                          ; 0xf93ac
-  ; disGetNextSymbol 0xf93ad LB 0x1d3f -> off=0x17 cb=0000000000000116 uValue=00000000000f7dc4 'ahci_init'
+  ; disGetNextSymbol 0xf93ad LB 0x1d99 -> off=0x17 cb=0000000000000116 uValue=00000000000f7dc4 'ahci_init'
     db  00bh, 005h, 004h, 003h, 002h, 001h, 000h, 094h, 094h, 072h, 094h, 078h, 094h, 07eh, 094h, 084h
     db  094h, 08ah, 094h, 090h, 094h, 094h, 094h
 ahci_init:                                   ; 0xf93c4 LB 0x116
@@ -14610,7 +14610,7 @@ ahci_init:                                   ; 0xf93c4 LB 0x116
     pop si                                    ; 5e                          ; 0xf94d7
     pop bp                                    ; 5d                          ; 0xf94d8
     retn                                      ; c3                          ; 0xf94d9
-  ; disGetNextSymbol 0xf94da LB 0x1c12 -> off=0x0 cb=0000000000000114 uValue=00000000000f7eda 'scsi_read_sectors'
+  ; disGetNextSymbol 0xf94da LB 0x1c6c -> off=0x0 cb=0000000000000114 uValue=00000000000f7eda 'scsi_read_sectors'
 scsi_read_sectors:                           ; 0xf94da LB 0x114
     push bp                                   ; 55                          ; 0xf94da scsi.c:112
     mov bp, sp                                ; 89 e5                       ; 0xf94db
@@ -14711,7 +14711,7 @@ scsi_read_sectors:                           ; 0xf94da LB 0x114
     pop si                                    ; 5e                          ; 0xf95e9
     pop bp                                    ; 5d                          ; 0xf95ea
     retn 00004h                               ; c2 04 00                    ; 0xf95eb
-  ; disGetNextSymbol 0xf95ee LB 0x1afe -> off=0x0 cb=0000000000000114 uValue=00000000000f7fee 'scsi_write_sectors'
+  ; disGetNextSymbol 0xf95ee LB 0x1b58 -> off=0x0 cb=0000000000000114 uValue=00000000000f7fee 'scsi_write_sectors'
 scsi_write_sectors:                          ; 0xf95ee LB 0x114
     push bp                                   ; 55                          ; 0xf95ee scsi.c:166
     mov bp, sp                                ; 89 e5                       ; 0xf95ef
@@ -14812,7 +14812,7 @@ scsi_write_sectors:                          ; 0xf95ee LB 0x114
     pop si                                    ; 5e                          ; 0xf96fd
     pop bp                                    ; 5d                          ; 0xf96fe
     retn 00004h                               ; c2 04 00                    ; 0xf96ff
-  ; disGetNextSymbol 0xf9702 LB 0x19ea -> off=0x0 cb=0000000000000114 uValue=00000000000f8102 'scsi_cmd_packet'
+  ; disGetNextSymbol 0xf9702 LB 0x1a44 -> off=0x0 cb=0000000000000114 uValue=00000000000f8102 'scsi_cmd_packet'
 scsi_cmd_packet:                             ; 0xf9702 LB 0x114
     push bp                                   ; 55                          ; 0xf9702 scsi.c:229
     mov bp, sp                                ; 89 e5                       ; 0xf9703
@@ -14909,7 +14909,7 @@ scsi_cmd_packet:                             ; 0xf9702 LB 0x114
     pop si                                    ; 5e                          ; 0xf9811
     pop bp                                    ; 5d                          ; 0xf9812
     retn 0000ah                               ; c2 0a 00                    ; 0xf9813
-  ; disGetNextSymbol 0xf9816 LB 0x18d6 -> off=0x0 cb=000000000000048a uValue=00000000000f8216 'scsi_enumerate_attached_devices'
+  ; disGetNextSymbol 0xf9816 LB 0x1930 -> off=0x0 cb=000000000000048a uValue=00000000000f8216 'scsi_enumerate_attached_devices'
 scsi_enumerate_attached_devices:             ; 0xf9816 LB 0x48a
     push bp                                   ; 55                          ; 0xf9816 scsi.c:283
     mov bp, sp                                ; 89 e5                       ; 0xf9817
@@ -15312,7 +15312,7 @@ scsi_enumerate_attached_devices:             ; 0xf9816 LB 0x48a
     pop cx                                    ; 59                          ; 0xf9c9d
     pop bp                                    ; 5d                          ; 0xf9c9e
     retn                                      ; c3                          ; 0xf9c9f
-  ; disGetNextSymbol 0xf9ca0 LB 0x144c -> off=0x0 cb=000000000000009b uValue=00000000000f86a0 'scsi_init'
+  ; disGetNextSymbol 0xf9ca0 LB 0x14a6 -> off=0x0 cb=000000000000009b uValue=00000000000f86a0 'scsi_init'
 scsi_init:                                   ; 0xf9ca0 LB 0x9b
     push bp                                   ; 55                          ; 0xf9ca0 scsi.c:501
     mov bp, sp                                ; 89 e5                       ; 0xf9ca1
@@ -15374,7 +15374,7 @@ scsi_init:                                   ; 0xf9ca0 LB 0x9b
     pop si                                    ; 5e                          ; 0xf9d38
     pop bp                                    ; 5d                          ; 0xf9d39
     retn                                      ; c3                          ; 0xf9d3a
-  ; disGetNextSymbol 0xf9d3b LB 0x13b1 -> off=0x0 cb=000000000000001e uValue=00000000000f873b 'buslogic_addr_to_phys'
+  ; disGetNextSymbol 0xf9d3b LB 0x140b -> off=0x0 cb=000000000000001e uValue=00000000000f873b 'buslogic_addr_to_phys'
 buslogic_addr_to_phys:                       ; 0xf9d3b LB 0x1e
     push bx                                   ; 53                          ; 0xf9d3b buslogic.c:122
     push cx                                   ; 51                          ; 0xf9d3c
@@ -15394,7 +15394,7 @@ buslogic_addr_to_phys:                       ; 0xf9d3b LB 0x1e
     pop cx                                    ; 59                          ; 0xf9d56
     pop bx                                    ; 5b                          ; 0xf9d57
     retn                                      ; c3                          ; 0xf9d58
-  ; disGetNextSymbol 0xf9d59 LB 0x1393 -> off=0x0 cb=0000000000000084 uValue=00000000000f8759 'buslogic_cmd'
+  ; disGetNextSymbol 0xf9d59 LB 0x13ed -> off=0x0 cb=0000000000000084 uValue=00000000000f8759 'buslogic_cmd'
 buslogic_cmd:                                ; 0xf9d59 LB 0x84
     push bp                                   ; 55                          ; 0xf9d59 buslogic.c:127
     mov bp, sp                                ; 89 e5                       ; 0xf9d5a
@@ -15462,7 +15462,7 @@ buslogic_cmd:                                ; 0xf9d59 LB 0x84
     pop cx                                    ; 59                          ; 0xf9dd8
     pop bp                                    ; 5d                          ; 0xf9dd9
     retn 0000ch                               ; c2 0c 00                    ; 0xf9dda
-  ; disGetNextSymbol 0xf9ddd LB 0x130f -> off=0x0 cb=00000000000000b4 uValue=00000000000f87dd 'buslogic_scsi_cmd_data_out'
+  ; disGetNextSymbol 0xf9ddd LB 0x1369 -> off=0x0 cb=00000000000000b4 uValue=00000000000f87dd 'buslogic_scsi_cmd_data_out'
 buslogic_scsi_cmd_data_out:                  ; 0xf9ddd LB 0xb4
     push bp                                   ; 55                          ; 0xf9ddd buslogic.c:152
     mov bp, sp                                ; 89 e5                       ; 0xf9dde
@@ -15535,7 +15535,7 @@ buslogic_scsi_cmd_data_out:                  ; 0xf9ddd LB 0xb4
     pop cx                                    ; 59                          ; 0xf9e8c
     pop bp                                    ; 5d                          ; 0xf9e8d
     retn 0000eh                               ; c2 0e 00                    ; 0xf9e8e
-  ; disGetNextSymbol 0xf9e91 LB 0x125b -> off=0x0 cb=00000000000000b4 uValue=00000000000f8891 'buslogic_scsi_cmd_data_in'
+  ; disGetNextSymbol 0xf9e91 LB 0x12b5 -> off=0x0 cb=00000000000000b4 uValue=00000000000f8891 'buslogic_scsi_cmd_data_in'
 buslogic_scsi_cmd_data_in:                   ; 0xf9e91 LB 0xb4
     push bp                                   ; 55                          ; 0xf9e91 buslogic.c:181
     mov bp, sp                                ; 89 e5                       ; 0xf9e92
@@ -15608,7 +15608,7 @@ buslogic_scsi_cmd_data_in:                   ; 0xf9e91 LB 0xb4
     pop cx                                    ; 59                          ; 0xf9f40
     pop bp                                    ; 5d                          ; 0xf9f41
     retn 0000eh                               ; c2 0e 00                    ; 0xf9f42
-  ; disGetNextSymbol 0xf9f45 LB 0x11a7 -> off=0x0 cb=0000000000000022 uValue=00000000000f8945 'buslogic_scsi_hba_init'
+  ; disGetNextSymbol 0xf9f45 LB 0x1201 -> off=0x0 cb=0000000000000022 uValue=00000000000f8945 'buslogic_scsi_hba_init'
 buslogic_scsi_hba_init:                      ; 0xf9f45 LB 0x22
     push bp                                   ; 55                          ; 0xf9f45 buslogic.c:215
     mov bp, sp                                ; 89 e5                       ; 0xf9f46
@@ -15629,7 +15629,7 @@ buslogic_scsi_hba_init:                      ; 0xf9f45 LB 0x22
     pop bx                                    ; 5b                          ; 0xf9f64
     pop bp                                    ; 5d                          ; 0xf9f65
     retn                                      ; c3                          ; 0xf9f66
-  ; disGetNextSymbol 0xf9f67 LB 0x1185 -> off=0x0 cb=0000000000000051 uValue=00000000000f8967 'buslogic_scsi_init'
+  ; disGetNextSymbol 0xf9f67 LB 0x11df -> off=0x0 cb=0000000000000051 uValue=00000000000f8967 'buslogic_scsi_init'
 buslogic_scsi_init:                          ; 0xf9f67 LB 0x51
     push bp                                   ; 55                          ; 0xf9f67 buslogic.c:227
     mov bp, sp                                ; 89 e5                       ; 0xf9f68
@@ -15666,7 +15666,7 @@ buslogic_scsi_init:                          ; 0xf9f67 LB 0x51
     pop si                                    ; 5e                          ; 0xf9fb5
     pop bp                                    ; 5d                          ; 0xf9fb6
     retn                                      ; c3                          ; 0xf9fb7
-  ; disGetNextSymbol 0xf9fb8 LB 0x1134 -> off=0x0 cb=0000000000000024 uValue=00000000000f89b8 'btaha_scsi_init'
+  ; disGetNextSymbol 0xf9fb8 LB 0x118e -> off=0x0 cb=0000000000000024 uValue=00000000000f89b8 'btaha_scsi_init'
 btaha_scsi_init:                             ; 0xf9fb8 LB 0x24
     push bp                                   ; 55                          ; 0xf9fb8 buslogic.c:259
     mov bp, sp                                ; 89 e5                       ; 0xf9fb9
@@ -15685,7 +15685,7 @@ btaha_scsi_init:                             ; 0xf9fb8 LB 0x24
     pop si                                    ; 5e                          ; 0xf9fd9
     pop bp                                    ; 5d                          ; 0xf9fda
     retn                                      ; c3                          ; 0xf9fdb
-  ; disGetNextSymbol 0xf9fdc LB 0x1110 -> off=0x0 cb=0000000000000055 uValue=00000000000f89dc 'btaha_scsi_detect'
+  ; disGetNextSymbol 0xf9fdc LB 0x116a -> off=0x0 cb=0000000000000055 uValue=00000000000f89dc 'btaha_scsi_detect'
 btaha_scsi_detect:                           ; 0xf9fdc LB 0x55
     push bp                                   ; 55                          ; 0xf9fdc buslogic.c:272
     mov bp, sp                                ; 89 e5                       ; 0xf9fdd
@@ -15738,7 +15738,7 @@ btaha_scsi_detect:                           ; 0xf9fdc LB 0x55
     pop bx                                    ; 5b                          ; 0xfa02e
     pop bp                                    ; 5d                          ; 0xfa02f
     retn                                      ; c3                          ; 0xfa030
-  ; disGetNextSymbol 0xfa031 LB 0x10bb -> off=0x0 cb=000000000000001e uValue=00000000000f8a31 'lsilogic_addr_to_phys'
+  ; disGetNextSymbol 0xfa031 LB 0x1115 -> off=0x0 cb=000000000000001e uValue=00000000000f8a31 'lsilogic_addr_to_phys'
 lsilogic_addr_to_phys:                       ; 0xfa031 LB 0x1e
     push bx                                   ; 53                          ; 0xfa031 lsilogic.c:350
     push cx                                   ; 51                          ; 0xfa032
@@ -15758,7 +15758,7 @@ lsilogic_addr_to_phys:                       ; 0xfa031 LB 0x1e
     pop cx                                    ; 59                          ; 0xfa04c
     pop bx                                    ; 5b                          ; 0xfa04d
     retn                                      ; c3                          ; 0xfa04e
-  ; disGetNextSymbol 0xfa04f LB 0x109d -> off=0x0 cb=00000000000000f6 uValue=00000000000f8a4f 'lsilogic_cmd'
+  ; disGetNextSymbol 0xfa04f LB 0x10f7 -> off=0x0 cb=00000000000000f6 uValue=00000000000f8a4f 'lsilogic_cmd'
 lsilogic_cmd:                                ; 0xfa04f LB 0xf6
     push bp                                   ; 55                          ; 0xfa04f lsilogic.c:355
     mov bp, sp                                ; 89 e5                       ; 0xfa050
@@ -15860,7 +15860,7 @@ lsilogic_cmd:                                ; 0xfa04f LB 0xf6
     pop si                                    ; 5e                          ; 0xfa140
     pop bp                                    ; 5d                          ; 0xfa141
     retn 00008h                               ; c2 08 00                    ; 0xfa142
-  ; disGetNextSymbol 0xfa145 LB 0xfa7 -> off=0x0 cb=00000000000000ff uValue=00000000000f8b45 'lsilogic_scsi_cmd_exec'
+  ; disGetNextSymbol 0xfa145 LB 0x1001 -> off=0x0 cb=00000000000000ff uValue=00000000000f8b45 'lsilogic_scsi_cmd_exec'
 lsilogic_scsi_cmd_exec:                      ; 0xfa145 LB 0xff
     push bp                                   ; 55                          ; 0xfa145 lsilogic.c:385
     mov bp, sp                                ; 89 e5                       ; 0xfa146
@@ -15967,7 +15967,7 @@ lsilogic_scsi_cmd_exec:                      ; 0xfa145 LB 0xff
     pop bx                                    ; 5b                          ; 0xfa241
     pop bp                                    ; 5d                          ; 0xfa242
     retn                                      ; c3                          ; 0xfa243
-  ; disGetNextSymbol 0xfa244 LB 0xea8 -> off=0x0 cb=0000000000000124 uValue=00000000000f8c44 'lsilogic_scsi_cmd_data_out'
+  ; disGetNextSymbol 0xfa244 LB 0xf02 -> off=0x0 cb=0000000000000124 uValue=00000000000f8c44 'lsilogic_scsi_cmd_data_out'
 lsilogic_scsi_cmd_data_out:                  ; 0xfa244 LB 0x124
     push bp                                   ; 55                          ; 0xfa244 lsilogic.c:434
     mov bp, sp                                ; 89 e5                       ; 0xfa245
@@ -16064,7 +16064,7 @@ lsilogic_scsi_cmd_data_out:                  ; 0xfa244 LB 0x124
     pop cx                                    ; 59                          ; 0xfa363
     pop bp                                    ; 5d                          ; 0xfa364
     retn 0000eh                               ; c2 0e 00                    ; 0xfa365
-  ; disGetNextSymbol 0xfa368 LB 0xd84 -> off=0x0 cb=0000000000000124 uValue=00000000000f8d68 'lsilogic_scsi_cmd_data_in'
+  ; disGetNextSymbol 0xfa368 LB 0xdde -> off=0x0 cb=0000000000000124 uValue=00000000000f8d68 'lsilogic_scsi_cmd_data_in'
 lsilogic_scsi_cmd_data_in:                   ; 0xfa368 LB 0x124
     push bp                                   ; 55                          ; 0xfa368 lsilogic.c:497
     mov bp, sp                                ; 89 e5                       ; 0xfa369
@@ -16161,7 +16161,7 @@ lsilogic_scsi_cmd_data_in:                   ; 0xfa368 LB 0x124
     pop cx                                    ; 59                          ; 0xfa487
     pop bp                                    ; 5d                          ; 0xfa488
     retn 0000eh                               ; c2 0e 00                    ; 0xfa489
-  ; disGetNextSymbol 0xfa48c LB 0xc60 -> off=0x0 cb=00000000000000f2 uValue=00000000000f8e8c 'lsilogic_scsi_hba_init'
+  ; disGetNextSymbol 0xfa48c LB 0xcba -> off=0x0 cb=00000000000000f2 uValue=00000000000f8e8c 'lsilogic_scsi_hba_init'
 lsilogic_scsi_hba_init:                      ; 0xfa48c LB 0xf2
     push bp                                   ; 55                          ; 0xfa48c lsilogic.c:564
     mov bp, sp                                ; 89 e5                       ; 0xfa48d
@@ -16267,7 +16267,7 @@ lsilogic_scsi_hba_init:                      ; 0xfa48c LB 0xf2
     pop bx                                    ; 5b                          ; 0xfa57b
     pop bp                                    ; 5d                          ; 0xfa57c
     retn                                      ; c3                          ; 0xfa57d
-  ; disGetNextSymbol 0xfa57e LB 0xb6e -> off=0x0 cb=0000000000000052 uValue=00000000000f8f7e 'lsilogic_scsi_init'
+  ; disGetNextSymbol 0xfa57e LB 0xbc8 -> off=0x0 cb=0000000000000052 uValue=00000000000f8f7e 'lsilogic_scsi_init'
 lsilogic_scsi_init:                          ; 0xfa57e LB 0x52
     push bp                                   ; 55                          ; 0xfa57e lsilogic.c:603
     mov bp, sp                                ; 89 e5                       ; 0xfa57f
@@ -16304,7 +16304,7 @@ lsilogic_scsi_init:                          ; 0xfa57e LB 0x52
     pop si                                    ; 5e                          ; 0xfa5cd
     pop bp                                    ; 5d                          ; 0xfa5ce
     retn                                      ; c3                          ; 0xfa5cf
-  ; disGetNextSymbol 0xfa5d0 LB 0xb1c -> off=0x0 cb=0000000000000070 uValue=00000000000f8fd0 'virtio_reg_set_bar_offset_length'
+  ; disGetNextSymbol 0xfa5d0 LB 0xb76 -> off=0x0 cb=0000000000000070 uValue=00000000000f8fd0 'virtio_reg_set_bar_offset_length'
 virtio_reg_set_bar_offset_length:            ; 0xfa5d0 LB 0x70
     push bp                                   ; 55                          ; 0xfa5d0 virtio.c:287
     mov bp, sp                                ; 89 e5                       ; 0xfa5d1
@@ -16343,7 +16343,7 @@ virtio_reg_set_bar_offset_length:            ; 0xfa5d0 LB 0x70
     pop cx                                    ; 59                          ; 0xfa63b
     pop bp                                    ; 5d                          ; 0xfa63c
     retn 00008h                               ; c2 08 00                    ; 0xfa63d
-  ; disGetNextSymbol 0xfa640 LB 0xaac -> off=0x0 cb=0000000000000030 uValue=00000000000f9040 'virtio_reg_common_access_prepare'
+  ; disGetNextSymbol 0xfa640 LB 0xb06 -> off=0x0 cb=0000000000000030 uValue=00000000000f9040 'virtio_reg_common_access_prepare'
 virtio_reg_common_access_prepare:            ; 0xfa640 LB 0x30
     push bp                                   ; 55                          ; 0xfa640 virtio.c:294
     mov bp, sp                                ; 89 e5                       ; 0xfa641
@@ -16366,7 +16366,7 @@ virtio_reg_common_access_prepare:            ; 0xfa640 LB 0x30
     pop si                                    ; 5e                          ; 0xfa66b
     pop bp                                    ; 5d                          ; 0xfa66c
     retn 00004h                               ; c2 04 00                    ; 0xfa66d
-  ; disGetNextSymbol 0xfa670 LB 0xa7c -> off=0x0 cb=0000000000000033 uValue=00000000000f9070 'virtio_reg_dev_access_prepare'
+  ; disGetNextSymbol 0xfa670 LB 0xad6 -> off=0x0 cb=0000000000000033 uValue=00000000000f9070 'virtio_reg_dev_access_prepare'
 virtio_reg_dev_access_prepare:               ; 0xfa670 LB 0x33
     push bp                                   ; 55                          ; 0xfa670 virtio.c:302
     mov bp, sp                                ; 89 e5                       ; 0xfa671
@@ -16389,7 +16389,7 @@ virtio_reg_dev_access_prepare:               ; 0xfa670 LB 0x33
     pop si                                    ; 5e                          ; 0xfa69e
     pop bp                                    ; 5d                          ; 0xfa69f
     retn 00004h                               ; c2 04 00                    ; 0xfa6a0
-  ; disGetNextSymbol 0xfa6a3 LB 0xa49 -> off=0x0 cb=0000000000000030 uValue=00000000000f90a3 'virtio_reg_notify_access_prepare'
+  ; disGetNextSymbol 0xfa6a3 LB 0xaa3 -> off=0x0 cb=0000000000000030 uValue=00000000000f90a3 'virtio_reg_notify_access_prepare'
 virtio_reg_notify_access_prepare:            ; 0xfa6a3 LB 0x30
     push bp                                   ; 55                          ; 0xfa6a3 virtio.c:310
     mov bp, sp                                ; 89 e5                       ; 0xfa6a4
@@ -16412,7 +16412,7 @@ virtio_reg_notify_access_prepare:            ; 0xfa6a3 LB 0x30
     pop si                                    ; 5e                          ; 0xfa6ce
     pop bp                                    ; 5d                          ; 0xfa6cf
     retn 00004h                               ; c2 04 00                    ; 0xfa6d0
-  ; disGetNextSymbol 0xfa6d3 LB 0xa19 -> off=0x0 cb=000000000000001d uValue=00000000000f90d3 'virtio_reg_isr_prepare'
+  ; disGetNextSymbol 0xfa6d3 LB 0xa73 -> off=0x0 cb=000000000000001d uValue=00000000000f90d3 'virtio_reg_isr_prepare'
 virtio_reg_isr_prepare:                      ; 0xfa6d3 LB 0x1d
     push bp                                   ; 55                          ; 0xfa6d3 virtio.c:318
     mov bp, sp                                ; 89 e5                       ; 0xfa6d4
@@ -16429,7 +16429,7 @@ virtio_reg_isr_prepare:                      ; 0xfa6d3 LB 0x1d
     pop si                                    ; 5e                          ; 0xfa6ed
     pop bp                                    ; 5d                          ; 0xfa6ee
     retn                                      ; c3                          ; 0xfa6ef
-  ; disGetNextSymbol 0xfa6f0 LB 0x9fc -> off=0x0 cb=0000000000000031 uValue=00000000000f90f0 'virtio_reg_common_read_u8'
+  ; disGetNextSymbol 0xfa6f0 LB 0xa56 -> off=0x0 cb=0000000000000031 uValue=00000000000f90f0 'virtio_reg_common_read_u8'
 virtio_reg_common_read_u8:                   ; 0xfa6f0 LB 0x31
     push bp                                   ; 55                          ; 0xfa6f0 virtio.c:326
     mov bp, sp                                ; 89 e5                       ; 0xfa6f1
@@ -16451,7 +16451,7 @@ virtio_reg_common_read_u8:                   ; 0xfa6f0 LB 0x31
     pop cx                                    ; 59                          ; 0xfa71e
     pop bp                                    ; 5d                          ; 0xfa71f
     retn                                      ; c3                          ; 0xfa720
-  ; disGetNextSymbol 0xfa721 LB 0x9cb -> off=0x0 cb=0000000000000033 uValue=00000000000f9121 'virtio_reg_common_write_u8'
+  ; disGetNextSymbol 0xfa721 LB 0xa25 -> off=0x0 cb=0000000000000033 uValue=00000000000f9121 'virtio_reg_common_write_u8'
 virtio_reg_common_write_u8:                  ; 0xfa721 LB 0x33
     push bp                                   ; 55                          ; 0xfa721 virtio.c:332
     mov bp, sp                                ; 89 e5                       ; 0xfa722
@@ -16474,7 +16474,7 @@ virtio_reg_common_write_u8:                  ; 0xfa721 LB 0x33
     pop si                                    ; 5e                          ; 0xfa751
     pop bp                                    ; 5d                          ; 0xfa752
     retn                                      ; c3                          ; 0xfa753
-  ; disGetNextSymbol 0xfa754 LB 0x998 -> off=0x0 cb=0000000000000031 uValue=00000000000f9154 'virtio_reg_common_read_u16'
+  ; disGetNextSymbol 0xfa754 LB 0x9f2 -> off=0x0 cb=0000000000000031 uValue=00000000000f9154 'virtio_reg_common_read_u16'
 virtio_reg_common_read_u16:                  ; 0xfa754 LB 0x31
     push bp                                   ; 55                          ; 0xfa754 virtio.c:338
     mov bp, sp                                ; 89 e5                       ; 0xfa755
@@ -16496,7 +16496,7 @@ virtio_reg_common_read_u16:                  ; 0xfa754 LB 0x31
     pop cx                                    ; 59                          ; 0xfa782
     pop bp                                    ; 5d                          ; 0xfa783
     retn                                      ; c3                          ; 0xfa784
-  ; disGetNextSymbol 0xfa785 LB 0x967 -> off=0x0 cb=0000000000000031 uValue=00000000000f9185 'virtio_reg_common_write_u16'
+  ; disGetNextSymbol 0xfa785 LB 0x9c1 -> off=0x0 cb=0000000000000031 uValue=00000000000f9185 'virtio_reg_common_write_u16'
 virtio_reg_common_write_u16:                 ; 0xfa785 LB 0x31
     push bp                                   ; 55                          ; 0xfa785 virtio.c:344
     mov bp, sp                                ; 89 e5                       ; 0xfa786
@@ -16518,7 +16518,7 @@ virtio_reg_common_write_u16:                 ; 0xfa785 LB 0x31
     pop si                                    ; 5e                          ; 0xfa7b3
     pop bp                                    ; 5d                          ; 0xfa7b4
     retn                                      ; c3                          ; 0xfa7b5
-  ; disGetNextSymbol 0xfa7b6 LB 0x936 -> off=0x0 cb=0000000000000037 uValue=00000000000f91b6 'virtio_reg_common_write_u32'
+  ; disGetNextSymbol 0xfa7b6 LB 0x990 -> off=0x0 cb=0000000000000037 uValue=00000000000f91b6 'virtio_reg_common_write_u32'
 virtio_reg_common_write_u32:                 ; 0xfa7b6 LB 0x37
     push bp                                   ; 55                          ; 0xfa7b6 virtio.c:350
     mov bp, sp                                ; 89 e5                       ; 0xfa7b7
@@ -16541,7 +16541,7 @@ virtio_reg_common_write_u32:                 ; 0xfa7b6 LB 0x37
     pop cx                                    ; 59                          ; 0xfa7e8
     pop bp                                    ; 5d                          ; 0xfa7e9
     retn 00004h                               ; c2 04 00                    ; 0xfa7ea
-  ; disGetNextSymbol 0xfa7ed LB 0x8ff -> off=0x0 cb=0000000000000031 uValue=00000000000f91ed 'virtio_reg_dev_cfg_read_u32'
+  ; disGetNextSymbol 0xfa7ed LB 0x959 -> off=0x0 cb=0000000000000031 uValue=00000000000f91ed 'virtio_reg_dev_cfg_read_u32'
 virtio_reg_dev_cfg_read_u32:                 ; 0xfa7ed LB 0x31
     push bp                                   ; 55                          ; 0xfa7ed virtio.c:356
     mov bp, sp                                ; 89 e5                       ; 0xfa7ee
@@ -16563,7 +16563,7 @@ virtio_reg_dev_cfg_read_u32:                 ; 0xfa7ed LB 0x31
     pop cx                                    ; 59                          ; 0xfa81b
     pop bp                                    ; 5d                          ; 0xfa81c
     retn                                      ; c3                          ; 0xfa81d
-  ; disGetNextSymbol 0xfa81e LB 0x8ce -> off=0x0 cb=0000000000000037 uValue=00000000000f921e 'virtio_reg_dev_cfg_write_u32'
+  ; disGetNextSymbol 0xfa81e LB 0x928 -> off=0x0 cb=0000000000000037 uValue=00000000000f921e 'virtio_reg_dev_cfg_write_u32'
 virtio_reg_dev_cfg_write_u32:                ; 0xfa81e LB 0x37
     push bp                                   ; 55                          ; 0xfa81e virtio.c:362
     mov bp, sp                                ; 89 e5                       ; 0xfa81f
@@ -16586,7 +16586,7 @@ virtio_reg_dev_cfg_write_u32:                ; 0xfa81e LB 0x37
     pop cx                                    ; 59                          ; 0xfa850
     pop bp                                    ; 5d                          ; 0xfa851
     retn 00004h                               ; c2 04 00                    ; 0xfa852
-  ; disGetNextSymbol 0xfa855 LB 0x897 -> off=0x0 cb=0000000000000031 uValue=00000000000f9255 'virtio_reg_notify_write_u16'
+  ; disGetNextSymbol 0xfa855 LB 0x8f1 -> off=0x0 cb=0000000000000031 uValue=00000000000f9255 'virtio_reg_notify_write_u16'
 virtio_reg_notify_write_u16:                 ; 0xfa855 LB 0x31
     push bp                                   ; 55                          ; 0xfa855 virtio.c:368
     mov bp, sp                                ; 89 e5                       ; 0xfa856
@@ -16608,7 +16608,7 @@ virtio_reg_notify_write_u16:                 ; 0xfa855 LB 0x31
     pop si                                    ; 5e                          ; 0xfa883
     pop bp                                    ; 5d                          ; 0xfa884
     retn                                      ; c3                          ; 0xfa885
-  ; disGetNextSymbol 0xfa886 LB 0x866 -> off=0x0 cb=0000000000000037 uValue=00000000000f9286 'virtio_reg_isr_read_u8'
+  ; disGetNextSymbol 0xfa886 LB 0x8c0 -> off=0x0 cb=0000000000000037 uValue=00000000000f9286 'virtio_reg_isr_read_u8'
 virtio_reg_isr_read_u8:                      ; 0xfa886 LB 0x37
     push bp                                   ; 55                          ; 0xfa886 virtio.c:374
     mov bp, sp                                ; 89 e5                       ; 0xfa887
@@ -16635,7 +16635,7 @@ virtio_reg_isr_read_u8:                      ; 0xfa886 LB 0x37
     pop bx                                    ; 5b                          ; 0xfa8ba
     pop bp                                    ; 5d                          ; 0xfa8bb
     retn                                      ; c3                          ; 0xfa8bc
-  ; disGetNextSymbol 0xfa8bd LB 0x82f -> off=0x0 cb=000000000000001e uValue=00000000000f92bd 'virtio_addr_to_phys'
+  ; disGetNextSymbol 0xfa8bd LB 0x889 -> off=0x0 cb=000000000000001e uValue=00000000000f92bd 'virtio_addr_to_phys'
 virtio_addr_to_phys:                         ; 0xfa8bd LB 0x1e
     push bx                                   ; 53                          ; 0xfa8bd virtio.c:383
     push cx                                   ; 51                          ; 0xfa8be
@@ -16655,7 +16655,7 @@ virtio_addr_to_phys:                         ; 0xfa8bd LB 0x1e
     pop cx                                    ; 59                          ; 0xfa8d8
     pop bx                                    ; 5b                          ; 0xfa8d9
     retn                                      ; c3                          ; 0xfa8da
-  ; disGetNextSymbol 0xfa8db LB 0x811 -> off=0x0 cb=0000000000000156 uValue=00000000000f92db 'virtio_scsi_cmd_data_out'
+  ; disGetNextSymbol 0xfa8db LB 0x86b -> off=0x0 cb=0000000000000156 uValue=00000000000f92db 'virtio_scsi_cmd_data_out'
 virtio_scsi_cmd_data_out:                    ; 0xfa8db LB 0x156
     push bp                                   ; 55                          ; 0xfa8db virtio.c:388
     mov bp, sp                                ; 89 e5                       ; 0xfa8dc
@@ -16766,7 +16766,7 @@ virtio_scsi_cmd_data_out:                    ; 0xfa8db LB 0x156
     pop cx                                    ; 59                          ; 0xfaa2c
     pop bp                                    ; 5d                          ; 0xfaa2d
     retn 0000eh                               ; c2 0e 00                    ; 0xfaa2e
-  ; disGetNextSymbol 0xfaa31 LB 0x6bb -> off=0x0 cb=0000000000000156 uValue=00000000000f9431 'virtio_scsi_cmd_data_in'
+  ; disGetNextSymbol 0xfaa31 LB 0x715 -> off=0x0 cb=0000000000000156 uValue=00000000000f9431 'virtio_scsi_cmd_data_in'
 virtio_scsi_cmd_data_in:                     ; 0xfaa31 LB 0x156
     push bp                                   ; 55                          ; 0xfaa31 virtio.c:444
     mov bp, sp                                ; 89 e5                       ; 0xfaa32
@@ -16877,7 +16877,7 @@ virtio_scsi_cmd_data_in:                     ; 0xfaa31 LB 0x156
     pop cx                                    ; 59                          ; 0xfab82
     pop bp                                    ; 5d                          ; 0xfab83
     retn 0000eh                               ; c2 0e 00                    ; 0xfab84
-  ; disGetNextSymbol 0xfab87 LB 0x565 -> off=0x0 cb=000000000000031f uValue=00000000000f9587 'virtio_scsi_hba_init'
+  ; disGetNextSymbol 0xfab87 LB 0x5bf -> off=0x0 cb=000000000000031f uValue=00000000000f9587 'virtio_scsi_hba_init'
 virtio_scsi_hba_init:                        ; 0xfab87 LB 0x31f
     push bp                                   ; 55                          ; 0xfab87 virtio.c:505
     mov bp, sp                                ; 89 e5                       ; 0xfab88
@@ -17171,7 +17171,7 @@ virtio_scsi_hba_init:                        ; 0xfab87 LB 0x31f
     pop si                                    ; 5e                          ; 0xfaea1
     pop bp                                    ; 5d                          ; 0xfaea2
     retn 00002h                               ; c2 02 00                    ; 0xfaea3
-  ; disGetNextSymbol 0xfaea6 LB 0x246 -> off=0x0 cb=00000000000000d5 uValue=00000000000f98a6 'virtio_scsi_init'
+  ; disGetNextSymbol 0xfaea6 LB 0x2a0 -> off=0x0 cb=00000000000000d5 uValue=00000000000f98a6 'virtio_scsi_init'
 virtio_scsi_init:                            ; 0xfaea6 LB 0xd5
     push bp                                   ; 55                          ; 0xfaea6 virtio.c:643
     mov bp, sp                                ; 89 e5                       ; 0xfaea7
@@ -17259,7 +17259,7 @@ virtio_scsi_init:                            ; 0xfaea6 LB 0xd5
     pop si                                    ; 5e                          ; 0xfaf78
     pop bp                                    ; 5d                          ; 0xfaf79
     retn                                      ; c3                          ; 0xfaf7a
-  ; disGetNextSymbol 0xfaf7b LB 0x171 -> off=0x0 cb=000000000000001d uValue=00000000000f997b 'vds_is_present'
+  ; disGetNextSymbol 0xfaf7b LB 0x1cb -> off=0x0 cb=000000000000001d uValue=00000000000f997b 'vds_is_present'
 vds_is_present:                              ; 0xfaf7b LB 0x1d
     push bx                                   ; 53                          ; 0xfaf7b vds.c:42
     push bp                                   ; 55                          ; 0xfaf7c
@@ -17277,7 +17277,7 @@ vds_is_present:                              ; 0xfaf7b LB 0x1d
     pop bp                                    ; 5d                          ; 0xfaf95 vds.c:48
     pop bx                                    ; 5b                          ; 0xfaf96
     retn                                      ; c3                          ; 0xfaf97
-  ; disGetNextSymbol 0xfaf98 LB 0x154 -> off=0x0 cb=000000000000001e uValue=00000000000f9998 'vds_real_to_lin'
+  ; disGetNextSymbol 0xfaf98 LB 0x1ae -> off=0x0 cb=000000000000001e uValue=00000000000f9998 'vds_real_to_lin'
 vds_real_to_lin:                             ; 0xfaf98 LB 0x1e
     push bx                                   ; 53                          ; 0xfaf98 vds.c:77
     push cx                                   ; 51                          ; 0xfaf99
@@ -17297,7 +17297,7 @@ vds_real_to_lin:                             ; 0xfaf98 LB 0x1e
     pop cx                                    ; 59                          ; 0xfafb3
     pop bx                                    ; 5b                          ; 0xfafb4
     retn                                      ; c3                          ; 0xfafb5
-  ; disGetNextSymbol 0xfafb6 LB 0x136 -> off=0x0 cb=0000000000000079 uValue=00000000000f99b6 'vds_build_sg_list'
+  ; disGetNextSymbol 0xfafb6 LB 0x190 -> off=0x0 cb=0000000000000079 uValue=00000000000f99b6 'vds_build_sg_list'
 vds_build_sg_list:                           ; 0xfafb6 LB 0x79
     push bp                                   ; 55                          ; 0xfafb6 vds.c:87
     mov bp, sp                                ; 89 e5                       ; 0xfafb7
@@ -17345,7 +17345,7 @@ vds_build_sg_list:                           ; 0xfafb6 LB 0x79
     pop si                                    ; 5e                          ; 0xfb02a
     pop bp                                    ; 5d                          ; 0xfb02b
     retn 00004h                               ; c2 04 00                    ; 0xfb02c
-  ; disGetNextSymbol 0xfb02f LB 0xbd -> off=0x0 cb=0000000000000034 uValue=00000000000f9a2f 'vds_free_sg_list'
+  ; disGetNextSymbol 0xfb02f LB 0x117 -> off=0x0 cb=0000000000000034 uValue=00000000000f9a2f 'vds_free_sg_list'
 vds_free_sg_list:                            ; 0xfb02f LB 0x34
     push bp                                   ; 55                          ; 0xfb02f vds.c:112
     mov bp, sp                                ; 89 e5                       ; 0xfb030
@@ -17374,95 +17374,123 @@ vds_free_sg_list:                            ; 0xfb02f LB 0x34
     pop bx                                    ; 5b                          ; 0xfb060
     pop bp                                    ; 5d                          ; 0xfb061
     retn                                      ; c3                          ; 0xfb062
-  ; disGetNextSymbol 0xfb063 LB 0x89 -> off=0x27 cb=0000000000000051 uValue=0000000000009a8a 'apm_worker'
-    db  000h, 000h, 000h, 000h, 000h, 000h, 000h, 000h, 000h, 000h, 000h, 000h, 000h, 0a0h, 0b0h, 0a2h
-    db  0b0h, 0bdh, 0b0h, 0bdh, 0b0h, 0bdh, 0b0h, 0bfh, 0b0h, 0bfh, 0b0h, 0c1h, 0b0h, 0c5h, 0b0h, 0c5h
-    db  0b0h, 0c7h, 0b0h, 0cch, 0b0h, 0ceh, 0b0h
-apm_worker:                                  ; 0xfb08a LB 0x51
-    sti                                       ; fb                          ; 0xfb08a apm_pm.asm:70
-    push ax                                   ; 50                          ; 0xfb08b apm_pm.asm:72
+  ; disGetNextSymbol 0xfb063 LB 0xe3 -> off=0x45 cb=000000000000000c uValue=0000000000009aa8 'apm_out_str_pm'
+    db  000h, 000h, 000h, 000h, 000h, 000h, 000h, 000h, 000h, 000h, 000h, 000h, 000h, 050h, 072h, 06fh
+    db  063h, 068h, 061h, 06ch, 074h, 053h, 074h, 061h, 06eh, 064h, 062h, 079h, 053h, 075h, 073h, 070h
+    db  065h, 06eh, 064h, 053h, 068h, 075h, 074h, 064h, 06fh, 077h, 06eh, 0cah, 0b0h, 0cch, 0b0h, 0d9h
+    db  0b0h, 0d9h, 0b0h, 00eh, 0b1h, 00eh, 0b1h, 010h, 0b1h, 01bh, 0b1h, 01fh, 0b1h, 01fh, 0b1h, 021h
+    db  0b1h, 026h, 0b1h, 028h, 0b1h
+apm_out_str_pm:                              ; 0xfb0a8 LB 0xc
+    push si                                   ; 56                          ; 0xfb0a8 apm_pm.asm:77
+    push dx                                   ; 52                          ; 0xfb0a9 apm_pm.asm:78
+    mov dx, 0040fh                            ; ba 0f 04                    ; 0xfb0aa apm_pm.asm:80
+    db  08bh, 0f0h
+    ; mov si, ax                                ; 8b f0                     ; 0xfb0ad apm_pm.asm:81
+    rep outsb                                 ; f3 6e                       ; 0xfb0af apm_pm.asm:82
+    pop dx                                    ; 5a                          ; 0xfb0b1 apm_pm.asm:84
+    pop si                                    ; 5e                          ; 0xfb0b2 apm_pm.asm:85
+    retn                                      ; c3                          ; 0xfb0b3 apm_pm.asm:86
+  ; disGetNextSymbol 0xfb0b4 LB 0x92 -> off=0x0 cb=0000000000000081 uValue=0000000000009ab4 'apm_worker'
+apm_worker:                                  ; 0xfb0b4 LB 0x81
+    sti                                       ; fb                          ; 0xfb0b4 apm_pm.asm:95
+    push ax                                   ; 50                          ; 0xfb0b5 apm_pm.asm:97
     db  032h, 0e4h
-    ; xor ah, ah                                ; 32 e4                     ; 0xfb08c apm_pm.asm:73
-    sub AL, strict byte 004h                  ; 2c 04                       ; 0xfb08e apm_pm.asm:74
+    ; xor ah, ah                                ; 32 e4                     ; 0xfb0b6 apm_pm.asm:98
+    sub AL, strict byte 004h                  ; 2c 04                       ; 0xfb0b8 apm_pm.asm:99
     db  08bh, 0e8h
-    ; mov bp, ax                                ; 8b e8                     ; 0xfb090 apm_pm.asm:75
-    sal bp, 1                                 ; d1 e5                       ; 0xfb092 apm_pm.asm:76
-    cmp AL, strict byte 00dh                  ; 3c 0d                       ; 0xfb094 apm_pm.asm:77
-    pop ax                                    ; 58                          ; 0xfb096 apm_pm.asm:78
-    mov AH, strict byte 053h                  ; b4 53                       ; 0xfb097 apm_pm.asm:79
-    jnc short 0b0d7h                          ; 73 3c                       ; 0xfb099 apm_pm.asm:80
-    jmp word [cs:bp-04f90h]                   ; 2e ff a6 70 b0              ; 0xfb09b apm_pm.asm:82
-    jmp short 0b0d5h                          ; eb 33                       ; 0xfb0a0 apm_pm.asm:85
-    push si                                   ; 56                          ; 0xfb0a2 apm_pm.asm:92
-    push cx                                   ; 51                          ; 0xfb0a3 apm_pm.asm:93
-    push dx                                   ; 52                          ; 0xfb0a4 apm_pm.asm:94
-    mov dx, 0040fh                            ; ba 0f 04                    ; 0xfb0a5 apm_pm.asm:96
-    mov si, 0b0b5h                            ; be b5 b0                    ; 0xfb0a8 apm_pm.asm:97
-    mov cx, strict word 00008h                ; b9 08 00                    ; 0xfb0ab apm_pm.asm:98
-    rep outsb                                 ; f3 6e                       ; 0xfb0ae apm_pm.asm:99
-    pop dx                                    ; 5a                          ; 0xfb0b0 apm_pm.asm:101
-    pop cx                                    ; 59                          ; 0xfb0b1 apm_pm.asm:102
-    pop si                                    ; 5e                          ; 0xfb0b2 apm_pm.asm:103
-    jmp short 0b0d5h                          ; eb 20                       ; 0xfb0b3 apm_pm.asm:105
-    push ax                                   ; 50                          ; 0xfb0b5
-    jc short 0b127h                           ; 72 6f                       ; 0xfb0b6
-    arpl [bx+si+061h], bp                     ; 63 68 61                    ; 0xfb0b8
-    insb                                      ; 6c                          ; 0xfb0bb
-    je short 0b0a9h                           ; 74 eb                       ; 0xfb0bc
-    push SS                                   ; 16                          ; 0xfb0be
-    jmp short 0b0d7h                          ; eb 16                       ; 0xfb0bf apm_pm.asm:138
-    mov AH, strict byte 080h                  ; b4 80                       ; 0xfb0c1 apm_pm.asm:141
-    jmp short 0b0d9h                          ; eb 14                       ; 0xfb0c3 apm_pm.asm:142
-    jmp short 0b0d7h                          ; eb 10                       ; 0xfb0c5 apm_pm.asm:147
-    mov ax, 00102h                            ; b8 02 01                    ; 0xfb0c7 apm_pm.asm:150
-    jmp short 0b0d5h                          ; eb 09                       ; 0xfb0ca apm_pm.asm:151
-    jmp short 0b0d5h                          ; eb 07                       ; 0xfb0cc apm_pm.asm:155
-    mov BL, strict byte 000h                  ; b3 00                       ; 0xfb0ce apm_pm.asm:158
-    mov cx, strict word 00000h                ; b9 00 00                    ; 0xfb0d0 apm_pm.asm:159
-    jmp short 0b0d5h                          ; eb 00                       ; 0xfb0d3 apm_pm.asm:160
-    clc                                       ; f8                          ; 0xfb0d5 apm_pm.asm:163
-    retn                                      ; c3                          ; 0xfb0d6 apm_pm.asm:164
-    mov AH, strict byte 009h                  ; b4 09                       ; 0xfb0d7 apm_pm.asm:167
-    stc                                       ; f9                          ; 0xfb0d9 apm_pm.asm:170
-    retn                                      ; c3                          ; 0xfb0da apm_pm.asm:171
-  ; disGetNextSymbol 0xfb0db LB 0x11 -> off=0x0 cb=0000000000000011 uValue=00000000000f9adb 'apm_pm16_entry'
-apm_pm16_entry:                              ; 0xfb0db LB 0x11
-    mov AH, strict byte 002h                  ; b4 02                       ; 0xfb0db apm_pm.asm:183
-    push DS                                   ; 1e                          ; 0xfb0dd apm_pm.asm:189
-    push bp                                   ; 55                          ; 0xfb0de apm_pm.asm:190
-    push CS                                   ; 0e                          ; 0xfb0df apm_pm.asm:192
-    pop bp                                    ; 5d                          ; 0xfb0e0 apm_pm.asm:193
-    add bp, strict byte 00008h                ; 83 c5 08                    ; 0xfb0e1 apm_pm.asm:194
-    mov ds, bp                                ; 8e dd                       ; 0xfb0e4 apm_pm.asm:195
-    call 0b08ah                               ; e8 a1 ff                    ; 0xfb0e6 apm_pm.asm:197
-    pop bp                                    ; 5d                          ; 0xfb0e9 apm_pm.asm:199
-    pop DS                                    ; 1f                          ; 0xfb0ea apm_pm.asm:200
-    retf                                      ; cb                          ; 0xfb0eb apm_pm.asm:202
+    ; mov bp, ax                                ; 8b e8                     ; 0xfb0ba apm_pm.asm:100
+    sal bp, 1                                 ; d1 e5                       ; 0xfb0bc apm_pm.asm:101
+    cmp AL, strict byte 00dh                  ; 3c 0d                       ; 0xfb0be apm_pm.asm:102
+    pop ax                                    ; 58                          ; 0xfb0c0 apm_pm.asm:103
+    mov AH, strict byte 053h                  ; b4 53                       ; 0xfb0c1 apm_pm.asm:104
+    jnc short 0b131h                          ; 73 6c                       ; 0xfb0c3 apm_pm.asm:105
+    jmp word [cs:bp-04f72h]                   ; 2e ff a6 8e b0              ; 0xfb0c5 apm_pm.asm:107
+    jmp short 0b12fh                          ; eb 63                       ; 0xfb0ca apm_pm.asm:110
+    push cx                                   ; 51                          ; 0xfb0cc apm_pm.asm:117
+    mov cx, strict word 00008h                ; b9 08 00                    ; 0xfb0cd apm_pm.asm:118
+    mov ax, 0b070h                            ; b8 70 b0                    ; 0xfb0d0 apm_pm.asm:119
+    call 0b0a8h                               ; e8 d2 ff                    ; 0xfb0d3 apm_pm.asm:120
+    pop cx                                    ; 59                          ; 0xfb0d6 apm_pm.asm:121
+    jmp short 0b12fh                          ; eb 56                       ; 0xfb0d7 apm_pm.asm:123
+    push cx                                   ; 51                          ; 0xfb0d9 apm_pm.asm:145
+    cmp cx, strict byte 00001h                ; 83 f9 01                    ; 0xfb0da apm_pm.asm:147
+    jne short 0b0eah                          ; 75 0b                       ; 0xfb0dd apm_pm.asm:148
+    mov cx, strict word 00007h                ; b9 07 00                    ; 0xfb0df apm_pm.asm:150
+    mov ax, 0b078h                            ; b8 78 b0                    ; 0xfb0e2 apm_pm.asm:151
+    call 0b0a8h                               ; e8 c0 ff                    ; 0xfb0e5 apm_pm.asm:152
+    jmp short 0b108h                          ; eb 1e                       ; 0xfb0e8 apm_pm.asm:153
+    cmp cx, strict byte 00002h                ; 83 f9 02                    ; 0xfb0ea apm_pm.asm:155
+    jne short 0b0fah                          ; 75 0b                       ; 0xfb0ed apm_pm.asm:156
+    mov cx, strict word 00007h                ; b9 07 00                    ; 0xfb0ef apm_pm.asm:158
+    mov ax, 0b07fh                            ; b8 7f b0                    ; 0xfb0f2 apm_pm.asm:159
+    call 0b0a8h                               ; e8 b0 ff                    ; 0xfb0f5 apm_pm.asm:160
+    jmp short 0b108h                          ; eb 0e                       ; 0xfb0f8 apm_pm.asm:161
+    cmp cx, strict byte 00003h                ; 83 f9 03                    ; 0xfb0fa apm_pm.asm:164
+    jne short 0b10bh                          ; 75 0c                       ; 0xfb0fd apm_pm.asm:165
+    mov cx, strict word 00008h                ; b9 08 00                    ; 0xfb0ff apm_pm.asm:167
+    mov ax, 0b086h                            ; b8 86 b0                    ; 0xfb102 apm_pm.asm:168
+    call 0b0a8h                               ; e8 a0 ff                    ; 0xfb105 apm_pm.asm:169
+    pop cx                                    ; 59                          ; 0xfb108 apm_pm.asm:172
+    jmp short 0b12fh                          ; eb 24                       ; 0xfb109 apm_pm.asm:173
+    pop cx                                    ; 59                          ; 0xfb10b apm_pm.asm:176
+    jmp short 0b133h                          ; eb 25                       ; 0xfb10c apm_pm.asm:177
+    jmp short 0b12fh                          ; eb 1f                       ; 0xfb10e apm_pm.asm:183
+    mov bx, 001ffh                            ; bb ff 01                    ; 0xfb110 apm_pm.asm:187
+    mov cx, 080ffh                            ; b9 ff 80                    ; 0xfb113 apm_pm.asm:188
+    mov dx, strict word 0ffffh                ; ba ff ff                    ; 0xfb116 apm_pm.asm:189
+    jmp short 0b12fh                          ; eb 14                       ; 0xfb119 apm_pm.asm:190
+    mov AH, strict byte 080h                  ; b4 80                       ; 0xfb11b apm_pm.asm:193
+    jmp short 0b133h                          ; eb 14                       ; 0xfb11d apm_pm.asm:194
+    jmp short 0b131h                          ; eb 10                       ; 0xfb11f apm_pm.asm:199
+    mov ax, 00102h                            ; b8 02 01                    ; 0xfb121 apm_pm.asm:202
+    jmp short 0b12fh                          ; eb 09                       ; 0xfb124 apm_pm.asm:203
+    jmp short 0b12fh                          ; eb 07                       ; 0xfb126 apm_pm.asm:207
+    mov BL, strict byte 000h                  ; b3 00                       ; 0xfb128 apm_pm.asm:210
+    mov cx, strict word 00000h                ; b9 00 00                    ; 0xfb12a apm_pm.asm:211
+    jmp short 0b12fh                          ; eb 00                       ; 0xfb12d apm_pm.asm:212
+    clc                                       ; f8                          ; 0xfb12f apm_pm.asm:215
+    retn                                      ; c3                          ; 0xfb130 apm_pm.asm:216
+    mov AH, strict byte 009h                  ; b4 09                       ; 0xfb131 apm_pm.asm:219
+    stc                                       ; f9                          ; 0xfb133 apm_pm.asm:222
+    retn                                      ; c3                          ; 0xfb134 apm_pm.asm:223
+  ; disGetNextSymbol 0xfb135 LB 0x11 -> off=0x0 cb=0000000000000011 uValue=00000000000f9b35 'apm_pm16_entry'
+apm_pm16_entry:                              ; 0xfb135 LB 0x11
+    mov AH, strict byte 002h                  ; b4 02                       ; 0xfb135 apm_pm.asm:235
+    push DS                                   ; 1e                          ; 0xfb137 apm_pm.asm:241
+    push bp                                   ; 55                          ; 0xfb138 apm_pm.asm:242
+    push CS                                   ; 0e                          ; 0xfb139 apm_pm.asm:244
+    pop bp                                    ; 5d                          ; 0xfb13a apm_pm.asm:245
+    add bp, strict byte 00008h                ; 83 c5 08                    ; 0xfb13b apm_pm.asm:246
+    mov ds, bp                                ; 8e dd                       ; 0xfb13e apm_pm.asm:247
+    call 0b0b4h                               ; e8 71 ff                    ; 0xfb140 apm_pm.asm:249
+    pop bp                                    ; 5d                          ; 0xfb143 apm_pm.asm:251
+    pop DS                                    ; 1f                          ; 0xfb144 apm_pm.asm:252
+    retf                                      ; cb                          ; 0xfb145 apm_pm.asm:254
 
-  ; Padding 0x2914 bytes at 0xfb0ec
-  times 10516 db 0
+  ; Padding 0x28ba bytes at 0xfb146
+  times 10426 db 0
 
 section BIOS32 progbits vstart=0xda00 align=1 ; size=0x3d6 class=CODE group=AUTO
   ; disGetNextSymbol 0xfda00 LB 0x3d6 -> off=0x0 cb=0000000000000030 uValue=00000000000f0000 'apm_pm32_entry'
 apm_pm32_entry:                              ; 0xfda00 LB 0x30
-    push bp                                   ; 55                          ; 0xfda00 apm_pm.asm:227
-    mov ebp, cs                               ; 66 8c cd                    ; 0xfda01 apm_pm.asm:229
-    push ebp                                  ; 66 55                       ; 0xfda04 apm_pm.asm:230
-    mov bp, 0da1fh                            ; bd 1f da                    ; 0xfda06 apm_pm.asm:231
+    push bp                                   ; 55                          ; 0xfda00 apm_pm.asm:279
+    mov ebp, cs                               ; 66 8c cd                    ; 0xfda01 apm_pm.asm:281
+    push ebp                                  ; 66 55                       ; 0xfda04 apm_pm.asm:282
+    mov bp, 0da1fh                            ; bd 1f da                    ; 0xfda06 apm_pm.asm:283
     add byte [bx+si], al                      ; 00 00                       ; 0xfda09
-    push ebp                                  ; 66 55                       ; 0xfda0b apm_pm.asm:232
-    push CS                                   ; 0e                          ; 0xfda0d apm_pm.asm:234
-    pop bp                                    ; 5d                          ; 0xfda0e apm_pm.asm:235
-    add bp, strict byte 00008h                ; 83 c5 08                    ; 0xfda0f apm_pm.asm:236
-    push ebp                                  ; 66 55                       ; 0xfda12 apm_pm.asm:237
-    mov bp, 0b0ddh                            ; bd dd b0                    ; 0xfda14 apm_pm.asm:239
+    push ebp                                  ; 66 55                       ; 0xfda0b apm_pm.asm:284
+    push CS                                   ; 0e                          ; 0xfda0d apm_pm.asm:286
+    pop bp                                    ; 5d                          ; 0xfda0e apm_pm.asm:287
+    add bp, strict byte 00008h                ; 83 c5 08                    ; 0xfda0f apm_pm.asm:288
+    push ebp                                  ; 66 55                       ; 0xfda12 apm_pm.asm:289
+    mov bp, 0b137h                            ; bd 37 b1                    ; 0xfda14 apm_pm.asm:291
     add byte [bx+si], al                      ; 00 00                       ; 0xfda17
-    push ebp                                  ; 66 55                       ; 0xfda19 apm_pm.asm:240
-    mov AH, strict byte 003h                  ; b4 03                       ; 0xfda1b apm_pm.asm:242
+    push ebp                                  ; 66 55                       ; 0xfda19 apm_pm.asm:292
+    mov AH, strict byte 003h                  ; b4 03                       ; 0xfda1b apm_pm.asm:294
     db  066h, 0cbh
     ; retf                                      ; 66 cb                     ; 0xfda1d
-    pop bp                                    ; 5d                          ; 0xfda1f apm_pm.asm:249
-    retf                                      ; cb                          ; 0xfda20 apm_pm.asm:250
+    pop bp                                    ; 5d                          ; 0xfda1f apm_pm.asm:301
+    retf                                      ; cb                          ; 0xfda20 apm_pm.asm:302
     times 0xf db 0
   ; disGetNextSymbol 0xfda30 LB 0x3a6 -> off=0x0 cb=0000000000000026 uValue=00000000000f0030 'bios32_service'
 bios32_service:                              ; 0xfda30 LB 0x26
@@ -19457,4 +19485,4 @@ biosorg_check_before_or_at_0FFEEh:           ; 0xfff80 LB 0x70
 cpu_reset:                                   ; 0xffff0 LB 0x10
     jmp far 0f000h:0e05bh                     ; ea 5b e0 00 f0              ; 0xffff0 orgs.asm:2117
   ; disGetNextSymbol 0xffff5 LB 0xb -> off=0xb cb=0000000000000000 uValue=0000000000100000 '_dummy_addr_0x100000'
-    db  030h, 036h, 02fh, 032h, 033h, 02fh, 039h, 039h, 000h, 0fch, 00bh
+    db  030h, 036h, 02fh, 032h, 033h, 02fh, 039h, 039h, 000h, 0fch, 0e2h
