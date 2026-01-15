@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA3d.cpp 112481 2026-01-13 13:11:43Z vitali.pelenjow@oracle.com $ */
+/* $Id: DevVGA-SVGA3d.cpp 112589 2026-01-15 00:22:48Z vitali.pelenjow@oracle.com $ */
 /** @file
  * DevSVGA3d - VMWare SVGA device, 3D parts - Common core code.
  */
@@ -1177,7 +1177,11 @@ static int vmsvga3dScreenUpdate(PVGASTATECC pThisCC, VMSVGASCREENOBJECT *pScreen
 
         uint32_t const cbDst = pScreen->cHeight * pScreen->cbPitch;
         uint8_t *pu8Dst;
+#ifndef PERMANENT_SCREEN_BITMAP
         if (pScreen->pvScreenBitmap)
+#else
+        if (pScreen->offVRAM == VMSVGA_VRAM_OFFSET_SCREEN_TARGET)
+#endif
             pu8Dst = (uint8_t *)pScreen->pvScreenBitmap;
         else
             pu8Dst = (uint8_t *)pThisCC->pbVRam + pScreen->offVRAM;
