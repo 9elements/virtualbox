@@ -106,11 +106,6 @@ Rules for adding a changelog entry to make them look more uniform:
       </listitem>
 
       <listitem>
-        <para>GUI: Fixed issue when machine-windows were not properly configured for
-          i3 window manager within the VBOX_GUI_WITH_CUSTOMIZATIONS1 option set</para>
-      </listitem>
-
-      <listitem>
         <para>GUI: Fixed issue when downloading update files was
           failing (github:gh-327, github:gh-372)</para>
       </listitem>
