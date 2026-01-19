@@ -1,4 +1,4 @@
-/* $Id: UnattendedInstaller.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: UnattendedInstaller.h 112637 2026-01-19 11:42:20Z serkan.bayraktar@oracle.com $ */
 /** @file
  * UnattendedInstaller class header
  */
@@ -676,19 +676,6 @@ public:
         mStrDefaultExtraInstallKernelParameters.setNull();
         mStrDefaultExtraInstallKernelParameters += " autoinstall";
         mStrDefaultExtraInstallKernelParameters += " ds=nocloud\\;s=/cdrom/";
-        mStrDefaultExtraInstallKernelParameters += " ---";
-        mStrDefaultExtraInstallKernelParameters += " quiet";
-        mStrDefaultExtraInstallKernelParameters += " splash";
-        mStrDefaultExtraInstallKernelParameters += " noprompt";  /* no questions about things like CD/DVD ejections */
-        mStrDefaultExtraInstallKernelParameters += " noshell";   /* No shells on VT1-3 (debian, not ubuntu). */
-        mStrDefaultExtraInstallKernelParameters += " automatic-ubiquity";   // ubiquity
-        // the following can probably go into the preseed.cfg:
-        mStrDefaultExtraInstallKernelParameters.append(" debian-installer/locale=").append(pParent->i_getLocale());
-        mStrDefaultExtraInstallKernelParameters += " keyboard-configuration/layoutcode=us";
-        mStrDefaultExtraInstallKernelParameters += " languagechooser/language-name=English"; /** @todo fixme */
-        mStrDefaultExtraInstallKernelParameters.append(" localechooser/supported-locales=").append(pParent->i_getLocale()).append(".UTF-8");
-        mStrDefaultExtraInstallKernelParameters.append(" countrychooser/shortlist=").append(pParent->i_getCountry()); // ubiquity?
-        mStrDefaultExtraInstallKernelParameters += " --";
     }
     ~UnattendedUbuntuAutoInstallInstaller() {}
 
