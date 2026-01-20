@@ -962,7 +962,7 @@ EOF
       echo "endif" >> $CNF
     fi
   else
-    echo "not found -- builing liblzf from in-tree code."
+    echo "not found -- building liblzf from in-tree code."
   fi
 }
 
@@ -1745,7 +1745,7 @@ EOF
           cnf_append "SDK_VBoxLibVpx_LIBS" "`strip_l "$LIBVPX"`"
         fi
       else
-        echo "not found -- builing libvpx from in-tree code."
+        echo "not found -- building libvpx from in-tree code."
       fi
     fi
   fi
@@ -2997,7 +2997,7 @@ if [ $ONLY_ADDITIONS -eq 0 ]; then
   [ $WITH_QT6    -eq 1 ] && check_qt6
   [ $WITH_PYTHON -eq 1 ] && check_python
   [ $WITH_JAVA   -eq 1 ] && check_java
-  [ $WITH_DXVK   -eq 1 ] && check_dxvk
+  [ $WITH_DXVK   -eq 1 -a $OSE -eq 1 ] && check_dxvk
 
   # PulseAudio
   if [ $WITH_PULSE -eq 1 ]; then
