@@ -251,10 +251,6 @@ Rules for adding a changelog entry to make them look more uniform:
       </listitem>
 
       <listitem>
-        <para>Windows Guest Additions: Fixed installation on WinXP 64-bit (github:gh-142)</para>
-      </listitem>
-
-      <listitem>
         <para>BIOS: Fixed issue with booting VM using IPXE (github:gh-417)</para>
       </listitem>
 
