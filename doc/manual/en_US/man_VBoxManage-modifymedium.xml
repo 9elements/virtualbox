@@ -30,7 +30,7 @@
 ]>
 <refentry id="vboxmanage-modifymedium" lang="en">
   <refentryinfo>
-    <pubdate>$Date: 2025-11-14 17:43:28 +0100 (Fri, 14 Nov 2025) $</pubdate>
+    <pubdate>$Date: 2026-02-03 16:12:34 +0100 (Tue, 03 Feb 2026) $</pubdate>
     <title>VBoxManage modifymedium</title>
   </refentryinfo>
 
@@ -223,7 +223,7 @@
             values are <literal>normal</literal>,
             <literal>immutable</literal>,
             <literal>writethrough</literal>,
-            <literal>multi-attach</literal>,
+            <literal>multiattach</literal>,
             <literal>shareable</literal>, and
             <literal>readonly</literal>. For descriptions of these mode
             types, see <xref linkend="hdimagewrites" />.
