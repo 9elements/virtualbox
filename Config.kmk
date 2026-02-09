@@ -1,4 +1,4 @@
-# $Id: Config.kmk 112786 2026-02-02 16:48:58Z alexander.eichner@oracle.com $
+# $Id: Config.kmk 112872 2026-02-09 09:17:21Z knut.osmundsen@oracle.com $
 ## @file
 # The global build configuration file for VBox.
 #
@@ -1853,7 +1853,7 @@ VBOX_TARGET_ARCHES := amd64 x86 arm64 sparc32 sparc64
 #
 ifndef VBOX_GCC_TOOL
  ifeq ($(KBUILD_TARGET),win)
-  ifeq ($(KBUILD_TARGET_ARCH),arm64)
+  if "$(KBUILD_TARGET_ARCH)" == "arm64" || defined(VBOX_USE_CLANG)
    VBOX_GCC_TOOL  := VCC143-CLANGXX
   endif
  else ifeq ($(KBUILD_TARGET),os2)
@@ -1877,7 +1877,11 @@ ifndef VBOX_GCC_TOOL
    TOOL_GXX3PLAIN_LD_SYSMOD ?= /usr/ccs/bin/ld
   endif
  else
-  VBOX_GCC_TOOL   := GXX3
+  ifdef VBOX_USE_CLANG
+   VBOX_GCC_TOOL  := CLANGXX
+  else
+   VBOX_GCC_TOOL  := GXX3
+  endif
   ifeq ($(KBUILD_TARGET_ARCH).$(KBUILD_HOST_ARCH),x86.amd64) ## @todo mixing target/host here!
    VBOX_GCC_TOOL  := GXX32
    VBOX_WITH_VBOXDRV =
@@ -3429,7 +3433,7 @@ ifndef VBOX_NOINC_DYNAMIC_CONFIG_KMK
 	$(QUIET)$(APPEND) '$@' 'VBOX_GCC_msse4.1                         ?= $(call VBOX_GCC_CHECK_CC,-msse4.1,)'
 	$(QUIET)$(APPEND) '$@' 'VBOX_GCC_mavx                            ?= $(call VBOX_GCC_CHECK_CC,-mavx,)'
 	$(QUIET)$(APPEND) '$@' 'VBOX_GCC_mavx2                           ?= $(call VBOX_GCC_CHECK_CC,-mavx2,)'
-	$(QUIET)$(APPEND) '$@' 'VBOX_GCC_no-pie                          ?= $(call VBOX_GCC_CHECK_CC,-no-pie,)'
+	$(QUIET)$(APPEND) '$@' 'VBOX_GCC_no-pie                          ?= $(call VBOX_GCC_CHECK_LD,-no-pie,)'
 	$(QUIET)$(APPEND) '$@' 'VBOX_GCC_fdiagnostics-show-option        ?= $(call VBOX_GCC_CHECK_CC,-fdiagnostics-show-option,)'
 	$(QUIET)$(APPEND) '$@' 'VBOX_GCC_fdiagnostics-color              ?= $(call VBOX_GCC_CHECK_CC,-fdiagnostics-color,)'
 	$(QUIET)$(APPEND) '$@' 'VBOX_GCC_fno-printf-return-value         ?= $(call VBOX_GCC_CHECK_CC,-fno-printf-return-value,)'
@@ -3616,7 +3620,11 @@ ifndef VBOX_GCC_std
   # else if "$(VBOX_CLANG_VERSION_CXX)" vge 60000 # Most language features complete by v6. Lib stuff was less complete in v6, but hopefully acceptable for out purposes.
   #VBOX_GCC_std := -std=c++17
  else if "$(VBOX_CLANG_VERSION_CXX)" vge 50000 # darwin Xcode 5 allegedly knows what C++11 is
-  VBOX_GCC_std := -std=c++11
+  ifdef VBOX_USE_CLANG
+   VBOX_GCC_std := -std=c++17
+  else
+   VBOX_GCC_std := -std=c++11
+  endif
   # else if "$(VBOX_GCC_VERSION_CXX)" vge 70000 # Language feature P0512R0 was v8, rest v7 or earlier. Most lib stuff present in 7, complete in v12.
   #VBOX_GCC_std := -std=gnu++17
  else if "$(VBOX_GCC_VERSION_CXX)" vge 40800
@@ -5714,6 +5722,9 @@ ifeq ($(VBOX_LDR_FMT),elf)
   ifeq ($(VBOX_GCC_fcf-protection_branch),)
    $(warning VBox: VBOX_WITH_R0_MOD_IBT_BRANCH_PROTECTION is set but gcc doesn't support branch protection)
   endif
+ endif
+ ifdef VBOX_USE_CLANG
+  TEMPLATE_VBoxR0_LDFLAGS          += -Wl,-z,notext
  endif
  ifn1of ($(KBUILD_TARGET), solaris freebsd)
   TEMPLATE_VBoxR0_LATE_LIBS         = \
@@ -8568,7 +8579,11 @@ ifeq ($(KBUILD_HOST),win)
 
 else
  # (gcc of some kind )
- TEMPLATE_VBoxBldProg_TOOL               = GXX3
+ ifdef VBOX_USE_CLANG
+  TEMPLATE_VBoxBldProg_TOOL             := CLANGXX
+ else
+  TEMPLATE_VBoxBldProg_TOOL             := GXX3
+ endif
  if $(VBOX_GCC_VERSION_CC) < 30400
   TEMPLATE_VBoxBldProg_DEFS             += RT_WITHOUT_PRAGMA_ONCE
  endif
@@ -9092,20 +9107,30 @@ TEMPLATE_VBoxGuestR3XFree86Mod_EXTENDS := VBoxGuestR3ExeBase
 TEMPLATE_VBoxGuestR3XFree86Mod_SYSSUFF := .o
 TEMPLATE_VBoxGuestR3XFree86Mod_DEFS     = $(TEMPLATE_VBoxGuestR3ExeBase_DEFS) VBOX_GUESTR3XF86MOD RTMEM_NO_WRAP_TO_EF_APIS
 TEMPLATE_VBoxGuestR3XFree86Mod_CFLAGS   = $(filter-out $(VBOX_GCC_SANITIZER_FLAGS),$(TEMPLATE_VBoxGuestR3ExeBase_CFLAGS)) \
-	-fno-pie -fno-merge-constants -std=c99 -ffreestanding
+	-fno-pie $(if-expr !defined(VBOX_USE_CLANG),-fno-merge-constants,) -std=c99 -ffreestanding
 TEMPLATE_VBoxGuestR3XFree86Mod_CXXFLAGS = $(filter-out $(VBOX_GCC_SANITIZER_FLAGS),$(TEMPLATE_VBoxGuestR3ExeBase_CXXFLAGS)) \
-	-fno-pie -fno-merge-constants -ffreestanding
+	-fno-pie $(if-expr !defined(VBOX_USE_CLANG),-fno-merge-constants,) -ffreestanding
 TEMPLATE_VBoxGuestR3XFree86Mod_CFLAGS.linux             = $(VBOX_GCC_fno-stack-protector) # Remove symvers.h
 TEMPLATE_VBoxGuestR3XFree86Mod_CXXFLAGS.linux           = $(VBOX_GCC_fno-stack-protector) # Remove symvers.h
 TEMPLATE_VBoxGuestR3XFree86Mod_LDFLAGS.$(KBUILD_TARGET) = $(NO_SUCH_VARIABLE)
 # The GNU_HASH ELF tag is not supported by older glibc dynamic linkers.
-TEMPLATE_VBoxGuestR3XFree86Mod_LDFLAGS.linux            = $(subst -Wl$(COMMA),,$(VBOX_LD_hash_style_sysv))
+ifdef VBOX_USE_CLANG
+ TEMPLATE_VBoxGuestR3XFree86Mod_LDFLAGS.linux           = $(VBOX_LD_hash_style_sysv)
+else
+ TEMPLATE_VBoxGuestR3XFree86Mod_LDFLAGS.linux           = $(subst -Wl$(COMMA),,$(VBOX_LD_hash_style_sysv))
+endif
 TEMPLATE_VBoxGuestR3XFree86Mod_LDFLAGS.$(KBUILD_TYPE)   = $(NO_SUCH_VARIABLE)
 TEMPLATE_VBoxGuestR3XFree86Mod_LDFLAGS                 := -r
 if1of ($(KBUILD_TARGET), dragonfly freebsd linux netbsd openbsd) # the gnu ld guys.
- TEMPLATE_VBoxGuestR3XFree86Mod_LDFLAGS.release        := -S
- TEMPLATE_VBoxGuestR3XFree86Mod_LDFLAGS.x86            := -m elf_i386
- TEMPLATE_VBoxGuestR3XFree86Mod_LDFLAGS.amd64          := -m elf_x86_64
+ ifdef VBOX_USE_CLANG
+  TEMPLATE_VBoxGuestR3XFree86Mod_LDFLAGS.release       := -Wl,-S
+  TEMPLATE_VBoxGuestR3XFree86Mod_LDFLAGS.x86           := -Wl,-m,elf_i386
+  TEMPLATE_VBoxGuestR3XFree86Mod_LDFLAGS.amd64         := -Wl,-m,elf_x86_64
+ else
+  TEMPLATE_VBoxGuestR3XFree86Mod_LDFLAGS.release       := -S
+  TEMPLATE_VBoxGuestR3XFree86Mod_LDFLAGS.x86           := -m elf_i386
+  TEMPLATE_VBoxGuestR3XFree86Mod_LDFLAGS.amd64         := -m elf_x86_64
+ endif
 endif
 TEMPLATE_VBoxGuestR3XFree86Mod_LATE_LIBS                   = $(VBOX_LIB_VBGL_R3_XFREE86)
 TEMPLATE_VBoxGuestR3XFree86Mod_LATE_LIBS.$(KBUILD_TYPE)    = $(NO_SUCH_VARIABLE)
@@ -9465,7 +9490,7 @@ SVN                    ?= svn$(HOSTSUFF_EXE)
 GIT                    ?= git$(HOSTSUFF_EXE)
 VBOX_SVN_REV_KMK        = $(PATH_OUT)/revision.kmk
 ifndef VBOX_SVN_REV
- VBOX_SVN_REV_CONFIG_FALLBACK := $(patsubst %:,,  $Rev: 112786 $  )
+ VBOX_SVN_REV_CONFIG_FALLBACK := $(patsubst %:,,  $Rev: 112872 $  )
  VBOX_SVN_REV_FALLBACK := $(if-expr $(VBOX_SVN_REV_CONFIG_FALLBACK) > $(VBOX_SVN_REV_VERSION_FALLBACK),$(VBOX_SVN_REV_CONFIG_FALLBACK),$(VBOX_SVN_REV_VERSION_FALLBACK))
  VBOX_SVN_DEP          := $(firstword $(wildcard $(PATH_ROOT)/.svn/wc.db $(abspath $(PATH_ROOT)/../.svn/wc.db) $(abspath $(PATH_ROOT)/../../.svn/wc.db) $(PATH_ROOT)/.svn/entries))
  VBOX_GIT_DEP          := $(firstword $(wildcard $(PATH_ROOT)/.git/config $(abspath $(PATH_ROOT)/../.git/config) $(abspath $(PATH_ROOT)/../../.git/config)))
@@ -9479,7 +9504,7 @@ ifndef VBOX_SVN_REV
  ifneq ($(VBOX_GIT_DEP),)
   #
   # VBOX_SVN_REV_CONFIG_FALLBACK is not properly populated for a git checkout,
-  # as the $Rev: 112786 $ is not expanded, so we have to set it based on the information in the repo.
+  # as the $Rev: 112872 $ is not expanded, so we have to set it based on the information in the repo.
   #
   VBOX_SVN_REV_FALLBACK := $(shell $(GIT) log -1 $(PATH_ROOT)/Config.kmk | $(SED) -e 's/^[ \t]*//' -e '/svn:sync-xref-src-repo-rev\: r/!d' -e 's/svn:sync-xref-src-repo-rev\: r*//; t a; :a q')
  endif
