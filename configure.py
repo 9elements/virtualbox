@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# $Id: configure.py 112911 2026-02-09 17:35:39Z andreas.loeffler@oracle.com $
+# $Id: configure.py 112912 2026-02-09 17:56:21Z andreas.loeffler@oracle.com $
 """
 Configuration script for building VirtualBox.
 
@@ -61,7 +61,7 @@ SPDX-License-Identifier: GPL-3.0-only
 # External Python modules or other dependencies are not allowed!
 #
 
-__revision__ = "$Revision: 112911 $"
+__revision__ = "$Revision: 112912 $"
 
 import argparse
 import ctypes
@@ -2325,10 +2325,10 @@ class ToolCheck(CheckBase):
                 assert sVCPPVer;
                 self.sVer = sVCPPVer;
                 self.sCmdPath = sVCPPArchBinPath;
-                g_oEnv.set('config_c_compiler',   os.path.join(sVCPPArchBinPath, 'cl.exe'));
-                g_oEnv.set('config_c_compiler_ver', sVCPPVer);
-                g_oEnv.set('config_cpp_compiler', os.path.join(sVCPPArchBinPath, 'cl.exe'));
-                g_oEnv.set('config_cpp_compiler_ver', sVCPPVer);
+                g_oArgs.config_c_compiler       = os.path.join(sVCPPArchBinPath, 'cl.exe');
+                g_oArgs.config_c_compiler_ver   = sVCPPVer;
+                g_oArgs.config_cpp_compiler     = os.path.join(sVCPPArchBinPath, 'cl.exe');
+                g_oArgs.config_cpp_compiler_ver = sVCPPVer;
 
         return True if sVCPPVer else False;
 
@@ -2544,9 +2544,9 @@ class ToolCheck(CheckBase):
 
         if  self.sCmdPath \
         and self.enmBuildTarget == BuildTarget.DARWIN:
-            g_oEnv.set('config_c_compiler',   self.sCmdPath);
+            g_oArgs.config_c_compiler   = self.sCmdPath;
             self.sCmdPath, self.sVer = checkWhich('clang++');
-            g_oEnv.set('config_cpp_compiler', self.sCmdPath);
+            g_oArgs.config_cpp_compiler = self.sCmdPath;
 
         return True if self.sCmdPath else False;
 
@@ -2633,8 +2633,8 @@ class ToolCheck(CheckBase):
         self.sCmdPath = asToolsToCheck['gcc'].sPath;
         self.sVer     = asToolsToCheck['gcc'].sVer;
 
-        g_oEnv.set('config_c_compiler', 'gcc');   ## @todo Fix this.
-        g_oEnv.set('config_cpp_compiler', 'g++');
+        g_oArgs.config_c_compiler   = 'gcc';   ## @todo Fix this.
+        g_oArgs.config_cpp_compiler = 'g++';
         return True;
 
     def checkCallback_devtools(self):
