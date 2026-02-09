@@ -1,4 +1,4 @@
-/* $Id: GVMMR0.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: GVMMR0.cpp 112884 2026-02-09 09:33:45Z knut.osmundsen@oracle.com $ */
 /** @file
  * GVMM - Global VM Manager.
  */
@@ -2447,6 +2447,7 @@ static unsigned gvmmR0SchedDoWakeUps(PGVMM pGVMM, uint64_t u64Now)
         }
         AssertLogRelBreak(cGuard++ < RT_ELEMENTS(pGVMM->aHandles));
     }
+    RT_NOREF_PV(cHalted);
 
     if (cTodo2nd)
     {

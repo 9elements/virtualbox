@@ -1,4 +1,4 @@
-/* $Id: GIMAllKvm.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: GIMAllKvm.cpp 112884 2026-02-09 09:33:45Z knut.osmundsen@oracle.com $ */
 /** @file
  * GIM - Guest Interface Manager, KVM, All Contexts.
  */
@@ -130,6 +130,7 @@ VMM_INT_DECL(VBOXSTRICTRC) gimKvmHypercall(PVMCPUCC pVCpu, PCPUMCTX pCtx)
         default:
             break;
     }
+    RT_NOREF(uHyperArg0, uHyperArg2, uHyperArg3);
 
     /*
      * Place the result in rax/eax.

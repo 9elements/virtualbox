@@ -1,4 +1,4 @@
-/* $Id: PDMAllCritSectRw.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: PDMAllCritSectRw.cpp 112884 2026-02-09 09:33:45Z knut.osmundsen@oracle.com $ */
 /** @file
  * IPRT - Read/Write Critical Section, Generic.
  */
@@ -539,6 +539,7 @@ static int pdmCritSectRwEnterSharedContended(PVMCC pVM, PVMCPUCC pVCpu, PPDMCRIT
             return pdmCritSectRwEnterSharedGotItAfterWaiting(pVM, pThis, u64State, pSrcPos, fNoVal, hThreadSelf);
         }
 
+        RT_NOREF(iLoop);
         AssertMsg(iLoop < 1,
                   ("%p: %u u64State=%#RX64 hNativeWriter=%p\n", pThis, iLoop, u64State, pThis->s.Core.u.s.hNativeWriter));
         RTThreadYield();
@@ -1296,6 +1297,7 @@ static int pdmR3R0CritSectRwEnterExclContended(PVMCC pVM, PVMCPUCC pVCpu, PPDMCR
             if (fDone)
                 return pdmCritSectRwEnterExclFirst(pThis, pSrcPos, fNoVal, hThreadSelf);
         }
+        RT_NOREF(iLoop);
         AssertMsg(iLoop < 1000, ("%u\n", iLoop)); /* may loop a few times here... */
     }
 }

@@ -1,4 +1,4 @@
-/* $Id: PGMAllPool-x86.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: PGMAllPool-x86.cpp 112884 2026-02-09 09:33:45Z knut.osmundsen@oracle.com $ */
 /** @file
  * PGM Shadow Page Pool.
  */
@@ -938,10 +938,9 @@ static int pgmRZPoolAccessPfHandlerFlush(PVMCC pVM, PVMCPUCC pVCpu, PPGMPOOL pPo
  * @param   pDis        The disassembly of the write instruction.
  * @param   pCtx        Pointer to the register context for the CPU.
  * @param   GCPhysFault The fault address as guest physical address.
- * @param   pvFault     The fault address.
  */
 DECLINLINE(int) pgmRZPoolAccessPfHandlerSTOSD(PVMCC pVM, PPGMPOOL pPool, PPGMPOOLPAGE pPage, PDISSTATE pDis,
-                                              PCPUMCTX pCtx, RTGCPHYS GCPhysFault, RTGCPTR pvFault)
+                                              PCPUMCTX pCtx, RTGCPHYS GCPhysFault)
 {
     unsigned uIncrement = pDis->aParams[0].x86.cb;
     NOREF(pVM);
@@ -968,18 +967,16 @@ DECLINLINE(int) pgmRZPoolAccessPfHandlerSTOSD(PVMCC pVM, PPGMPOOL pPool, PPGMPOO
     /*
      * Execute REP STOSD.
      *
-     * This ASSUMES that we're not invoked by Trap0e on in a out-of-sync
+     * This ASSUMES that we're not invoked by Trap0e in an out-of-sync
      * write situation, meaning that it's safe to write here.
      */
-    PVMCPUCC    pVCpu = VMMGetCpu(pPool->CTX_SUFF(pVM));
-    RTGCUINTPTR pu32 = (RTGCUINTPTR)pvFault;
+    PVMCPUCC pVCpu = VMMGetCpu(pPool->CTX_SUFF(pVM));
     while (pCtx->rcx)
     {
         pgmPoolMonitorChainChanging(pVCpu, pPool, pPage, GCPhysFault, NULL, uIncrement);
         PGMPhysSimpleWriteGCPhys(pVM, GCPhysFault, &pCtx->rax, uIncrement);
-        pu32           += uIncrement;
-        GCPhysFault    += uIncrement;
-        pCtx->rdi += uIncrement;
+        GCPhysFault += uIncrement;
+        pCtx->rdi   += uIncrement;
         pCtx->rcx--;
     }
     pCtx->rip += pDis->cbInstr;
@@ -1291,7 +1288,7 @@ DECLCALLBACK(VBOXSTRICTRC) pgmRZPoolAccessPfHandler(PVMCC pVM, PVMCPUCC pVCpu, R
 
             if (fValidStosd)
             {
-                rc = pgmRZPoolAccessPfHandlerSTOSD(pVM, pPool, pPage, pDis, pCtx, GCPhysFault, pvFault);
+                rc = pgmRZPoolAccessPfHandlerSTOSD(pVM, pPool, pPage, pDis, pCtx, GCPhysFault);
                 STAM_PROFILE_STOP_EX(&pVM->pgm.s.CTX_SUFF(pPool)->StatMonitorPfRZ, &pPool->StatMonitorPfRZRepStosd, a);
                 PGM_UNLOCK(pVM);
                 return rc;
