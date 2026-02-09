@@ -1,4 +1,4 @@
-/* $Id: ConsoleImplConfigCommon.cpp 112463 2026-01-13 12:16:25Z knut.osmundsen@oracle.com $ */
+/* $Id: ConsoleImplConfigCommon.cpp 112870 2026-02-09 09:15:46Z alexander.eichner@oracle.com $ */
 /** @file
  * VBox Console COM Class implementation - VM Configuration Bits.
  *
@@ -4551,7 +4551,7 @@ int Console::i_configStorageCtrls(ComPtr<IMachine> pMachine, BusAssignmentManage
 
                 /* Attach the status driver */
                 i_attachStatusDriver(pCtlInst, RT_BIT_32(DeviceType_HardDisk) | RT_BIT_32(DeviceType_DVD) /*?*/,
-                                     8, &paLedDevType, &mapMediumAttachments, pszCtrlDev, ulInstance);
+                                     cPorts, &paLedDevType, &mapMediumAttachments, pszCtrlDev, ulInstance);
                 break;
             }
 
