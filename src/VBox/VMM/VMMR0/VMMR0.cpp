@@ -1,4 +1,4 @@
-/* $Id: VMMR0.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: VMMR0.cpp 112881 2026-02-09 09:30:41Z knut.osmundsen@oracle.com $ */
 /** @file
  * VMM - Host Context Ring 0.
  */
@@ -3451,7 +3451,7 @@ static DECLCALLBACK(bool) vmmR0LogFlush(PRTLOGGER pLogger, PRTLOGBUFFERDESC pBuf
 /*
  * Override RTLogDefaultInstanceEx so we can do logging from EMTs in ring-0.
  */
-DECLEXPORT(PRTLOGGER) RTLogDefaultInstanceEx(uint32_t fFlagsAndGroup)
+VMMR0DECL(PRTLOGGER) RTLogDefaultInstanceEx(uint32_t fFlagsAndGroup)
 {
 #ifdef LOG_ENABLED
     PGVMCPU pGVCpu = GVMMR0GetGVCpuByEMT(NIL_RTNATIVETHREAD);
@@ -3486,7 +3486,7 @@ DECLEXPORT(PRTLOGGER) RTLogDefaultInstanceEx(uint32_t fFlagsAndGroup)
 /*
  * Override RTLogRelGetDefaultInstanceEx so we can do LogRel to VBox.log from EMTs in ring-0.
  */
-DECLEXPORT(PRTLOGGER) RTLogRelGetDefaultInstanceEx(uint32_t fFlagsAndGroup)
+DECL_EXPORT_NOTHROW(PRTLOGGER) RTLogRelGetDefaultInstanceEx(uint32_t fFlagsAndGroup)
 {
     PGVMCPU pGVCpu = GVMMR0GetGVCpuByEMT(NIL_RTNATIVETHREAD);
     if (pGVCpu)
@@ -3813,7 +3813,7 @@ DECLEXPORT(bool) RTCALL RTAssertShouldPanic(void)
 /*
  * Override this so we can push it up to ring-3.
  */
-DECLEXPORT(void) RTCALL RTAssertMsg1Weak(const char *pszExpr, unsigned uLine, const char *pszFile, const char *pszFunction)
+VMMR0DECL(void) RTAssertMsg1Weak(const char *pszExpr, unsigned uLine, const char *pszFile, const char *pszFunction)
 {
     /*
      * To host kernel log/whatever.
@@ -3869,7 +3869,7 @@ static DECLCALLBACK(size_t) rtLogOutput(void *pv, const char *pachChars, size_t 
 /*
  * Override this so we can push it up to ring-3.
  */
-DECLEXPORT(void) RTCALL RTAssertMsg2WeakV(const char *pszFormat, va_list va)
+VMMR0DECL(void) RTAssertMsg2WeakV(const char *pszFormat, va_list va)
 {
     va_list vaCopy;
 
