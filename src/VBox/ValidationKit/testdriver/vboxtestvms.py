@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# $Id: vboxtestvms.py 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $
+# $Id: vboxtestvms.py 112890 2026-02-09 10:58:52Z serkan.bayraktar@oracle.com $
 
 """
 VirtualBox Test VMs
@@ -36,7 +36,7 @@ terms and conditions of either the GPL or the CDDL or both.
 
 SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 """
-__version__ = "$Revision: 112403 $"
+__version__ = "$Revision: 112890 $"
 
 # Standard Python imports.
 import copy;
@@ -138,6 +138,8 @@ g_aaNameToDetails = \
     [ 'Linux_64',       'OpenSUSE_64',           g_k64,    1, 256, ['opensuse[0-9]*-64', 'suse[0-9]*-64', ]],
     [ 'Linux',          'Ubuntu',                g_k32,    1, 256, ['ubuntu[0-9]*', ]],
     [ 'Linux_64',       'Ubuntu_64',             g_k64,    1, 256, ['ubuntu[0-9]*-64', ]],
+    [ 'Linux',          'Ubuntu16',              g_k32,    1, 256, ['ubuntu16[0-9]*', ]],
+    [ 'Linux',          'Ubuntu16_64',           g_k64,    1, 256, ['ubuntu16[0-9]*-64', ]],
     [ 'Linux',          'ArchLinux',             g_k32,    1, 256, ['arch[0-9]*', ]],
     [ 'Linux_64',       'ArchLinux_64',          g_k64,    1, 256, ['arch[0-9]*-64', ]],
     [ 'OS2Warp45',      'OS2Warp45',    g_k32 | g_kiNoRaw, 1, 1,   ['os2.*', 'acp.*','mcp.*', ]], # smp does busy spinning and unattended installer only does UNI at the momen.
