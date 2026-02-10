@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# $Id: status.py 112923 2026-02-10 14:42:09Z ksenia.s.stepanova@oracle.com $
+# $Id: status.py 112924 2026-02-10 14:44:05Z ksenia.s.stepanova@oracle.com $
 
 """
 CGI - Administrator Web-UI.
@@ -37,7 +37,7 @@ terms and conditions of either the GPL or the CDDL or both.
 
 SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 """
-__version__ = "$Revision: 112923 $"
+__version__ = "$Revision: 112924 $"
 
 
 # Standard python imports.
@@ -128,7 +128,7 @@ def formatDataEntry(sKey, dEntry):
     # There are variations in the first and second "columns".
     if "hours_running" in dEntry:
         sRet = "%s;%s;%s;%s | running: %s;%s" \
-             % (sKey, dEntry["testbox_os"], dEntry["testbox_arch"], dEntry["sched_group"], 
+             % (sKey, dEntry["testbox_os"], dEntry["testbox_arch"], dEntry["sched_group"],
                 dEntry["running"], dEntry["hours_running"]);
     else:
         if "testbox_os" in dEntry:
