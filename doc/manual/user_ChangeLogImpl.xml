@@ -81,7 +81,8 @@ Rules for adding a changelog entry to make them look more uniform:
     <itemizedlist>
 
       <listitem>
-        <para></para>
+        <para>IPRT: Merged Github pull request 503 (fix: infinite loop in vsscanf whitespace processing).
+          github-merge-author: lachlanharrisdev</para>
       </listitem>
 
     </itemizedlist>
