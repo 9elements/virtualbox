@@ -74,6 +74,7 @@
     <String Id="Only64Bit" Value="This application only runs on 64-bit Windows systems. Please install the 32-bit version of [ProductName]!" />
     <String Id="SunFound" Value="An old Sun VirtualBox installation has been found on this machine. Please uninstall this package first and then install [ProductName]!" />
     <String Id="InnotekFound" Value="An old innotek VirtualBox installation has been found on this machine. Please uninstall this package first and then install [ProductName]!" />
+    <String Id="NewerVersionDetected" Value="A newer version of VirtualBox is already installed. Please uninstall it first before installing older versions of VirtualBox." />
     <String Id="InvalidTargetDir" Value="Invalid installation directory specified! Please use another installation directory to install [ProductName]. Refer to the [ProductName] manual for more information." />
 
     <!---->

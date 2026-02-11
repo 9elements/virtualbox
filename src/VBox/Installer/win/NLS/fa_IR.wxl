@@ -67,6 +67,7 @@
     <String Id="Only64Bit" Value="این برنامه فقط روی ویندوز 64 بیتی اِجرا میشود. لطفا نسخه 32 بیتی [ProductName] را نصب کنید!" />
     <String Id="SunFound" Value="یک نصب قدیمی ویرچوال باکس روی این رایانه یافت شد. لطفا اول این بسته را حذف سپس [ProductName] را نصب کنید!" />
     <String Id="InnotekFound" Value="یک نسخه قدیمی نصب ویرچوال باکس در این ماشین یافت شد. لطفا اول این بسته را حذف و سپس [ProductName] را نصب کنید!" />
+    <String Id="NewerVersionDetected" Value="A newer version of VirtualBox is already installed. Please uninstall it first before installing older versions of VirtualBox." />
     <String Id="InvalidTargetDir" Value="Invalid installation directory specified! Please use another installation directory to install [ProductName]. Refer to the [ProductName] manual for more information." />
     <!---->
     <String Id="CancelDlg_Question" Value="آیا میخواهید نصب [ProductName] را لغو کنید؟" />
