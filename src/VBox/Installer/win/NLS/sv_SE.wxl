@@ -70,6 +70,7 @@
     <String Id="WrongOS" Value="[ProductName] kan endast köras på Windows 10 eller senare." />
     <String Id="Only64Bit" Value="[ProductName] kan endast köras på 64-bitars Windows-system." />
     <String Id="WrongPlatformArch" Value="Denna version av [ProductName] har utvecklats för en annan plattformsarkitektur och kan därför inte installeras. Installera en version som passar [ProductName]!" />
+    <String Id="NewerVersionDetected" Value="A newer version of VirtualBox is already installed. Please uninstall it first before installing older versions of VirtualBox." />
     <String Id="InvalidTargetDir" Value="Ogiltig installationskatalog angiven! Använd en annan installationskatalog för att installera [ProductName]. Mer information finns i manualen för [ProductName]." />
 
     <!---->

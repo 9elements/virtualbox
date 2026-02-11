@@ -70,6 +70,7 @@
     <String Id="WrongOS" Value="A(z) [ProductName] futtatásához legalább Windows 10 szükséges." />
     <String Id="Only64Bit" Value="A(z) [ProductName] csak 64-bites Windows rendszeren fut." />
     <String Id="WrongPlatformArch" Value="A(z) [ProductName] ezen verziója más architektúrára lett fejlesztve, ezért nem telepíthető. Kérjük, telepítse a megfelelő [ProductName] verziót!" />
+    <String Id="NewerVersionDetected" Value="A newer version of VirtualBox is already installed. Please uninstall it first before installing older versions of VirtualBox." />
     <String Id="InvalidTargetDir" Value="A megadott elérési út érvénytelen! Válasszon másik telepítési mappát a(z) [ProductName] telepítéséhez. További információk a(z) [ProductName] használati útmutatójában." />
 
     <!---->
