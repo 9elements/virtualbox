@@ -1,4 +1,4 @@
-/* $Id: nocrt-vsscanf.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: nocrt-vsscanf.cpp 112932 2026-02-11 09:31:01Z andreas.loeffler@oracle.com $ */
 /** @file
  * IPRT - No-CRT - Simplistic vsscanf().
  */
@@ -217,7 +217,7 @@ int RT_NOCRT(vsscanf)(const char *pszString, const char *pszFormat, va_list va)
                 while (RT_C_IS_SPACE(*pszFormat))
                     pszFormat++;
                 while (RT_C_IS_SPACE(*pszString))
-                    pszFormat++;
+                    pszString++;
                 break;
 
             /*
