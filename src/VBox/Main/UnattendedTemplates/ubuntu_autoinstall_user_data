@@ -42,13 +42,16 @@ autoinstall:
   user-data:
     hostname: '@@VBOX_INSERT_HOSTNAME_WITHOUT_DOMAIN@@'
     users:
+@@VBOX_COND_IS_ROOT_PASSWORD_SET@@
       - name: root
         primary_group: root
         groups: sudo
         lock-passwd: false
         passwd: '@@VBOX_INSERT_USER_PASSWORD_SHACRYPT512@@'
         uid: 0
-
+@@VBOX_COND_ELSE@@
+        # skip root part in case no root password is set explicitly, which can be done only by CLI client as of now
+@@VBOX_COND_END@@
       - name: '@@VBOX_INSERT_USER_LOGIN@@'
         gecos: '@@VBOX_INSERT_USER_LOGIN@@'
         primary_group: '@@VBOX_INSERT_USER_LOGIN@@'

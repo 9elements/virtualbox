@@ -1,4 +1,4 @@
-/* $Id: UnattendedScript.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: UnattendedScript.cpp 112942 2026-02-11 11:44:22Z serkan.bayraktar@oracle.com $ */
 /** @file
  * Classes for reading/parsing/saving scripts for unattended installation.
  */
@@ -781,6 +781,8 @@ int UnattendedScriptTemplate::queryVariable(const char *pchName, size_t cchName,
      */
     else if (IS_MATCH("IS_INSTALLING_ADDITIONS"))
         pszValue = mpUnattended->i_getInstallGuestAdditions() ? "1" : "0";
+    else if (IS_MATCH("IS_ROOT_PASSWORD_SET"))
+        pszValue = mpUnattended->i_getIsAdminPasswordEmpty() ? "0" : "1";
     else if (IS_MATCH("IS_USER_LOGIN_ADMINISTRATOR"))
         pszValue = mpUnattended->i_getUser().compare("Administrator", RTCString::CaseInsensitive) == 0 ? "1" : "0";
     else if (IS_MATCH("IS_INSTALLING_TEST_EXEC_SERVICE"))
@@ -864,6 +866,9 @@ HRESULT UnattendedScriptTemplate::getConditional(const char *pachPlaceholder, si
         *pfOutputting = mpUnattended->i_getProxy().isNotEmpty();
     else if (IS_PLACEHOLDER_MATCH("AVOID_UPDATES_OVER_NETWORK"))
         *pfOutputting = mpUnattended->i_getAvoidUpdatesOverNetwork();
+    /* Is root password set explicitly. */
+    else if (IS_PLACEHOLDER_MATCH("IS_ROOT_PASSWORD_SET"))
+        *pfOutputting = !mpUnattended->i_getIsAdminPasswordEmpty();
     else
         return mpSetError->setErrorBoth(E_FAIL, VERR_NOT_FOUND, tr("Unknown conditional placeholder '%.*s'"),
                                         cchPlaceholder, pachPlaceholder);

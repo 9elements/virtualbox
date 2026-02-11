@@ -1,4 +1,4 @@
-/* $Id: UnattendedImpl.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: UnattendedImpl.h 112942 2026-02-11 11:44:22Z serkan.bayraktar@oracle.com $ */
 /** @file
  * Unattended class header
  */
@@ -81,6 +81,8 @@ public:
     Utf8Str const &i_getUser() const;
     Utf8Str const &i_getUserPassword() const;
     Utf8Str const &i_getAdminPassword() const;
+    /* We need the following since i_getAdminPassword returns user password when mStrAdminPassword is empty. */
+    bool           i_getIsAdminPasswordEmpty() const;
     Utf8Str const &i_getFullUserName() const;
     Utf8Str const &i_getProductKey() const;
     Utf8Str const &i_getProxy() const;
