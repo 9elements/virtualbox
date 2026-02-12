@@ -1,4 +1,4 @@
-/* $Id: VBoxGuest.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: VBoxGuest.cpp 112972 2026-02-12 14:07:31Z alexander.eichner@oracle.com $ */
 /** @file
  * VBoxGuest - Guest Additions Driver, Common Code.
  */
@@ -703,7 +703,7 @@ static int vgdrvSetBalloonSizeFromUser(PVBOXGUESTDEVEXT pDevExt, PVBOXGUESTSESSI
     if (fInflate)
     {
         rc = RTR0MemObjLockUser(pMemObj, pvChunk, VMMDEV_MEMORY_BALLOON_CHUNK_SIZE,
-                                RTMEM_PROT_READ | RTMEM_PROT_WRITE, NIL_RTR0PROCESS);
+                                RTMEM_PROT_READ | RTMEM_PROT_WRITE, 0 /*fFlags*/, NIL_RTR0PROCESS);
         if (RT_SUCCESS(rc))
         {
             rc = vgdrvBalloonInflate(pMemObj, pReq);
