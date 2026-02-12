@@ -1,4 +1,4 @@
-/* $Id: PGMAllPhys.cpp 112978 2026-02-12 19:50:41Z alexander.eichner@oracle.com $ */
+/* $Id: PGMAllPhys.cpp 112980 2026-02-12 20:01:00Z alexander.eichner@oracle.com $ */
 /** @file
  * PGM - Page Manager and Monitor, Physical Memory Addressing.
  */
@@ -1276,7 +1276,7 @@ static int pgmPhysMmio2RegisterWorkerCommon(PVMCC pVM, uint32_t const cGuestPage
 #ifdef IN_RING0
                                             , RTR0MEMOBJ hMemObj, RTR0MEMOBJ hMapObj
 # ifndef VBOX_WITH_LINEAR_HOST_PHYS_MEM
-                                            , pbMmio2BackingR0
+                                            , uint8_t *pbMmio2BackingR0
 # endif
 #endif
                                             )
