@@ -1,4 +1,4 @@
-/* $Id: NEMR3Native-win-x86.cpp 112928 2026-02-11 09:04:28Z ramshankar.venkataraman@oracle.com $ */
+/* $Id: NEMR3Native-win-x86.cpp 112964 2026-02-12 07:48:22Z knut.osmundsen@oracle.com $ */
 /** @file
  * NEM - Native execution manager, native ring-3 Windows backend.
  *
@@ -4772,8 +4772,8 @@ static VBOXSTRICTRC nemR3WinHandleExitException(PVMCC pVM, PVMCPUCC pVCpu, WHV_R
 
             uint64_t const uHyperDr6       = CPUMGetHyperDR6(pVCpu);
             bool const     fSingleStepping = pVCpu->nem.s.fSingleInstruction || DBGFIsStepping(pVCpu);
-            int rc = DBGFTrap01Handler(pVM, pVCpu, &pVCpu->cpum.GstCtx, uHyperDr6, fSingleStepping);
-            if (rc == VINF_EM_RAW_GUEST_TRAP)
+            rcStrict = DBGFTrap01Handler(pVM, pVCpu, &pVCpu->cpum.GstCtx, uHyperDr6, fSingleStepping);
+            if (rcStrict == VINF_EM_RAW_GUEST_TRAP)
             {
                 if (CPUMIsHyperDebugStateActive(pVCpu))
                     CPUMSetGuestDR6(pVCpu, pVCpu->cpum.GstCtx.dr[6] | uHyperDr6);
@@ -4786,17 +4786,17 @@ static VBOXSTRICTRC nemR3WinHandleExitException(PVMCC pVM, PVMCPUCC pVCpu, WHV_R
                       nemR3WinExecStateToLogStr(&pExit->VpContext)));
 
                 IEMTlbInvalidateAll(pVCpu);
-                rc = IEMInjectTrap(pVCpu, pExit->VpException.ExceptionType, enmEvtType, pExit->VpException.ErrorCode,
-                                          pExit->VpException.ExceptionParameter /*??*/, pExit->VpContext.InstructionLength);
+                rcStrict = IEMInjectTrap(pVCpu, pExit->VpException.ExceptionType, enmEvtType, pExit->VpException.ErrorCode,
+                                         pExit->VpException.ExceptionParameter /*??*/, pExit->VpContext.InstructionLength);
             }
             else
-                Assert(rc == VINF_SUCCESS || rc == VINF_EM_DBG_BREAKPOINT || rc == VINF_EM_DBG_STEPPED);
+                Assert(rcStrict == VINF_SUCCESS || rcStrict == VINF_EM_DBG_BREAKPOINT || rcStrict == VINF_EM_DBG_STEPPED);
 
             /* Clear DR6 if hypervisor debugging caused this exception. */
             if (CPUMIsHyperDebugStateActive(pVCpu))
                 CPUMSetHyperDR6(pVCpu, X86_DR6_INIT_VAL);
 
-            return rc;
+            return rcStrict;
         }
 
         case X86_XCPT_BP:
