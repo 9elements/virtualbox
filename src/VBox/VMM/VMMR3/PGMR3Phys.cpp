@@ -1,4 +1,4 @@
-/* $Id: PGMR3Phys.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: PGMR3Phys.cpp 112978 2026-02-12 19:50:41Z alexander.eichner@oracle.com $ */
 /** @file
  * PGM - Page Manager and Monitor, Physical Memory Addressing.
  */
@@ -3241,7 +3241,8 @@ VMMR3_INT_DECL(int) PGMR3PhysMmio2Register(PVM pVM, PPDMDEVINS pDevIns, uint32_t
      * Validate input.
      */
     AssertPtrReturn(ppv, VERR_INVALID_POINTER);
-    *ppv = NULL;
+    if (!(fFlags & PGMPHYS_MMIO2_FLAGS_USE_EXISTING_BACKING))
+        *ppv = NULL;
     if (phRegion)
     {
         AssertPtrReturn(phRegion, VERR_INVALID_POINTER);
@@ -3325,11 +3326,18 @@ VMMR3_INT_DECL(int) PGMR3PhysMmio2Register(PVM pVM, PPDMDEVINS pDevIns, uint32_t
             Mmio2RegReq.iRegion      = (uint8_t)iRegion;
             Mmio2RegReq.fFlags       = fFlags;
             Mmio2RegReq.pDevIns      = pDevIns;
+            if ((fFlags & PGMPHYS_MMIO2_FLAGS_USE_EXISTING_BACKING))
+                Mmio2RegReq.pbR3     = (uint8_t *)*ppv;
+            else
+                Mmio2RegReq.pbR3     = NULL;
             rc = VMMR3CallR0Emt(pVM, pVCpu, VMMR0_DO_PGM_PHYS_MMIO2_REGISTER, 0 /*u64Arg*/, &Mmio2RegReq.Hdr);
         }
         else
 #endif
-            rc = pgmPhysMmio2RegisterWorker(pVM, cGuestPages, idMmio2, cChunks, pDevIns, iSubDev, iRegion, fFlags);
+        if (!(fFlags & PGMPHYS_MMIO2_FLAGS_USE_EXISTING_BACKING))
+            rc = pgmPhysMmio2RegisterWorkerAlloc(pVM, cGuestPages, idMmio2, cChunks, pDevIns, iSubDev, iRegion, fFlags);
+        else
+            rc = pgmPhysMmio2RegisterWorkerExisting(pVM, cGuestPages, idMmio2, cChunks, pDevIns, iSubDev, iRegion, fFlags, (uint8_t *)*ppv);
         if (RT_SUCCESS(rc))
         {
             Assert(idMmio2 + cChunks - 1 == pVM->pgm.s.cMmio2Ranges);
