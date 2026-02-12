@@ -1,4 +1,4 @@
-/* $Id: DevPciVfio.cpp 112944 2026-02-11 12:40:26Z alexander.eichner@oracle.com $ */
+/* $Id: DevPciVfio.cpp 112982 2026-02-12 20:06:42Z alexander.eichner@oracle.com $ */
 /** @file
  * PCI passthrough device emulation using VFIO/IOMMUFD.
  */
@@ -62,7 +62,7 @@
 /** eventfd2() syscall for the interrupt handling. */
 #define LNX_SYSCALL_EVENTFD2          290
 
-//#define VFIO_PCI_MAP_MMIO_INTO_GUEST 1
+#define VFIO_PCI_MAP_MMIO_INTO_GUEST 1
 
 
 /*********************************************************************************************************************************
@@ -422,11 +422,11 @@ static int pciVfioSetupBar(PVFIOPCI pThis, PPDMDEVINS pDevIns, PPDMPCIDEV pPciDe
             rc = PDMDevHlpPCIIORegionRegisterMmioEx(pDevIns, pPciDev, uRegion, RegionInfo.size, (PCIADDRESSSPACE)enmAddrSpace,
                                                     pThis->aBars[uRegion].hnd.hMmio, NULL);
 #else
-            /** @todo Need the necessary infrastructure in VMM to map MMIo regions into the guest. */
             RT_NOREF(pPciDev);
-            rc = PDMDevHlpPCIIORegionCreateMmio2Ex(pDevIns, uRegion, RegionInfo.size,
-                                                   (PCIADDRESSSPACE)enmAddrSpace, PGMPHYS_MMIO2_FLAGS_USE_EXISTING_BACKING,
-                                                   NULL, "MMIO", (void **)&pThis->aBars[uRegion].u.pvMmio, &pThis->aBars[uRegion].hnd.hMmio2);
+            rc = PDMDevHlpPCIIORegionCreateMmio2FromExisting(pDevIns, uRegion, RegionInfo.size,
+                                                             (PCIADDRESSSPACE)enmAddrSpace,
+                                                             "MMIO", (void *)pThis->aBars[uRegion].u.pvMmio,
+                                                             &pThis->aBars[uRegion].hnd.hMmio2);
 #endif
             AssertLogRelRCReturn(rc, rc);
         }
@@ -834,8 +834,6 @@ static int pciVfioMapRegion(PVFIOPCI pThis, RTGCPHYS GCPhysStart, uintptr_t uPtr
     Map.user_va    = uPtrMapping;
     Map.length     = cbMapping;
     Map.iova       = GCPhysStart;
-
-    LogRel(("Mapping GCPhysStart=%RGp uPtrMapping=%p cbMapping=%#zx\n", GCPhysStart, uPtrMapping, cbMapping));
 
     int rcLnx = ioctl(pThis->iFdIommu, IOMMU_IOAS_MAP, &Map);
     if (rcLnx == -1)
