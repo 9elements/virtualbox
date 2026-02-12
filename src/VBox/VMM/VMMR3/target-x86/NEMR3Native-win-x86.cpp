@@ -1,4 +1,4 @@
-/* $Id: NEMR3Native-win-x86.cpp 112964 2026-02-12 07:48:22Z knut.osmundsen@oracle.com $ */
+/* $Id: NEMR3Native-win-x86.cpp 112965 2026-02-12 08:41:01Z ramshankar.venkataraman@oracle.com $ */
 /** @file
  * NEM - Native execution manager, native ring-3 Windows backend.
  *
@@ -2471,6 +2471,7 @@ static int nemHCWinCopyStateToHyperV(PVMCC pVM, PVMCPUCC pVCpu)
         && pVCpu->nem.s.fCurrentInterruptWindows == pVCpu->nem.s.fDesiredInterruptWindows)
         return VINF_SUCCESS;
     uintptr_t iReg = 0;
+    uintptr_t iRegRFlags = UINTPTR_MAX;
 
 #define ADD_REG64(a_enmName, a_uValue) do { \
             aenmNames[iReg]      = (a_enmName); \
@@ -2521,7 +2522,12 @@ static int nemHCWinCopyStateToHyperV(PVMCC pVM, PVMCPUCC pVCpu)
     if (fWhat & CPUMCTX_EXTRN_RIP)
         ADD_REG64(WHvX64RegisterRip, pVCpu->cpum.GstCtx.rip);
     if (fWhat & CPUMCTX_EXTRN_RFLAGS)
+    {
+        iRegRFlags = iReg;
         ADD_REG64(WHvX64RegisterRflags, pVCpu->cpum.GstCtx.rflags.u);
+    }
+    else
+        Assert(iRegRFlags == UINTPTR_MAX);
 
     /* Segments */
 #define ADD_SEG(a_enmName, a_SReg) \
@@ -2610,6 +2616,23 @@ static int nemHCWinCopyStateToHyperV(PVMCC pVM, PVMCPUCC pVCpu)
         ADD_REG64(WHvX64RegisterDr3, CPUMGetHyperDR3(pVCpu));
         ADD_REG64(WHvX64RegisterDr6, CPUMGetHyperDR6(pVCpu));
         ADD_REG64(WHvX64RegisterDr7, CPUMGetHyperDR7(pVCpu));
+
+        /*
+         * The Microsoft Hyper-V API does not support monitor-trap flag or similar functionality.
+         * We are thus forced to use the guests EFLAGS.TF (trap flag) for single-stepping over
+         * guest instructions using the hypervisor debugger. This approach is limited and imperfect
+         * (e.g. inaccurate when stepping over instructions that modify EFLAGS, when a debugger in
+         * the guest is using EFLAGS.TF itself and so on).
+         */
+        if (pVCpu->nem.s.fSingleInstruction)
+        {
+            pVCpu->cpum.GstCtx.eflags.u |= X86_EFL_TF;
+            pVCpu->nem.s.fClearTrapFlag = true;
+            if (iRegRFlags != UINTPTR_MAX)
+                aValues[iRegRFlags].Reg64 = pVCpu->cpum.GstCtx.rflags.u;
+            else
+                ADD_REG64(WHvX64RegisterRflags, pVCpu->cpum.GstCtx.rflags.u);
+        }
     }
 
     if (fWhat & CPUMCTX_EXTRN_XCRx)
@@ -5140,7 +5163,9 @@ static VBOXSTRICTRC nemHCWinRunGC(PVMCC pVM, PVMCPUCC pVCpu)
      * Current approach to state updating to use the sledgehammer and sync
      * everything every time.  This will be optimized later.
      */
+    const bool      fSavedSingleInstr   = pVCpu->nem.s.fSingleInstruction;
     const bool      fSingleStepping     = pVCpu->nem.s.fSingleInstruction || DBGFIsStepping(pVCpu);
+    pVCpu->nem.s.fSingleInstruction     = fSingleStepping;
 //    const uint32_t  fCheckVmFFs         = !fSingleStepping ? VM_FF_HP_R0_PRE_HM_MASK
 //                                                           : VM_FF_HP_R0_PRE_HM_STEP_MASK;
 //    const uint32_t  fCheckCpuFFs        = !fSingleStepping ? VMCPU_FF_HP_R0_PRE_HM_MASK : VMCPU_FF_HP_R0_PRE_HM_STEP_MASK;
@@ -5329,13 +5354,6 @@ static VBOXSTRICTRC nemHCWinRunGC(PVMCC pVM, PVMCPUCC pVCpu)
         break;
     } /* the run loop */
 
-    if (CPUMIsHyperDebugStateActive(pVCpu))
-    {
-        CPUMR3NemActivateGuestDebugState(pVCpu);
-        Assert(CPUMIsGuestDebugStateActive(pVCpu));
-        Assert(!CPUMIsHyperDebugStateActive(pVCpu));
-    }
-
     /*
      * If the CPU is running, make sure to stop it before we try sync back the
      * state and return to EM.  We don't sync back the whole state if we can help it.
@@ -5376,6 +5394,23 @@ static VBOXSTRICTRC nemHCWinRunGC(PVMCC pVM, PVMCPUCC pVCpu)
         STAM_REL_COUNTER_INC(&pVCpu->nem.s.StatImportOnReturnSkipped);
         pVCpu->cpum.GstCtx.fExtrn = 0;
     }
+
+    /*
+     * Restore modified state associated with hypervisor breakpoints/events and/or single-stepping.
+     */
+    if (CPUMIsHyperDebugStateActive(pVCpu))
+    {
+        CPUMR3NemActivateGuestDebugState(pVCpu);
+        Assert(CPUMIsGuestDebugStateActive(pVCpu));
+        Assert(!CPUMIsHyperDebugStateActive(pVCpu));
+    }
+    if (pVCpu->nem.s.fClearTrapFlag)
+    {
+        Assert(!(pVCpu->cpum.GstCtx.fExtrn & CPUMCTX_EXTRN_RFLAGS));
+        pVCpu->cpum.GstCtx.eflags.u &= ~X86_EFL_TF;
+        pVCpu->nem.s.fClearTrapFlag = false;
+    }
+    pVCpu->nem.s.fSingleInstruction = fSavedSingleInstr;
 
     LogFlow(("NEM/%u: %04x:%08RX64 efl=%#08RX64 => %Rrc\n", pVCpu->idCpu, pVCpu->cpum.GstCtx.cs.Sel,
              pVCpu->cpum.GstCtx.rip, pVCpu->cpum.GstCtx.rflags.u, VBOXSTRICTRC_VAL(rcStrict) ));
