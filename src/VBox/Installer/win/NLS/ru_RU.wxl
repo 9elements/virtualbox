@@ -70,6 +70,7 @@
     <String Id="WrongOS" Value="Приложение [ProductName] может быть запущено только на Windows 10 или более новой." />
     <String Id="Only64Bit" Value="Приложение [ProductName] может быть запущено только на 64-битной версии Windows." />
     <String Id="WrongPlatformArch" Value="Эта версия [ProductName] была разработана для другой платформенной архитектуры и потому не может быть установлена. Пожалуйста, установите соответствующую версию [ProductName]!" />
+    <String Id="NewerVersionDetected" Value="A newer version of VirtualBox is already installed. Please uninstall it first before installing older versions of VirtualBox." />
     <String Id="InvalidTargetDir" Value="Указана неверная директория установки! Пожалуйста, используйте другую директорию для установки [ProductName]. Обратитесь к Руководству пользователя [ProductName] для более подробной информации." />
 
     <!---->

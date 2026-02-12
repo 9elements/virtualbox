@@ -108,8 +108,7 @@
                                                        Maximum="$(var.Property_Version)" IncludeMaximum="yes"
                                                        OnlyDetect="no" />
 
-        <!-- Detect and uninstall if a newer version (than this version) of VirtualBox already is installed.
-             @todo Should make a dialog appear asking user to confirm downgrade -->
+        <!-- Detect and uninstall if a newer version (than this version) of VirtualBox already is installed. -->
         <UpgradeVersion Property="NEWERVERSIONDETECTED" Minimum="$(var.Property_Version)" IncludeMinimum="no"
                                                         Maximum="9.9.99"                  IncludeMaximum="yes"
                                                         OnlyDetect="no" />
@@ -118,6 +117,11 @@
         <UpgradeVersion Property="PREVIOUSVERSIONDETECTED" Minimum="1.0.0.0" Maximum="$(var.Property_Version)" IncludeMaximum="no" />
 
     </Upgrade>
+
+    <!-- Prevent downgrades and let the user manually uninstall the newer version first.
+         This is the recommended way of downgrading using MSI, as MSI iteself can't handle this (see KeyPath attributes).
+         This otherwise can lead to corrupt or malfunctioning installations. See @bugref{10762#c21}. -->
+    <Launch Condition="NOT NEWERVERSIONDETECTED" Message="!(loc.NewerVersionDetected)" />
 
     <!-- The product's icon table -->
     <Icon Id="IconVirtualBox" SourceFile="$(env.VBOX_WINDOWS_ICON_FILE)" />
@@ -408,8 +412,9 @@
         <AppSearch Sequence="1"></AppSearch>
         <LaunchConditions After="AppSearch" />
 
-        <!-- First uninstall any installed VBox version, then install this version. -->
-        <RemoveExistingProducts After="InstallValidate" Condition="PREVIOUSVERSIONDETECTED OR NEWERVERSIONDETECTED OR SAMEVERSIONDETECTED" />
+        <!-- First uninstall any older installed VBox version, then install this version.
+             Note! We don't uninstall any newer versions automatically (automatic downgrade prevention, see above).  -->
+        <RemoveExistingProducts After="InstallValidate" Condition="PREVIOUSVERSIONDETECTED OR SAMEVERSIONDETECTED" />
 
         <Custom Action="ca_OriginalTargetDir" After="FileCost" Condition="(NOT INSTALLDIR)" />
         <Custom Action="ca_DefaultTargetDir" Before="FileCost" Condition="NOT INSTALLDIR AND EXISTINGINSTALLDIR" />

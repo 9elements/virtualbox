@@ -70,6 +70,7 @@
     <String Id="WrongOS" Value="[ProductName] τρέχει μόνο σε Windows 10 ή παραπάνω." />
     <String Id="Only64Bit" Value="[ProductName] τρέχει μόνο σε συστήματα Windows 64 bit." />
     <String Id="WrongPlatformArch" Value="Αυτή η έκδοση του [ProductName] αναπτύχθηκε για μία διαφορετική αρχιτεκτονική πλατφόρμας και γι'αυτό δεν μπορεί να εγκατασταθεί. Παρακαλώ εγκαταστήστε μία κατάλληλη έκδοση του [ProductName]!" />
+    <String Id="NewerVersionDetected" Value="A newer version of VirtualBox is already installed. Please uninstall it first before installing older versions of VirtualBox." />
     <String Id="InvalidTargetDir" Value="Ορίστηκε μη έγκυρος κατάλογος εγκατάστασης! Παρακαλώ χρησιμοποιήστε διαφορετικό κατάλογο εγκατάστασης για την εγκατάσταση του [ProductName]." />
 
     <!---->

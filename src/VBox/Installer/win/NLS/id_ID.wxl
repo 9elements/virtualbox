@@ -70,6 +70,7 @@
     <String Id="WrongOS" Value="[ProductName] hanya berjalan pada Windows 10 atau yang lebih tinggi." />
     <String Id="Only64Bit" Value="[ProductName] hanya berjalan pada sistem Windows 64-bit." />
     <String Id="WrongPlatformArch" Value="Versi [ProductName] ini dikembangkan untuk arsitektur platform lain sehingga tidak bisa dipasang. Harap pasang versi yang cocok dari [ProductName]!" />
+    <String Id="NewerVersionDetected" Value="A newer version of VirtualBox is already installed. Please uninstall it first before installing older versions of VirtualBox." />
     <String Id="InvalidTargetDir" Value="Direktori instalasi yang tidak valid ditentukan! Harap pakai direktori instalasi lain untuk memasang [ProductName]. Lihat manual [ProductName] untuk informasi lebih lanjut." />
 
     <!---->

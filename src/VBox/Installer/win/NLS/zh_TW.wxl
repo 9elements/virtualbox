@@ -70,6 +70,7 @@
     <String Id="WrongOS" Value="[ProductName] 只能執行在 Windows 10 或以上。" />
     <String Id="Only64Bit" Value="[ProductName] 只能執行在 64 位元的 Windows 系統。" />
     <String Id="WrongPlatformArch" Value="這個版本的 [ProductName] 是為其它平台架構開發的，因此無法安裝。 請安裝符合版本的 [ProductName]!" />
+    <String Id="NewerVersionDetected" Value="A newer version of VirtualBox is already installed. Please uninstall it first before installing older versions of VirtualBox." />
     <String Id="InvalidTargetDir" Value="指定的安裝目錄無效! 請使用另一個安裝目錄來安裝 [ProductName]。 參閱 [ProductName] 手冊取得詳細資訊。" />
 
     <!---->
