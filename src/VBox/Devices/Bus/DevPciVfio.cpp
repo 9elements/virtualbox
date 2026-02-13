@@ -1,4 +1,4 @@
-/* $Id: DevPciVfio.cpp 112982 2026-02-12 20:06:42Z alexander.eichner@oracle.com $ */
+/* $Id: DevPciVfio.cpp 112992 2026-02-13 10:51:48Z alexander.eichner@oracle.com $ */
 /** @file
  * PCI passthrough device emulation using VFIO/IOMMUFD.
  */
@@ -62,8 +62,6 @@
 /** eventfd2() syscall for the interrupt handling. */
 #define LNX_SYSCALL_EVENTFD2          290
 
-#define VFIO_PCI_MAP_MMIO_INTO_GUEST 1
-
 
 /*********************************************************************************************************************************
 *   Structures and Typedefs                                                                                                      *
@@ -124,6 +122,9 @@ typedef struct VFIOPCI
     /** The PCI BAR information. */
     VFIOPCIBAR           aBars[VBOX_PCI_NUM_REGIONS];
 
+    /** Flag whether MMIO regions are intercepted and handled through
+     * regular MMIO handlers or are mapped into the guest. */
+    bool                 fInterceptMmio;
     /** Flag whether VGA capabilities are exposed. */
     bool                 fVga;
     /** The start offset of the VGA region. */
@@ -144,6 +145,8 @@ typedef struct VFIOPCI
     /** ROM region handle. */
     PGMMMIO2HANDLE       hRom;
 
+    /** The eventfd to wakeup the IRQ poller. */
+    int                  iFdWakeup;
     /** The poll structure for the interrupts. */
     struct pollfd        aIrqFds[2];
 
@@ -286,7 +289,6 @@ static DECLCALLBACK(VBOXSTRICTRC) pciVfioPioRead(PPDMDEVINS pDevIns, void *pvUse
 }
 
 
-#ifndef VFIO_PCI_MAP_MMIO_INTO_GUEST
 /**
  * @callback_method_impl{FNIOMMMIONEWREAD}
  */
@@ -335,7 +337,6 @@ static DECLCALLBACK(VBOXSTRICTRC) pciVfioMmioWrite(PPDMDEVINS pDevIns, void *pvU
 
     return VINF_SUCCESS;
 }
-#endif
 
 
 DECLINLINE(int) pciVfioQueryRegionInfo(PVFIOPCI pThis, uint32_t uRegion, struct vfio_region_info *pRegionInfo)
@@ -405,29 +406,29 @@ static int pciVfioSetupBar(PVFIOPCI pThis, PPDMDEVINS pDevIns, PPDMPCIDEV pPciDe
                                            N_("Mapping BAR%u at offset %#RX64 with size %RX64 failed with %d"),
                                            uRegion, RegionInfo.offset, RegionInfo.size, errno);
 
-#ifndef VFIO_PCI_MAP_MMIO_INTO_GUEST
-            rc = PDMDevHlpMmioCreate(pDevIns, RegionInfo.size, pPciDev, uRegion /*iPciRegion*/,
-                                     pciVfioMmioWrite, pciVfioMmioRead, &pThis->aBars[uRegion],
-                                     IOMMMIO_FLAGS_READ_PASSTHRU | IOMMMIO_FLAGS_WRITE_PASSTHRU, "MMIO",
-                                     &pThis->aBars[uRegion].hnd.hMmio);
-            AssertLogRelRCReturn(rc, rc);
-#endif
-
             uint32_t enmAddrSpace = PCI_ADDRESS_SPACE_MEM;
             if ((u32PciBar & (RT_BIT_32(2) | RT_BIT_32(1))) == PCI_ADDRESS_SPACE_BAR64)
                 enmAddrSpace |= PCI_ADDRESS_SPACE_BAR64;
             if (u32PciBar & PCI_ADDRESS_SPACE_MEM_PREFETCH)
                 enmAddrSpace |= PCI_ADDRESS_SPACE_MEM_PREFETCH;
-#ifndef VFIO_PCI_MAP_MMIO_INTO_GUEST
-            rc = PDMDevHlpPCIIORegionRegisterMmioEx(pDevIns, pPciDev, uRegion, RegionInfo.size, (PCIADDRESSSPACE)enmAddrSpace,
-                                                    pThis->aBars[uRegion].hnd.hMmio, NULL);
-#else
-            RT_NOREF(pPciDev);
-            rc = PDMDevHlpPCIIORegionCreateMmio2FromExisting(pDevIns, uRegion, RegionInfo.size,
-                                                             (PCIADDRESSSPACE)enmAddrSpace,
-                                                             "MMIO", (void *)pThis->aBars[uRegion].u.pvMmio,
-                                                             &pThis->aBars[uRegion].hnd.hMmio2);
-#endif
+
+            if (pThis->fInterceptMmio)
+            {
+                rc = PDMDevHlpMmioCreate(pDevIns, RegionInfo.size, pPciDev, uRegion /*iPciRegion*/,
+                                         pciVfioMmioWrite, pciVfioMmioRead, &pThis->aBars[uRegion],
+                                         IOMMMIO_FLAGS_READ_PASSTHRU | IOMMMIO_FLAGS_WRITE_PASSTHRU, "MMIO",
+                                         &pThis->aBars[uRegion].hnd.hMmio);
+                AssertLogRelRCReturn(rc, rc);
+
+                rc = PDMDevHlpPCIIORegionRegisterMmioEx(pDevIns, pPciDev, uRegion, RegionInfo.size, (PCIADDRESSSPACE)enmAddrSpace,
+                                                        pThis->aBars[uRegion].hnd.hMmio, NULL);
+            }
+            else
+                rc = PDMDevHlpPCIIORegionCreateMmio2FromExisting(pDevIns, uRegion, RegionInfo.size,
+                                                                 (PCIADDRESSSPACE)enmAddrSpace,
+                                                                 "MMIO", (void *)pThis->aBars[uRegion].u.pvMmio,
+                                                                 &pThis->aBars[uRegion].hnd.hMmio2);
+
             AssertLogRelRCReturn(rc, rc);
         }
     }
@@ -902,7 +903,7 @@ static DECLCALLBACK(VBOXSTRICTRC) pciVfioConfigWrite(PPDMDEVINS pDevIns, PPDMPCI
 {
     PVFIOPCI pThis = PDMDEVINS_2_DATA(pDevIns, PVFIOPCI);
 
-    RT_NOREF(pPciDev, pDevIns, uAddress ,cb, u32Value);
+    RT_NOREF(pPciDev);
 
     if (uAddress >= VBOX_PCI_BASE_ADDRESS_0 && uAddress < VBOX_PCI_CARDBUS_CIS)
         return VINF_PDM_PCI_DO_DEFAULT;
@@ -1020,13 +1021,28 @@ static DECLCALLBACK(int) pciVfioIrqPoller(PPDMDEVINS pDevIns, PPDMTHREAD pThread
     PVFIOPCI pThis = PDMDEVINS_2_DATA(pDevIns, PVFIOPCI);
 
     if (pThread->enmState == PDMTHREADSTATE_INITIALIZING)
+    {
+        pThis->aIrqFds[0].fd = pThis->iFdWakeup;
+        pThis->aIrqFds[0].events = POLLIN | POLLRDNORM | POLLRDBAND | POLLPRI | POLLERR;
         return VINF_SUCCESS;
+    }
 
     while (pThread->enmState == PDMTHREADSTATE_RUNNING)
     {
-        int rcPsx = poll(&pThis->aIrqFds[1], 1 /*RT_ELEMENTS(pThis->aIrqFds)*/, -1);
-        if (rcPsx == 1)
+        int rcPsx = poll(&pThis->aIrqFds[0], RT_ELEMENTS(pThis->aIrqFds), -1);
+        if (rcPsx > 0)
         {
+            if (pThis->aIrqFds[0].revents)
+            {
+                /* We got woken up externally. */
+                pThis->aIrqFds[0].revents = 0;
+                uint64_t u64;
+                ssize_t cb = read(pThis->aIrqFds[0].fd, &u64, sizeof(u64));
+                Assert(cb == sizeof(u64)); RT_NOREF(cb);
+                if (pThread->enmState != PDMTHREADSTATE_RUNNING)
+                    break;
+            }
+
             for (uint32_t i = 1; i < RT_ELEMENTS(pThis->aIrqFds); i++)
             {
                 if (pThis->aIrqFds[i].revents)
@@ -1085,7 +1101,11 @@ static DECLCALLBACK(int) pciVfioIrqPollerWakeup(PPDMDEVINS pDevIns, PPDMTHREAD p
     RT_NOREF(pThread);
     Log4Func(("\n"));
     PVFIOPCI pThis = PDMDEVINS_2_DATA(pDevIns, PVFIOPCI);
-    RT_NOREF(pThis);
+
+    uint64_t u64 = 1;
+    ssize_t cb = write(pThis->iFdWakeup, &u64, sizeof(u64));
+    Assert(cb == sizeof(u64)); RT_NOREF(cb);
+
     return VINF_SUCCESS;
 }
 
@@ -1129,6 +1149,8 @@ static DECLCALLBACK(int) pciVfioDestruct(PPDMDEVINS pDevIns)
         close(pThis->iFdIommu);
     if (pThis->iFdVfio != -1)
         close(pThis->iFdIommu);
+    if (pThis->iFdWakeup != -1)
+        close(pThis->iFdWakeup);
 
     return VINF_SUCCESS;
 }
@@ -1147,11 +1169,13 @@ static DECLCALLBACK(int) pciVfioConstruct(PPDMDEVINS pDevIns, int iInstance, PCF
     PPDMPCIDEV pPciDev = pDevIns->apPciDevs[0];
     PDMPCIDEV_ASSERT_VALID(pDevIns, pPciDev);
 
-    pThis->pDevIns   = pDevIns;
-    pThis->iInstance = iInstance;
-    pThis->iFdIommu  = -1;
-    pThis->iFdVfio   = -1;
-    pThis->fVga      = false;
+    pThis->pDevIns        = pDevIns;
+    pThis->iInstance      = iInstance;
+    pThis->iFdIommu       = -1;
+    pThis->iFdVfio        = -1;
+    pThis->iFdWakeup      = -1;
+    pThis->fVga           = false;
+    pThis->fInterceptMmio = false;
 
     int rc = PDMDevHlpSetDeviceCritSect(pDevIns, PDMDevHlpCritSectGetNop(pDevIns));
     if (RT_FAILURE(rc))
@@ -1164,10 +1188,16 @@ static DECLCALLBACK(int) pciVfioConstruct(PPDMDEVINS pDevIns, int iInstance, PCF
                                      "VfioPath\0"
                                      "IommuPath\0"
                                      "ExposeVga\0"
+                                     "InterceptMmio\0"
                                     ))
         return VERR_PDM_DEVINS_UNKNOWN_CFG_VALUES;
 
     /* Query configuration. */
+    rc = pHlp->pfnCFGMQueryBoolDef(pCfg, "InterceptMmio", &pThis->fInterceptMmio, false);
+    if (RT_FAILURE(rc))
+        return PDMDevHlpVMSetError(pDevIns, rc, RT_SRC_POS,
+                                   N_("Configuration error: Querying \"InterceptMmio\" failed"));
+
     bool fVga = false;
     rc = pHlp->pfnCFGMQueryBoolDef(pCfg, "ExposeVga", &fVga, false);
     if (RT_FAILURE(rc))
@@ -1325,6 +1355,11 @@ static DECLCALLBACK(int) pciVfioConstruct(PPDMDEVINS pDevIns, int iInstance, PCF
         if (RT_FAILURE(rc))
             return rc;
     }
+
+    /* Create wakeup eventfd for IRQ poller. */
+    rc = pciVfioLnxEventfd2(0 /*uValInit*/, 0 /*fFlags*/, &pThis->iFdWakeup);
+    if (RT_FAILURE(rc))
+        return rc;
 
     /* Spin up the interrupt poller. */
     char szDev[64];
