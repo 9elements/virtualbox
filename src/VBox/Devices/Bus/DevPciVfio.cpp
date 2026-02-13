@@ -1,4 +1,4 @@
-/* $Id: DevPciVfio.cpp 112992 2026-02-13 10:51:48Z alexander.eichner@oracle.com $ */
+/* $Id: DevPciVfio.cpp 113015 2026-02-13 15:47:47Z alexander.eichner@oracle.com $ */
 /** @file
  * PCI passthrough device emulation using VFIO/IOMMUFD.
  */
@@ -62,6 +62,15 @@
 /** eventfd2() syscall for the interrupt handling. */
 #define LNX_SYSCALL_EVENTFD2          290
 
+/** Invalid access. */
+#define VFIO_PCI_CFG_SPACE_ACCESS_INVALID     0
+/** Passthrough the access to VFIO. */
+#define VFIO_PCI_CFG_SPACE_ACCESS_PASSTHROUGH 1
+/** Just do the default action for the access. */
+#define VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT  2
+/** Emulate the access using a special handler. */
+#define VFIO_PCI_CFG_SPACE_ACCESS_EMULATE     3
+
 
 /*********************************************************************************************************************************
 *   Structures and Typedefs                                                                                                      *
@@ -119,6 +128,10 @@ typedef struct VFIOPCI
     uint64_t             offPciCfg;
     /** Size of the PCI config space. */
     size_t               cbPciCfg;
+    /** The access table indicating how to treat
+     * config space accesses for each byte.. Each config space byte
+     * requires 4bits (2bit each for read write) and the config space can be 4096 bytes large. */
+    uint8_t              abPciCfgIntercept[(4096 * 4) / 8];
     /** The PCI BAR information. */
     VFIOPCIBAR           aBars[VBOX_PCI_NUM_REGIONS];
 
@@ -149,8 +162,16 @@ typedef struct VFIOPCI
     int                  iFdWakeup;
     /** The poll structure for the interrupts. */
     struct pollfd        aIrqFds[2];
+    /** The current IRQ mode.. */
+    uint8_t              uIrqModeCur;
+    /** The new confogured IRQ mode.. */
+    volatile uint8_t     uIrqModeNew;
 
+    /** The interrupt polling thread. */
     PPDMTHREAD           pThrdIrq;
+
+    /** The MSI capability offset if enabled. */
+    uint8_t              offMsiCtrl;
 
     /** Flag whether the guest RAM was mapped to the IOMMU. */
     bool                 fGuestRamMapped;
@@ -637,6 +658,130 @@ static int pciVfioSetupRom(PVFIOPCI pThis, PPDMDEVINS pDevIns)
 }
 
 
+/**
+ * The IRQ poller thread.
+ *
+ * @returns VBox status code.
+ * @param   pDevIns     The device instance.
+ * @param   pThread     The command thread.
+ */
+static DECLCALLBACK(int) pciVfioIrqPoller(PPDMDEVINS pDevIns, PPDMTHREAD pThread)
+{
+    PVFIOPCI pThis = PDMDEVINS_2_DATA(pDevIns, PVFIOPCI);
+
+    if (pThread->enmState == PDMTHREADSTATE_INITIALIZING)
+    {
+        pThis->aIrqFds[0].fd = pThis->iFdWakeup;
+        pThis->aIrqFds[0].events = POLLIN | POLLRDNORM | POLLRDBAND | POLLPRI | POLLERR;
+        return VINF_SUCCESS;
+    }
+
+    uint32_t cIrqs = 0;
+    while (pThread->enmState == PDMTHREADSTATE_RUNNING)
+    {
+        uint8_t uIrqModeNew = ASMAtomicReadU8(&pThis->uIrqModeNew);
+        if (pThis->uIrqModeCur != uIrqModeNew)
+        {
+            switch (uIrqModeNew)
+            {
+                case VFIO_PCI_MSI_IRQ_INDEX:
+                {
+                    cIrqs = 1;
+                    break;
+                }
+                case UINT8_MAX:
+                {
+                    cIrqs = 0;
+                    break;
+                }
+                default:
+                    AssertReleaseFailed();
+            }
+
+            pThis->uIrqModeCur = uIrqModeNew;
+        }
+
+        int rcPsx = poll(&pThis->aIrqFds[0], 1 + cIrqs, -1);
+        if (rcPsx > 0)
+        {
+            if (pThis->aIrqFds[0].revents)
+            {
+                /* We got woken up externally. */
+                pThis->aIrqFds[0].revents = 0;
+                uint64_t u64;
+                ssize_t cb = read(pThis->aIrqFds[0].fd, &u64, sizeof(u64));
+                Assert(cb == sizeof(u64)); RT_NOREF(cb);
+                if (pThread->enmState != PDMTHREADSTATE_RUNNING)
+                    break;
+            }
+
+            for (uint32_t i = 1; i < RT_ELEMENTS(pThis->aIrqFds); i++)
+            {
+                if (pThis->aIrqFds[i].revents)
+                {
+                    pThis->aIrqFds[i].revents = 0;
+                    uint64_t u64;
+                    ssize_t cb = read(pThis->aIrqFds[i].fd, &u64, sizeof(u64));
+                    Assert(cb == sizeof(u64)); RT_NOREF(cb);
+
+                    PDMDevHlpPCISetIrq(pDevIns, 0, 1);
+
+                    /** @todo The interrupt seems to be masked and we would need a mechanism
+                     * to get notified when the interrupt is de-asserted in the interrupt controller
+                     * (through an EOI for example) so we can unmask them. With KVM this is supported
+                     * when KVM_CAP_IRQFD_RESAMPLE is available.
+                     */
+#if 0
+                    union
+                    {
+                        struct vfio_irq_set IrqSet;
+                        uint32_t            au32[sizeof(struct vfio_irq_set) / sizeof(uint32_t) + 1];
+                    } uBuf;
+
+                    uBuf.IrqSet.argsz = sizeof(uBuf);
+                    uBuf.IrqSet.flags = VFIO_IRQ_SET_DATA_EVENTFD | VFIO_IRQ_SET_ACTION_UNMASK;
+                    uBuf.IrqSet.index = i;
+                    uBuf.IrqSet.start = 0;
+                    uBuf.IrqSet.count = 1;
+                    uBuf.au32[sizeof(struct vfio_irq_set) / sizeof(uint32_t)] = pThis->aIrqFds[i].fd;
+
+                    int rcLnx = ioctl(pThis->iFdVfio, VFIO_DEVICE_SET_IRQS, &uBuf);
+                    if (rcLnx == -1)
+                        LogRel(("Unmasking one INTX interrupt failed with %d", errno));
+#endif
+                }
+            }
+        }
+        else
+            AssertFailed();
+    }
+
+    LogFlowFunc(("Poller thread terminating\n"));
+    return VINF_SUCCESS;
+}
+
+
+/**
+ * Wakes up the IRQ poller to respond to state changes.
+ *
+ * @returns VBox status code.
+ * @param   pDevIns     The device instance.
+ * @param   pThread     The command thread.
+ */
+static DECLCALLBACK(int) pciVfioIrqPollerWakeup(PPDMDEVINS pDevIns, PPDMTHREAD pThread)
+{
+    RT_NOREF(pThread);
+    Log4Func(("\n"));
+    PVFIOPCI pThis = PDMDEVINS_2_DATA(pDevIns, PVFIOPCI);
+
+    uint64_t u64 = 1;
+    ssize_t cb = write(pThis->iFdWakeup, &u64, sizeof(u64));
+    Assert(cb == sizeof(u64)); RT_NOREF(cb);
+
+    return VINF_SUCCESS;
+}
+
+
 DECLINLINE(int) pciVfioQueryIrqInfo(PVFIOPCI pThis, uint32_t uIrq, struct vfio_irq_info *pIrqInfo)
 {
     RT_ZERO(*pIrqInfo);
@@ -725,7 +870,7 @@ static int pciVfioSetupIrq(PVFIOPCI pThis, PPDMDEVINS pDevIns, PPDMPCIDEV pPciDe
 
             uBuf.IrqSet.argsz = sizeof(uBuf);
             uBuf.IrqSet.flags = VFIO_IRQ_SET_DATA_EVENTFD | VFIO_IRQ_SET_ACTION_TRIGGER;
-            uBuf.IrqSet.index = 1;
+            uBuf.IrqSet.index = VFIO_PCI_MSI_IRQ_INDEX;
             uBuf.IrqSet.start = 0;
             uBuf.IrqSet.count = 1;
             uBuf.au32[sizeof(struct vfio_irq_set) / sizeof(uint32_t)] = iFdEvt;
@@ -737,89 +882,401 @@ static int pciVfioSetupIrq(PVFIOPCI pThis, PPDMDEVINS pDevIns, PPDMPCIDEV pPciDe
 
             pThis->aIrqFds[1].fd     = iFdEvt;
             pThis->aIrqFds[1].events = POLLIN | POLLRDNORM | POLLRDBAND | POLLPRI | POLLERR;
-
-            /* Add capability. */
-            PDMMSIREG MsiReg;
-            RT_ZERO(MsiReg);
-            MsiReg.cMsiVectors     = 1;
-            MsiReg.iMsiCapOffset   = 0x50;
-            MsiReg.iMsiNextOffset  = 0;
-            MsiReg.fMsi64bit       = true;
-            rc = PDMDevHlpPCIRegisterMsi(pDevIns, &MsiReg);
-            if (RT_FAILURE(rc))
-            {
-                AssertFailed();
-                PDMPciDevSetCapabilityList(pPciDev, 0x0);
-            }
         }
         /** @todo MSI-X */
     }
     else /* Not available. */
         Assert(IrqInfo.count == 0);
 
+    /* Wakeup the IRQ poller to make up the new mode. */
+    ASMAtomicWriteU8(&pThis->uIrqModeNew, uVfioIrq);
+    pciVfioIrqPollerWakeup(pDevIns, pThis->pThrdIrq);
     return VINF_SUCCESS;
 }
 
 
+DECLINLINE(void) pciVfioCfgSpaceSetInterceptU8(PVFIOPCI pThis, uint32_t off, uint8_t fRd, uint8_t fWr)
+{
+    AssertReturnVoid(off < sizeof(pThis->abPciCfgIntercept));
+    uint32_t offByte = off >> 1;
+    uint8_t  cShift  = (off & 0x1) ? 4 : 0;
+
+    pThis->abPciCfgIntercept[offByte] |= ((fWr << 2) | fRd) << cShift;
+}
+
+
+DECLINLINE(void) pciVfioCfgSpaceSetInterceptRoU8(PVFIOPCI pThis, uint32_t off, uint8_t fRd)
+{
+    pciVfioCfgSpaceSetInterceptU8(pThis, off,     fRd, VFIO_PCI_CFG_SPACE_ACCESS_INVALID);
+}
+
+
+DECLINLINE(void) pciVfioCfgSpaceSetInterceptU16(PVFIOPCI pThis, uint32_t off, uint8_t fRd, uint8_t fWr)
+{
+    AssertReturnVoid(off < sizeof(pThis->abPciCfgIntercept) - 1);
+    pciVfioCfgSpaceSetInterceptU8(pThis, off,     fRd, fWr);
+    pciVfioCfgSpaceSetInterceptU8(pThis, off + 1, fRd, fWr);
+}
+
+
+DECLINLINE(void) pciVfioCfgSpaceSetInterceptRoU16(PVFIOPCI pThis, uint32_t off, uint8_t fRd)
+{
+    AssertReturnVoid(off < sizeof(pThis->abPciCfgIntercept) - 1);
+    pciVfioCfgSpaceSetInterceptU8(pThis, off,     fRd, VFIO_PCI_CFG_SPACE_ACCESS_INVALID);
+    pciVfioCfgSpaceSetInterceptU8(pThis, off + 1, fRd, VFIO_PCI_CFG_SPACE_ACCESS_INVALID);
+}
+
+
+DECLINLINE(void) pciVfioCfgSpaceSetInterceptU32(PVFIOPCI pThis, uint32_t off, uint8_t fRd, uint8_t fWr)
+{
+    AssertReturnVoid(off < sizeof(pThis->abPciCfgIntercept) - 3);
+    pciVfioCfgSpaceSetInterceptU16(pThis, off,     fRd, fWr);
+    pciVfioCfgSpaceSetInterceptU16(pThis, off + 2, fRd, fWr);
+}
+
+
+DECLINLINE(uint8_t) pciVfioCfgSpaceGetInterceptRd(PVFIOPCI pThis, uint32_t off)
+{
+    AssertReturn(off < sizeof(pThis->abPciCfgIntercept), VFIO_PCI_CFG_SPACE_ACCESS_INVALID);
+
+    uint32_t offByte = off >> 1;
+    uint8_t  cShift  = (off & 0x1) ? 4 : 0;
+
+    return (pThis->abPciCfgIntercept[offByte] >> cShift) & 0x3;
+}
+
+
+DECLINLINE(uint8_t) pciVfioCfgSpaceGetInterceptWr(PVFIOPCI pThis, uint32_t off)
+{
+    AssertReturn(off < sizeof(pThis->abPciCfgIntercept), VFIO_PCI_CFG_SPACE_ACCESS_INVALID);
+
+    uint32_t offByte = off >> 1;
+    uint8_t  cShift  = (off & 0x1) ? 4 + 2 : 2;
+
+    return (pThis->abPciCfgIntercept[offByte] >> cShift) & 0x3;
+}
+
+
+static int pciVfioCfgSpaceParseCapabilities(PVFIOPCI pThis, PPDMPCIDEV pPciDev)
+{
+    PPDMDEVINS pDevIns = pThis->pDevIns;
+
+    /*
+     * Try building a 1:1 mapping of the capabilities, punching holes for capabilities
+     * currently not being supported.
+     */
+    uint8_t offCap = 0;
+    int rc = pciVfioCfgSpaceReadU8(pThis, VBOX_PCI_CAPABILITY_LIST, &offCap);
+    if (RT_FAILURE(rc))
+        return PDMDevHlpVMSetError(pDevIns, rc, RT_SRC_POS,
+                                   N_("Failed to read capabilities list pointer with %Rrc"), rc);
+
+    pciVfioCfgSpaceSetInterceptRoU8(pThis, VBOX_PCI_CAPABILITY_LIST, VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT);
+    if (!offCap)
+    {
+        /* No capabilities, return early. */
+        PDMPciDevSetCapabilityList(pPciDev, 0x00);
+        return VINF_SUCCESS;
+    }
+
+    /* Initialize with 0. */
+    PDMPciDevSetCapabilityList(pPciDev, 0);
+
+    /* This ASSUMES that the cpabilities are not going backwards when pointing to the next one. */
+    uint8_t offCapNextPrev = VBOX_PCI_CAPABILITY_LIST;
+    for (;;)
+    {
+        uint8_t bCapId = 0;
+        rc = pciVfioCfgSpaceReadU8(pThis, offCap, &bCapId);
+        if (RT_FAILURE(rc))
+            return PDMDevHlpVMSetError(pDevIns, rc, RT_SRC_POS,
+                                       N_("Failed to read capabilitiy ID at offset %#x with %Rrc"), offCap, rc);
+
+        uint8_t offCapNext = 0;
+        rc = pciVfioCfgSpaceReadU8(pThis, offCap + 1, &offCapNext);
+        if (RT_FAILURE(rc))
+            return PDMDevHlpVMSetError(pDevIns, rc, RT_SRC_POS,
+                                       N_("Failed to read next capability pointer at offset %#x with %Rrc"), offCap, rc);
+
+        uint8_t cbCap = 2;
+        bool    fSupported = false;
+        switch (bCapId)
+        {
+            case VBOX_PCI_CAP_ID_PM:
+            {
+                LogRel(("VFIO#%d: Cap[%#x]: PCI Power Management Interface -> unsupported\n", pThis->iInstance, offCap));
+                break;
+            }
+            case VBOX_PCI_CAP_ID_AGP:
+            {
+                LogRel(("VFIO#%d: Cap[%#x]: AGP -> unsupported\n", pThis->iInstance, offCap));
+                break;
+            }
+            case VBOX_PCI_CAP_ID_VPD:
+            {
+                LogRel(("VFIO#%d: Cap[%#x]: VPD -> passthrough\n", pThis->iInstance, offCap, bCapId));
+                pciVfioCfgSpaceSetInterceptU16(pThis, offCap + 2, VFIO_PCI_CFG_SPACE_ACCESS_PASSTHROUGH, VFIO_PCI_CFG_SPACE_ACCESS_PASSTHROUGH);
+                pciVfioCfgSpaceSetInterceptU32(pThis, offCap + 4, VFIO_PCI_CFG_SPACE_ACCESS_PASSTHROUGH, VFIO_PCI_CFG_SPACE_ACCESS_PASSTHROUGH);
+                cbCap      = 2 + 2 + 4;
+                fSupported = true;
+                break;
+            }
+            case VBOX_PCI_CAP_ID_SLOTID:
+            {
+                LogRel(("VFIO#%d: Cap[%#x]: Slot Identification -> unsupported\n", pThis->iInstance, offCap));
+                break;
+            }
+            case VBOX_PCI_CAP_ID_MSI:
+            {
+                LogRel(("VFIO#%d: Cap[%#x]: Message Signaled Interrupts -> emulate\n", pThis->iInstance, offCap));
+                fSupported = true;
+
+                /* Read the message control from the device. */
+                uint16_t u16Mmc = 0;
+                rc = pciVfioCfgSpaceReadU16(pThis, offCap + 2, &u16Mmc);
+                if (RT_FAILURE(rc))
+                    return PDMDevHlpVMSetError(pDevIns, rc, RT_SRC_POS,
+                                               N_("Failed to read MSI message control register with %Rrc"), rc);
+
+                bool f64Bit = RT_BOOL(u16Mmc & VBOX_PCI_MSI_FLAGS_64BIT);
+                uint8_t cVectors = RT_BIT((u16Mmc & VBOX_PCI_MSI_FLAGS_QMASK) >> 1);
+
+                /* Add capability. */
+                PDMMSIREG MsiReg;
+                RT_ZERO(MsiReg);
+                MsiReg.cMsiVectors     = cVectors;
+                MsiReg.iMsiCapOffset   = offCap;
+                MsiReg.iMsiNextOffset  = 0; /* Gets updated later. */
+                MsiReg.fMsi64bit       = f64Bit;
+                rc = PDMDevHlpPCIRegisterMsi(pDevIns, &MsiReg);
+                if (RT_FAILURE(rc))
+                    AssertFailed();
+
+                pciVfioCfgSpaceSetInterceptU16(pThis, offCap +  2, VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT, VFIO_PCI_CFG_SPACE_ACCESS_EMULATE);    /* Message Control */
+                pciVfioCfgSpaceSetInterceptU32(pThis, offCap +  4, VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT, VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT); /* Message Address [Low] */
+                if (f64Bit)
+                {
+                    pciVfioCfgSpaceSetInterceptU32(pThis, offCap +  8, VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT, VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT); /* Message Address High */
+                    pciVfioCfgSpaceSetInterceptU32(pThis, offCap + 12, VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT, VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT); /* Message Data */
+
+                    /* We always implement MSI with per-vector masking support. */
+                    pciVfioCfgSpaceSetInterceptU32(pThis, offCap + 16, VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT, VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT); /* Mask */
+                    pciVfioCfgSpaceSetInterceptU32(pThis, offCap + 20, VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT, VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT); /* Pending */
+                }
+                else
+                {
+                    pciVfioCfgSpaceSetInterceptU32(pThis, offCap + 8, VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT, VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT); /* Message Data */
+
+                    /* We always implement MSI with per-vector masking support. */
+                    pciVfioCfgSpaceSetInterceptU32(pThis, offCap + 12, VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT, VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT); /* Mask */
+                    pciVfioCfgSpaceSetInterceptU32(pThis, offCap + 16, VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT, VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT); /* Pending */
+                }
+
+                pThis->offMsiCtrl = offCap + 2;
+                break;
+            }
+            case VBOX_PCI_CAP_ID_CHSWP:
+            {
+                LogRel(("VFIO#%d: Cap[%#x]: CompactPCI Hot Swap -> unsupported\n", pThis->iInstance, offCap));
+                break;
+            }
+            case VBOX_PCI_CAP_ID_PCIX:
+            {
+                LogRel(("VFIO#%d: Cap[%#x]: PCI-X -> unsupported\n", pThis->iInstance, offCap));
+                break;
+            }
+            case VBOX_PCI_CAP_ID_HT:
+            {
+                LogRel(("VFIO#%d: Cap[%#x]: HyperTransport -> unsupported\n", pThis->iInstance, offCap));
+                break;
+            }
+            case VBOX_PCI_CAP_ID_VNDR:
+            {
+                LogRel(("VFIO#%d: Cap[%#x]: Vendor Specific -> passthrough\n", pThis->iInstance, offCap));
+
+                /* The next byte after the header is a length field. */
+                uint8_t cbVendor = 0;
+                rc = pciVfioCfgSpaceReadU8(pThis, offCap + 2, &cbVendor);
+                if (RT_FAILURE(rc))
+                    return PDMDevHlpVMSetError(pDevIns, rc, RT_SRC_POS,
+                                               N_("Failed to read vendor length field at offset %#x with %Rrc"), offCap + 2, rc);
+                if (cbVendor < 2 || cbVendor > 256 - offCap)
+                    return PDMDevHlpVMSetError(pDevIns, VERR_BUFFER_OVERFLOW, RT_SRC_POS,
+                                               N_("Invalid vendor length field %#x"), cbVendor);
+
+                for (uint8_t i = 0; i < cbVendor - 2; i++)
+                    pciVfioCfgSpaceSetInterceptU8(pThis, offCap + 2 + i, VFIO_PCI_CFG_SPACE_ACCESS_PASSTHROUGH, VFIO_PCI_CFG_SPACE_ACCESS_PASSTHROUGH);
+
+                cbCap      = cbVendor;
+                fSupported = true;
+                break;
+            }
+            case VBOX_PCI_CAP_ID_DBG:
+            {
+                LogRel(("VFIO#%d: Cap[%#x]: Debug port -> unsupported\n", pThis->iInstance, offCap));
+                break;
+            }
+            case VBOX_PCI_CAP_ID_CCRC:
+            {
+                LogRel(("VFIO#%d: Cap[%#x]: CompactPCI central resource control -> unsupported\n", pThis->iInstance, offCap));
+                break;
+            }
+            case VBOX_PCI_CAP_ID_SHPC:
+            {
+                LogRel(("VFIO#%d: Cap[%#x]: Standard PCI Hot-Plug Controller -> unsupported\n", pThis->iInstance, offCap));
+                break;
+            }
+            case VBOX_PCI_CAP_ID_SSVID:
+            {
+                LogRel(("VFIO#%d: Cap[%#x]: SPCI Bridge Subsystem Vendor ID -> unsupported\n", pThis->iInstance, offCap));
+                break;
+            }
+            case VBOX_PCI_CAP_ID_AGP3:
+            {
+                LogRel(("VFIO#%d: Cap[%#x]: AGP 8x -> unsupported\n", pThis->iInstance, offCap));
+                break;
+            }
+            case VBOX_PCI_CAP_ID_SECURE:
+            {
+                LogRel(("VFIO#%d: Cap[%#x]: Secure Device -> unsupported\n", pThis->iInstance, offCap));
+                break;
+            }
+            case VBOX_PCI_CAP_ID_EXP:
+            {
+                LogRel(("VFIO#%d: Cap[%#x]: PCI Express -> emulate\n", pThis->iInstance, offCap));
+                //fSupported = true;
+                break;
+            }
+            case VBOX_PCI_CAP_ID_MSIX:
+            {
+                LogRel(("VFIO#%d: Cap[%#x]: MSI-X -> unsupported\n", pThis->iInstance, offCap));
+                /** @todo */
+                break;
+            }
+            case VBOX_PCI_CAP_ID_SATA:
+            {
+                LogRel(("VFIO#%d: Cap[%#x]: Serial ATA HBA -> unsupported\n", pThis->iInstance, offCap));
+                break;
+            }
+            case VBOX_PCI_CAP_ID_AF:
+            {
+                LogRel(("VFIO#%d: Cap[%#x]: PCI Advanced Features -> unsupported\n", pThis->iInstance, offCap));
+                break;
+            }
+            default:
+                LogRel(("VFIO#%d: Cap[%#x]: Unknown capability ID %#x encountered -> unsupported\n", pThis->iInstance, offCap, bCapId));
+                break;
+        }
+
+        if (fSupported)
+        {
+            /* Accesses to capability ID and pointer to the next capability are never passed through. */
+            pciVfioCfgSpaceSetInterceptRoU16(pThis, offCap, VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT);
+            PDMPciDevSetByte(pPciDev, offCapNextPrev, offCap);
+            offCapNextPrev = offCap + 1;
+        }
+
+        if (!offCapNext)
+            break;
+
+        if (   offCapNext < offCap
+            || offCapNext < offCap + cbCap)
+            return PDMDevHlpVMSetError(pDevIns, VERR_INVALID_STATE, RT_SRC_POS,
+                                       N_("Next capability pointer points backwards or inside the current capability (next offset %#x )"), offCapNext);
+
+        offCap = offCapNext;
+    }
+
+    return VINF_SUCCESS;
+}
+
+
+/**
+ * The descriptors for the standard PCI config space.
+ */
+static const struct
+{
+    uint8_t offReg;
+    uint8_t cbReg;
+    bool    fInitFromDev;
+    uint8_t fRd;
+    uint8_t fWr;
+} s_aCfgSpaceDesc[] =
+{
+    { VBOX_PCI_VENDOR_ID,           sizeof(uint16_t), true,  VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT,  VFIO_PCI_CFG_SPACE_ACCESS_INVALID     },
+    { VBOX_PCI_DEVICE_ID,           sizeof(uint16_t), true,  VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT,  VFIO_PCI_CFG_SPACE_ACCESS_INVALID     },
+    { VBOX_PCI_COMMAND,             sizeof(uint16_t), true,  VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT,  VFIO_PCI_CFG_SPACE_ACCESS_EMULATE     },
+    { VBOX_PCI_STATUS,              sizeof(uint16_t), true,  VFIO_PCI_CFG_SPACE_ACCESS_EMULATE,     VFIO_PCI_CFG_SPACE_ACCESS_PASSTHROUGH },
+    { VBOX_PCI_REVISION_ID,         sizeof(uint8_t),  true,  VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT,  VFIO_PCI_CFG_SPACE_ACCESS_INVALID     },
+    { VBOX_PCI_CLASS_PROG,          sizeof(uint8_t),  true,  VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT,  VFIO_PCI_CFG_SPACE_ACCESS_INVALID     },
+    { VBOX_PCI_CLASS_SUB,           sizeof(uint8_t),  true,  VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT,  VFIO_PCI_CFG_SPACE_ACCESS_INVALID     },
+    { VBOX_PCI_CLASS_BASE,          sizeof(uint8_t),  true,  VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT,  VFIO_PCI_CFG_SPACE_ACCESS_INVALID     },
+    { VBOX_PCI_CACHE_LINE_SIZE,     sizeof(uint8_t),  false, VFIO_PCI_CFG_SPACE_ACCESS_PASSTHROUGH, VFIO_PCI_CFG_SPACE_ACCESS_PASSTHROUGH },
+    { VBOX_PCI_LATENCY_TIMER,       sizeof(uint8_t),  false, VFIO_PCI_CFG_SPACE_ACCESS_PASSTHROUGH, VFIO_PCI_CFG_SPACE_ACCESS_PASSTHROUGH },
+    { VBOX_PCI_HEADER_TYPE,         sizeof(uint8_t),  false, VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT,  VFIO_PCI_CFG_SPACE_ACCESS_INVALID     },
+    { VBOX_PCI_BIST,                sizeof(uint8_t),  false, VFIO_PCI_CFG_SPACE_ACCESS_PASSTHROUGH, VFIO_PCI_CFG_SPACE_ACCESS_PASSTHROUGH },
+    { VBOX_PCI_BASE_ADDRESS_0,      sizeof(uint32_t), false, VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT,  VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT  },
+    { VBOX_PCI_BASE_ADDRESS_1,      sizeof(uint32_t), false, VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT,  VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT  },
+    { VBOX_PCI_BASE_ADDRESS_2,      sizeof(uint32_t), false, VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT,  VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT  },
+    { VBOX_PCI_BASE_ADDRESS_3,      sizeof(uint32_t), false, VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT,  VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT  },
+    { VBOX_PCI_BASE_ADDRESS_4,      sizeof(uint32_t), false, VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT,  VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT  },
+    { VBOX_PCI_BASE_ADDRESS_5,      sizeof(uint32_t), false, VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT,  VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT  },
+    { VBOX_PCI_CARDBUS_CIS,         sizeof(uint32_t), false, VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT,  VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT  },
+    { VBOX_PCI_SUBSYSTEM_VENDOR_ID, sizeof(uint16_t), true,  VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT,  VFIO_PCI_CFG_SPACE_ACCESS_INVALID     },
+    { VBOX_PCI_SUBSYSTEM_ID,        sizeof(uint16_t), true,  VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT,  VFIO_PCI_CFG_SPACE_ACCESS_INVALID     },
+    { VBOX_PCI_ROM_ADDRESS,         sizeof(uint32_t), false, VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT,  VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT  },
+    { VBOX_PCI_INTERRUPT_LINE,      sizeof(uint8_t),  false, VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT,  VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT  },
+    { VBOX_PCI_INTERRUPT_PIN,       sizeof(uint8_t),  false, VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT,  VFIO_PCI_CFG_SPACE_ACCESS_INVALID     },
+    { VBOX_PCI_MIN_GNT,             sizeof(uint8_t),  true,  VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT,  VFIO_PCI_CFG_SPACE_ACCESS_INVALID     },
+    { VBOX_PCI_MAX_LAT,             sizeof(uint8_t),  true,  VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT,  VFIO_PCI_CFG_SPACE_ACCESS_INVALID     },
+};
+
 static int pciVfioCfgSpaceSetup(PVFIOPCI pThis, PPDMPCIDEV pPciDev)
 {
-    /* Copy over the standard 256 PCI config space header. */
-    uint16_t u16;
-    int rc = pciVfioCfgSpaceReadU16(pThis, VBOX_PCI_VENDOR_ID, &u16);
-    if (RT_FAILURE(rc)) return rc;
-    PDMPciDevSetVendorId(pPciDev, u16);
-
-    rc = pciVfioCfgSpaceReadU16(pThis, VBOX_PCI_DEVICE_ID, &u16);
-    if (RT_FAILURE(rc)) return rc;
-    PDMPciDevSetDeviceId(pPciDev, u16);
-
-    rc = pciVfioCfgSpaceReadU16(pThis, VBOX_PCI_COMMAND, &u16);
-    if (RT_FAILURE(rc)) return rc;
-    PDMPciDevSetCommand(pPciDev, u16);
-
-    rc = pciVfioCfgSpaceReadU16(pThis, VBOX_PCI_STATUS, &u16);
-    if (RT_FAILURE(rc)) return rc;
-    PDMPciDevSetStatus(pPciDev, u16);
-
-    uint8_t u8;
-    rc = pciVfioCfgSpaceReadU8(pThis, VBOX_PCI_REVISION_ID, &u8);
-    if (RT_FAILURE(rc)) return rc;
-    PDMPciDevSetRevisionId(pPciDev, u16);
-
-    rc = pciVfioCfgSpaceReadU8(pThis, VBOX_PCI_CLASS_PROG, &u8);
-    if (RT_FAILURE(rc)) return rc;
-    PDMPciDevSetClassProg(pPciDev, u8);
-
-    rc = pciVfioCfgSpaceReadU8(pThis, VBOX_PCI_CLASS_SUB, &u8);
-    if (RT_FAILURE(rc)) return rc;
-    PDMPciDevSetClassSub(pPciDev, u8);
-
-    rc = pciVfioCfgSpaceReadU8(pThis, VBOX_PCI_CLASS_BASE, &u8);
-    if (RT_FAILURE(rc)) return rc;
-    PDMPciDevSetClassBase(pPciDev, u8);
-
-    /** @todo VBOX_PCI_CACHE_LINE_SIZE */
-    /** @todo VBOX_PCI_LATENCY_TIMER   */
-
-    rc = pciVfioCfgSpaceReadU8(pThis, VBOX_PCI_HEADER_TYPE, &u8);
-    if (RT_FAILURE(rc)) return rc;
-    PDMPciDevSetHeaderType(pPciDev, u8); /* Should be 0 */
-
-    rc = pciVfioCfgSpaceReadU8(pThis, VBOX_PCI_BIST, &u8);
-    if (RT_FAILURE(rc)) return rc;
-    PDMPciDevSetBIST(pPciDev, u8);
-
-    rc = pciVfioCfgSpaceReadU8(pThis, VBOX_PCI_INTERRUPT_LINE, &u8);
-    if (RT_FAILURE(rc)) return rc;
-    PDMPciDevSetInterruptLine(pPciDev, u8);
-
-    rc = pciVfioCfgSpaceReadU8(pThis, VBOX_PCI_INTERRUPT_PIN, &u8);
-    if (RT_FAILURE(rc)) return rc;
-    PDMPciDevSetInterruptPin(pPciDev, u8);
-
-    PDMPciDevSetCapabilityList(pPciDev, 0x50);
-
-    /** @todo Parse the capability list */
+    for (uint32_t i = 0; i < RT_ELEMENTS(s_aCfgSpaceDesc); i++)
+    {
+        switch (s_aCfgSpaceDesc[i].cbReg)
+        {
+            case 1:
+            {
+                if (s_aCfgSpaceDesc[i].fInitFromDev)
+                {
+                    uint8_t u8;
+                    int rc = pciVfioCfgSpaceReadU8(pThis, s_aCfgSpaceDesc[i].offReg, &u8);
+                    if (RT_FAILURE(rc)) return rc;
+                    PDMPciDevSetByte(pPciDev, s_aCfgSpaceDesc[i].offReg, u8);
+                }
+                pciVfioCfgSpaceSetInterceptU8(pThis, s_aCfgSpaceDesc[i].offReg, s_aCfgSpaceDesc[i].fRd, s_aCfgSpaceDesc[i].fWr);
+                break;
+            }
+            case 2:
+            {
+                if (s_aCfgSpaceDesc[i].fInitFromDev)
+                {
+                    uint16_t u16;
+                    int rc = pciVfioCfgSpaceReadU16(pThis, s_aCfgSpaceDesc[i].offReg, &u16);
+                    if (RT_FAILURE(rc)) return rc;
+                    PDMPciDevSetWord(pPciDev, s_aCfgSpaceDesc[i].offReg, u16);
+                }
+                pciVfioCfgSpaceSetInterceptU16(pThis, s_aCfgSpaceDesc[i].offReg, s_aCfgSpaceDesc[i].fRd, s_aCfgSpaceDesc[i].fWr);
+                break;
+            }
+            case 4:
+            {
+                if (s_aCfgSpaceDesc[i].fInitFromDev)
+                {
+                    uint32_t u32;
+                    int rc = pciVfioCfgSpaceReadU32(pThis, s_aCfgSpaceDesc[i].offReg, &u32);
+                    if (RT_FAILURE(rc)) return rc;
+                    PDMPciDevSetDWord(pPciDev, s_aCfgSpaceDesc[i].offReg, u32);
+                }
+                pciVfioCfgSpaceSetInterceptU32(pThis, s_aCfgSpaceDesc[i].offReg, s_aCfgSpaceDesc[i].fRd, s_aCfgSpaceDesc[i].fWr);
+                break;
+            }
+            default:
+                AssertReleaseFailed();
+        }
+    }
 
     return VINF_SUCCESS;
 }
@@ -847,71 +1304,9 @@ static int pciVfioMapRegion(PVFIOPCI pThis, RTGCPHYS GCPhysStart, uintptr_t uPtr
 }
 
 
-/**
- * @callback_method_impl{FNPCICONFIGREAD}
- */
-static DECLCALLBACK(VBOXSTRICTRC) pciVfioConfigRead(PPDMDEVINS pDevIns, PPDMPCIDEV pPciDev,
-                                                    uint32_t uAddress, unsigned cb, uint32_t *pu32Value)
+static int pciVfioIommuGuestRamMap(PVFIOPCI pThis, PPDMDEVINS pDevIns)
 {
-    PVFIOPCI pThis = PDMDEVINS_2_DATA(pDevIns, PVFIOPCI);
-    RT_NOREF(pPciDev, cb, pu32Value, pThis);
-
-    if (uAddress >= VBOX_PCI_BASE_ADDRESS_0 && uAddress < VBOX_PCI_CARDBUS_CIS)
-        return VINF_PDM_PCI_DO_DEFAULT;
-
-#if 0
-    switch (cb)
-    {
-        case 1:
-        {
-            uint8_t u8;
-            int rc = pciVfioCfgSpaceReadU8(pThis, uAddress, &u8);
-            if (RT_FAILURE(rc)) return rc;
-            *pu32Value = u8;
-            break;
-        }
-        case 2:
-        {
-            uint16_t u16;
-            int rc = pciVfioCfgSpaceReadU16(pThis, uAddress, &u16);
-            if (RT_FAILURE(rc)) return rc;
-            *pu32Value = u16;
-            break;
-        }
-        case 4:
-        {
-            uint32_t u32;
-            int rc = pciVfioCfgSpaceReadU32(pThis, uAddress, &u32);
-            if (RT_FAILURE(rc)) return rc;
-            *pu32Value = u32;
-            break;
-        }
-        default:
-            AssertFailedReturn(VERR_INVALID_PARAMETER);
-    }
-#endif
-
-    return VINF_PDM_PCI_DO_DEFAULT;
-}
-
-
-/**
- * @callback_method_impl{FNPCICONFIGWRITE}
- */
-static DECLCALLBACK(VBOXSTRICTRC) pciVfioConfigWrite(PPDMDEVINS pDevIns, PPDMPCIDEV pPciDev,
-                                                     uint32_t uAddress, unsigned cb, uint32_t u32Value)
-{
-    PVFIOPCI pThis = PDMDEVINS_2_DATA(pDevIns, PVFIOPCI);
-
-    RT_NOREF(pPciDev);
-
-    if (uAddress >= VBOX_PCI_BASE_ADDRESS_0 && uAddress < VBOX_PCI_CARDBUS_CIS)
-        return VINF_PDM_PCI_DO_DEFAULT;
-
-    /* Map all the guest memory into the IOMMU as soon as the BUSMASTER bit is enabled. */
-    if (   uAddress == VBOX_PCI_COMMAND
-        && (u32Value & RT_BIT(2))
-        && !pThis->fGuestRamMapped)
+    if (!pThis->fGuestRamMapped)
     {
         /** @todo This is a really gross hack because we currently lack
          * a dedicated interface to get knowledge about guest RAM mappings.
@@ -979,7 +1374,48 @@ static DECLCALLBACK(VBOXSTRICTRC) pciVfioConfigWrite(PPDMDEVINS pDevIns, PPDMPCI
         pThis->fGuestRamMapped = true;
     }
 
-#if 1
+    return VINF_SUCCESS;
+}
+
+
+static int pciVfioConfigPassthroughRead(PVFIOPCI pThis, uint32_t uAddress, unsigned cb, uint32_t *pu32Value)
+{
+    switch (cb)
+    {
+        case 1:
+        {
+            uint8_t u8;
+            int rc = pciVfioCfgSpaceReadU8(pThis, uAddress, &u8);
+            if (RT_FAILURE(rc)) return rc;
+            *pu32Value = u8;
+            break;
+        }
+        case 2:
+        {
+            uint16_t u16;
+            int rc = pciVfioCfgSpaceReadU16(pThis, uAddress, &u16);
+            if (RT_FAILURE(rc)) return rc;
+            *pu32Value = u16;
+            break;
+        }
+        case 4:
+        {
+            uint32_t u32;
+            int rc = pciVfioCfgSpaceReadU32(pThis, uAddress, &u32);
+            if (RT_FAILURE(rc)) return rc;
+            *pu32Value = u32;
+            break;
+        }
+        default:
+            AssertFailedReturn(VERR_INVALID_PARAMETER);
+    }
+
+    return VINF_SUCCESS;
+}
+
+
+static int pciVfioConfigPassthroughWrite(PVFIOPCI pThis, uint32_t uAddress, unsigned cb, uint32_t u32Value)
+{
     switch (cb)
     {
         case 1:
@@ -1003,110 +1439,163 @@ static DECLCALLBACK(VBOXSTRICTRC) pciVfioConfigWrite(PPDMDEVINS pDevIns, PPDMPCI
         default:
             AssertFailedReturn(VERR_INVALID_PARAMETER);
     }
-#endif
 
-    return VINF_PDM_PCI_DO_DEFAULT;
+    return VINF_SUCCESS;
 }
 
 
 /**
- * The IRQ poller thread.
- *
- * @returns VBox status code.
- * @param   pDevIns     The device instance.
- * @param   pThread     The command thread.
+ * @callback_method_impl{FNPCICONFIGREAD}
  */
-static DECLCALLBACK(int) pciVfioIrqPoller(PPDMDEVINS pDevIns, PPDMTHREAD pThread)
+static DECLCALLBACK(VBOXSTRICTRC) pciVfioConfigRead(PPDMDEVINS pDevIns, PPDMPCIDEV pPciDev,
+                                                    uint32_t uAddress, unsigned cb, uint32_t *pu32Value)
 {
     PVFIOPCI pThis = PDMDEVINS_2_DATA(pDevIns, PVFIOPCI);
 
-    if (pThread->enmState == PDMTHREADSTATE_INITIALIZING)
+    uint32_t u32 = 0;
+    for (uint8_t i = 0; i < cb; i++)
     {
-        pThis->aIrqFds[0].fd = pThis->iFdWakeup;
-        pThis->aIrqFds[0].events = POLLIN | POLLRDNORM | POLLRDBAND | POLLPRI | POLLERR;
-        return VINF_SUCCESS;
-    }
-
-    while (pThread->enmState == PDMTHREADSTATE_RUNNING)
-    {
-        int rcPsx = poll(&pThis->aIrqFds[0], RT_ELEMENTS(pThis->aIrqFds), -1);
-        if (rcPsx > 0)
+        uint32_t bRead = 0;
+        uint8_t fRd = pciVfioCfgSpaceGetInterceptRd(pThis, uAddress + i);
+        switch (fRd)
         {
-            if (pThis->aIrqFds[0].revents)
+            case VFIO_PCI_CFG_SPACE_ACCESS_INVALID:
             {
-                /* We got woken up externally. */
-                pThis->aIrqFds[0].revents = 0;
-                uint64_t u64;
-                ssize_t cb = read(pThis->aIrqFds[0].fd, &u64, sizeof(u64));
-                Assert(cb == sizeof(u64)); RT_NOREF(cb);
-                if (pThread->enmState != PDMTHREADSTATE_RUNNING)
-                    break;
+                Log(("VFIO#%d: Invalid PCI config read at offset %#x, returning 0\n", pThis->iInstance, uAddress + i));
+                break;
             }
-
-            for (uint32_t i = 1; i < RT_ELEMENTS(pThis->aIrqFds); i++)
+            case VFIO_PCI_CFG_SPACE_ACCESS_PASSTHROUGH:
             {
-                if (pThis->aIrqFds[i].revents)
+                int rc = pciVfioConfigPassthroughRead(pThis, uAddress + i, 1, &bRead);
+                if (RT_FAILURE(rc))
+                LogRel(("VFIO#%d: Failed to passthrough PCI config read at offset %#x with %Rrc, returning 0\n",
+                        pThis->iInstance, uAddress + i, rc));
+                break;
+            }
+            case VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT:
+            {
+                bRead = PDMPciDevGetByte(pPciDev, uAddress + i);
+                break;
+            }
+            case VFIO_PCI_CFG_SPACE_ACCESS_EMULATE:
+            {
+                switch (uAddress + i)
                 {
-                    pThis->aIrqFds[i].revents = 0;
-                    uint64_t u64;
-                    ssize_t cb = read(pThis->aIrqFds[i].fd, &u64, sizeof(u64));
-                    Assert(cb == sizeof(u64)); RT_NOREF(cb);
-
-                    PDMDevHlpPCISetIrq(pDevIns, 0, 1);
-
-                    /** @todo The interrupt seems to be masked and we would need a mechanism
-                     * to get notified when the interrupt is de-asserted in the interrupt controller
-                     * (through an EOI for example) so we can unmask them. With KVM this is supported
-                     * when KVM_CAP_IRQFD_RESAMPLE is available.
-                     */
-#if 0
-                    union
+                    case VBOX_PCI_STATUS:
+                    case VBOX_PCI_STATUS + 1:
                     {
-                        struct vfio_irq_set IrqSet;
-                        uint32_t            au32[sizeof(struct vfio_irq_set) / sizeof(uint32_t) + 1];
-                    } uBuf;
-
-                    uBuf.IrqSet.argsz = sizeof(uBuf);
-                    uBuf.IrqSet.flags = VFIO_IRQ_SET_DATA_EVENTFD | VFIO_IRQ_SET_ACTION_UNMASK;
-                    uBuf.IrqSet.index = i;
-                    uBuf.IrqSet.start = 0;
-                    uBuf.IrqSet.count = 1;
-                    uBuf.au32[sizeof(struct vfio_irq_set) / sizeof(uint32_t)] = pThis->aIrqFds[i].fd;
-
-                    int rcLnx = ioctl(pThis->iFdVfio, VFIO_DEVICE_SET_IRQS, &uBuf);
-                    if (rcLnx == -1)
-                        LogRel(("Unmasking one INTX interrupt failed with %d", errno));
-#endif
+                        uint16_t u16;
+                        int rc = pciVfioCfgSpaceReadU16(pThis, VBOX_PCI_STATUS, &u16);
+                        if (RT_SUCCESS(rc))
+                        {
+                            /* Reflect proper capabilities bit. */
+                            uint8_t offCap = PDMPciDevGetCapabilityList(pPciDev);
+                            if (offCap)
+                                u16 |= RT_BIT(4);
+                            else
+                                u16 &= ~RT_BIT(4);
+                            bRead = (u16 >> ((uAddress + i) == VBOX_PCI_STATUS ? 0 : 8)) & 0xff;
+                        }
+                        break;
+                    }
+                    default:
+                        AssertReleaseFailed();
                 }
+                break;
             }
+            default:
+                AssertReleaseFailed();
         }
-        else
-            AssertFailed();
+
+        u32 |= (uint32_t)bRead << (i * 8);
     }
 
-    LogFlowFunc(("Poller thread terminating\n"));
+    *pu32Value = u32;
     return VINF_SUCCESS;
 }
 
 
 /**
- * Wakes up the IRQ poller to respond to state changes.
- *
- * @returns VBox status code.
- * @param   pDevIns     The device instance.
- * @param   pThread     The command thread.
+ * @callback_method_impl{FNPCICONFIGWRITE}
  */
-static DECLCALLBACK(int) pciVfioIrqPollerWakeup(PPDMDEVINS pDevIns, PPDMTHREAD pThread)
+static DECLCALLBACK(VBOXSTRICTRC) pciVfioConfigWrite(PPDMDEVINS pDevIns, PPDMPCIDEV pPciDev,
+                                                     uint32_t uAddress, unsigned cb, uint32_t u32Value)
 {
-    RT_NOREF(pThread);
-    Log4Func(("\n"));
     PVFIOPCI pThis = PDMDEVINS_2_DATA(pDevIns, PVFIOPCI);
 
-    uint64_t u64 = 1;
-    ssize_t cb = write(pThis->iFdWakeup, &u64, sizeof(u64));
-    Assert(cb == sizeof(u64)); RT_NOREF(cb);
+    /** @todo Only handles accesses with the same intercept config for now. */
+    uint8_t fWr = pciVfioCfgSpaceGetInterceptWr(pThis, uAddress);
+    for (uint8_t i = 1; i < cb; i++)
+    {
+        uint8_t fWrU8 = pciVfioCfgSpaceGetInterceptWr(pThis, uAddress + i);
+        if (fWr != fWrU8)
+        {
+            LogRel(("VFIO#%d: Complicated PCI config space write at offset %#x (+ %u) intercept %u vs %u\n",
+                    pThis->iInstance, uAddress, i, fWr, fWrU8));
+            return VINF_SUCCESS;
+        }
+    }
 
-    return VINF_SUCCESS;
+    int rc = VINF_SUCCESS;
+    switch (fWr)
+    {
+        case VFIO_PCI_CFG_SPACE_ACCESS_INVALID:
+        {
+            LogRel(("VFIO#%d: Invalid PCI config write at offset %#x, ignoring\n",
+                    pThis->iInstance, uAddress));
+            break;
+        }
+        case VFIO_PCI_CFG_SPACE_ACCESS_PASSTHROUGH:
+        {
+            rc = pciVfioConfigPassthroughWrite(pThis, uAddress, cb, u32Value);
+            break;
+        }
+        case VFIO_PCI_CFG_SPACE_ACCESS_DO_DEFAULT:
+            return VINF_PDM_PCI_DO_DEFAULT;
+        case VFIO_PCI_CFG_SPACE_ACCESS_EMULATE:
+        {
+            /* Map all the guest memory into the IOMMU as soon as the BUSMASTER bit is enabled. */
+            if (uAddress == VBOX_PCI_COMMAND)
+            {
+                if (u32Value & RT_BIT(2))
+                {
+                    rc = pciVfioIommuGuestRamMap(pThis, pDevIns);
+                    if (RT_FAILURE(rc))
+                        LogRel(("VFIO#%d: Failed to map guest RAM into IOMMU for device, expect broken device (%Rrc)\n",
+                                pThis->iInstance, rc));
+                }
+                /* Now write to the device. */
+                rc = pciVfioConfigPassthroughWrite(pThis, uAddress, cb, u32Value);
+                if (RT_FAILURE(rc))
+                    LogRel(("VFIO#%d: Failed to update command register in device (%Rrc)", pThis->iInstance, rc));
+                rc = VINF_PDM_PCI_DO_DEFAULT; /* Need to update BAR mappings. */
+            }
+            else if (   pThis->offMsiCtrl == uAddress
+                     && cb == sizeof(uint16_t))
+            {
+                if (u32Value & RT_BIT(0)) /* Configure MSI interrupts as soon as they get enabled. */
+                {
+                    rc = pciVfioSetupIrq(pThis, pDevIns, pPciDev, VFIO_PCI_MSI_IRQ_INDEX);
+                    if (RT_FAILURE(rc))
+                        return rc;
+                }
+                /** @todo Disable MSI */
+
+                /* Now write to the device. */
+                rc = pciVfioConfigPassthroughWrite(pThis, uAddress, cb, u32Value);
+                if (RT_FAILURE(rc))
+                    LogRel(("VFIO#%d: Failed to update MSI control register in device (%Rrc)", pThis->iInstance, rc));
+                rc = VINF_PDM_PCI_DO_DEFAULT; /* Need to update our internal MSI state. */
+            }
+            else
+                AssertFailed();
+            break;
+        }
+        default:
+            AssertReleaseFailed();
+    }
+
+    return rc;
 }
 
 
@@ -1176,6 +1665,9 @@ static DECLCALLBACK(int) pciVfioConstruct(PPDMDEVINS pDevIns, int iInstance, PCF
     pThis->iFdWakeup      = -1;
     pThis->fVga           = false;
     pThis->fInterceptMmio = false;
+    pThis->offMsiCtrl     = 0;
+    pThis->uIrqModeCur    = UINT8_MAX;
+    pThis->uIrqModeNew    = UINT8_MAX;
 
     int rc = PDMDevHlpSetDeviceCritSect(pDevIns, PDMDevHlpCritSectGetNop(pDevIns));
     if (RT_FAILURE(rc))
@@ -1339,22 +1831,12 @@ static DECLCALLBACK(int) pciVfioConstruct(PPDMDEVINS pDevIns, int iInstance, PCF
     if (RT_FAILURE(rc))
         return rc;
 
-    /* Set up interrupts. */
-    static uint32_t s_aVfioIrqs[] =
-    {
-        /*VFIO_PCI_INTX_IRQ_INDEX,*/
-        VFIO_PCI_MSI_IRQ_INDEX,
-        /* VFIO_PCI_MSIX_IRQ_INDEX */
-        /* VFIO_PCI_ERR_IRQ_INDEX */
-        /* VFIO_PCI_REQ_IRQ_INDEX */
-    };
+    /* Parse the capability lists now. */
+    rc = pciVfioCfgSpaceParseCapabilities(pThis, pPciDev);
+    if (RT_FAILURE(rc))
+        return rc;
 
-    for (uint32_t i = 0; i < RT_ELEMENTS(s_aVfioIrqs); i++)
-    {
-        rc = pciVfioSetupIrq(pThis, pDevIns, pPciDev, s_aVfioIrqs[i]);
-        if (RT_FAILURE(rc))
-            return rc;
-    }
+    /** @todo Parse the extended capability list */
 
     /* Create wakeup eventfd for IRQ poller. */
     rc = pciVfioLnxEventfd2(0 /*uValInit*/, 0 /*fFlags*/, &pThis->iFdWakeup);
