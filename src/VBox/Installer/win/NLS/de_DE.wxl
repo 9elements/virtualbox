@@ -74,7 +74,7 @@
     <String Id="Only64Bit" Value="Diese Applikation läuft nur auf 64-bit Windows-Systemen. Bitte installieren Sie die 32-bit Version von [ProductName]!" />
     <String Id="SunFound" Value="Eine alte Sun Version von VirtualBox wurde auf diesem Computer gefunden. Bitte deinstallieren Sie diese Version zuerst. Danach können Sie [ProductName] installieren!" />
     <String Id="InnotekFound" Value="Eine alte innotek Version von VirtualBox wurde auf diesem Computer gefunden. Bitte deinstallieren Sie diese Version zuerst. Danach können Sie [ProductName] installieren!" />
-    <String Id="NewerVersionDetected" Value="Eine neuere Version von VirtualBox ist bereits installiert. Bitte erst diese deinstallieren um ltere Versionen von VirtualBox zu installieren." />
+    <String Id="NewerVersionDetected" Value="Eine neuere Version von VirtualBox ist bereits installiert. Bitte erst diese deinstallieren um ältere Versionen von VirtualBox zu installieren." />
     <String Id="InvalidTargetDir" Value="Ungültiges Installationsverzeichnis angegeben. Bitte ein anderes Installationsverzeichnis wählen, um [ProductName] zu installieren. Für mehr Informationen bitte im [ProductName] Handbuch nachschlagen." />
 
     <!---->
