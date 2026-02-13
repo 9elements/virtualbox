@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# $Id: tdGuestOsUnattendedInst1.py 112997 2026-02-13 12:52:51Z serkan.bayraktar@oracle.com $
+# $Id: tdGuestOsUnattendedInst1.py 112998 2026-02-13 13:15:18Z serkan.bayraktar@oracle.com $
 
 """
 VirtualBox Validation Kit - Guest OS unattended installation tests.
@@ -37,14 +37,13 @@ terms and conditions of either the GPL or the CDDL or both.
 
 SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 """
-__version__ = "$Revision: 112997 $"
+__version__ = "$Revision: 112998 $"
 
 
 # Standard Python imports.
 import copy;
 import os;
 import sys;
-import pdb;
 import re;
 
 # Only the main script needs to modify the path.
