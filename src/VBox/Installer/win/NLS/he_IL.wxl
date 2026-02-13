@@ -70,6 +70,7 @@
     <String Id="WrongOS" Value="[ProductName] רץ על Windows 10 ומעלה בלבד." />
     <String Id="Only64Bit" Value="[ProductName] רץ על מערכות Windows 64 סיביות בלבד." />
     <String Id="WrongPlatformArch" Value="הגרסה הזאת של [ProductName] עבור ארכיטקטורת פלטפורמה שונה ולכן אי אפשר להתקין. נא להתקין את הגרסה המתאימה של [ProductName]!" />
+    <String Id="NewerVersionDetected" Value="A newer version of VirtualBox is already installed. Please uninstall it first before installing older versions of VirtualBox." />
     <String Id="InvalidTargetDir" Value="תיקיית ההתקנה שנבחרה שגויה! נא להשתמש בתיקיית התקנה אחרת כדי להתקין את [ProductName]. כדאי לפנות למדריך של [ProductName] למידע נוסף." />
 
     <!---->
