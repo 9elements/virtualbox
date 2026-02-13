@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# $Id: configure.py 113002 2026-02-13 13:49:39Z andreas.loeffler@oracle.com $
+# $Id: configure.py 113003 2026-02-13 13:51:46Z andreas.loeffler@oracle.com $
 """
 Configuration script for building VirtualBox.
 
@@ -61,7 +61,7 @@ SPDX-License-Identifier: GPL-3.0-only
 # External Python modules or other dependencies are not allowed!
 #
 
-__revision__ = "$Revision: 113002 $"
+__revision__ = "$Revision: 113003 $"
 
 import argparse
 import ctypes
@@ -3246,7 +3246,7 @@ Examples:
     {g_sScriptName} --with-libpng-path=/usr/local
     {g_sScriptName} --disable-yasm --disable-openwatcom
     {g_sScriptName} --disable-libstdc++
-    {g_sScriptName} --disable-qt6
+    {g_sScriptName} --disable-qt
 
 Hint: Combine any supported --disable-<lib|tool> and --with-<lib>-path=PATH options.
 """);
