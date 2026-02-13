@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# $Id: tdSmokeTest1.py 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $
+# $Id: tdSmokeTest1.py 112984 2026-02-13 04:07:08Z brian.le.lee@oracle.com $
 
 """
 VirtualBox Validation Kit - Smoke Test #1.
@@ -37,7 +37,7 @@ terms and conditions of either the GPL or the CDDL or both.
 
 SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 """
-__version__ = "$Revision: 112403 $"
+__version__ = "$Revision: 112984 $"
 
 
 # Standard Python imports.
@@ -69,6 +69,7 @@ class tdSmokeTest1(vbox.TestDriver):
         self.sNicAttachmentDef  = 'mixed';
         self.sNicAttachment     = self.sNicAttachmentDef;
         self.fQuick             = False;
+        self.fSave              = False;
 
     #
     # Overridden methods.
@@ -81,6 +82,8 @@ class tdSmokeTest1(vbox.TestDriver):
         reporter.log('      Default: %s' % (self.sNicAttachmentDef));
         reporter.log('  --quick');
         reporter.log('      Very selective testing.')
+        reporter.log('  --savestate');
+        reporter.log('      savestate testing.')
         return rc;
 
     def parseOption(self, asArgs, iArg):
@@ -114,6 +117,8 @@ class tdSmokeTest1(vbox.TestDriver):
                     oTestVm.acCpusSup       = range(1, 2);
                 else:
                     oTestVm.fSkip = True;
+        elif asArgs[iArg] == '--savestate':
+            self.fSave = True;
         else:
             return vbox.TestDriver.parseOption(self, asArgs, iArg);
         return iArg + 1;
@@ -162,6 +167,23 @@ class tdSmokeTest1(vbox.TestDriver):
             self.addTask(oTxsSession);
 
             ## @todo do some quick tests: save, restore, execute some test program, shut down the guest.
+            reporter.log('point alpha');
+            if self.fSave:
+                reporter.log('point beta');
+                fRc = oSession.saveState();
+                if not fRc:
+                    return reporter.error("Failed to take save state");
+                reporter.log("Machine is in saved state");
+                self.removeTask(oTxsSession);
+                self.removeTask(oSession);
+
+                # Start the VM again, implicitly restoring the state and reconnecting to TXS.
+                # The timeout is shorter here, as this shouldn't take quite as much time.
+                oSession, oTxsSession = self.startVmAndConnectToTxsViaTcp(oTestVm.sVmName, fCdWait = True, cMsCdWait = 3 * 60 * 1000);
+                if oSession is None or oTxsSession is None:
+                    return reporter.error("Failed to start test VM");
+                self.addTask(oTxsSession);
+                reporter.log("Successfully started VM after saving state");
 
             # cleanup.
             self.removeTask(oTxsSession);

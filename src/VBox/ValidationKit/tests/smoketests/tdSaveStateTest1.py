@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# $Id: tdSaveStateTest1.py 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $
+# $Id: tdSaveStateTest1.py 112984 2026-02-13 04:07:08Z brian.le.lee@oracle.com $
 
 """
 VirtualBox Validation Kit - Save State Test (based on Smoke Test).
@@ -37,7 +37,7 @@ terms and conditions of either the GPL or the CDDL or both.
 
 SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 """
-__version__ = "$Revision: 112403 $"
+__version__ = "$Revision: 112984 $"
 
 
 #temp file for extending current smoke test
@@ -164,7 +164,8 @@ class tdSaveStateTest1(vbox.TestDriver):
         # Try waiting for a bit longer (15 minutes) until the CD is available to avoid running into timeouts.
         oSession, oTxsSession = self.startVmAndConnectToTxsViaTcp(oTestVm.sVmName, fCdWait = True, cMsCdWait = 15 * 60 * 1000);
         if oSession is not None:
-            _ = oTxsSession;
+            #_ = oTxsSession;
+            self.addTask(oTxsSession);
             ## @todo restore is not working properly fully and need to implement disk images
             fRc = oSession.saveState();
             if not fRc:
@@ -172,8 +173,9 @@ class tdSaveStateTest1(vbox.TestDriver):
             reporter.log("Machine is in saved state");
             ## @todo check the state?
             # Minimal terminateVmBySession.
-            oSession.close();
-            self.waitOnDirectSessionClose(oSession.oVM, 10000);
+            #oSession.close();
+            #self.waitOnDirectSessionClose(oSession.oVM, 10000);
+            self.removeTask(oTxsSession);
             self.removeTask(oSession);
 
             # Start the VM again, implicitly restoring the state and reconnecting to TXS.
@@ -181,9 +183,11 @@ class tdSaveStateTest1(vbox.TestDriver):
             oSession, oTxsSession = self.startVmAndConnectToTxsViaTcp(oTestVm.sVmName, fCdWait = True, cMsCdWait = 3 * 60 * 1000);
             if oSession is None or oTxsSession is None:
                 return reporter.error("Failed to start test VM");
+            self.addTask(oTxsSession);
             reporter.log("Successfully started VM after saving state");
 
             # cleanup.
+            self.removeTask(oTxsSession);
             self.terminateVmBySession(oSession)
             return True;
         return None;
