@@ -1,4 +1,4 @@
-/* $Id: DevPciVfio.cpp 113018 2026-02-13 16:13:09Z alexander.eichner@oracle.com $ */
+/* $Id: DevPciVfio.cpp 113024 2026-02-13 19:47:33Z andreas.loeffler@oracle.com $ */
 /** @file
  * PCI passthrough device emulation using VFIO/IOMMUFD.
  */
@@ -162,9 +162,9 @@ typedef struct VFIOPCI
     int                  iFdWakeup;
     /** The poll structure for the interrupts. */
     struct pollfd        aIrqFds[2];
-    /** The current IRQ mode.. */
+    /** The current IRQ mode. */
     uint8_t              uIrqModeCur;
-    /** The new confogured IRQ mode.. */
+    /** The new confogured IRQ mode. */
     volatile uint8_t     uIrqModeNew;
 
     /** The interrupt polling thread. */
