@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# $Id: configure.py 113001 2026-02-13 13:48:25Z andreas.loeffler@oracle.com $
+# $Id: configure.py 113002 2026-02-13 13:49:39Z andreas.loeffler@oracle.com $
 """
 Configuration script for building VirtualBox.
 
@@ -61,7 +61,7 @@ SPDX-License-Identifier: GPL-3.0-only
 # External Python modules or other dependencies are not allowed!
 #
 
-__revision__ = "$Revision: 113001 $"
+__revision__ = "$Revision: 113002 $"
 
 import argparse
 import ctypes
@@ -704,7 +704,7 @@ def compileAndRun(sName, asIncPaths, asLibPaths, asIncFiles, asLibFiles, \
         else:
             printLog(f'Compilation of test program for {sName} successful');
             if not fRun:
-            	fRet  = True;
+                fRet  = True;
             else:
                 # Try executing the compiled binary and capture stdout + stderr.
                 try:
@@ -1092,7 +1092,7 @@ class LibraryCheck(CheckBase):
     Describes and checks for a library / package.
     """
     def __init__(self, sName, asIncFiles, asLibFiles,
-                 enmBuildTarget = g_enmHostTarget, enmBuildArch = g_enmHostArch, aeTargets = None, aeArchs = None, 
+                 enmBuildTarget = g_enmHostTarget, enmBuildArch = g_enmHostArch, aeTargets = None, aeArchs = None,
                  sCode = None, fRun = True,
                  asIncPaths = None, asLibPaths = None,
                  fnCallback = None, aeTargetsExcluded = None, fUseInTree = False, sSdkName = None,
@@ -1188,7 +1188,7 @@ class LibraryCheck(CheckBase):
 
         fRc, sStdOut, sStdErr = compileAndRun(self.sName, \
                                               self.asIncPaths, self.asLibPaths, self.asHdrFiles, self.asLibFiles, \
-                                              sCode, self.fRun, 
+                                              sCode, self.fRun,
                                               enmBuildTarget = self.enmBuildTarget, enmBuildArch = self.enmBuildArch,
                                               asCompilerArgs = self.asCompilerArgs, asLinkerArgs = self.asLinkerArgs, asDefines = self.asDefines,
                                               fErrorsAsWarnings = fErrorsAsWarnings);
