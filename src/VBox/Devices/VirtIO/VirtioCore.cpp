@@ -1,4 +1,4 @@
-/* $Id: VirtioCore.cpp 112506 2026-01-13 14:56:09Z aleksey.ilyushin@oracle.com $ */
+/* $Id: VirtioCore.cpp 112994 2026-02-13 11:54:29Z aleksey.ilyushin@oracle.com $ */
 
 /** @file
  * VirtioCore - Virtio Core (PCI, feature & config mgt, queue mgt & proxy, notification mgt)
@@ -1960,20 +1960,59 @@ static int virtioCommonCfgAccessed(PPDMDEVINS pDevIns, PVIRTIOCORE pVirtio, PVIR
     if (VIRTIO_DEV_CONFIG_MATCH_MEMBER(   debugDescNext,              VIRTIO_PCI_COMMON_CFG_T, uOffsetOfAccess))
         VIRTIO_DEV_CONFIG_ACCESS(         debugDescNext,              VIRTIO_PCI_COMMON_CFG_T, uOffsetOfAccess, pVirtio);
     else
+    if (VIRTIO_DEV_CONFIG_MATCH_MEMBER(   debugOpaque,                VIRTIO_PCI_COMMON_CFG_T, uOffsetOfAccess))
+        VIRTIO_DEV_CONFIG_ACCESS(         debugOpaque,                VIRTIO_PCI_COMMON_CFG_T, uOffsetOfAccess, pVirtio);
+    else
+    if (VIRTIO_DEV_CONFIG_MATCH_MEMBER(   debugAvailIndex,            VIRTIO_PCI_COMMON_CFG_T, uOffsetOfAccess))
+        VIRTIO_DEV_CONFIG_ACCESS(         debugAvailIndex,            VIRTIO_PCI_COMMON_CFG_T, uOffsetOfAccess, pVirtio);
+    else
+    if (VIRTIO_DEV_CONFIG_MATCH_MEMBER(   debugUsedIndex,             VIRTIO_PCI_COMMON_CFG_T, uOffsetOfAccess))
+        VIRTIO_DEV_CONFIG_ACCESS(         debugUsedIndex,             VIRTIO_PCI_COMMON_CFG_T, uOffsetOfAccess, pVirtio);
+    else
+    if (VIRTIO_DEV_CONFIG_MATCH_MEMBER(   debugTag,                   VIRTIO_PCI_COMMON_CFG_T, uOffsetOfAccess))
+    {
+        if (*(char*)pv == 'V')
+        {
+#ifdef IN_RING3
+            virtioCoreDumpTraceBufToRelLog(pVirtio->hTraceBuf);
+            dbgVirtioDump(pDevIns);
+#else
+            return VINF_IOM_R3_MMIO_WRITE;
+#endif
+        }
+        else
+            VIRTIO_DEV_CONFIG_ACCESS(     debugTag,                   VIRTIO_PCI_COMMON_CFG_T, uOffsetOfAccess, pVirtio);
+    }
+    else
+    if (VIRTIO_DEV_CONFIG_MATCH_MEMBER(   debugQueue,                 VIRTIO_PCI_COMMON_CFG_T, uOffsetOfAccess))
+        VIRTIO_DEV_CONFIG_ACCESS(         debugQueue,                 VIRTIO_PCI_COMMON_CFG_T, uOffsetOfAccess, pVirtio);
+    else
     if (VIRTIO_DEV_CONFIG_MATCH_MEMBER(   debugDescIndex,             VIRTIO_PCI_COMMON_CFG_T, uOffsetOfAccess))
     {
         if (!fWrite)
-            VIRTIO_DEV_CONFIG_ACCESS(     debugDescIndex,              VIRTIO_PCI_COMMON_CFG_T, uOffsetOfAccess, pVirtio);
-        else if (cb != sizeof(uint32_t))
+            VIRTIO_DEV_CONFIG_ACCESS(     debugDescIndex,             VIRTIO_PCI_COMMON_CFG_T, uOffsetOfAccess, pVirtio);
+        else if (cb != sizeof(uint16_t))
             LogRel(("Virtio: wrong size access of debugDescIndex\n"));
         else
         {
-            static const char *flags[] = { "R", "RN", "W", "WN"};
-            uint32_t value = *(uint32_t*)pv;
-            uint16_t queue = value & 0xFFFF;
-            uint16_t index = value >> 16;
-            LogRel(("[%s] Trace of %s: @%u addr=%p cb=%u flags=0x%x (%s) next=%u\n", pVirtio->szInstance, pVirtio->aVirtqueues[queue].szName,
-                    index, pVirtio->debugDescAddr, pVirtio->debugDescLen, pVirtio->debugDescFlags, flags[pVirtio->debugDescFlags&3], pVirtio->debugDescNext));
+            static const char *flags[] = { "(R) ", "(RN)", "(W) ", "(WN)"};
+            uint16_t index = *(uint16_t*)pv;
+
+            if (pVirtio->debugAvailIndex == 0xFFFF)
+                LogRel(("[%s-NETKVM] %s: @%-4u addr=%p cb=%-5u flags=%x %s next=%-4u [%c  used=%-4d opaque=%p]\n",
+                        pVirtio->szInstance, pVirtio->aVirtqueues[pVirtio->debugQueue].szName, index,
+                        pVirtio->debugDescAddr, pVirtio->debugDescLen, pVirtio->debugDescFlags, flags[pVirtio->debugDescFlags&3],
+                        pVirtio->debugDescNext, pVirtio->debugTag, pVirtio->debugUsedIndex, pVirtio->debugOpaque));
+            else if (pVirtio->debugUsedIndex == 0xFFFF)
+                LogRel(("[%s-NETKVM] %s: @%-4u addr=%p cb=%-5u flags=%x %s next=%-4u [%c avail=%-4d opaque=%p]\n",
+                        pVirtio->szInstance, pVirtio->aVirtqueues[pVirtio->debugQueue].szName, index,
+                        pVirtio->debugDescAddr, pVirtio->debugDescLen, pVirtio->debugDescFlags, flags[pVirtio->debugDescFlags&3],
+                        pVirtio->debugDescNext, pVirtio->debugTag, pVirtio->debugAvailIndex, pVirtio->debugOpaque));
+            else
+                LogRel(("[%s-NETKVM] %s: @%u addr=%p cb=%u flags=%x %s next=%u [%c avail=%d used=%d opaque=%p]\n",
+                        pVirtio->szInstance, pVirtio->aVirtqueues[pVirtio->debugQueue].szName, index,
+                        pVirtio->debugDescAddr, pVirtio->debugDescLen, pVirtio->debugDescFlags, flags[pVirtio->debugDescFlags&3],
+                        pVirtio->debugDescNext, pVirtio->debugTag, pVirtio->debugAvailIndex, pVirtio->debugUsedIndex, pVirtio->debugOpaque));                
         }
     }
 #endif /* VIRTIO_REL_INFO_DUMP */
