@@ -8062,6 +8062,40 @@ DECLINLINE(int) PDMDevHlpPCIIORegionCreateIo(PPDMDEVINS pDevIns, uint32_t iPciRe
 }
 
 /**
+ * Combines PDMDevHlpIoPortCreate and PDMDevHlpPCIIORegionRegisterIo, creating
+ * and registering an I/O port region for the default PCI device, extended version.
+ *
+ * @returns VBox status code.
+ * @param   pDevIns         The device instance to register the ports with.
+ * @param   pPciDev         The PCI device structure.
+ * @param   cPorts          The count of I/O ports in the region (the size).
+ * @param   iPciRegion      The PCI device region.
+ * @param   pfnOut          Pointer to function which is gonna handle OUT
+ *                          operations. Optional.
+ * @param   pfnIn           Pointer to function which is gonna handle IN operations.
+ *                          Optional.
+ * @param   pvUser          User argument to pass to the callbacks.
+ * @param   pszDesc         Pointer to description string. This must not be freed.
+ * @param   paExtDescs      Extended per-port descriptions, optional.  Partial range
+ *                          coverage is allowed.  This must not be freed.
+ * @param   phIoPorts       Where to return the I/O port range handle.
+ *
+ */
+DECLINLINE(int) PDMDevHlpPCIIORegionCreateIoEx(PPDMDEVINS pDevIns, PPDMPCIDEV pPciDev, uint32_t iPciRegion, RTIOPORT cPorts,
+                                               PFNIOMIOPORTNEWOUT pfnOut, PFNIOMIOPORTNEWIN pfnIn, void *pvUser,
+                                               const char *pszDesc, PCIOMIOPORTDESC paExtDescs, PIOMIOPORTHANDLE phIoPorts)
+
+{
+    int rc = pDevIns->pHlpR3->pfnIoPortCreateEx(pDevIns, cPorts, 0 /*fFlags*/, pPciDev, iPciRegion << 16,
+                                                pfnOut, pfnIn, NULL, NULL, pvUser, pszDesc, paExtDescs, phIoPorts);
+    if (RT_SUCCESS(rc))
+        rc = pDevIns->pHlpR3->pfnPCIIORegionRegister(pDevIns, pPciDev, iPciRegion, cPorts, PCI_ADDRESS_SPACE_IO,
+                                                     PDMPCIDEV_IORGN_F_IOPORT_HANDLE | PDMPCIDEV_IORGN_F_NEW_STYLE,
+                                                     *phIoPorts, NULL /*pfnMapUnmap*/);
+    return rc;
+}
+
+/**
  * Registers an MMIO region for the default PCI device.
  *
  * @returns VBox status code.
@@ -8223,6 +8257,37 @@ DECLINLINE(int) PDMDevHlpPCIIORegionCreateMmio2FromExisting(PPDMDEVINS pDevIns, 
                                                          pszDesc, pvBacking, phRegion);
     if (RT_SUCCESS(rc))
         rc = pDevIns->pHlpR3->pfnPCIIORegionRegister(pDevIns, pDevIns->apPciDevs[0], iPciRegion, cbRegion, enmType,
+                                                     PDMPCIDEV_IORGN_F_MMIO2_HANDLE | PDMPCIDEV_IORGN_F_NEW_STYLE,
+                                                     *phRegion, NULL /*pfnCallback*/);
+    return rc;
+}
+
+/**
+ * Combines PDMDevHlpMmio2CreateFromExisting and PDMDevHlpPCIIORegionRegisterMmio2, creating
+ * and registering an MMIO2 region for the default PCI device.
+ *
+ * @returns VBox status code.
+ * @param   pDevIns         The device instance to register the ports with.
+ * @param   pPciDev         The PCI device structure.
+ * @param   cbRegion        The size of the region in bytes.
+ * @param   iPciRegion      The PCI device region.
+ * @param   enmType         PCI_ADDRESS_SPACE_MEM or
+ *                          PCI_ADDRESS_SPACE_MEM_PREFETCH, optionally or-ing in
+ *                          PCI_ADDRESS_SPACE_BAR64 or PCI_ADDRESS_SPACE_BAR32.
+ * @param   pszDesc         Pointer to description string. This must not be freed.
+ * @param   pvBacking       The ring-3 memory backing the MMIO2 region.
+ * @param   phRegion        Where to return the MMIO2 region handle.
+ *
+ */
+DECLINLINE(int) PDMDevHlpPCIIORegionCreateMmio2FromExistingEx(PPDMDEVINS pDevIns, PPDMPCIDEV pPciDev, uint32_t iPciRegion,
+                                                              RTGCPHYS cbRegion, PCIADDRESSSPACE enmType, const char *pszDesc,
+                                                              void *pvBacking, PPGMMMIO2HANDLE phRegion)
+
+{
+    int rc = pDevIns->pHlpR3->pfnMmio2CreateFromExisting(pDevIns, pPciDev, iPciRegion << 16, cbRegion, 0 /*fFlags*/,
+                                                         pszDesc, pvBacking, phRegion);
+    if (RT_SUCCESS(rc))
+        rc = pDevIns->pHlpR3->pfnPCIIORegionRegister(pDevIns, pPciDev, iPciRegion, cbRegion, enmType,
                                                      PDMPCIDEV_IORGN_F_MMIO2_HANDLE | PDMPCIDEV_IORGN_F_NEW_STYLE,
                                                      *phRegion, NULL /*pfnCallback*/);
     return rc;
