@@ -1,4 +1,4 @@
-/* $Id: DevPciVfio.cpp 113030 2026-02-15 15:43:53Z alexander.eichner@oracle.com $ */
+/* $Id: DevPciVfio.cpp 113031 2026-02-15 16:16:37Z alexander.eichner@oracle.com $ */
 /** @file
  * PCI passthrough device emulation using VFIO/IOMMUFD.
  */
@@ -43,14 +43,20 @@
 #include <iprt/string.h>
 #include <iprt/errcore.h>
 
-#include <linux/vfio.h>
-#include <linux/iommufd.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <poll.h>
 #include <unistd.h>
+
+#if 0 /* Allow building on older hosts. */
+# include <linux/vfio.h>
+# include <linux/iommufd.h>
+#else
+# include "DevPciVfio.h"
+#endif
+
 
 #include "VBoxDD.h"
 
