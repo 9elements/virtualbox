@@ -1,4 +1,4 @@
-/* $Id: DevPciVfio.cpp 113029 2026-02-14 22:26:58Z alexander.eichner@oracle.com $ */
+/* $Id: DevPciVfio.cpp 113030 2026-02-15 15:43:53Z alexander.eichner@oracle.com $ */
 /** @file
  * PCI passthrough device emulation using VFIO/IOMMUFD.
  */
@@ -641,7 +641,7 @@ static int pciVfioSetupVga(PVFIOPCI pThis, PVFIOPCIFUN pFun, PPDMDEVINS pDevIns)
     rc = PDMDevHlpMmioCreateExAndMap(pDevIns, 0x000a0000, 0x00020000,
                                      IOMMMIO_FLAGS_READ_PASSTHRU | IOMMMIO_FLAGS_WRITE_PASSTHRU | IOMMMIO_FLAGS_ABS,
                                      NULL /*pPciDev*/, UINT32_MAX /*iPciRegion*/,
-                                     pciVfioVgaMmioWrite, pciVfioVgaMmioRead, pciVfioVgaMmioFill, NULL /*pvUser*/,
+                                     pciVfioVgaMmioWrite, pciVfioVgaMmioRead, pciVfioVgaMmioFill, pFun,
                                      "VFIO VGA - VGA Video Buffer", &pFun->hVgaMmio);
     AssertRCReturn(rc, rc);
 
@@ -1121,7 +1121,26 @@ static int pciVfioCfgSpaceParseCapabilities(PVFIOPCI pThis, PVFIOPCIFUN pFun, PP
             case VBOX_PCI_CAP_ID_EXP:
             {
                 LogRel(("VFIO#%d.%u: Cap[%#x]: PCI Express -> emulate\n", pThis->iInstance, pFun->uPciFun, offCap));
-                //fSupported = true;
+                fSupported = true;
+
+#if 1 /** @todo Proper support. */
+                uint16_t u16ExpReg = 0;
+                rc = pciVfioCfgSpaceReadU16(pFun, offCap + 2, &u16ExpReg);
+                if (RT_FAILURE(rc))
+                    return PDMDevHlpVMSetError(pDevIns, rc, RT_SRC_POS,
+                                               N_("Failed to read PCI Express Capabilities Register at offset %#x with %Rrc"), offCap + 2, rc);
+
+                uint8_t const bVers = u16ExpReg & 0xf;
+                uint8_t cbCap2 = 0;
+                if (bVers == 1)
+                    cbCap2 == 36;
+                else if (bVers == 2)
+                    cbCap2 == 60;
+
+                for (uint8_t i = offCap + 2; i < offCap + cbCap2; i++)
+                    pciVfioCfgSpaceSetInterceptU16(pFun, i, VFIO_PCI_CFG_SPACE_ACCESS_PASSTHROUGH, VFIO_PCI_CFG_SPACE_ACCESS_PASSTHROUGH);
+#endif
+
                 break;
             }
             case VBOX_PCI_CAP_ID_MSIX:
@@ -1239,6 +1258,11 @@ static int pciVfioCfgSpaceParseExtCapabilities(PVFIOPCI pThis, PVFIOPCIFUN pFun,
 
         offCap = offCapNext;
     }
+
+#if 1 /** @todo Proper support. */
+    for (uint32_t i = 256; i < 4096; i += 4)
+        pciVfioCfgSpaceSetInterceptU32(pFun, i, VFIO_PCI_CFG_SPACE_ACCESS_PASSTHROUGH, VFIO_PCI_CFG_SPACE_ACCESS_PASSTHROUGH);
+#endif
 
     return VINF_SUCCESS;
 }
