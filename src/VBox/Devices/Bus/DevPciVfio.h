@@ -1,4 +1,4 @@
-/* $Id: DevPciVfio.h 113031 2026-02-15 16:16:37Z alexander.eichner@oracle.com $ */
+/* $Id: DevPciVfio.h 113033 2026-02-15 16:30:38Z alexander.eichner@oracle.com $ */
 /** @file
  * PCI passthrough device emulation using VFIO/IOMMUFD - Header for building on too old Linux systems.
  */
@@ -125,6 +125,11 @@ struct vfio_irq_info
 };
 AssertCompileSize(struct vfio_irq_info, 4 * sizeof(uint32_t));
 #define VFIO_DEVICE_GET_IRQ_INFO        _IO(VFIO_TYPE, VFIO_BASE + 9)
+
+#define VFIO_IRQ_INFO_EVENTFD           RT_BIT_32(0)
+#define VFIO_IRQ_INFO_MASKABLE          RT_BIT_32(1)
+#define VFIO_IRQ_INFO_AUTOMASKED        RT_BIT_32(2)
+#define VFIO_IRQ_INFO_NORESIZE          RT_BIT_32(3)
 
 
 struct vfio_irq_set
