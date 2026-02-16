@@ -1,4 +1,4 @@
-/* $Id: UIPortForwardingTable.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: UIPortForwardingTable.cpp 113044 2026-02-16 14:57:20Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIPortForwardingTable class implementation.
  */
@@ -43,7 +43,7 @@
 #include "QITableView.h"
 #include "UIConverter.h"
 #include "UIIconPool.h"
-#include "UIMessageCenter.h"
+#include "UINotificationObjects.h"
 #include "UIPortForwardingTable.h"
 #include "QIToolBar.h"
 #include "UITranslationEventListener.h"
@@ -1057,37 +1057,37 @@ bool UIPortForwardingTable::validate() const
 
         /* If at least one port is 'zero': */
         if (hostPort.value() == 0 || guestPort.value() == 0)
-            return msgCenter().warnAboutIncorrectPort(window());
+            return UINotificationMessage::warnAboutIncorrectPort(window());
         /* If at least one address is incorrect: */
         if (!(   strHostIp.trimmed().isEmpty()
               || RTNetIsIPv4AddrStr(strHostIp.toUtf8().constData())
               || RTNetIsIPv6AddrStr(strHostIp.toUtf8().constData())
               || RTNetStrIsIPv4AddrAny(strHostIp.toUtf8().constData())
               || RTNetStrIsIPv6AddrAny(strHostIp.toUtf8().constData())))
-            return msgCenter().warnAboutIncorrectAddress(window());
+            return UINotificationMessage::warnAboutIncorrectAddress(window());
         if (!(   strGuestIp.trimmed().isEmpty()
               || RTNetIsIPv4AddrStr(strGuestIp.toUtf8().constData())
               || RTNetIsIPv6AddrStr(strGuestIp.toUtf8().constData())
               || RTNetStrIsIPv4AddrAny(strGuestIp.toUtf8().constData())
               || RTNetStrIsIPv6AddrAny(strGuestIp.toUtf8().constData())))
-            return msgCenter().warnAboutIncorrectAddress(window());
+            return UINotificationMessage::warnAboutIncorrectAddress(window());
         /* If empty guest address is not allowed: */
         if (   !m_fAllowEmptyGuestIPs
             && strGuestIp.isEmpty())
-            return msgCenter().warnAboutEmptyGuestAddress(window());
+            return UINotificationMessage::warnAboutEmptyGuestAddress(window());
 
         /* Make sure non of the names were previosly used: */
         if (!names.contains(strName))
             names << strName;
         else
-            return msgCenter().warnAboutNameShouldBeUnique(window());
+            return UINotificationMessage::warnAboutNameShouldBeUnique(window());
 
         /* Make sure non of the rules were previosly used: */
         UIPortForwardingDataUnique rule(enmProtocol, hostPort, strHostIp);
         if (!rules.contains(rule))
             rules << rule;
         else
-            return msgCenter().warnAboutRulesConflict(window());
+            return UINotificationMessage::warnAboutRulesConflict(window());
     }
     /* True by default: */
     return true;

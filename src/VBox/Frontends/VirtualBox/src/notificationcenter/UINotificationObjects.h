@@ -1,4 +1,4 @@
-/* $Id: UINotificationObjects.h 113012 2026-02-13 14:58:22Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationObjects.h 113044 2026-02-16 14:57:20Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationObjects declarations.
  */
@@ -276,6 +276,17 @@ public:
         /** Notifies about no IPv6 prefix specified.
           * @param  strName  Brings the interface name. */
         static void warnAboutNoIPv6PrefixSpecified(const QString &strName);
+
+        /** Notifies about incorrect port specified. */
+        static bool warnAboutIncorrectPort(QWidget *pParent);
+        /** Notifies about incorrect address specified. */
+        static bool warnAboutIncorrectAddress(QWidget *pParent);
+        /** Notifies about empty guest address specified. */
+        static bool warnAboutEmptyGuestAddress(QWidget *pParent);
+        /** Notifies about name uniqueness requirement. */
+        static bool warnAboutNameShouldBeUnique(QWidget *pParent);
+        /** Notifies about rules conflict. */
+        static bool warnAboutRulesConflict(QWidget *pParent);
 
         /** Notifies about state change. */
         static void warnAboutStateChange(QWidget *pParent);

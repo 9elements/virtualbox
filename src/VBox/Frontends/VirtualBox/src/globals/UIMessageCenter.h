@@ -1,4 +1,4 @@
-/* $Id: UIMessageCenter.h 113012 2026-02-13 14:58:22Z sergey.dubov@oracle.com $ */
+/* $Id: UIMessageCenter.h 113044 2026-02-16 14:57:20Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMessageCenter class declaration.
  */
@@ -291,11 +291,6 @@ public:
         int confirmRemovingOfLastDVDDevice(QWidget *pParent = 0) const;
         bool confirmStorageBusChangeWithOpticalRemoval(QWidget *pParent = 0) const;
         bool confirmStorageBusChangeWithExcessiveRemoval(QWidget *pParent = 0) const;
-        bool warnAboutIncorrectPort(QWidget *pParent = 0) const;
-        bool warnAboutIncorrectAddress(QWidget *pParent = 0) const;
-        bool warnAboutEmptyGuestAddress(QWidget *pParent = 0) const;
-        bool warnAboutNameShouldBeUnique(QWidget *pParent = 0) const;
-        bool warnAboutRulesConflict(QWidget *pParent = 0) const;
         bool confirmCancelingPortForwardingDialog(QWidget *pParent = 0) const;
         bool confirmRestoringDefaultKeys(QWidget *pParent = 0) const;
     /** @} */

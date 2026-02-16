@@ -1,4 +1,4 @@
-/* $Id: UIMessageCenter.cpp 113012 2026-02-13 14:58:22Z sergey.dubov@oracle.com $ */
+/* $Id: UIMessageCenter.cpp 113044 2026-02-16 14:57:20Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMessageCenter class implementation.
  */
@@ -709,46 +709,6 @@ bool UIMessageCenter::confirmStorageBusChangeWithExcessiveRemoval(QWidget *pPare
                           tr("<p>This controller has devices attached.  You have requested storage bus change to "
                              "type which supports smaller amount of attached devices.</p><p>If you proceed "
                              "excessive devices will be removed.</p>"));
-}
-
-bool UIMessageCenter::warnAboutIncorrectPort(QWidget *pParent /* = 0 */) const
-{
-    alert(pParent, MessageType_Error,
-          tr("The current port forwarding rules are not valid. "
-             "None of the host or guest port values may be set to zero."));
-    return false;
-}
-
-bool UIMessageCenter::warnAboutIncorrectAddress(QWidget *pParent /* = 0 */) const
-{
-    alert(pParent, MessageType_Error,
-          tr("The current port forwarding rules are not valid. "
-             "All of the host or guest address values should be correct or empty."));
-    return false;
-}
-
-bool UIMessageCenter::warnAboutEmptyGuestAddress(QWidget *pParent /* = 0 */) const
-{
-    alert(pParent, MessageType_Error,
-          tr("The current port forwarding rules are not valid. "
-             "None of the guest address values may be empty."));
-    return false;
-}
-
-bool UIMessageCenter::warnAboutNameShouldBeUnique(QWidget *pParent /* = 0 */) const
-{
-    alert(pParent, MessageType_Error,
-          tr("The current port forwarding rules are not valid. "
-             "Rule names should be unique."));
-    return false;
-}
-
-bool UIMessageCenter::warnAboutRulesConflict(QWidget *pParent /* = 0 */) const
-{
-    alert(pParent, MessageType_Error,
-          tr("The current port forwarding rules are not valid. "
-             "Few rules have same host ports and conflicting IP addresses."));
-    return false;
 }
 
 bool UIMessageCenter::confirmCancelingPortForwardingDialog(QWidget *pParent /* = 0 */) const

@@ -1,4 +1,4 @@
-/* $Id: UINotificationObjects.cpp 113012 2026-02-13 14:58:22Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationObjects.cpp 113044 2026-02-16 14:57:20Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationObjects implementations.
  */
@@ -556,6 +556,56 @@ void UINotificationMessage::warnAboutNoIPv6PrefixSpecified(const QString &strNam
         QApplication::translate("UIMessageCenter", "No IPv6 prefix specified ..."),
         QApplication::translate("UIMessageCenter", "No IPv6 prefix specified for the NAT network <b>%1</b>.")
                                                    .arg(strName));
+}
+
+/* static */
+bool UINotificationMessage::warnAboutIncorrectPort(QWidget *pParent)
+{
+    createMessage(
+          QApplication::translate("UIMessageCenter", "Invalid port forwarding rules..."),
+          QApplication::translate("UIMessageCenter", "None of the host or guest port values may be set to zero."),
+          pParent);
+    return false;
+}
+
+/* static */
+bool UINotificationMessage::warnAboutIncorrectAddress(QWidget *pParent)
+{
+    createMessage(
+        QApplication::translate("UIMessageCenter", "Invalid port forwarding rules..."),
+        QApplication::translate("UIMessageCenter", "All of the host or guest address values should be correct or empty."),
+        pParent);
+    return false;
+}
+
+/* static */
+bool UINotificationMessage::warnAboutEmptyGuestAddress(QWidget *pParent)
+{
+    createMessage(
+        QApplication::translate("UIMessageCenter", "Invalid port forwarding rules..."),
+        QApplication::translate("UIMessageCenter", "None of the guest address values may be empty."),
+        pParent);
+    return false;
+}
+
+/* static */
+bool UINotificationMessage::warnAboutNameShouldBeUnique(QWidget *pParent)
+{
+    createMessage(
+        QApplication::translate("UIMessageCenter", "Invalid port forwarding rules..."),
+        QApplication::translate("UIMessageCenter", "Rule names should be unique."),
+        pParent);
+    return false;
+}
+
+/* static */
+bool UINotificationMessage::warnAboutRulesConflict(QWidget *pParent)
+{
+    createMessage(
+        QApplication::translate("UIMessageCenter", "Invalid port forwarding rules..."),
+        QApplication::translate("UIMessageCenter", "Few rules have same host ports and conflicting IP addresses."),
+        pParent);
+    return false;
 }
 
 /* static */
