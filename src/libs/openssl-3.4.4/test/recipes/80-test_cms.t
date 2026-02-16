@@ -86,6 +86,15 @@ my @smime_pkcs7_tests = (
       \&final_compare
     ],
 
+    [ "signed text content DER format, RSA key",
+      [ "{cmd1}", @prov, "-sign", "-in", $smcont, "-outform", "DER", "-nodetach",
+        "-certfile", $smroot, "-signer", $smrsa1, "-text",
+        "-out", "{output}.cms" ],
+      [ "{cmd2}",  @prov, "-verify", "-in", "{output}.cms", "-inform", "DER",
+        "-text", "-CAfile", $smroot, "-out", "{output}.txt" ],
+      \&final_compare
+    ],
+
     [ "signed detached content DER format, RSA key",
       [ "{cmd1}", @prov, "-sign", "-in", $smcont, "-outform", "DER",
         "-signer", $smrsa1, "-out", "{output}.cms" ],
@@ -216,6 +225,14 @@ my @smime_pkcs7_tests = (
         catfile($smdir, "smrsa3.pem") ],
       [ "{cmd2}", @defaultprov, "-decrypt", "-recip", $smrsa1,
         "-in", "{output}.cms", "-out", "{output}.txt" ],
+      \&final_compare
+    ],
+
+    [ "enveloped text content streaming S/MIME format, DES, 1 recipient",
+      [ "{cmd1}", @defaultprov, "-encrypt", "-in", $smcont,
+        "-stream", "-text", "-out", "{output}.cms", $smrsa1 ],
+      [ "{cmd2}", @defaultprov, "-decrypt", "-recip", $smrsa1,
+        "-in", "{output}.cms", "-text", "-out", "{output}.txt" ],
       \&final_compare
     ],
 
@@ -351,6 +368,16 @@ my @smime_cms_tests = (
       [ "{cmd2}", @prov, "-decrypt", "-in", "{output}.cms", "-out", "{output}.txt",
         "-inform", "PEM",
         "-secretkey", "000102030405060708090A0B0C0D0E0F" ],
+      \&final_compare
+    ],
+
+    [ "enveloped content test streaming PEM format, AES-128-CBC cipher, password",
+      [ "{cmd1}", @prov, "-encrypt", "-in", $smcont, "-outform", "PEM", "-aes128",
+        "-stream", "-out", "{output}.cms",
+        "-pwri_password", "test" ],
+      [ "{cmd2}", @prov, "-decrypt", "-in", "{output}.cms", "-out", "{output}.txt",
+        "-inform", "PEM",
+        "-pwri_password", "test" ],
       \&final_compare
     ],
 

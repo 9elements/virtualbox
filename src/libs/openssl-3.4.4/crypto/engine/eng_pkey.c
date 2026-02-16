@@ -16,7 +16,7 @@
 /* Basic get/set stuff */
 
 int ENGINE_set_load_privkey_function(ENGINE *e,
-                                     ENGINE_LOAD_KEY_PTR loadpriv_f)
+    ENGINE_LOAD_KEY_PTR loadpriv_f)
 {
     e->load_privkey = loadpriv_f;
     return 1;
@@ -29,8 +29,8 @@ int ENGINE_set_load_pubkey_function(ENGINE *e, ENGINE_LOAD_KEY_PTR loadpub_f)
 }
 
 int ENGINE_set_load_ssl_client_cert_function(ENGINE *e,
-                                             ENGINE_SSL_CLIENT_CERT_PTR
-                                             loadssl_f)
+    ENGINE_SSL_CLIENT_CERT_PTR
+        loadssl_f)
 {
     e->load_ssl_client_cert = loadssl_f;
     return 1;
@@ -47,7 +47,7 @@ ENGINE_LOAD_KEY_PTR ENGINE_get_load_pubkey_function(const ENGINE *e)
 }
 
 ENGINE_SSL_CLIENT_CERT_PTR ENGINE_get_ssl_client_cert_function(const ENGINE
-                                                               *e)
+        *e)
 {
     return e->load_ssl_client_cert;
 }
@@ -55,7 +55,7 @@ ENGINE_SSL_CLIENT_CERT_PTR ENGINE_get_ssl_client_cert_function(const ENGINE
 /* API functions to load public/private keys */
 
 EVP_PKEY *ENGINE_load_private_key(ENGINE *e, const char *key_id,
-                                  UI_METHOD *ui_method, void *callback_data)
+    UI_METHOD *ui_method, void *callback_data)
 {
     EVP_PKEY *pkey;
 
@@ -84,7 +84,7 @@ EVP_PKEY *ENGINE_load_private_key(ENGINE *e, const char *key_id,
 }
 
 EVP_PKEY *ENGINE_load_public_key(ENGINE *e, const char *key_id,
-                                 UI_METHOD *ui_method, void *callback_data)
+    UI_METHOD *ui_method, void *callback_data)
 {
     EVP_PKEY *pkey;
 
@@ -113,9 +113,9 @@ EVP_PKEY *ENGINE_load_public_key(ENGINE *e, const char *key_id,
 }
 
 int ENGINE_load_ssl_client_cert(ENGINE *e, SSL *s,
-                                STACK_OF(X509_NAME) *ca_dn, X509 **pcert,
-                                EVP_PKEY **ppkey, STACK_OF(X509) **pother,
-                                UI_METHOD *ui_method, void *callback_data)
+    STACK_OF(X509_NAME) *ca_dn, X509 **pcert,
+    EVP_PKEY **ppkey, STACK_OF(X509) **pother,
+    UI_METHOD *ui_method, void *callback_data)
 {
 
     if (e == NULL) {
@@ -135,5 +135,5 @@ int ENGINE_load_ssl_client_cert(ENGINE *e, SSL *s,
         return 0;
     }
     return e->load_ssl_client_cert(e, s, ca_dn, pcert, ppkey, pother,
-                                   ui_method, callback_data);
+        ui_method, callback_data);
 }

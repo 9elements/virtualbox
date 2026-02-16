@@ -13,14 +13,13 @@
 # pragma once
 # endif                                                                                                 /* VBOX */
 
-# include <stddef.h>     /* for size_t */
+#include <stddef.h> /* for size_t */
 
-int ossl_punycode_decode (
+int ossl_punycode_decode(
     const char *pEncoded,
     const size_t enc_len,
     unsigned int *pDecoded,
-    unsigned int *pout_length
-);
+    unsigned int *pout_length);
 
 int ossl_a2ulabel(const char *in, char *out, size_t outlen);
 

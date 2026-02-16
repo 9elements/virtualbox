@@ -13,7 +13,7 @@
 # pragma once
 # endif                                                                                                 /* VBOX */
 
-# include <openssl/types.h>
+#include <openssl/types.h>
 
 int ossl_encoder_get_number(const OSSL_ENCODER *encoder);
 int ossl_encoder_store_cache_flush(OSSL_LIB_CTX *libctx);

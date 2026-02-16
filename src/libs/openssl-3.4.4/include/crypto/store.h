@@ -13,9 +13,9 @@
 # pragma once
 # endif                                                                                                 /* VBOX */
 
-# include <openssl/bio.h>
-# include <openssl/store.h>
-# include <openssl/ui.h>
+#include <openssl/bio.h>
+#include <openssl/store.h>
+#include <openssl/ui.h>
 
 void ossl_store_cleanup_int(void);
 int ossl_store_loader_get_number(const OSSL_STORE_LOADER *loader);

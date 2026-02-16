@@ -8,12 +8,12 @@
  */
 
 #ifndef OPENSSL_E_OSTIME_H
-# define OPENSSL_E_OSTIME_H
-# pragma once
+#define OPENSSL_E_OSTIME_H
+#pragma once
 
-# include <openssl/macros.h>
-# include <openssl/opensslconf.h>
-# include <openssl/e_os2.h>
+#include <openssl/macros.h>
+#include <openssl/opensslconf.h>
+#include <openssl/e_os2.h>
 
 /*
  * This header guarantees that 'struct timeval' will be available. It includes

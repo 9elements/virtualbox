@@ -19,9 +19,9 @@
 
 #if defined(OPENSSL_SYS_WINDOWS) || defined(OPENSSL_SYS_WIN32)
 
-# ifndef OPENSSL_RAND_SEED_OS
-#  error "Unsupported seeding method configured; must be os"
-# endif
+#ifndef OPENSSL_RAND_SEED_OS
+#error "Unsupported seeding method configured; must be os"
+#endif
 
 # ifdef VBOX
 #  include <iprt/win/windows.h>
@@ -34,53 +34,53 @@
 #  define USE_BCRYPTGENRANDOM
 # endif
 
-# ifdef USE_BCRYPTGENRANDOM
-#  include <bcrypt.h>
-#  ifdef _MSC_VER
-#   pragma comment(lib, "bcrypt.lib")
-#  endif
-#  ifndef STATUS_SUCCESS
-#   define STATUS_SUCCESS ((NTSTATUS)0x00000000L)
-#  endif
-# else
-#  include <wincrypt.h>
+#ifdef USE_BCRYPTGENRANDOM
+#include <bcrypt.h>
+#ifdef _MSC_VER
+#pragma comment(lib, "bcrypt.lib")
+#endif
+#ifndef STATUS_SUCCESS
+#define STATUS_SUCCESS ((NTSTATUS)0x00000000L)
+#endif
+#else
+#include <wincrypt.h>
 /*
  * Intel hardware RNG CSP -- available from
  * http://developer.intel.com/design/security/rng/redist_license.htm
  */
-#  define PROV_INTEL_SEC 22
-#  define INTEL_DEF_PROV L"Intel Hardware Cryptographic Service Provider"
-# endif
+#define PROV_INTEL_SEC 22
+#define INTEL_DEF_PROV L"Intel Hardware Cryptographic Service Provider"
+#endif
 
 size_t ossl_pool_acquire_entropy(RAND_POOL *pool)
 {
-# ifndef USE_BCRYPTGENRANDOM
+#ifndef USE_BCRYPTGENRANDOM
     HCRYPTPROV hProvider;
-# endif
+#endif
     unsigned char *buffer;
     size_t bytes_needed;
     size_t entropy_available = 0;
 
-
-# ifdef OPENSSL_RAND_SEED_RDTSC
+#ifdef OPENSSL_RAND_SEED_RDTSC
     entropy_available = ossl_prov_acquire_entropy_from_tsc(pool);
     if (entropy_available > 0)
         return entropy_available;
-# endif
+#endif
 
-# ifdef OPENSSL_RAND_SEED_RDCPU
+#ifdef OPENSSL_RAND_SEED_RDCPU
     entropy_available = ossl_prov_acquire_entropy_from_cpu(pool);
     if (entropy_available > 0)
         return entropy_available;
-# endif
+#endif
 
-# ifdef USE_BCRYPTGENRANDOM
+#ifdef USE_BCRYPTGENRANDOM
     bytes_needed = ossl_rand_pool_bytes_needed(pool, 1 /*entropy_factor*/);
     buffer = ossl_rand_pool_add_begin(pool, bytes_needed);
     if (buffer != NULL) {
         size_t bytes = 0;
         if (BCryptGenRandom(NULL, buffer, bytes_needed,
-                            BCRYPT_USE_SYSTEM_PREFERRED_RNG) == STATUS_SUCCESS)
+                BCRYPT_USE_SYSTEM_PREFERRED_RNG)
+            == STATUS_SUCCESS)
             bytes = bytes_needed;
 
         ossl_rand_pool_add_end(pool, bytes, 8 * bytes);
@@ -88,14 +88,15 @@ size_t ossl_pool_acquire_entropy(RAND_POOL *pool)
     }
     if (entropy_available > 0)
         return entropy_available;
-# else
+#else
     bytes_needed = ossl_rand_pool_bytes_needed(pool, 1 /*entropy_factor*/);
     buffer = ossl_rand_pool_add_begin(pool, bytes_needed);
     if (buffer != NULL) {
         size_t bytes = 0;
         /* poll the CryptoAPI PRNG */
         if (CryptAcquireContextW(&hProvider, NULL, NULL, PROV_RSA_FULL,
-                                 CRYPT_VERIFYCONTEXT | CRYPT_SILENT) != 0) {
+                CRYPT_VERIFYCONTEXT | CRYPT_SILENT)
+            != 0) {
             if (CryptGenRandom(hProvider, bytes_needed, buffer) != 0)
                 bytes = bytes_needed;
 
@@ -114,8 +115,9 @@ size_t ossl_pool_acquire_entropy(RAND_POOL *pool)
         size_t bytes = 0;
         /* poll the Pentium PRG with CryptoAPI */
         if (CryptAcquireContextW(&hProvider, NULL,
-                                 INTEL_DEF_PROV, PROV_INTEL_SEC,
-                                 CRYPT_VERIFYCONTEXT | CRYPT_SILENT) != 0) {
+                INTEL_DEF_PROV, PROV_INTEL_SEC,
+                CRYPT_VERIFYCONTEXT | CRYPT_SILENT)
+            != 0) {
             if (CryptGenRandom(hProvider, bytes_needed, buffer) != 0)
                 bytes = bytes_needed;
 
@@ -126,11 +128,10 @@ size_t ossl_pool_acquire_entropy(RAND_POOL *pool)
     }
     if (entropy_available > 0)
         return entropy_available;
-# endif
+#endif
 
     return ossl_rand_pool_entropy_available(pool);
 }
-
 
 int ossl_pool_add_nonce_data(RAND_POOL *pool)
 {

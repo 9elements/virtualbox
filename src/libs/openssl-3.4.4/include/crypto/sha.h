@@ -14,7 +14,7 @@
 # pragma once
 # endif                                                                                                 /* VBOX */
 
-# include <openssl/sha.h>
+#include <openssl/sha.h>
 
 int ossl_sha256_192_init(SHA256_CTX *c);
 int sha512_224_init(SHA512_CTX *);

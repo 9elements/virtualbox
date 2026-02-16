@@ -8,11 +8,11 @@
  */
 
 #ifndef OPENSSL_OPENSSLCONF_H
-# define OPENSSL_OPENSSLCONF_H
-# pragma once
+#define OPENSSL_OPENSSLCONF_H
+#pragma once
 
-# include <openssl/configuration.h>
-# include <openssl/macros.h>
+#include <openssl/configuration.h>
+#include <openssl/macros.h>
 
 /* Mangle OpenSSL symbols to prevent clashes with other OpenSSL libraries
  *  * (especially shared objects or dylibs). */

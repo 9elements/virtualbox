@@ -13,5 +13,5 @@
 # pragma once
 # endif                                                                                                 /* VBOX */
 
-# define OSSL_NELEM(x)    (sizeof(x)/sizeof((x)[0]))
+#define OSSL_NELEM(x) (sizeof(x) / sizeof((x)[0]))
 #endif

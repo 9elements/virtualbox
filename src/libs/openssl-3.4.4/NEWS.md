@@ -22,6 +22,73 @@ OpenSSL Releases
 OpenSSL 3.4
 -----------
 
+### Major changes between OpenSSL 3.4.3 and OpenSSL 3.4.4 [27 Jan 2026]
+
+OpenSSL 3.4.4 is a security patch release. The most severe CVE fixed in this
+release is High.
+
+This release incorporates the following bug fixes and mitigations:
+
+  * Fixed Improper validation of PBMAC1 parameters in PKCS#12 MAC verification.
+    ([CVE-2025-11187])
+
+  * Fixed Stack buffer overflow in CMS `AuthEnvelopedData` parsing.
+    ([CVE-2025-15467])
+
+  * Fixed NULL dereference in `SSL_CIPHER_find()` function on unknown cipher ID.
+    ([CVE-2025-15468])
+
+  * Fixed TLS 1.3 `CompressedCertificate` excessive memory allocation.
+    ([CVE-2025-66199])
+
+  * Fixed Heap out-of-bounds write in `BIO_f_linebuffer` on short writes.
+    ([CVE-2025-68160])
+
+  * Fixed Unauthenticated/unencrypted trailing bytes with low-level OCB
+    function calls.
+    ([CVE-2025-69418])
+
+  * Fixed Out of bounds write in `PKCS12_get_friendlyname()` UTF-8 conversion.
+    ([CVE-2025-69419])
+
+  * Fixed Missing `ASN1_TYPE` validation in `TS_RESP_verify_response()`
+    function.
+    ([CVE-2025-69420])
+
+  * Fixed NULL Pointer Dereference in `PKCS12_item_decrypt_d2i_ex()` function.
+    ([CVE-2025-69421])
+
+  * Fixed Missing `ASN1_TYPE` validation in PKCS#12 parsing.
+    ([CVE-2026-22795])
+
+  * Fixed `ASN1_TYPE` Type Confusion in the `PKCS7_digest_from_attributes()`
+    function.
+    ([CVE-2026-22796])
+
+### Major changes between OpenSSL 3.4.2 and OpenSSL 3.4.3 [30 Sep 2025]
+
+OpenSSL 3.4.3 is a security patch release. The most severe CVE fixed in this
+release is Moderate.
+
+This release incorporates the following bug fixes and mitigations:
+
+  * Fix Out-of-bounds read & write in RFC 3211 KEK Unwrap.
+    ([CVE-2025-9230])
+
+  * Fix Timing side-channel in SM2 algorithm on 64 bit ARM.
+    ([CVE-2025-9231])
+
+  * Fix Out-of-bounds read in HTTP client no_proxy handling.
+    ([CVE-2025-9232])
+
+### Major changes between OpenSSL 3.4.1 and OpenSSL 3.4.2 [1 Jul 2025]
+
+OpenSSL 3.4.2 is a bug fix release.
+
+This release incorporates the following bug fixes and mitigations:
+
+  * Miscellaneous minor bug fixes.
+
 ### Major changes between OpenSSL 3.4.0 and OpenSSL 3.4.1 [11 Feb 2025]
 
 OpenSSL 3.4.1 is a security patch release. The most severe CVE fixed in this
@@ -474,6 +541,8 @@ OpenSSL 3.0
 
 ### Major changes between OpenSSL 3.0.0 and OpenSSL 3.0.1 [14 Dec 2021]
 
+  * Fixed carry bug in BN_mod_exp which may produce incorrect results on MIPS
+    ([CVE-2021-4160])
   * Fixed invalid handling of X509_verify_cert() internal errors in libssl
     ([CVE-2021-4044])
   * Allow fetching an operation from the provider that owns an unexportable key
@@ -652,7 +721,7 @@ OpenSSL 1.1.1
     * Rewrite of the packet construction code for "safer" packet handling
     * Rewrite of the extension handling code
     For further important information, see the [TLS1.3 page](
-    https://wiki.openssl.org/index.php/TLS1.3) in the OpenSSL Wiki.
+    https://github.com/openssl/openssl/wiki/TLS1.3) in the OpenSSL Wiki.
 
   * Complete rewrite of the OpenSSL random number generator to introduce the
     following capabilities
@@ -1831,8 +1900,22 @@ OpenSSL 0.9.x
   * Support for various new platforms
 
 <!-- Links -->
-
+[CVE-2026-22796]: https://www.openssl.org/news/vulnerabilities.html#CVE-2026-22796
+[CVE-2026-22795]: https://www.openssl.org/news/vulnerabilities.html#CVE-2026-22795
+[CVE-2025-69421]: https://www.openssl.org/news/vulnerabilities.html#CVE-2025-69421
+[CVE-2025-69420]: https://www.openssl.org/news/vulnerabilities.html#CVE-2025-69420
+[CVE-2025-69419]: https://www.openssl.org/news/vulnerabilities.html#CVE-2025-69419
+[CVE-2025-69418]: https://www.openssl.org/news/vulnerabilities.html#CVE-2025-69418
+[CVE-2025-68160]: https://www.openssl.org/news/vulnerabilities.html#CVE-2025-68160
+[CVE-2025-66199]: https://www.openssl.org/news/vulnerabilities.html#CVE-2025-66199
+[CVE-2025-15468]: https://www.openssl.org/news/vulnerabilities.html#CVE-2025-15468
+[CVE-2025-15467]: https://www.openssl.org/news/vulnerabilities.html#CVE-2025-15467
+[CVE-2025-11187]: https://www.openssl.org/news/vulnerabilities.html#CVE-2025-11187
+[CVE-2025-9232]: https://www.openssl.org/news/vulnerabilities.html#CVE-2025-9232
+[CVE-2025-9231]: https://www.openssl.org/news/vulnerabilities.html#CVE-2025-9231
+[CVE-2025-9230]: https://www.openssl.org/news/vulnerabilities.html#CVE-2025-9230
 [CVE-2024-13176]: https://www.openssl.org/news/vulnerabilities.html#CVE-2024-13176
+[CVE-2024-12797]: https://www.openssl.org/news/vulnerabilities.html#CVE-2024-12797
 [CVE-2024-9143]: https://www.openssl.org/news/vulnerabilities.html#CVE-2024-9143
 [CVE-2024-6119]: https://www.openssl.org/news/vulnerabilities.html#CVE-2024-6119
 [CVE-2024-5535]: https://www.openssl.org/news/vulnerabilities.html#CVE-2024-5535

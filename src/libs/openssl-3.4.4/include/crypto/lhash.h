@@ -15,4 +15,4 @@
 
 unsigned long ossl_lh_strcasehash(const char *);
 
-#endif  /* OSSL_CRYPTO_LHASH_H */
+#endif /* OSSL_CRYPTO_LHASH_H */
