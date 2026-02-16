@@ -1,4 +1,4 @@
-/* $Id: DevPciVfio.cpp 113031 2026-02-15 16:16:37Z alexander.eichner@oracle.com $ */
+/* $Id: DevPciVfio.cpp 113037 2026-02-16 13:10:02Z alexander.eichner@oracle.com $ */
 /** @file
  * PCI passthrough device emulation using VFIO/IOMMUFD.
  */
@@ -929,7 +929,7 @@ static int pciVfioSetupIrq(PVFIOPCI pThis, PVFIOPCIFUN pFun, uint32_t uVfioIrq)
 
 DECLINLINE(void) pciVfioCfgSpaceSetInterceptU8(PVFIOPCIFUN pFun, uint32_t off, uint8_t fRd, uint8_t fWr)
 {
-    AssertReturnVoid(off < sizeof(pFun->abPciCfgIntercept));
+    AssertReturnVoid(off < sizeof(pFun->abPciCfgIntercept) * 8 / 4);
     uint32_t offByte = off >> 1;
     uint8_t  cShift  = (off & 0x1) ? 4 : 0;
 
@@ -945,7 +945,7 @@ DECLINLINE(void) pciVfioCfgSpaceSetInterceptRoU8(PVFIOPCIFUN pFun, uint32_t off,
 
 DECLINLINE(void) pciVfioCfgSpaceSetInterceptU16(PVFIOPCIFUN pFun, uint32_t off, uint8_t fRd, uint8_t fWr)
 {
-    AssertReturnVoid(off < sizeof(pFun->abPciCfgIntercept) - 1);
+    AssertReturnVoid(off < (sizeof(pFun->abPciCfgIntercept) - 1) * 8 / 4);
     pciVfioCfgSpaceSetInterceptU8(pFun, off,     fRd, fWr);
     pciVfioCfgSpaceSetInterceptU8(pFun, off + 1, fRd, fWr);
 }
@@ -953,7 +953,7 @@ DECLINLINE(void) pciVfioCfgSpaceSetInterceptU16(PVFIOPCIFUN pFun, uint32_t off, 
 
 DECLINLINE(void) pciVfioCfgSpaceSetInterceptRoU16(PVFIOPCIFUN pFun, uint32_t off, uint8_t fRd)
 {
-    AssertReturnVoid(off < sizeof(pFun->abPciCfgIntercept) - 1);
+    AssertReturnVoid(off < (sizeof(pFun->abPciCfgIntercept) - 1) * 8 / 4);
     pciVfioCfgSpaceSetInterceptU8(pFun, off,     fRd, VFIO_PCI_CFG_SPACE_ACCESS_INVALID);
     pciVfioCfgSpaceSetInterceptU8(pFun, off + 1, fRd, VFIO_PCI_CFG_SPACE_ACCESS_INVALID);
 }
@@ -961,7 +961,7 @@ DECLINLINE(void) pciVfioCfgSpaceSetInterceptRoU16(PVFIOPCIFUN pFun, uint32_t off
 
 DECLINLINE(void) pciVfioCfgSpaceSetInterceptU32(PVFIOPCIFUN pFun, uint32_t off, uint8_t fRd, uint8_t fWr)
 {
-    AssertReturnVoid(off < sizeof(pFun->abPciCfgIntercept) - 3);
+    AssertReturnVoid(off < (sizeof(pFun->abPciCfgIntercept) - 3) * 8 / 4);
     pciVfioCfgSpaceSetInterceptU16(pFun, off,     fRd, fWr);
     pciVfioCfgSpaceSetInterceptU16(pFun, off + 2, fRd, fWr);
 }
@@ -969,7 +969,7 @@ DECLINLINE(void) pciVfioCfgSpaceSetInterceptU32(PVFIOPCIFUN pFun, uint32_t off, 
 
 DECLINLINE(uint8_t) pciVfioCfgSpaceGetInterceptRd(PVFIOPCIFUN pFun, uint32_t off)
 {
-    AssertReturn(off < sizeof(pFun->abPciCfgIntercept), VFIO_PCI_CFG_SPACE_ACCESS_INVALID);
+    AssertReturn(off < sizeof(pFun->abPciCfgIntercept) * 8 / 4, VFIO_PCI_CFG_SPACE_ACCESS_INVALID);
 
     uint32_t offByte = off >> 1;
     uint8_t  cShift  = (off & 0x1) ? 4 : 0;
@@ -980,7 +980,7 @@ DECLINLINE(uint8_t) pciVfioCfgSpaceGetInterceptRd(PVFIOPCIFUN pFun, uint32_t off
 
 DECLINLINE(uint8_t) pciVfioCfgSpaceGetInterceptWr(PVFIOPCIFUN pFun, uint32_t off)
 {
-    AssertReturn(off < sizeof(pFun->abPciCfgIntercept), VFIO_PCI_CFG_SPACE_ACCESS_INVALID);
+    AssertReturn(off < sizeof(pFun->abPciCfgIntercept) * 8 / 4, VFIO_PCI_CFG_SPACE_ACCESS_INVALID);
 
     uint32_t offByte = off >> 1;
     uint8_t  cShift  = (off & 0x1) ? 4 + 2 : 2;
@@ -1139,12 +1139,13 @@ static int pciVfioCfgSpaceParseCapabilities(PVFIOPCI pThis, PVFIOPCIFUN pFun, PP
                 uint8_t const bVers = u16ExpReg & 0xf;
                 uint8_t cbCap2 = 0;
                 if (bVers == 1)
-                    cbCap2 == 36;
+                    cbCap2 = 36;
                 else if (bVers == 2)
-                    cbCap2 == 60;
+                    cbCap2 = 60;
 
-                for (uint8_t i = offCap + 2; i < offCap + cbCap2; i++)
+                for (uint8_t i = offCap + 2; i < offCap + cbCap2; i += 2)
                     pciVfioCfgSpaceSetInterceptU16(pFun, i, VFIO_PCI_CFG_SPACE_ACCESS_PASSTHROUGH, VFIO_PCI_CFG_SPACE_ACCESS_PASSTHROUGH);
+                cbCap = cbCap2;
 #endif
 
                 break;
@@ -1361,6 +1362,8 @@ static int pciVfioCfgSpaceSetup(PVFIOPCIFUN pFun, PPDMPCIDEV pPciDev)
         }
     }
 
+    PDMPciDevSetInterruptPin(pPciDev, 0x01); /* A */
+
     return VINF_SUCCESS;
 }
 
@@ -1398,7 +1401,7 @@ static int pciVfioIommuGuestRamMap(PVFIOPCI pThis, PPDMDEVINS pDevIns)
         RTGCPHYS  GCPhysStart = 0;
         uintptr_t uPtrMapping = 0;
         size_t    cbMapping   = 0;
-        for (RTGCPHYS GCPhys = 0; GCPhys < 10 * _1G64; GCPhys += _4K)
+        for (RTGCPHYS GCPhys = 0; GCPhys < _4G + PDMDevHlpMMPhysGetRamSizeAbove4GB(pDevIns); GCPhys += _4K)
         {
             void *pv = NULL;
             PGMPAGEMAPLOCK Lock;
