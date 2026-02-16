@@ -1,4 +1,4 @@
-/* $Id: NEMR3Native-win-x86.cpp 112965 2026-02-12 08:41:01Z ramshankar.venkataraman@oracle.com $ */
+/* $Id: NEMR3Native-win-x86.cpp 113034 2026-02-16 07:25:59Z ramshankar.venkataraman@oracle.com $ */
 /** @file
  * NEM - Native execution manager, native ring-3 Windows backend.
  *
@@ -2796,7 +2796,8 @@ static int nemHCWinCopyStateToHyperV(PVMCC pVM, PVMCPUCC pVCpu)
             Assert(aValues[iReg - 1].DeliverabilityNotifications.InterruptPriority == (unsigned)((fDesiredIntWin & NEM_WIN_INTW_F_PRIO_MASK) >> NEM_WIN_INTW_F_PRIO_SHIFT));
         }
     }
-    else if (VMCPU_FF_IS_SET(pVCpu, VMCPU_FF_INTERRUPT_PIC))
+    else if (   VMCPU_FF_IS_SET(pVCpu, VMCPU_FF_INTERRUPT_PIC)
+             && !pVCpu->nem.s.fSingleInstruction)
     {
         Log8(("Setting WHvX64RegisterDeliverabilityNotifications, fDesiredIntWin=%X fPicReadyForInterrupt=%RTbool\n",
               pVCpu->nem.s.fDesiredInterruptWindows, pVCpu->nem.s.fPicReadyForInterrupt));
