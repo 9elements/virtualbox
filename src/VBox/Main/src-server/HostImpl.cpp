@@ -1,4 +1,4 @@
-/* $Id: HostImpl.cpp 112740 2026-01-29 09:40:27Z alexander.eichner@oracle.com $ */
+/* $Id: HostImpl.cpp 113053 2026-02-17 09:59:52Z alexander.eichner@oracle.com $ */
 /** @file
  * VirtualBox COM class implementation: Host
  */
@@ -85,6 +85,13 @@
 # ifdef VBOX_WITH_NATIVE_NEM
 #  include <unistd.h>
 #  include <fcntl.h>
+#  include <linux/kvm.h>
+#  ifndef KVM_CAP_X86_USER_SPACE_MSR
+#   define KVM_CAP_X86_USER_SPACE_MSR 187
+#  endif
+#  ifndef KVM_CAP_X86_MSR_FILTER
+#   define KVM_CAP_X86_MSR_FILTER     188
+#  endif
 # endif
 #endif /* RT_OS_LINUX */
 
@@ -4300,10 +4307,40 @@ BOOL Host::i_HostIsNativeApiSupported()
     return TRUE;
 #  endif
 # elif defined(RT_OS_LINUX)
+    static const int s_aCapsReq[] =
+    {
+        KVM_CAP_USER_MEMORY,
+        KVM_CAP_NR_MEMSLOTS,
+#ifdef RT_ARCH_AMD64
+        KVM_CAP_HLT,
+        KVM_CAP_ADJUST_CLOCK,
+        KVM_CAP_XSAVE,
+        KVM_CAP_XCRS,
+        KVM_CAP_X86_USER_SPACE_MSR,            /* (since 5.10) */
+        KVM_CAP_X86_MSR_FILTER
+#endif
+#ifdef RT_ARCH_ARM64
+        KVM_CAP_ARM_PSCI,
+        KVM_CAP_ARM_SET_DEVICE_ADDR,
+        KVM_CAP_DEVICE_CTRL),
+        KVM_CAP_ARM_PSCI_0_2,
+        KVM_CAP_ARM_VM_IPA_SIZE
+#endif
+    };
+
     int fdKvm = open("/dev/kvm", O_RDWR | O_CLOEXEC);
     if (fdKvm >= 0)
     {
-        /** @todo Do we need to do anything else here? */
+        /* Check that the host has all the required capabilities. */
+        for (uint32_t i = 0; i < RT_ELEMENTS(s_aCapsReq); i++)
+        {
+            int rcLnx = ioctl(fdKvm, KVM_CHECK_EXTENSION, s_aCapsReq[i]);
+            if (rcLnx <= 0)
+            {
+                close(fdKvm);
+                return FALSE;
+            }
+        }
         close(fdKvm);
         return TRUE;
     }
