@@ -1,4 +1,4 @@
-/* $Id: UIStarter.cpp 113062 2026-02-17 12:37:07Z sergey.dubov@oracle.com $ */
+/* $Id: UIStarter.cpp 113063 2026-02-17 12:44:49Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIStarter class implementation.
  */
@@ -35,6 +35,7 @@
 #include "UIMessageCenter.h"
 #include "UIStarter.h"
 #ifndef VBOX_RUNTIME_UI
+# include "UINotificationMessage.h"
 # include "UIVirtualBoxManager.h"
 #else
 # include "UIMachine.h"
