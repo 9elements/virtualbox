@@ -1,4 +1,4 @@
-/* $Id: UIVirtualMachineItemCloud.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: UIVirtualMachineItemCloud.cpp 113062 2026-02-17 12:37:07Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVirtualMachineItemCloud class implementation.
  */
@@ -34,7 +34,7 @@
 #include "UIConverter.h"
 #include "UIErrorString.h"
 #include "UIIconPool.h"
-#include "UINotificationCenter.h"
+#include "UINotificationMessage.h"
 #include "UIProgressTask.h"
 #include "UITranslationEventListener.h"
 #include "UIThreadPool.h"

@@ -1,4 +1,4 @@
-/* $Id: UIWizardNewVMNameOSTypePage.cpp 112845 2026-02-05 16:55:12Z sergey.dubov@oracle.com $ */
+/* $Id: UIWizardNewVMNameOSTypePage.cpp 113062 2026-02-17 12:37:07Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIWizardNewVMPageBasicNameOSStype class implementation.
  */
@@ -40,7 +40,7 @@
 #include "UIIconPool.h"
 #include "UIMediumEnumerator.h"
 #include "UINameAndSystemEditor.h"
-#include "UINotificationCenter.h"
+#include "UINotificationMessage.h"
 #include "UIWizardNewVMNameOSTypePage.h"
 #include "UIWizardNewVM.h"
 

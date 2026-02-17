@@ -1,4 +1,4 @@
-/* $Id: VBoxLicenseViewer.cpp 113058 2026-02-17 10:55:13Z sergey.dubov@oracle.com $ */
+/* $Id: VBoxLicenseViewer.cpp 113062 2026-02-17 12:37:07Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - VBoxLicenseViewer class implementation.
  */
@@ -37,7 +37,7 @@
 #include "QIDialogButtonBox.h"
 #include "VBoxLicenseViewer.h"
 #include "UIIconPool.h"
-#include "UINotificationCenter.h"
+#include "UINotificationMessage.h"
 #include "UITranslationEventListener.h"
 
 

@@ -1,4 +1,4 @@
-/* $Id: UIMachineView.cpp 113058 2026-02-17 10:55:13Z sergey.dubov@oracle.com $ */
+/* $Id: UIMachineView.cpp 113062 2026-02-17 12:37:07Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMachineView class implementation.
  */
@@ -53,7 +53,6 @@
 #include "UIMachineViewSeamless.h"
 #include "UIMachineViewScale.h"
 #include "UIMouseHandler.h"
-#include "UINotificationCenter.h"
 #include "UITranslationEventListener.h"
 #ifdef VBOX_WS_MAC
 # include "UICocoaApplication.h"

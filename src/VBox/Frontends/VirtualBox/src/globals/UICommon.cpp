@@ -1,4 +1,4 @@
-/* $Id: UICommon.cpp 112957 2026-02-11 15:18:35Z sergey.dubov@oracle.com $ */
+/* $Id: UICommon.cpp 113062 2026-02-17 12:37:07Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UICommon class implementation.
  */
@@ -58,7 +58,7 @@
 #include "UIMediumEnumerator.h"
 #include "UIMessageCenter.h"
 #include "UIModalWindowManager.h"
-#include "UINotificationCenter.h"
+#include "UINotificationMessage.h"
 #include "UIPopupCenter.h"
 #include "UIShortcutPool.h"
 #include "UIThreadPool.h"

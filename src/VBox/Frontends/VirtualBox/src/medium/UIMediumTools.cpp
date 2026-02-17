@@ -1,4 +1,4 @@
-/* $Id: UIMediumTools.cpp 112908 2026-02-09 15:53:11Z sergey.dubov@oracle.com $ */
+/* $Id: UIMediumTools.cpp 113062 2026-02-17 12:37:07Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMediumTools class implementation.
  */
@@ -42,7 +42,7 @@
 #include "UIMediumTools.h"
 #include "UIMessageCenter.h"
 #include "UIModalWindowManager.h"
-#include "UINotificationCenter.h"
+#include "UINotificationMessage.h"
 #include "UIVisoCreator.h"
 #include "UIWizardNewVD.h"
 

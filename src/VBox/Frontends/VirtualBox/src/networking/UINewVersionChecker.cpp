@@ -1,4 +1,4 @@
-/* $Id: UINewVersionChecker.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: UINewVersionChecker.cpp 113062 2026-02-17 12:37:07Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINewVersionChecker class implementation.
  */
@@ -34,7 +34,7 @@
 #include "UIGlobalSession.h"
 #include "UINetworkReply.h"
 #include "UINewVersionChecker.h"
-#include "UINotificationCenter.h"
+#include "UINotificationMessage.h"
 #include "UIUpdateDefs.h"
 #include "UIVersion.h"
 #ifdef Q_OS_LINUX

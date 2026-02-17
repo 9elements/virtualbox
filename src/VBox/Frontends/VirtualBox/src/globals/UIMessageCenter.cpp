@@ -1,4 +1,4 @@
-/* $Id: UIMessageCenter.cpp 113051 2026-02-17 09:39:27Z sergey.dubov@oracle.com $ */
+/* $Id: UIMessageCenter.cpp 113062 2026-02-17 12:37:07Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMessageCenter class implementation.
  */
@@ -51,16 +51,12 @@
 #include "UIMedium.h"
 #include "UIMessageCenter.h"
 #include "UIModalWindowManager.h"
-#include "UINotificationCenter.h"
 #include "UIProgressDialog.h"
 #include "UITranslator.h"
 #include "UIVersion.h"
 #include "VBoxAboutDlg.h"
 #ifdef VBOX_GUI_WITH_NETWORK_MANAGER
 # include "UINetworkRequestManager.h"
-#endif
-#ifdef VBOX_OSE
-# include "UINotificationCenter.h"
 #endif
 #ifdef VBOX_WS_WIN
 # include <Htmlhelp.h>
@@ -90,6 +86,7 @@
 #include "CNATNetwork.h"
 #include "CRangedIntegerFormValue.h"
 #include "CSerialPort.h"
+#include "CSession.h"
 #include "CSharedFolder.h"
 #include "CSnapshot.h"
 #include "CStorageController.h"

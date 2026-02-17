@@ -1,4 +1,4 @@
-/* $Id: UIFrameBuffer.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: UIFrameBuffer.cpp 113062 2026-02-17 12:37:07Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIFrameBuffer class implementation.
  */
@@ -42,7 +42,7 @@
 #include "UIMachineLogic.h"
 #include "UIMachineView.h"
 #include "UIMachineWindow.h"
-#include "UINotificationCenter.h"
+#include "UINotificationMessage.h"
 #include "UISession.h"
 
 /* COM includes: */

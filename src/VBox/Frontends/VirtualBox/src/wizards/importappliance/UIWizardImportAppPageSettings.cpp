@@ -1,4 +1,4 @@
-/* $Id: UIWizardImportAppPageSettings.cpp 112845 2026-02-05 16:55:12Z sergey.dubov@oracle.com $ */
+/* $Id: UIWizardImportAppPageSettings.cpp 113062 2026-02-17 12:37:07Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIWizardImportAppPageSettings class implementation.
  */
@@ -39,7 +39,7 @@
 #include "UIFilePathSelector.h"
 #include "UIFormEditorWidget.h"
 #include "UIGlobalSession.h"
-#include "UINotificationCenter.h"
+#include "UINotificationMessage.h"
 #include "UIWizardImportApp.h"
 #include "UIWizardImportAppPageSettings.h"
 

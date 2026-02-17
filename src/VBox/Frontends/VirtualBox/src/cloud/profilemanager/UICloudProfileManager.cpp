@@ -1,4 +1,4 @@
-/* $Id: UICloudProfileManager.cpp 112751 2026-01-29 16:30:52Z sergey.dubov@oracle.com $ */
+/* $Id: UICloudProfileManager.cpp 113062 2026-02-17 12:37:07Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UICloudProfileManager class implementation.
  */
@@ -46,7 +46,7 @@
 #include "UIExtraDataManager.h"
 #include "UIIconPool.h"
 #include "UIMessageCenter.h"
-#include "UINotificationCenter.h"
+#include "UINotificationMessage.h"
 #include "UIShortcutPool.h"
 #include "UITranslationEventListener.h"
 #include "UIVirtualBoxEventHandler.h"

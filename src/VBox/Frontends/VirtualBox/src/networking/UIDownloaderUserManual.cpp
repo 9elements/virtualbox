@@ -1,4 +1,4 @@
-/* $Id: UIDownloaderUserManual.cpp 112969 2026-02-12 13:01:11Z sergey.dubov@oracle.com $ */
+/* $Id: UIDownloaderUserManual.cpp 113062 2026-02-17 12:37:07Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIDownloaderUserManual class implementation.
  */
@@ -38,7 +38,7 @@
 #include "UIMessageCenter.h"
 #include "UIModalWindowManager.h"
 #include "UINetworkReply.h"
-#include "UINotificationCenter.h"
+#include "UINotificationMessage.h"
 #include "UIVersion.h"
 
 

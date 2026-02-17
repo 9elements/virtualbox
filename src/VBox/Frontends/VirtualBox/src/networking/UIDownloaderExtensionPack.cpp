@@ -1,4 +1,4 @@
-/* $Id: UIDownloaderExtensionPack.cpp 112969 2026-02-12 13:01:11Z sergey.dubov@oracle.com $ */
+/* $Id: UIDownloaderExtensionPack.cpp 113062 2026-02-17 12:37:07Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIDownloaderExtensionPack class implementation.
  */
@@ -33,12 +33,13 @@
 
 /* GUI includes: */
 #include "QIFileDialog.h"
+#include "UIDefs.h"
 #include "UIDownloaderExtensionPack.h"
 #include "UIGlobalSession.h"
 #include "UIMessageCenter.h"
 #include "UIModalWindowManager.h"
 #include "UINetworkReply.h"
-#include "UINotificationCenter.h"
+#include "UINotificationMessage.h"
 #include "UIVersion.h"
 
 /* Other VBox includes: */

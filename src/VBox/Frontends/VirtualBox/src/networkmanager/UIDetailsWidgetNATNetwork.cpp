@@ -1,4 +1,4 @@
-/* $Id: UIDetailsWidgetNATNetwork.cpp 113058 2026-02-17 10:55:13Z sergey.dubov@oracle.com $ */
+/* $Id: UIDetailsWidgetNATNetwork.cpp 113062 2026-02-17 12:37:07Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIDetailsWidgetNATNetwork class implementation.
  */
@@ -42,11 +42,13 @@
 #include "UIDetailsWidgetNATNetwork.h"
 #include "UINetworkManager.h"
 #include "UINetworkManagerUtils.h"
-#include "UINotificationCenter.h"
+#include "UINotificationMessage.h"
 #include "UITranslationEventListener.h"
 
 /* Other VBox includes: */
 #include "iprt/cidr.h"
+#include "iprt/err.h"
+#include "iprt/string.h"
 
 
 UIDetailsWidgetNATNetwork::UIDetailsWidgetNATNetwork(EmbedTo enmEmbedding, QWidget *pParent /* = 0 */)

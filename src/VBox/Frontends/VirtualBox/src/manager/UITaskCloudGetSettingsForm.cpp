@@ -1,4 +1,4 @@
-/* $Id: UITaskCloudGetSettingsForm.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: UITaskCloudGetSettingsForm.cpp 113062 2026-02-17 12:37:07Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UITaskCloudGetSettingsForm class implementation.
  */
@@ -31,7 +31,7 @@
 /* GUI includes: */
 #include "UICommon.h"
 #include "UICloudNetworkingStuff.h"
-#include "UINotificationCenter.h"
+#include "UINotificationMessage.h"
 #include "UITaskCloudGetSettingsForm.h"
 #include "UIThreadPool.h"
 

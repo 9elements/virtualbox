@@ -1,4 +1,4 @@
-/* $Id: UIMediumEnumerator.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: UIMediumEnumerator.cpp 113062 2026-02-17 12:37:07Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMediumEnumerator class implementation.
  */
@@ -37,7 +37,7 @@
 #include "UIGlobalSession.h"
 #include "UILoggingDefs.h"
 #include "UIMediumEnumerator.h"
-#include "UINotificationCenter.h"
+#include "UINotificationMessage.h"
 #include "UITask.h"
 #include "UITranslationEventListener.h"
 #include "UIThreadPool.h"
