@@ -1,4 +1,4 @@
-/* $Id: UINotificationObjectItem.h 113013 2026-02-13 15:02:32Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationObjectItem.h 113074 2026-02-18 15:59:00Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationObjectItem class declaration.
  */
@@ -115,10 +115,10 @@ class UINotificationProgressItem : public UINotificationObjectItem
 public:
 
     /** Constructs notification-progress item, passing @a pParent to the base-class.
-      * @param  pProgress   Brings the notification-progress this item created for.
+      * @param  pObject     Brings the notification-progress this item created for.
       * @param  iWidthHint  Brings the width hint this item could use to adjust details label size. */
     UINotificationProgressItem(QWidget *pParent,
-                               UINotificationProgress *pProgress,
+                               UINotificationObject *pObject,
                                int iWidthHint);
 
 private slots:
@@ -152,10 +152,10 @@ class UINotificationDownloaderItem : public UINotificationObjectItem
 public:
 
     /** Constructs notification-downloader item, passing @a pParent to the base-class.
-      * @param  pDownloader  Brings the notification-downloader this item created for.
-      * @param  iWidthHint   Brings the width hint this item could use to adjust details label size. */
+      * @param  pObject     Brings the notification-downloader this item created for.
+      * @param  iWidthHint  Brings the width hint this item could use to adjust details label size. */
     UINotificationDownloaderItem(QWidget *pParent,
-                                 UINotificationDownloader *pDownloader,
+                                 UINotificationObject *pObject,
                                  int iWidthHint);
 
 private slots:

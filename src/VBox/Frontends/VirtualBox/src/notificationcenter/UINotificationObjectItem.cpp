@@ -1,4 +1,4 @@
-/* $Id: UINotificationObjectItem.cpp 113058 2026-02-17 10:55:13Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationObjectItem.cpp 113074 2026-02-18 15:59:00Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationObjectItem class implementation.
  */
@@ -280,9 +280,9 @@ void UINotificationObjectItem::sltHandleHelpRequest()
 *********************************************************************************************************************************/
 
 UINotificationProgressItem::UINotificationProgressItem(QWidget *pParent,
-                                                       UINotificationProgress *pProgress,
+                                                       UINotificationObject *pObject,
                                                        int iWidthHint)
-    : UINotificationObjectItem(pParent, pProgress, iWidthHint)
+    : UINotificationObjectItem(pParent, pObject, iWidthHint)
     , m_pProgressBar(0)
 {
     /* Main layout was prepared in base-class: */
@@ -385,9 +385,9 @@ void UINotificationProgressItem::updateDetails()
 *********************************************************************************************************************************/
 
 UINotificationDownloaderItem::UINotificationDownloaderItem(QWidget *pParent,
-                                                           UINotificationDownloader *pDownloader,
+                                                           UINotificationObject *pObject,
                                                            int iWidthHint)
-    : UINotificationObjectItem(pParent, pDownloader, iWidthHint)
+    : UINotificationObjectItem(pParent, pObject, iWidthHint)
     , m_pProgressBar(0)
 {
     /* Main layout was prepared in base-class: */
@@ -493,10 +493,10 @@ UINotificationObjectItem *UINotificationItem::create(QWidget *pParent,
 {
     /* Handle known types: */
     if (pObject->inherits("UINotificationProgress"))
-        return new UINotificationProgressItem(pParent, static_cast<UINotificationProgress*>(pObject), iWidthHint);
+        return new UINotificationProgressItem(pParent, pObject, iWidthHint);
 #ifdef VBOX_GUI_WITH_NETWORK_MANAGER
     else if (pObject->inherits("UINotificationDownloader"))
-        return new UINotificationDownloaderItem(pParent, static_cast<UINotificationDownloader*>(pObject), iWidthHint);
+        return new UINotificationDownloaderItem(pParent, pObject, iWidthHint);
 #endif
     /* Handle defaults: */
     return new UINotificationObjectItem(pParent, pObject, iWidthHint, fToggled);
