@@ -1,4 +1,4 @@
-/* $Id: UINotificationCenter.h 113060 2026-02-17 12:01:37Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationCenter.h 113076 2026-02-18 16:44:32Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationCenter class declaration.
  */
@@ -42,6 +42,7 @@
 #include "UILibraryDefs.h"
 #include "UINotificationMessage.h"
 #include "UINotificationObjects.h"
+#include "UINotificationQuestion.h"
 
 /* Forward declarations: */
 class QHBoxLayout;
@@ -101,6 +102,9 @@ public:
     /** Immediately and synchronously shows passed notification @a pMessage.
       * @note It's a blocking call finished by sltHandleModelItemRemoved(). */
     void showBlocking(UINotificationMessage *pMessage);
+    /** Immediately and synchronously shows passed notification @a pQuestion.
+      * @note It's a blocking call finished by sltHandleModelItemRemoved(). */
+    int showBlocking(UINotificationQuestion *pQuestion);
     /** Immediately and synchronously handles passed notification @a pProgress.
       * @note It's a blocking call finished by sltHandleProgressFinished(). */
     bool handleNow(UINotificationProgress *pProgress);
@@ -243,6 +247,8 @@ private:
     QPointer<QEventLoop>  m_pEventLoop;
     /** Holds the ID of message locked the loop. */
     QUuid                 m_uId;
+    /** Holds the last showBlocking() result. */
+    int                   m_iLastResult;
     /** Holds the last handleNow() result. */
     bool                  m_fLastResult;
 };

@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 113060 2026-02-17 12:01:37Z sergey.dubov@oracle.com $
+# $Id: Makefile.kmk 113076 2026-02-18 16:44:32Z sergey.dubov@oracle.com $
 ## @file
 # Makefile for the VirtualBox Qt GUI.
 #
@@ -834,6 +834,7 @@ UICommon_QT_MOCHDRS = \
 	src/notificationcenter/UINotificationObjectItem.h \
 	src/notificationcenter/UINotificationObjects.h \
 	src/notificationcenter/UINotificationProgressTask.h \
+	src/notificationcenter/UINotificationQuestion.h \
 	src/objects/UIExecutionQueue.h \
 	src/settings/UIAdvancedSettingsDialog.h \
 	src/settings/UIAdvancedSettingsDialogSpecific.h \
@@ -1429,6 +1430,7 @@ UICommon_SOURCES = \
 	src/notificationcenter/UINotificationObjectItem.cpp \
 	src/notificationcenter/UINotificationObjects.cpp \
 	src/notificationcenter/UINotificationProgressTask.cpp \
+	src/notificationcenter/UINotificationQuestion.cpp \
 	src/objects/UIExecutionQueue.cpp \
 	src/objects/UIRichTextString.cpp \
 	src/settings/UISettingsDefs.cpp \

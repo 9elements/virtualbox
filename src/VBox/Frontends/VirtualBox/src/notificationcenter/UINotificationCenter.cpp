@@ -1,4 +1,4 @@
-/* $Id: UINotificationCenter.cpp 113011 2026-02-13 14:53:40Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationCenter.cpp 113076 2026-02-18 16:44:32Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationCenter class implementation.
  */
@@ -194,6 +194,7 @@ UINotificationCenter::UINotificationCenter(QWidget *pParent)
     , m_iAnimatedValue(0)
     , m_fExtendedMode(false)
     , m_pTimerOpen(0)
+    , m_iLastResult(0)
     , m_fLastResult(false)
 {
     prepare();
@@ -305,6 +306,55 @@ void UINotificationCenter::showBlocking(UINotificationMessage *pMessage)
     /* Revert values back: */
     m_uId = QUuid();
     m_fExtendedMode = false;
+}
+
+int UINotificationCenter::showBlocking(UINotificationQuestion *pQuestion)
+{
+    /* Check for the recursive run: */
+    AssertMsgReturn(!m_pEventLoop, ("UINotificationCenter::showBlocking() is called recursively!\n"), 0);
+
+    /* Reset the result: */
+    m_iLastResult = 0;
+
+    /* Switch to extended mode: */
+    m_fExtendedMode = true;
+
+    /* Guard question for the case
+     * it destroyed itself in his append call: */
+    QPointer<UINotificationQuestion> guardQuestion = pQuestion;
+    m_uId = append(pQuestion);
+
+    /* Is progress still valid? */
+    if (guardQuestion.isNull())
+        return m_iLastResult;
+    /* Is question still pending? */
+    if (guardQuestion->isDone())
+        return m_iLastResult;
+
+    /* Create a local event-loop: */
+    QEventLoop eventLoop;
+    m_pEventLoop = &eventLoop;
+
+    /* Guard ourself for the case
+     * we destroyed ourself in our event-loop: */
+    QPointer<UINotificationCenter> guardThis = this;
+
+    /* Start the blocking event-loop: */
+    eventLoop.exec();
+
+    /* Are we still valid? */
+    if (guardThis.isNull())
+        return 0;
+
+    /* Cleanup event-loop: */
+    m_pEventLoop = 0;
+
+    /* Revert values back: */
+    m_uId = QUuid();
+    m_fExtendedMode = false;
+
+    /* Return actual result: */
+    return m_iLastResult;
 }
 
 bool UINotificationCenter::handleNow(UINotificationProgress *pProgress)
@@ -563,9 +613,23 @@ void UINotificationCenter::sltHandleModelItemAdded(const QUuid &uId)
 
 void UINotificationCenter::sltHandleModelItemRemoved(const QUuid &uId)
 {
-    /* Remove corresponding model item representation if present: */
+    /* If item representation registered: */
     if (m_items.contains(uId))
+    {
+        /* Acquire item representation and then item (object) itself: */
+        UINotificationObjectItem *pItem = m_items.value(uId);
+        AssertPtrReturnVoid(pItem);
+        UINotificationObject *pObject = pItem->internalObject();
+        AssertPtrReturnVoid(pObject);
+
+        /* Try to cast it to question to get the result: */
+        UINotificationQuestion *pQuestion = qobject_cast<UINotificationQuestion*>(pObject);
+        if (pQuestion)
+            m_iLastResult = pQuestion->result();
+
+        /* Remove corresponding model item representation: */
         delete m_items.take(uId);
+    }
 
     /* Hide and slide away if there are no notifications to show: */
     setHidden(m_pModel->ids().isEmpty());
