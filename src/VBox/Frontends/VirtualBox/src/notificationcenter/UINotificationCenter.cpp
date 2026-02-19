@@ -1,4 +1,4 @@
-/* $Id: UINotificationCenter.cpp 113091 2026-02-19 15:03:50Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationCenter.cpp 113092 2026-02-19 15:04:45Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationCenter class implementation.
  */
@@ -981,13 +981,20 @@ void UINotificationCenter::paintFrame(QPainter *pPainter)
 
 void UINotificationCenter::setExtendedMode(bool fExtended)
 {
+    /* Update extended mode: */
     m_fExtendedMode = fExtended;
+
+    /* Hide buttons for extended mode: */
     m_pButtonOpen->setVisible(!isExtendedMode());
     m_pButtonToggleSorting->setVisible(!isExtendedMode());
 #ifdef VBOX_NOTIFICATION_CENTER_WITH_KEEP_BUTTON
     m_pButtonKeepFinished->setVisible(!isExtendedMode());
 #endif
     m_pButtonRemoveFinished->setVisible(!isExtendedMode());
+
+    /* Hide all unrelated items for extended mode: */
+    foreach (UINotificationObjectItem *pItem, m_items.values())
+        pItem->setVisible(!isExtendedMode() || pItem->isExtended());
 }
 
 void UINotificationCenter::setAnimatedValue(int iValue)

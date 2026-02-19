@@ -1,4 +1,4 @@
-/* $Id: UINotificationObjectItem.cpp 113089 2026-02-19 13:54:59Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationObjectItem.cpp 113092 2026-02-19 15:04:45Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationObjectItem class implementation.
  */
@@ -54,10 +54,10 @@
 
 UINotificationObjectItem::UINotificationObjectItem(QWidget *pParent,
                                                    UINotificationObject *pObject,
-                                                   bool fToggled /* = false */)
+                                                   bool fExtended /* = false */)
     : QWidget(pParent)
     , m_pObject(pObject)
-    , m_fToggled(fToggled)
+    , m_fExtended(fExtended)
     , m_iMinimumWidthHint(0)
     , m_iDetailsWidthHint(0)
     , m_pLayoutMain(0)
@@ -68,6 +68,7 @@ UINotificationObjectItem::UINotificationObjectItem(QWidget *pParent,
     , m_pButtonClose(0)
     , m_pLabelDetails(0)
     , m_fHovered(false)
+    , m_fToggled(m_fExtended)
 {
 }
 
@@ -316,8 +317,8 @@ void UINotificationObjectItem::sltHandleHelpRequest()
 
 UINotificationQuestionItem::UINotificationQuestionItem(QWidget *pParent,
                                                        UINotificationObject *pObject,
-                                                       bool fToggled)
-    : UINotificationObjectItem(pParent, pObject, fToggled)
+                                                       bool fExtended)
+    : UINotificationObjectItem(pParent, pObject, fExtended)
     , m_pButtonBox(0)
 {
 }
@@ -642,14 +643,14 @@ void UINotificationDownloaderItem::updateDetails()
 
 UINotificationObjectItem *UINotificationItem::create(QWidget *pParent,
                                                      UINotificationObject *pObject,
-                                                     bool fToggled)
+                                                     bool fExtended)
 {
     /* Prepare item: */
     UINotificationObjectItem *pItem = 0;
 
     /* Handle known types: */
     if (pObject->inherits("UINotificationQuestion"))
-        pItem = new UINotificationQuestionItem(pParent, pObject, fToggled);
+        pItem = new UINotificationQuestionItem(pParent, pObject, fExtended);
     else if (pObject->inherits("UINotificationProgress"))
         pItem = new UINotificationProgressItem(pParent, pObject);
 #ifdef VBOX_GUI_WITH_NETWORK_MANAGER
@@ -658,7 +659,7 @@ UINotificationObjectItem *UINotificationItem::create(QWidget *pParent,
 #endif
     /* Handle defaults: */
     else
-        pItem = new UINotificationObjectItem(pParent, pObject, fToggled);
+        pItem = new UINotificationObjectItem(pParent, pObject, fExtended);
 
     /* Prepare item: */
     if (pItem)
