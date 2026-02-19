@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # pylint: disable=too-many-lines
-# $Id: tdAddGuestCtrl.py 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $
+# $Id: tdAddGuestCtrl.py 113081 2026-02-19 10:01:13Z serkan.bayraktar@oracle.com $
 
 """
 VirtualBox Validation Kit - Guest Control Tests.
@@ -38,7 +38,7 @@ terms and conditions of either the GPL or the CDDL or both.
 
 SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 """
-__version__ = "$Revision: 112403 $"
+__version__ = "$Revision: 113081 $"
 
 # Standard Python imports.
 import errno
@@ -2861,7 +2861,7 @@ class SubTstDrvAddGuestCtrl(base.SubTestDriverBase):
         if self.oTstDrv.fpApiVer >= 7.1:
             reporter.log('Getting mount points ...');
             try:
-                aMountpoints = oGuestSession.getMountPoints();
+                aMountpoints = oGuestSession.mountPoints();
                 reporter.log('Got %ld mount points' % len(aMountpoints))
                 for mountPoint in aMountpoints:
                     reporter.log('Mountpoint: %s' % (mountPoint));
