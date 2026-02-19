@@ -1,4 +1,4 @@
-/* $Id: DevPciVfio.h 113036 2026-02-16 12:39:59Z alexander.eichner@oracle.com $ */
+/* $Id: DevPciVfio.h 113080 2026-02-19 09:11:45Z alexander.eichner@oracle.com $ */
 /** @file
  * PCI passthrough device emulation using VFIO/IOMMUFD - Header for building on too old Linux systems.
  */
@@ -78,9 +78,31 @@ AssertCompileSize(struct iommu_ioas_map, 4 * sizeof(uint32_t) + 3 * sizeof(uint6
 #define IOMMU_IOAS_MAP_READABLE         RT_BIT_32(2)
 
 
+#define VFIO_API_VERSION                0
+#define VFIO_TYPE1_IOMMU                1
+
+
 #define VFIO_TYPE (';')
 #define VFIO_BASE 100
 
+#define VFIO_GET_API_VERSION            _IO(VFIO_TYPE, VFIO_BASE + 0)
+#define VFIO_CHECK_EXTENSION            _IO(VFIO_TYPE, VFIO_BASE + 1)
+#define VFIO_SET_IOMMU                  _IO(VFIO_TYPE, VFIO_BASE + 2)
+
+
+struct vfio_group_status
+{
+    uint32_t argsz;
+    uint32_t flags;
+};
+AssertCompileSize(struct vfio_group_status, 2 * sizeof(uint32_t));
+#define VFIO_GROUP_GET_STATUS           _IO(VFIO_TYPE, VFIO_BASE + 3)
+
+#define VFIO_GROUP_FLAGS_VIABLE         RT_BIT_32(0)
+#define VFIO_GROUP_FLAGS_CONTAINER_SET  RT_BIT_32(1)
+
+#define VFIO_GROUP_SET_CONTAINER        _IO(VFIO_TYPE, VFIO_BASE + 4)
+#define VFIO_GROUP_GET_DEVICE_FD        _IO(VFIO_TYPE, VFIO_BASE + 6)
 
 struct vfio_device_info
 {
@@ -154,6 +176,21 @@ AssertCompileSize(struct vfio_irq_set, 5 * sizeof(uint32_t));
 
 
 #define VFIO_DEVICE_RESET               _IO(VFIO_TYPE, VFIO_BASE + 11)
+
+struct vfio_iommu_type1_dma_map
+{
+    uint32_t argsz;
+    uint32_t flags;
+    uint64_t vaddr;
+    uint64_t iova;
+    uint64_t size;
+};
+AssertCompileSize(struct vfio_iommu_type1_dma_map, 2 * sizeof(uint32_t) + 3 * sizeof(uint64_t));
+#define VFIO_IOMMU_MAP_DMA              _IO(VFIO_TYPE, VFIO_BASE + 13)
+
+#define VFIO_DMA_MAP_FLAG_READ          RT_BIT_32(0)
+#define VFIO_DMA_MAP_FLAG_WRITE         RT_BIT_32(1)
+#define VFIO_DMA_MAP_FLAG_VADDR         RT_BIT_32(2)
 
 
 #define VFIO_PCI_BAR0_REGION_INDEX      0
