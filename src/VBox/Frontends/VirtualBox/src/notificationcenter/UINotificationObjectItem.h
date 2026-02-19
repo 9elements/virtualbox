@@ -1,4 +1,4 @@
-/* $Id: UINotificationObjectItem.h 113078 2026-02-18 18:30:11Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationObjectItem.h 113087 2026-02-19 13:24:09Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationObjectItem class declaration.
  */
@@ -62,12 +62,10 @@ class UINotificationObjectItem : public QWidget
 public:
 
     /** Constructs notification-object item, passing @a pParent to the base-class.
-      * @param  pObject     Brings the notification-object this item created for.
-      * @param  iWidthHint  Brings the width hint this item could use to adjust details label size.
-      * @param  fToggled    Brings whether notification details pane should be initially toggled. */
+      * @param  pObject   Brings the notification-object this item created for.
+      * @param  fToggled  Brings whether notification details pane should be initially toggled. */
     UINotificationObjectItem(QWidget *pParent,
                              UINotificationObject *pObject,
-                             int iWidthHint,
                              bool fToggled = false);
 
     /** Returns notification-object this item created for. */
@@ -75,6 +73,9 @@ public:
 
     /** Prepares everything. */
     void prepare();
+
+    /** Defines details label width @a iHint. */
+    void setDetailsWidthHint(int iHint);
 
 protected:
 
@@ -91,10 +92,13 @@ protected:
 
     /** Holds the notification-object this item created for. */
     UINotificationObject *m_pObject;
-    /** Holds the width-hint for the details label. */
-    int                   m_iWidthHint;
     /** Holds whether item is toggled. */
     bool                  m_fToggled;
+
+    /** Holds the minimum width hint. */
+    int  m_iMinimumWidthHint;
+    /** Holds the details width hint. */
+    int  m_iDetailsWidthHint;
 
     /** Holds the main layout instance. */
     QVBoxLayout     *m_pLayoutMain;
@@ -131,12 +135,10 @@ class UINotificationQuestionItem : public UINotificationObjectItem
 public:
 
     /** Constructs notification-question item, passing @a pParent to the base-class.
-      * @param  pObject     Brings the notification-object this item created for.
-      * @param  iWidthHint  Brings the width hint this item could use to adjust details label size.
-      * @param  fToggled    Brings whether notification details pane should be initially toggled. */
+      * @param  pObject   Brings the notification-object this item created for.
+      * @param  fToggled  Brings whether notification details pane should be initially toggled. */
     UINotificationQuestionItem(QWidget *pParent,
                                UINotificationObject *pObject,
-                               int iWidthHint,
                                bool fToggled);
 
 protected:
@@ -168,11 +170,9 @@ class UINotificationProgressItem : public UINotificationObjectItem
 public:
 
     /** Constructs notification-progress item, passing @a pParent to the base-class.
-      * @param  pObject     Brings the notification-progress this item created for.
-      * @param  iWidthHint  Brings the width hint this item could use to adjust details label size. */
+      * @param  pObject  Brings the notification-progress this item created for. */
     UINotificationProgressItem(QWidget *pParent,
-                               UINotificationObject *pObject,
-                               int iWidthHint);
+                               UINotificationObject *pObject);
 
 protected:
 
@@ -212,11 +212,9 @@ class UINotificationDownloaderItem : public UINotificationObjectItem
 public:
 
     /** Constructs notification-downloader item, passing @a pParent to the base-class.
-      * @param  pObject     Brings the notification-downloader this item created for.
-      * @param  iWidthHint  Brings the width hint this item could use to adjust details label size. */
+      * @param  pObject  Brings the notification-downloader this item created for. */
     UINotificationDownloaderItem(QWidget *pParent,
-                                 UINotificationObject *pObject,
-                                 int iWidthHint);
+                                 UINotificationObject *pObject);
 
 protected:
 
@@ -252,13 +250,12 @@ private:
 namespace UINotificationItem
 {
     /** Creates notification-object of required type.
-      * @param  pParent     Brings the parent constructed item being attached to.
-      * @param  pObject     Brings the notification-object item being constructed for.
-      * @param  iWidthHint  Brings the width hint for the newly created item. */
+      * @param  pParent   Brings the parent constructed item being attached to.
+      * @param  pObject   Brings the notification-object item being constructed for.
+      * @param  fToggled  Brings whether notification details pane should be initially toggled. */
     UINotificationObjectItem *create(QWidget *pParent,
                                      UINotificationObject *pObject,
-                                     int iWidthHint,
-                                     bool ftoggled);
+                                     bool fToggled);
 }
 
 #endif /* !FEQT_INCLUDED_SRC_notificationcenter_UINotificationObjectItem_h */

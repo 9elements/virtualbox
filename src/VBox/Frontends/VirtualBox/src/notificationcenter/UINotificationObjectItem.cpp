@@ -1,4 +1,4 @@
-/* $Id: UINotificationObjectItem.cpp 113078 2026-02-18 18:30:11Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationObjectItem.cpp 113087 2026-02-19 13:24:09Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationObjectItem class implementation.
  */
@@ -54,12 +54,12 @@
 
 UINotificationObjectItem::UINotificationObjectItem(QWidget *pParent,
                                                    UINotificationObject *pObject,
-                                                   int iWidthHint,
                                                    bool fToggled /* = false */)
     : QWidget(pParent)
     , m_pObject(pObject)
-    , m_iWidthHint(iWidthHint)
     , m_fToggled(fToggled)
+    , m_iMinimumWidthHint(0)
+    , m_iDetailsWidthHint(0)
     , m_pLayoutMain(0)
     , m_pLayoutUpper(0)
     , m_pLabelName(0)
@@ -82,6 +82,30 @@ void UINotificationObjectItem::prepare()
 
     /* Apply language settings: */
     sltRetranslateUI();
+}
+
+void UINotificationObjectItem::setDetailsWidthHint(int iHint)
+{
+    /* Make sure something changed: */
+    if (m_iDetailsWidthHint == iHint)
+        return;
+    /* Remember new value: */
+    m_iDetailsWidthHint = iHint;
+
+    /* Passed details width hint have to be adjusted according to margins: */
+    int iDetailsWidthHint = m_iDetailsWidthHint;
+    if (iDetailsWidthHint > 0)
+    {
+        /* Acquire layout margins: */
+        int iL, iT, iR, iB;
+        m_pLayoutMain->getContentsMargins(&iL, &iT, &iR, &iB);
+        /* Adjust width hint: */
+        iDetailsWidthHint = iDetailsWidthHint - iL - iR;
+    }
+
+    /* Calculate effective width hint on the basis of mimumum and details hints: */
+    const int iEffectiveWidthHint = qMax(m_iMinimumWidthHint, iDetailsWidthHint);
+    m_pLabelDetails->setMinimumTextWidth(iEffectiveWidthHint);
 }
 
 void UINotificationObjectItem::prepareWidgets()
@@ -137,29 +161,9 @@ void UINotificationObjectItem::prepareWidgets()
         m_pLabelDetails = new QIRichTextLabel(this);
         if (m_pLabelDetails)
         {
-            /* Adjust width hint (if it was passed): */
-            int iWidthHint = m_iWidthHint;
-            if (iWidthHint > 0)
-            {
-                /* Acquire layout margins: */
-                int iL, iT, iR, iB;
-                m_pLayoutMain->getContentsMargins(&iL, &iT, &iR, &iB);
-                /* Adjust width hint: */
-                iWidthHint = iWidthHint - iL - iR;
-            }
-
             QFont myFont = m_pLabelDetails->font();
             myFont.setPointSize(myFont.pointSize() - 1);
             m_pLabelDetails->setBrowserFont(myFont);
-            int iHint = m_pLabelName->minimumSizeHint().width();
-            if (m_pButtonHelp)
-                iHint += m_pLayoutUpper->spacing() + m_pButtonHelp->minimumSizeHint().width();
-            if (m_pButtonForget)
-                iHint += m_pLayoutUpper->spacing() + m_pButtonForget->minimumSizeHint().width();
-            if (m_pButtonClose)
-                iHint += m_pLayoutUpper->spacing() + m_pButtonClose->minimumSizeHint().width();
-            iHint = qMax(iHint, iWidthHint);
-            m_pLabelDetails->setMinimumTextWidth(iHint);
             m_pLabelDetails->setText(m_pObject->details());
             m_pLabelDetails->setVisible(m_fToggled && !m_pLabelDetails->text().isEmpty());
 
@@ -185,6 +189,16 @@ void UINotificationObjectItem::prepareWidgets()
             }
         }
     }
+
+    /* Calculate minimum width hint: */
+    if (m_pLabelName)
+        m_iMinimumWidthHint = m_pLabelName->minimumSizeHint().width();
+    if (m_pButtonHelp)
+        m_iMinimumWidthHint += m_pLayoutUpper->spacing() + m_pButtonHelp->minimumSizeHint().width();
+    if (m_pButtonForget)
+        m_iMinimumWidthHint += m_pLayoutUpper->spacing() + m_pButtonForget->minimumSizeHint().width();
+    if (m_pButtonClose)
+        m_iMinimumWidthHint += m_pLayoutUpper->spacing() + m_pButtonClose->minimumSizeHint().width();
 }
 
 void UINotificationObjectItem::prepareConnections()
@@ -301,9 +315,8 @@ void UINotificationObjectItem::sltHandleHelpRequest()
 
 UINotificationQuestionItem::UINotificationQuestionItem(QWidget *pParent,
                                                        UINotificationObject *pObject,
-                                                       int iWidthHint,
                                                        bool fToggled)
-    : UINotificationObjectItem(pParent, pObject, iWidthHint, fToggled)
+    : UINotificationObjectItem(pParent, pObject, fToggled)
     , m_pButtonBox(0)
 {
 }
@@ -396,9 +409,8 @@ UINotificationQuestion *UINotificationQuestionItem::question() const
 *********************************************************************************************************************************/
 
 UINotificationProgressItem::UINotificationProgressItem(QWidget *pParent,
-                                                       UINotificationObject *pObject,
-                                                       int iWidthHint)
-    : UINotificationObjectItem(pParent, pObject, iWidthHint)
+                                                       UINotificationObject *pObject)
+    : UINotificationObjectItem(pParent, pObject)
     , m_pProgressBar(0)
 {
 }
@@ -514,9 +526,8 @@ void UINotificationProgressItem::updateDetails()
 *********************************************************************************************************************************/
 
 UINotificationDownloaderItem::UINotificationDownloaderItem(QWidget *pParent,
-                                                           UINotificationObject *pObject,
-                                                           int iWidthHint)
-    : UINotificationObjectItem(pParent, pObject, iWidthHint)
+                                                           UINotificationObject *pObject)
+    : UINotificationObjectItem(pParent, pObject)
     , m_pProgressBar(0)
 {
 }
@@ -630,7 +641,6 @@ void UINotificationDownloaderItem::updateDetails()
 
 UINotificationObjectItem *UINotificationItem::create(QWidget *pParent,
                                                      UINotificationObject *pObject,
-                                                     int iWidthHint,
                                                      bool fToggled)
 {
     /* Prepare item: */
@@ -638,16 +648,16 @@ UINotificationObjectItem *UINotificationItem::create(QWidget *pParent,
 
     /* Handle known types: */
     if (pObject->inherits("UINotificationQuestion"))
-        pItem = new UINotificationQuestionItem(pParent, pObject, iWidthHint, fToggled);
+        pItem = new UINotificationQuestionItem(pParent, pObject, fToggled);
     else if (pObject->inherits("UINotificationProgress"))
-        pItem = new UINotificationProgressItem(pParent, pObject, iWidthHint);
+        pItem = new UINotificationProgressItem(pParent, pObject);
 #ifdef VBOX_GUI_WITH_NETWORK_MANAGER
     else if (pObject->inherits("UINotificationDownloader"))
-        pItem = new UINotificationDownloaderItem(pParent, pObject, iWidthHint);
+        pItem = new UINotificationDownloaderItem(pParent, pObject);
 #endif
     /* Handle defaults: */
     else
-        pItem = new UINotificationObjectItem(pParent, pObject, iWidthHint, fToggled);
+        pItem = new UINotificationObjectItem(pParent, pObject, fToggled);
 
     /* Prepare item: */
     if (pItem)

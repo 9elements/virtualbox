@@ -1,4 +1,4 @@
-/* $Id: UINotificationCenter.cpp 113077 2026-02-18 18:28:10Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationCenter.cpp 113087 2026-02-19 13:24:09Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationCenter class implementation.
  */
@@ -1010,20 +1010,37 @@ void UINotificationCenter::adjustGeometry()
     const int iParentWidth = pParent->width();
     const int iParentHeight = pParent->height();
 
-    /* Acquire minimum width (includes margins by default): */
-    int iMinimumWidth = minimumSizeHint().width();
-    /* Acquire minimum button width (including margins manually): */
+    /* Acquire layout margins: */
     int iL, iT, iR, iB;
     m_pLayoutMain->getContentsMargins(&iL, &iT, &iR, &iB);
-    const int iMinimumButtonWidth = m_pButtonOpen->minimumSizeHint().width() + iL + iR;
 
-    /* Make sure we have some default width if there is no contents: */
-    const int iMaxSize = m_fExtendedMode ? iParentWidth : 200;
-    iMinimumWidth = qMax(iMinimumWidth, iMaxSize);
+    /* Acquire minimum button width (notification-center can't shorter than this hint): */
+    const int iMinimumWidth = m_pButtonOpen->minimumSizeHint().width() + iL + iR;
+    /* Invent some default width for simple mode, like 200px for example: */
+    int iMaximumWidth = m_fExtendedMode ? iParentWidth : 200;
+    /* Make sure maximum width is more or equal to minimum one: */
+    iMaximumWidth = qMax(iMinimumWidth, iMaximumWidth);
 
-    /* Move and resize notification-center finally: */
-    move(iParentWidth - (iMinimumButtonWidth + (double)animatedValue() / 100 * (iMinimumWidth - iMinimumButtonWidth)), 0);
-    resize(iMinimumWidth, iParentHeight);
+    /* Calculate and propagate details width hint: */
+    int iDetailsWidthHint = iMaximumWidth;
+    iDetailsWidthHint = iDetailsWidthHint - iL - iR;
+    foreach (UINotificationObjectItem *pItem, m_items.values())
+        pItem->setDetailsWidthHint(iDetailsWidthHint);
+
+    /* Simple mode: */
+    if (!m_fExtendedMode)
+    {
+        /* Move and resize notification-center finally: */
+        move(iParentWidth - (iMinimumWidth + (double)animatedValue() / 100 * (iMaximumWidth - iMinimumWidth)), 0);
+        resize(iMaximumWidth, iParentHeight);
+    }
+    /* Extended mode: */
+    else
+    {
+        /* Move and resize notification-center finally: */
+        move(0, - iParentHeight + (double)animatedValue() / 100 * iParentHeight);
+        resize(iParentWidth, iParentHeight);
+    }
 }
 
 void UINotificationCenter::adjustMask()
@@ -1037,20 +1054,8 @@ void UINotificationCenter::adjustMask()
 
 void UINotificationCenter::createItem(const QUuid &uId)
 {
-    /* For extended mode, we should determine
-     * parent width hint (if parent present): */
-    int iWidthHint = -1;
-    if (parentWidget() && m_fExtendedMode)
-    {
-        /* Acquire layout margins: */
-        int iL, iT, iR, iB;
-        m_pLayoutMain->getContentsMargins(&iL, &iT, &iR, &iB);
-        /* Calculate width hint: */
-        iWidthHint = parentWidget()->width() - iL - iR;
-    }
-
     /* Create item itself: */
-    UINotificationObjectItem *pItem = UINotificationItem::create(this, m_pModel->objectById(uId), iWidthHint, m_fExtendedMode);
+    UINotificationObjectItem *pItem = UINotificationItem::create(this, m_pModel->objectById(uId), m_fExtendedMode);
     m_items[uId] = pItem;
     m_pLayoutItems->insertWidget(m_enmOrder == Qt::AscendingOrder ? -1 : 0, pItem);
 }
