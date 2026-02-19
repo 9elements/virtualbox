@@ -1,4 +1,4 @@
-/* $Id: DevPciIch9.cpp 112937 2026-02-11 10:57:06Z alexander.eichner@oracle.com $ */
+/* $Id: DevPciIch9.cpp 113099 2026-02-19 19:36:58Z alexander.eichner@oracle.com $ */
 /** @file
  * DevPCI - ICH9 southbridge PCI bus emulation device.
  *
@@ -991,7 +991,12 @@ DECLCALLBACK(int) devpciR3CommonRegisterDevice(PPDMDEVINS pDevIns, PPDMPCIDEV pP
 DECLCALLBACK(int) devpcibridgeR3CommonRegisterDevice(PPDMDEVINS pDevIns, PPDMPCIDEV pPciDev, uint32_t fFlags,
                                                      uint8_t uPciDevNo, uint8_t uPciFunNo, const char *pszName)
 {
-    PDEVPCIBUS pBus = PDMINS_2_DATA(pDevIns, PDEVPCIBUS);
+    PDEVPCIBUSCC pBusCC = PDMINS_2_DATA_CC(pDevIns, PDEVPCIBUSCC);
+    PDEVPCIBUS   pBus = PDMINS_2_DATA(pDevIns, PDEVPCIBUS);
+
+    /** @todo Required for MSI-X support in DevPciVfio.cpp which ignores the current MSI-X implementation for passthrough. */
+    pPciDev->Int.s.pvPciBusPtrR3 = pBusCC->CTX_SUFF(pPciHlp);
+
     return devpciR3CommonRegisterDeviceOnBus(pDevIns, pBus, pPciDev, fFlags, uPciDevNo, uPciFunNo, pszName);
 }
 
