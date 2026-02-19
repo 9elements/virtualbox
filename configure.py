@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# $Id: configure.py 113094 2026-02-19 16:17:39Z klaus.espenlaub@oracle.com $
+# $Id: configure.py 113096 2026-02-19 17:12:42Z andreas.loeffler@oracle.com $
 """
 Configuration script for building VirtualBox.
 
@@ -72,7 +72,7 @@ SPDX-License-Identifier: GPL-3.0-only
 # External Python modules or other dependencies are not allowed!
 #
 
-__revision__ = "$Revision: 113094 $"
+__revision__ = "$Revision: 113096 $"
 
 import argparse
 import collections;
@@ -2230,6 +2230,8 @@ class ToolCheck(CheckBase):
                 if self.sCmdPath:
                     break;
 
+        if self.sCmdPath:
+            g_oEnv.set('VBOX_MAKESELF', self.sCmdPath);
         return True if self.sCmdPath else False;
 
     def checkCallback_MacOSSDK(self):
