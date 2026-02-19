@@ -1,7 +1,7 @@
 #! /bin/sh
-# $Id: vboxadd.sh 113093 2026-02-19 16:05:20Z vadim.galitsyn@oracle.com $
+# $Id: vboxadd.sh 113095 2026-02-19 16:20:30Z vadim.galitsyn@oracle.com $
 ## @file
-# Linux Additions kernel module init script ($Revision: 113093 $)
+# Linux Additions kernel module init script ($Revision: 113095 $)
 #
 
 #
@@ -589,13 +589,16 @@ setup_modules()
         info  "Look at $LOG to find out what went wrong"
         return 0
     fi
-    log "Building the graphics driver module."
-    if -n "$have_vboxvideo_build" -a ! myerr=`$BUILDINTMP \
-        --use-module-symvers /tmp/vboxguest-Module.symvers \
-        --module-source $MODULE_SRC/vboxvideo \
-        --no-print-directory install 2>&1`; then
-        module_build_log "$myerr"
-        info "Look at $LOG to find out what went wrong"
+
+    if [ -n "$have_vboxvideo_build" ]; then
+        log "Building the graphics driver module."
+        if ! myerr=`$BUILDINTMP \
+            --use-module-symvers /tmp/vboxguest-Module.symvers \
+            --module-source $MODULE_SRC/vboxvideo \
+            --no-print-directory install 2>&1`; then
+            module_build_log "$myerr"
+            info "Look at $LOG to find out what went wrong"
+        fi
     fi
     [ -d /etc/depmod.d ] || mkdir /etc/depmod.d
 
