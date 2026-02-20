@@ -1,4 +1,4 @@
-/* $Id: initterm-r0drv-linux.c 112597 2026-01-15 09:41:07Z knut.osmundsen@oracle.com $ */
+/* $Id: initterm-r0drv-linux.c 113112 2026-02-20 18:30:16Z klaus.espenlaub@oracle.com $ */
 /** @file
  * IPRT - Initialization & Termination, R0 Driver, Linux.
  */
@@ -59,6 +59,11 @@ static DECLARE_TASK_QUEUE(g_rtR0LnxWorkQueue);
 /** Pointer to init_mm, if we have it.
  * This is a special mm structure used to manage the kernel address space. */
 struct mm_struct *g_pLnxInitMm = NULL;
+
+#if RTLNX_VER_MIN(6,19,0)
+/** Pointer to __flush_tlb_all kernel symbol. */
+void (*g_pfnLinuxFlushTlbAll)(void);
+#endif
 
 
 /**
@@ -136,6 +141,11 @@ DECLHIDDEN(int) rtR0InitNative(void)
             printk("rtR0InitNative: g_pLnxInitMm=%p\n", g_pLnxInitMm);
 
             RTR0DbgKrnlInfoRelease(hKrnlInfo);
+# if RTLNX_VER_MIN(6,19,0)
+            g_pfnLinuxFlushTlbAll = __symbol_get("__flush_tlb_all");
+            if (!RT_VALID_PTR(g_pfnLinuxFlushTlbAll))
+                printk("rtR0InitNative: can't load __flush_tlb_all\n");
+# endif
         }
         else
             printk("rtR0InitNative: RTR0DbgKrnlInfoOpen failed: %d\n", rc);
@@ -150,6 +160,12 @@ DECLHIDDEN(int) rtR0InitNative(void)
 DECLHIDDEN(void) rtR0TermNative(void)
 {
     IPRT_LINUX_SAVE_EFL_AC();
+
+# if RTLNX_VER_MIN(6,19,0)
+    if (RT_VALID_PTR(g_pfnLinuxFlushTlbAll))
+        symbol_put_addr(g_pfnLinuxFlushTlbAll);
+    g_pfnLinuxFlushTlbAll = NULL;
+#endif
 
     rtR0LnxWorkqueueFlush();
 #if RTLNX_VER_MIN(2,5,41)

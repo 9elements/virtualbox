@@ -1,4 +1,4 @@
-/* $Id: memobj-r0drv-linux.c 112513 2026-01-13 15:27:41Z knut.osmundsen@oracle.com $ */
+/* $Id: memobj-r0drv-linux.c 113112 2026-02-20 18:30:16Z klaus.espenlaub@oracle.com $ */
 /** @file
  * IPRT - Ring-0 Memory Objects, Linux.
  */
@@ -181,7 +181,6 @@ static const struct
 *   Internal Functions                                                                                                           *
 *********************************************************************************************************************************/
 static void rtR0MemObjLinuxFreePages(PRTR0MEMOBJLNX pMemLnx);
-
 
 
 /**
@@ -2108,6 +2107,17 @@ DECLHIDDEN(int) rtR0MemObjNativeMapUser(PPRTR0MEMOBJINTERNAL ppMem, RTR0MEMOBJ p
     return rc;
 }
 
+#if defined(IPRT_USE_ALLOC_VM_AREA_FOR_EXEC) || defined(IPRT_USE_APPLY_TO_PAGE_RANGE_FOR_EXEC)
+static void rtR0MemObjLinuxFlushTlbAll(void)
+{
+# if RTLNX_VER_MIN(6,19,0)
+    if (RT_LIKELY(RT_VALID_PTR(g_pfnLinuxFlushTlbAll)))
+        g_pfnLinuxFlushTlbAll();
+# else
+    __flush_tlb_all();
+# endif
+}
+#endif
 
 DECLHIDDEN(int) rtR0MemObjNativeProtect(PRTR0MEMOBJINTERNAL pMem, size_t offSub, size_t cbSub, uint32_t fProt)
 {
@@ -2128,7 +2138,7 @@ DECLHIDDEN(int) rtR0MemObjNativeProtect(PRTR0MEMOBJINTERNAL pMem, size_t offSub,
             set_pte(papPtes[i], mk_pte(pMemLnx->apPages[i], fPg));
         }
         preempt_disable();
-        __flush_tlb_all();
+        rtR0MemObjLinuxFlushTlbAll();
         preempt_enable();
         return VINF_SUCCESS;
     }
@@ -2174,7 +2184,7 @@ DECLHIDDEN(int) rtR0MemObjNativeProtect(PRTR0MEMOBJINTERNAL pMem, size_t offSub,
             flush_icache_range((uintptr_t)pMemLnx->Core.pv + offSub, cbSub);
 #  if defined(RT_ARCH_AMD64) || defined(RT_ARCH_X86) /* flush_tlb_kernel_range is not exported, but __flush_tlb_all is. */
         preempt_disable();
-        __flush_tlb_all();
+        rtR0MemObjLinuxFlushTlbAll();
         preempt_enable();
 #  else
         flush_tlb_kernel_range((uintptr_t)pMemLnx->Core.pv + offSub, cbSub);
