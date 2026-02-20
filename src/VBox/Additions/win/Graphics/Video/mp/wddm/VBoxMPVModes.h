@@ -1,4 +1,4 @@
-/* $Id: VBoxMPVModes.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: VBoxMPVModes.h 113109 2026-02-20 17:03:12Z vitali.pelenjow@oracle.com $ */
 /** @file
  * VBox WDDM Miniport driver
  */
@@ -31,6 +31,12 @@
 # pragma once
 #endif
 
+/* A temporary development define. Allows to set a preferred video mode for each display
+ * and resize displays from VBoxService when the guest is in the login screen
+ * (VBoxTray is not running yet).
+ */
+#define VBOXWDDM_NEW_VIDPN
+
 //#include "../../common/VBoxVideoTools.h"
 
 #include "VBoxMPSa.h"
@@ -46,8 +52,11 @@ DECLINLINE(RTRECTSIZE) vboxU642RSize2(uint64_t size) { return *_CR_TYPECAST(RTRE
 int VBoxWddmVModesInit(PVBOXMP_DEVEXT pExt);
 void VBoxWddmVModesCleanup();
 const CR_SORTARRAY* VBoxWddmVModesGet(PVBOXMP_DEVEXT pExt, uint32_t u32Target);
+#ifdef VBOXWDDM_NEW_VIDPN
+void VBoxWddmVModesQueryPreferred(PVBOXMP_DEVEXT pExt, uint32_t u32Target, RTRECTSIZE *pResolution);
+#endif
 int VBoxWddmVModesRemove(PVBOXMP_DEVEXT pExt, uint32_t u32Target, const RTRECTSIZE *pResolution);
-int VBoxWddmVModesAdd(PVBOXMP_DEVEXT pExt, uint32_t u32Target, const RTRECTSIZE *pResolution, BOOLEAN fTrancient);
+int VBoxWddmVModesAdd(PVBOXMP_DEVEXT pExt, uint32_t u32Target, const RTRECTSIZE *pResolution, BOOLEAN fTrancient, BOOLEAN fPreferred);
 
 NTSTATUS VBoxWddmChildStatusReportReconnected(PVBOXMP_DEVEXT pDevExt, uint32_t iChild);
 NTSTATUS VBoxWddmChildStatusConnect(PVBOXMP_DEVEXT pDevExt, uint32_t iChild, BOOLEAN fConnect);
