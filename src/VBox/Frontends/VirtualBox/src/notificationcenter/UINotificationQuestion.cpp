@@ -1,4 +1,4 @@
-/* $Id: UINotificationQuestion.cpp 113121 2026-02-23 13:36:42Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationQuestion.cpp 113123 2026-02-23 14:08:14Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationQuestion implementations.
  */
@@ -48,7 +48,7 @@ bool UINotificationQuestion::confirmSnapshotRemoval(const QString &strName)
                                                    "recovered.</p></p>Are you sure you want to delete the selected snapshot "
                                                    "<b>%1</b>?</p>").arg(strName),
         QStringList() << QString() /* cancel button text */
-                      << tr("Delete") /* ok button text */);
+                      << QApplication::translate("UIMessageCenter", "Delete") /* ok button text */);
 }
 
 UINotificationQuestion::UINotificationQuestion(const QString &strName,
