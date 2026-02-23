@@ -1,4 +1,4 @@
-/* $Id: UINotificationCenter.cpp 113129 2026-02-23 16:07:59Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationCenter.cpp 113131 2026-02-23 16:45:02Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationCenter class implementation.
  */
@@ -919,7 +919,10 @@ void UINotificationCenter::paintBackground(QPainter *pPainter)
 
     /* Adjust rectangle: */
     QRect rectAdjusted = rect();
-    rectAdjusted.adjust(iMetric, iMetric, 0, -iMetric);
+    if (!isExtendedMode())
+        rectAdjusted.adjust(iMetric, iMetric, 0, -iMetric);
+    else
+        rectAdjusted.adjust(iMetric, 0, -iMetric, -iMetric);
 
     /* Paint background: */
     pPainter->fillRect(rectAdjusted, backgroundColor);
@@ -939,44 +942,88 @@ void UINotificationCenter::paintFrame(QPainter *pPainter)
     /* Acquire pixel metric: */
     const int iMetric = QApplication::style()->pixelMetric(QStyle::PM_SmallIconSize) / 4;
 
-    /* Top-left corner: */
-    QRadialGradient grad1(QPointF(iMetric, iMetric), iMetric);
+    if (!isExtendedMode())
     {
-        grad1.setColorAt(0, color2);
-        grad1.setColorAt(1, color1);
-    }
-    /* Bottom-left corner: */
-    QRadialGradient grad2(QPointF(iMetric, height() - iMetric), iMetric);
-    {
-        grad2.setColorAt(0, color2);
-        grad2.setColorAt(1, color1);
-    }
+        /* Top-left corner: */
+        QRadialGradient grad1(QPointF(iMetric, iMetric), iMetric);
+        {
+            grad1.setColorAt(0, color2);
+            grad1.setColorAt(1, color1);
+        }
+        /* Bottom-left corner: */
+        QRadialGradient grad2(QPointF(iMetric, height() - iMetric), iMetric);
+        {
+            grad2.setColorAt(0, color2);
+            grad2.setColorAt(1, color1);
+        }
 
-    /* Top line: */
-    QLinearGradient grad3(QPointF(iMetric, 0), QPointF(iMetric, iMetric));
-    {
-        grad3.setColorAt(0, color1);
-        grad3.setColorAt(1, color2);
-    }
-    /* Bottom line: */
-    QLinearGradient grad4(QPointF(iMetric, height()), QPointF(iMetric, height() - iMetric));
-    {
-        grad4.setColorAt(0, color1);
-        grad4.setColorAt(1, color2);
-    }
-    /* Left line: */
-    QLinearGradient grad5(QPointF(0, height() - iMetric), QPointF(iMetric, height() - iMetric));
-    {
-        grad5.setColorAt(0, color1);
-        grad5.setColorAt(1, color2);
-    }
+        /* Top line: */
+        QLinearGradient grad3(QPointF(iMetric, 0), QPointF(iMetric, iMetric));
+        {
+            grad3.setColorAt(0, color1);
+            grad3.setColorAt(1, color2);
+        }
+        /* Bottom line: */
+        QLinearGradient grad4(QPointF(iMetric, height()), QPointF(iMetric, height() - iMetric));
+        {
+            grad4.setColorAt(0, color1);
+            grad4.setColorAt(1, color2);
+        }
+        /* Left line: */
+        QLinearGradient grad5(QPointF(0, height() - iMetric), QPointF(iMetric, height() - iMetric));
+        {
+            grad5.setColorAt(0, color1);
+            grad5.setColorAt(1, color2);
+        }
 
-    /* Paint shape/shadow: */
-    pPainter->fillRect(QRect(0,       0,                  iMetric,           iMetric),                grad1);
-    pPainter->fillRect(QRect(0,       height() - iMetric, iMetric,           iMetric),                grad2);
-    pPainter->fillRect(QRect(iMetric, 0,                  width() - iMetric, iMetric),                grad3);
-    pPainter->fillRect(QRect(iMetric, height() - iMetric, width() - iMetric, iMetric),                grad4);
-    pPainter->fillRect(QRect(0,       iMetric,            iMetric,           height() - iMetric * 2), grad5);
+        /* Paint shape/shadow: */
+        pPainter->fillRect(QRect(0,       0,                  iMetric,           iMetric),                grad1);
+        pPainter->fillRect(QRect(0,       height() - iMetric, iMetric,           iMetric),                grad2);
+        pPainter->fillRect(QRect(iMetric, 0,                  width() - iMetric, iMetric),                grad3);
+        pPainter->fillRect(QRect(iMetric, height() - iMetric, width() - iMetric, iMetric),                grad4);
+        pPainter->fillRect(QRect(0,       iMetric,            iMetric,           height() - iMetric * 2), grad5);
+    }
+    else
+    {
+        /* Bottom-left corner: */
+        QRadialGradient grad1(QPointF(iMetric, height() - iMetric), iMetric);
+        {
+            grad1.setColorAt(0, color2);
+            grad1.setColorAt(1, color1);
+        }
+        /* Bottom-right corner: */
+        QRadialGradient grad2(QPointF(width() - iMetric, height() - iMetric), iMetric);
+        {
+            grad2.setColorAt(0, color2);
+            grad2.setColorAt(1, color1);
+        }
+
+        /* Left line: */
+        QLinearGradient grad3(QPointF(0, height() - iMetric), QPointF(iMetric, height() - iMetric));
+        {
+            grad3.setColorAt(0, color1);
+            grad3.setColorAt(1, color2);
+        }
+        /* Right line: */
+        QLinearGradient grad4(QPointF(width(), 0), QPointF(width() - iMetric, 0));
+        {
+            grad4.setColorAt(0, color1);
+            grad4.setColorAt(1, color2);
+        }
+        /* Bottom line: */
+        QLinearGradient grad5(QPointF(iMetric, height()), QPointF(iMetric, height() - iMetric));
+        {
+            grad5.setColorAt(0, color1);
+            grad5.setColorAt(1, color2);
+        }
+
+        /* Paint shape/shadow: */
+        pPainter->fillRect(QRect(0,                 height() - iMetric, iMetric,               iMetric),            grad1);
+        pPainter->fillRect(QRect(width() - iMetric, height() - iMetric, iMetric,               iMetric),            grad2);
+        pPainter->fillRect(QRect(0,                 0,                  iMetric,               height() - iMetric), grad3);
+        pPainter->fillRect(QRect(width() - iMetric, 0,                  width(),               height() - iMetric), grad4);
+        pPainter->fillRect(QRect(iMetric,           height() - iMetric, width() - iMetric * 2, iMetric),            grad5);
+    }
 }
 
 void UINotificationCenter::setExtendedMode(bool fExtended)
