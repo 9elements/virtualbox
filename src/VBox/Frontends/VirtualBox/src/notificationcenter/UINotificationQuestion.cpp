@@ -1,4 +1,4 @@
-/* $Id: UINotificationQuestion.cpp 113123 2026-02-23 14:08:14Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationQuestion.cpp 113124 2026-02-23 14:09:43Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationQuestion implementations.
  */
@@ -117,7 +117,7 @@ int UINotificationQuestion::createBlockingQuestionInt(UINotificationCenter *pPar
 
     /* Check if question suppressed: */
     if (isSuppressed(strInternalName))
-        return 0;
+        return Question::Result_Accept;
 
     /* Create question finally: */
     QPointer<UINotificationQuestion> pQuestion = new UINotificationQuestion(strName,
