@@ -1,4 +1,4 @@
-/* $Id: CPUMR3-x86.cpp 113140 2026-02-24 11:12:44Z alexander.eichner@oracle.com $ */
+/* $Id: CPUMR3-x86.cpp 113141 2026-02-24 12:21:50Z knut.osmundsen@oracle.com $ */
 /** @file
  * CPUM - CPU Monitor / Manager.
  */
@@ -2157,9 +2157,20 @@ VMMR3DECL(void) CPUMR3ResetCpu(PVM pVM, PVMCPU pVCpu)
 *   Saved State                                                                                                                  *
 *********************************************************************************************************************************/
 
+/**
+ * Saved relevant VM configuration fields.
+ */
+static int cpumR3SaveConfig(PVM pVM, PSSMHANDLE pSSM)
+{
+    SSMR3PutBool(pSSM, pVM->cpum.s.GuestFeatures.fSvm);
+    return SSMR3PutBool(pSSM, pVM->cpum.s.GuestFeatures.fVmx);
+}
+
+
 DECLCALLBACK(int) cpumR3LiveExecTarget(PVM pVM, PSSMHANDLE pSSM, uint32_t uPass)
 {
     AssertReturn(uPass == 0, VERR_SSM_UNEXPECTED_PASS);
+    cpumR3SaveConfig(pVM, pSSM);
     cpumR3SaveCpuId(pVM, pSSM);
     return VINF_SSM_DONT_CALL_AGAIN;
 }
@@ -2168,7 +2179,12 @@ DECLCALLBACK(int) cpumR3LiveExecTarget(PVM pVM, PSSMHANDLE pSSM, uint32_t uPass)
 DECLCALLBACK(int) cpumR3SaveExecTarget(PVM pVM, PSSMHANDLE pSSM)
 {
     /*
-     * Save.
+     * Save configuration.
+     */
+    cpumR3SaveConfig(pVM, pSSM);
+
+    /*
+     * Save state.
      */
     SSMR3PutU32(pSSM, pVM->cCpus);
     SSMR3PutU32(pSSM, sizeof(pVM->apCpusR3[0]->cpum.s.GuestMsrs.msr));
@@ -2300,7 +2316,8 @@ DECLCALLBACK(int) cpumR3LoadExecTarget(PVM pVM, PSSMHANDLE pSSM, uint32_t uVersi
     /*
      * Validate version.
      */
-    if (    uVersion != CPUM_SAVED_STATE_VERSION_HWVIRT_VMX_4
+    if (    uVersion != CPUM_SAVED_STATE_VERSION_HWVIRT_CFG
+        &&  uVersion != CPUM_SAVED_STATE_VERSION_HWVIRT_VMX_4
         &&  uVersion != CPUM_SAVED_STATE_VERSION_HWVIRT_VMX_3
         &&  uVersion != CPUM_SAVED_STATE_VERSION_PAE_PDPES
         &&  uVersion != CPUM_SAVED_STATE_VERSION_HWVIRT_VMX_2
@@ -2320,6 +2337,28 @@ DECLCALLBACK(int) cpumR3LoadExecTarget(PVM pVM, PSSMHANDLE pSSM, uint32_t uVersi
     {
         AssertMsgFailed(("cpumR3LoadExec: Invalid version uVersion=%d!\n", uVersion));
         return VERR_SSM_UNSUPPORTED_DATA_UNIT_VERSION;
+    }
+
+    /*
+     * Check saved configuration against actual config.
+     */
+    if (uVersion >= CPUM_SAVED_STATE_VERSION_HWVIRT_CFG)
+    {
+        bool fSvm = false;
+        SSMR3GetBool(pSSM, &fSvm);
+
+        bool fVmx = false;
+        rc = SSMR3GetBool(pSSM, &fVmx);
+        AssertRCReturn(rc, rc);
+
+        if (fSvm != (bool)pVM->cpum.s.GuestFeatures.fSvm)
+            /** @todo Unconfigure SVM if the saved state has it disabled. */
+            return SSMR3SetCfgError(pSSM, RT_SRC_POS, "Saved state has guest SVM %s, while the VM is configured with it %s",
+                                    fSvm ? "enabled" : "disabled", pVM->cpum.s.GuestFeatures.fSvm ?  "enabled" : "disabled");
+        if (fVmx != (bool)pVM->cpum.s.GuestFeatures.fVmx)
+            /** @todo Unconfigure VT-x if the saved state has it disabled. */
+            return SSMR3SetCfgError(pSSM, RT_SRC_POS, "Saved state has guest VT-x %s, while the VM is configured with it %s",
+                                    fVmx ? "enabled" : "disabled", pVM->cpum.s.GuestFeatures.fVmx ?  "enabled" : "disabled");
     }
 
     if (uPass == SSM_PASS_FINAL)
