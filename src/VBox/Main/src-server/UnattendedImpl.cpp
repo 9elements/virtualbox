@@ -1,4 +1,4 @@
-/* $Id: UnattendedImpl.cpp 112963 2026-02-11 20:53:37Z klaus.espenlaub@oracle.com $ */
+/* $Id: UnattendedImpl.cpp 113152 2026-02-24 17:03:07Z serkan.bayraktar@oracle.com $ */
 /** @file
  * Unattended class implementation
  */
@@ -233,12 +233,12 @@ static const OsVersionMapEntry os_version_map[] = {
     { VBOXOSTYPE_Debian_x64,   10,  VBOXOSTYPE_Debian10_x64  },
     { VBOXOSTYPE_Debian_x64,   11,  VBOXOSTYPE_Debian11_x64  },
     { VBOXOSTYPE_Debian_x64,   12,  VBOXOSTYPE_Debian12_x64  },
-    { VBOXOSTYPE_Debian_x64,   13,  VBOXOSTYPE_Debian12_x64  },
+    { VBOXOSTYPE_Debian_x64,   13,  VBOXOSTYPE_Debian13_x64  },
     { VBOXOSTYPE_Debian_arm64, 9,   VBOXOSTYPE_Debian9_arm64 },
     { VBOXOSTYPE_Debian_arm64, 10,  VBOXOSTYPE_Debian10_arm64},
     { VBOXOSTYPE_Debian_arm64, 11,  VBOXOSTYPE_Debian11_arm64},
     { VBOXOSTYPE_Debian_arm64, 12,  VBOXOSTYPE_Debian12_arm64},
-    { VBOXOSTYPE_Debian_arm64, 13,  VBOXOSTYPE_Debian12_arm64},
+    { VBOXOSTYPE_Debian_arm64, 13,  VBOXOSTYPE_Debian13_arm64},
 };
 
 /**
