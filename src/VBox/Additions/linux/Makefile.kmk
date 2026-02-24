@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $
+# $Id: Makefile.kmk 113143 2026-02-24 12:34:32Z vadim.galitsyn@oracle.com $
 ## @file
 # Makefile for the linux guest additions base directory.
 #
@@ -356,9 +356,12 @@ OTHER_CLEAN += \
 
 
 #
-# Build test for the Guest Additions kernel modules (kmk check).
+# Build test for the Guest Additions' vboxvideo kernel module (kmk check).
+# We deprecated module starting from kernel 7.0, so only build
+# it for earlier versions.
 #
-$(evalcall2 VBOX_LINUX_KMOD_TEST_BUILD_RULE_FN,vboxvideo-src,,)
+KERN_MAJ=$(shell uname -r | cut -d . -f1)
+$(if-expr $(KERN_MAJ) < 7,$(evalcall2 VBOX_LINUX_KMOD_TEST_BUILD_RULE_FN,vboxvideo-src,,),)
 
 
 include $(FILE_KBUILD_SUB_FOOTER)
