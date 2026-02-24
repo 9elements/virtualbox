@@ -1,4 +1,4 @@
-/* $Id: UINotificationQuestion.cpp 113135 2026-02-24 10:31:45Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationQuestion.cpp 113139 2026-02-24 11:03:16Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationQuestion implementations.
  */
@@ -35,6 +35,17 @@
 
 /* static */
 QMap<QString, QUuid> UINotificationQuestion::m_questions = QMap<QString, QUuid>();
+
+/* static */
+bool UINotificationQuestion::confirmCreatingPath(const QString &strPath)
+{
+    return createBlockingQuestion(
+        QApplication::translate("UIMessageCenter", "Create machine path?"),
+        QApplication::translate("UIMessageCenter", "<p>Selected path doesn't exist:<br>%1</p>"
+                                "<p>Would you like to create it?</p>").arg(strPath),
+        QStringList(),
+        true /* Ok by default? */);
+}
 
 /* static */
 bool UINotificationQuestion::confirmResetMachine(const QString &strNames)

@@ -1,4 +1,4 @@
-/* $Id: UIMachineAttributeSetter.cpp 112908 2026-02-09 15:53:11Z sergey.dubov@oracle.com $ */
+/* $Id: UIMachineAttributeSetter.cpp 113139 2026-02-24 11:03:16Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMachineAttributeSetter namespace implementation.
  */
@@ -34,7 +34,6 @@
 #include "UIBootOrderEditor.h"
 #include "UILocalMachineStuff.h"
 #include "UIMachineAttributeSetter.h"
-#include "UIMessageCenter.h"
 #include "UINotificationCenter.h"
 
 /* COM includes: */
@@ -330,7 +329,7 @@ void UIMachineAttributeSetter::setMachineLocation(const QUuid &uMachineId,
     /* Make sure location exists, propose to create one, exit otherwise: */
     else if (!fi.exists())
     {
-        if (!msgCenter().confirmCreatingPath(strLocation))
+        if (!UINotificationQuestion::confirmCreatingPath(strLocation))
             return;
         QDir().mkpath(strLocation);
     }

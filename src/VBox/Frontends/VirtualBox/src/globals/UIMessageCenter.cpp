@@ -1,4 +1,4 @@
-/* $Id: UIMessageCenter.cpp 113130 2026-02-23 16:10:01Z sergey.dubov@oracle.com $ */
+/* $Id: UIMessageCenter.cpp 113139 2026-02-24 11:03:16Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMessageCenter class implementation.
  */
@@ -619,17 +619,6 @@ bool UIMessageCenter::cannotRemountMedium(const CMachine &machine, const UIMediu
           strMessage.arg(medium.isHostDrive() ? medium.name() : medium.location(), CMachine(machine).GetName()),
           UIErrorString::formatErrorInfo(machine));
     return false;
-}
-
-bool UIMessageCenter::confirmCreatingPath(const QString &strPath, QWidget *pParent /* = 0 */)
-{
-    return questionBinary(pParent, MessageType_Question,
-                          tr("<p>Selected path doesn't exist:<br>%1</p>"
-                             "<p>Would you like to create it?</p>").arg(strPath),
-                          0 /* auto-confirm id */,
-                          QString() /* ok button text */,
-                          QString() /* cancel button text */,
-                          false /* ok button by default? */);
 }
 
 bool UIMessageCenter::confirmSettingsDiscarding(QWidget *pParent /* = 0 */) const

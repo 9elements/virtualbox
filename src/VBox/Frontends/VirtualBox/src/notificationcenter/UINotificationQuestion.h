@@ -1,4 +1,4 @@
-/* $Id: UINotificationQuestion.h 113135 2026-02-24 10:31:45Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationQuestion.h 113139 2026-02-24 11:03:16Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationQuestion declarations.
  */
@@ -72,6 +72,9 @@ public:
 
     /** Returns whether object is done. */
     virtual bool isDone() const RT_OVERRIDE RT_FINAL { return m_fDone; }
+
+    /** Confirms creation of the @a strPath for the machine to move in. */
+    static bool confirmCreatingPath(const QString &strPath);
 
     /** Confirms reset for the machine with @a strNames specified. */
     static bool confirmResetMachine(const QString &strNames);
