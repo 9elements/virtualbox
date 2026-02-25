@@ -2,27 +2,22 @@
 autoinstall:
   # version is an Autoinstall required field.
   version: 1
-
   apt:
     fallback: offline-install
-
   locale: @@VBOX_INSERT_LOCALE@@
   keyboard:
     layout: us
-
   shutdown: reboot
-
   storage:
     layout:
       name: direct
     swap:
       size: 0
-
 @@VBOX_COND_HAS_PROXY@@
   proxy: @@VBOX_INSERT_PROXY@@
 @@VBOX_COND_END@@
-
 @@VBOX_COND_IS_INSTALLING_ADDITIONS@@
+#todo packages stuff needs to be tested
   # Stuff we need to build Guest Additions modules.
   packages:
     - build-essential
@@ -30,52 +25,36 @@ autoinstall:
     - perl
     - make
 @@VBOX_COND_END@@
+  identity:
+    hostname: '@@VBOX_INSERT_HOSTNAME_WITHOUT_DOMAIN@@'
+    username: '@@VBOX_INSERT_USER_LOGIN@@'
+    realname: '@@VBOX_INSERT_USER_LOGIN@@'
+    password: '@@VBOX_INSERT_USER_PASSWORD_SHACRYPT512@@'
+# todo. maybe we need to handle group stuff as late command, as well. to be tested
+# @@VBOX_COND_IS_INSTALLING_ADDITIONS@@
+#         groups: sudo, vboxsf
+# @@VBOX_COND_END@@
+
+  user-data:
+@@VBOX_COND_IS_RTC_USING_UTC@@
+    timezone: Etc/UTC
+@@VBOX_COND_ELSE@@
+    timezone: @@VBOX_INSERT_TIME_ZONE_UX@@
+@@VBOX_COND_END@@
+    ntp:
+@@VBOX_COND_IS_INSTALLING_ADDITIONS@@
+      enabled: false
+@@VBOX_COND_END@@
+@@VBOX_COND_IS_NOT_INSTALLING_ADDITIONS@@
+      enabled: true
+@@VBOX_COND_END@@
 
   # Custom Commands.
   late-commands:
+#todo the following command seems to be failing to set root password correctly.
+@@VBOX_COND_IS_ROOT_PASSWORD_SET@@
+    - curtin in-target --target=/target -- sh -c 'echo "root:@@VBOX_INSERT_ROOT_PASSWORD_SHACRYPT512@@" | chpasswd -e'
+@@VBOX_COND_END@@
     - cp /cdrom/vboxpostinstall.sh /target/root/vboxpostinstall.sh
     - chmod +x /target/root/vboxpostinstall.sh
     - curtin in-target --target=/target -- /bin/bash /root/vboxpostinstall.sh --direct
-
-  # Additional cloud-init configuration affecting the target system can be supplied
-  # underneath a user-data section inside of autoinstall.
-  user-data:
-    hostname: '@@VBOX_INSERT_HOSTNAME_WITHOUT_DOMAIN@@'
-    users:
-@@VBOX_COND_IS_ROOT_PASSWORD_SET@@
-      - name: root
-        primary_group: root
-        groups: sudo
-        lock-passwd: false
-        passwd: '@@VBOX_INSERT_USER_PASSWORD_SHACRYPT512@@'
-        uid: 0
-@@VBOX_COND_ELSE@@
-        # skip root part in case no root password is set explicitly, which can be done only by CLI client as of now
-@@VBOX_COND_END@@
-      - name: '@@VBOX_INSERT_USER_LOGIN@@'
-        gecos: '@@VBOX_INSERT_USER_LOGIN@@'
-        primary_group: '@@VBOX_INSERT_USER_LOGIN@@'
-@@VBOX_COND_IS_INSTALLING_ADDITIONS@@
-        groups: sudo, vboxsf
-@@VBOX_COND_END@@
-@@VBOX_COND_IS_NOT_INSTALLING_ADDITIONS@@
-        groups: sudo
-@@VBOX_COND_END@@
-        lock-passwd: false
-        shell: /bin/bash
-        passwd: '@@VBOX_INSERT_USER_PASSWORD_SHACRYPT512@@'
-
-@@VBOX_COND_IS_RTC_USING_UTC@@
-    timezone: Etc/UTC
-@@VBOX_COND_END@@
-@@VBOX_COND_IS_NOT_RTC_USING_UTC@@
-    timezone: @@VBOX_INSERT_TIME_ZONE_UX@@
-@@VBOX_COND_END@@
-
-    ntp:
-@@VBOX_COND_IS_INSTALLING_ADDITIONS@@
-        enabled: false
-@@VBOX_COND_END@@
-@@VBOX_COND_IS_NOT_INSTALLING_ADDITIONS@@
-        enabled: true
-@@VBOX_COND_END@@
