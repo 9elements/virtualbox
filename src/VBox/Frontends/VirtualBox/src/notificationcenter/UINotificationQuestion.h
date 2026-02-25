@@ -1,4 +1,4 @@
-/* $Id: UINotificationQuestion.h 113160 2026-02-25 14:16:00Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationQuestion.h 113161 2026-02-25 15:12:07Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationQuestion declarations.
  */
@@ -75,6 +75,9 @@ public:
 
     /** Confirms creation of the @a strPath for the machine to move in. */
     static bool confirmCreatingPath(const QString &strPath);
+
+    /** Confirm checking inaccessible media. */
+    static bool confirmCheckingInaccessibleMedia();
 
     /** Confirms reset for the machine with @a strNames specified. */
     static bool confirmResetMachine(const QString &strNames);

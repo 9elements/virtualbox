@@ -1,4 +1,4 @@
-/* $Id: UIMessageCenter.cpp 113160 2026-02-25 14:16:00Z sergey.dubov@oracle.com $ */
+/* $Id: UIMessageCenter.cpp 113161 2026-02-25 15:12:07Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMessageCenter class implementation.
  */
@@ -656,19 +656,6 @@ bool UIMessageCenter::confirmSettingsReloading(QWidget *pParent /* = 0 */) const
     setWarningShown("confirmSettingsReloading", false);
 
     return fResult;
-}
-
-bool UIMessageCenter::warnAboutInaccessibleMedia() const
-{
-    return questionBinary(0, MessageType_Warning,
-                          tr("<p>One or more disk image files are not currently accessible. As a result, you will "
-                             "not be able to operate virtual machines that use these files until "
-                             "they become accessible later.</p>"
-                             "<p>Press <b>Check</b> to open the Virtual Media Manager window and "
-                             "see which files are inaccessible, or press <b>Ignore</b> to "
-                             "ignore this message.</p>"),
-                          "warnAboutInaccessibleMedia",
-                          tr("Check", "inaccessible media message box"), tr("Ignore"));
 }
 
 bool UIMessageCenter::confirmDiscardSavedState(const QString &strNames) const

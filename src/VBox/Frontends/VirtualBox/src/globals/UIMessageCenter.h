@@ -1,4 +1,4 @@
-/* $Id: UIMessageCenter.h 113160 2026-02-25 14:16:00Z sergey.dubov@oracle.com $ */
+/* $Id: UIMessageCenter.h 113161 2026-02-25 15:12:07Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMessageCenter class declaration.
  */
@@ -289,8 +289,6 @@ public:
 
     /** @name VirtualBox Manager warnings.
       * @{ */
-        bool warnAboutInaccessibleMedia() const;
-
         bool confirmDiscardSavedState(const QString &strNames) const;
         bool confirmTerminateCloudInstance(const QString &strNames) const;
         bool confirmACPIShutdownMachine(const QString &strNames) const;

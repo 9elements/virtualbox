@@ -1,4 +1,4 @@
-/* $Id: UINotificationQuestion.cpp 113160 2026-02-25 14:16:00Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationQuestion.cpp 113161 2026-02-25 15:12:07Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationQuestion implementations.
  */
@@ -43,6 +43,22 @@ bool UINotificationQuestion::confirmCreatingPath(const QString &strPath)
         QApplication::translate("UIMessageCenter", "Create machine path?"),
         QApplication::translate("UIMessageCenter", "<p>Selected path doesn't exist:<br>%1</p>"
                                 "<p>Would you like to create it?</p>").arg(strPath));
+}
+
+/* static */
+bool UINotificationQuestion::confirmCheckingInaccessibleMedia()
+{
+    return createBlockingQuestion(
+        QApplication::translate("UIMessageCenter", "Check inaccessible media?"),
+        QApplication::translate("UIMessageCenter", "<p>One or more disk image files are not currently accessible. As a result, "
+                                                   "you will not be able to operate virtual machines that use these files until "
+                                                   "they become accessible later.</p><p>Press <b>Check</b> to open the Virtual "
+                                                   "Media Manager window and see which files are inaccessible, or press "
+                                                   "<b>Ignore</b> to ignore this message.</p>"),
+        QStringList() << QApplication::translate("UIMessageCenter", "Ignore") /* cancel button text */
+                      << QApplication::translate("UIMessageCenter", "Check", "inaccessible media") /* ok button text */,
+        true /* Ok by default? */,
+        "confirmCheckingInaccessibleMedia" /* internal name */);
 }
 
 /* static */
