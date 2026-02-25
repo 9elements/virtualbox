@@ -1,4 +1,4 @@
-/* $Id: VMMDev.cpp 112103 2025-12-10 12:30:59Z dmitrii.grigorev@oracle.com $ */
+/* $Id: VMMDev.cpp 113165 2026-02-25 19:51:25Z vitali.pelenjow@oracle.com $ */
 /** @file
  * VMMDev - Guest <-> VMM/Host communication device.
  */
@@ -1515,6 +1515,7 @@ static int vmmdevReqHandler_GetDisplayChangeRequest(PVMMDEV pThis, VMMDevRequest
     {
         /* Current request has been read at least once. */
         pDispRequest->fPending = false;
+        pDispRequest->fAcknowledged = true;
 
         /* Remember which resolution the client has queried, subsequent reads
          * will return the same values. */
@@ -1587,6 +1588,7 @@ static int vmmdevReqHandler_GetDisplayChangeRequest2(PPDMDEVINS pDevIns, PVMMDEV
         {
             /* Current request has been read at least once. */
             pDispRequest->fPending = false;
+            pDispRequest->fAcknowledged = true;
 
             /* Remember which resolution the client has queried, subsequent reads
              * will return the same values. */
@@ -1674,6 +1676,7 @@ static int vmmdevReqHandler_GetDisplayChangeRequestEx(PPDMDEVINS pDevIns, PVMMDE
         {
             /* Current request has been read at least once. */
             pDispRequest->fPending = false;
+            pDispRequest->fAcknowledged = true;
 
             /* Remember which resolution the client has queried, subsequent reads
              * will return the same values. */
@@ -1716,7 +1719,7 @@ static int vmmdevReqHandler_GetDisplayChangeRequestEx(PPDMDEVINS pDevIns, PVMMDE
 
 
 /**
- * Handles VMMDevReq_GetDisplayChangeRequestMulti.
+ * Handles VMMDevReq_GetDisplayChangeRequestMulti and VMMDevReq_GetDisplayChangeRequestMulti2.
  *
  * @returns VBox status code that the guest should see.
  * @param   pThis           The VMMDev shared instance data.
@@ -1758,6 +1761,7 @@ static int vmmdevReqHandler_GetDisplayChangeRequestMulti(PVMMDEV pThis, VMMDevRe
 
                 cDisplaysOut++;
                 pDCR->fPending = false;
+                pDCR->fAcknowledged = true;
             }
         }
 
@@ -1777,6 +1781,12 @@ static int vmmdevReqHandler_GetDisplayChangeRequestMulti(PVMMDEV pThis, VMMDevRe
                 &pDCR->lastReadDisplayChangeDef :
                 &pDCR->displayChangeDef;
             pReq->aDisplays[i] = *pDisplayDef;
+            if (pReqHdr->requestType == VMMDevReq_GetDisplayChangeRequestMulti2)
+            {
+                /* Let the guest know whether this was lastReadDisplayChangeDef, so the guest does not have to guess */
+                if (pDCR->fAcknowledged)
+                    pReq->aDisplays[i].fDisplayFlags |= VMMDEV_DISPLAY_CHGREQ;
+            }
         }
     }
 
@@ -2933,6 +2943,7 @@ static VBOXSTRICTRC vmmdevReqDispatcher(PPDMDEVINS pDevIns, PVMMDEV pThis, PVMMD
             break;
 
         case VMMDevReq_GetDisplayChangeRequestMulti:
+        case VMMDevReq_GetDisplayChangeRequestMulti2:
             pReqHdr->rc = vmmdevReqHandler_GetDisplayChangeRequestMulti(pThis, pReqHdr);
             break;
 
@@ -3965,6 +3976,7 @@ vmmdevIPort_RequestDisplayChange(PPDMIVMMDEVPORT pInterface, uint32_t cDisplays,
         /* We could validate the information here but hey, the guest can do that as well! */
         pRequest->displayChangeDef = *p;
         pRequest->fPending = fDifferentResolution && fMayNotify;
+        pRequest->fAcknowledged = false;
 
         fNotifyGuest = fNotifyGuest || fDifferentResolution;
     }
