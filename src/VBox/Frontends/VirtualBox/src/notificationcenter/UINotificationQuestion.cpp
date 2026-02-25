@@ -1,4 +1,4 @@
-/* $Id: UINotificationQuestion.cpp 113162 2026-02-25 15:18:02Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationQuestion.cpp 113163 2026-02-25 16:29:50Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationQuestion implementations.
  */
@@ -88,6 +88,65 @@ bool UINotificationQuestion::confirmSnapshotRemoval(const QString &strName)
                                                    "<b>%1</b>?</p>").arg(strName),
         QStringList() << QString() /* cancel button text */
                       << QApplication::translate("UIMessageCenter", "Delete") /* ok button text */);
+}
+
+bool UINotificationQuestion::confirmDiscardSavedState(const QString &strNames)
+{
+    return createBlockingQuestion(
+        QApplication::translate("UIMessageCenter", "Discard saved state?"),
+        QApplication::translate("UIMessageCenter", "<p>Are you sure you want to discard the saved state of the following virtual "
+                                                   "machines?</p><p><b>%1</b></p><p>This operation is equivalent to resetting or "
+                                                   "powering off the machine without doing a proper shut down of the guest "
+                                                   "OS.</p>").arg(strNames),
+        QStringList() << QString() /* cancel button text */
+                      << QApplication::translate("UIMessageCenter", "Discard", "saved state") /* ok button text */);
+}
+
+bool UINotificationQuestion::confirmTerminateCloudInstance(const QString &strNames)
+{
+    return createBlockingQuestion(
+        QApplication::translate("UIMessageCenter", "Terminate cloud instance?"),
+        QApplication::translate("UIMessageCenter", "<p>Are you sure you want to terminate the cloud instance of the following "
+                                                   "virtual machines?</p><p><b>%1</b></p>").arg(strNames),
+        QStringList() << QString() /* cancel button text */
+                      << QApplication::translate("UIMessageCenter", "Terminate", "cloud instance") /* ok button text */);
+}
+
+bool UINotificationQuestion::confirmACPIShutdownMachine(const QString &strNames)
+{
+    return createBlockingQuestion(
+        QApplication::translate("UIMessageCenter", "Shutdown machine?"),
+        QApplication::translate("UIMessageCenter", "<p>Shut down these VMs by sending the ACPI shutdown "
+                                                   "signal?</p><p><b>%1</b></p>").arg(strNames),
+        QStringList() << QString() /* cancel button text */
+                      << QApplication::translate("UIMessageCenter", "Shut Down", "machine") /* ok button text */,
+        true /* Ok by default? */,
+        "confirmACPIShutdownMachine" /* internal name */);
+}
+
+bool UINotificationQuestion::confirmPowerOffMachine(const QString &strNames)
+{
+    return createBlockingQuestion(
+        QApplication::translate("UIMessageCenter", "Power off machine?"),
+        QApplication::translate("UIMessageCenter", "<p>Close these VMs with no shutdown procedure?</p><p><b>%1</b></p><p>Unsaved "
+                                                   "data in applications running on the VM will be lost.</p>").arg(strNames),
+        QStringList() << QString() /* cancel button text */
+                      << QApplication::translate("UIMessageCenter", "Power Off", "machine") /* ok button text */,
+        true /* Ok by default? */,
+        "confirmPowerOffMachine" /* internal name */);
+}
+
+bool UINotificationQuestion::confirmStartMultipleMachines(const QString &strNames)
+{
+    return createBlockingQuestion(
+        QApplication::translate("UIMessageCenter", "Start multiple machines?"),
+        QApplication::translate("UIMessageCenter", "<p>You are about to start all of the following virtual machines:</p>"
+                                                   "<p><b>%1</b></p><p>This could take some time and consume a lot of host "
+                                                   "system resources. Do you wish to proceed?</p>").arg(strNames),
+        QStringList() << QString() /* cancel button text */
+                      << QApplication::translate("UIMessageCenter", "Start", "machine") /* ok button text */,
+        true /* Ok by default? */,
+        "confirmStartMultipleMachines" /* internal name */);
 }
 
 /* static */

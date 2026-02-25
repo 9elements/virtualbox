@@ -1,4 +1,4 @@
-/* $Id: UIMessageCenter.cpp 113161 2026-02-25 15:12:07Z sergey.dubov@oracle.com $ */
+/* $Id: UIMessageCenter.cpp 113163 2026-02-25 16:29:50Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMessageCenter class implementation.
  */
@@ -656,58 +656,6 @@ bool UIMessageCenter::confirmSettingsReloading(QWidget *pParent /* = 0 */) const
     setWarningShown("confirmSettingsReloading", false);
 
     return fResult;
-}
-
-bool UIMessageCenter::confirmDiscardSavedState(const QString &strNames) const
-{
-    return questionBinary(0, MessageType_Question,
-                          tr("<p>Are you sure you want to discard the saved state of "
-                             "the following virtual machines?</p><p><b>%1</b></p>"
-                             "<p>This operation is equivalent to resetting or powering off "
-                             "the machine without doing a proper shut down of the guest OS.</p>")
-                             .arg(strNames),
-                          0 /* auto-confirm id */,
-                          tr("Discard", "saved state"));
-}
-
-bool UIMessageCenter::confirmTerminateCloudInstance(const QString &strNames) const
-{
-    return questionBinary(0, MessageType_Question,
-                          tr("<p>Are you sure you want to terminate the cloud instance "
-                             "of the following virtual machines?</p><p><b>%1</b></p>")
-                             .arg(strNames),
-                          0 /* auto-confirm id */,
-                          tr("Terminate", "cloud instance"));
-}
-
-bool UIMessageCenter::confirmACPIShutdownMachine(const QString &strNames) const
-{
-    return questionBinary(0, MessageType_Question,
-                          tr("<p>Shut down these VMs by sending the "
-                             "ACPI shutdown signal?</p><p><b>%1</b></p>")
-                             .arg(strNames),
-                          "confirmACPIShutdownMachine" /* auto-confirm id */,
-                          tr("Shut Down", "machine"));
-}
-
-bool UIMessageCenter::confirmPowerOffMachine(const QString &strNames) const
-{
-    return questionBinary(0, MessageType_Question,
-                          tr("<p>Close these VMs with no shutdown procedure?</p>"
-                             "<p><b>%1</b></p><p>Unsaved data in applications "
-                             "running on the VM will be lost.</p>")
-                             .arg(strNames),
-                          "confirmPowerOffMachine" /* auto-confirm id */,
-                          tr("Power Off", "machine"));
-}
-
-bool UIMessageCenter::confirmStartMultipleMachines(const QString &strNames) const
-{
-    return questionBinary(0, MessageType_Question,
-                          tr("<p>You are about to start all of the following virtual machines:</p>"
-                             "<p><b>%1</b></p><p>This could take some time and consume a lot of "
-                             "host system resources. Do you wish to proceed?</p>").arg(strNames),
-                          "confirmStartMultipleMachines" /* auto-confirm id */);
 }
 
 bool UIMessageCenter::confirmAutomaticCollisionResolve(const QString &strName, const QString &strGroupName) const

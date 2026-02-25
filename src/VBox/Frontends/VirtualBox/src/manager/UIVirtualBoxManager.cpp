@@ -1,4 +1,4 @@
-/* $Id: UIVirtualBoxManager.cpp 113161 2026-02-25 15:12:07Z sergey.dubov@oracle.com $ */
+/* $Id: UIVirtualBoxManager.cpp 113163 2026-02-25 16:29:50Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVirtualBoxManager class implementation.
  */
@@ -74,7 +74,6 @@
 #include "UIMediumEnumerator.h"
 #include "UIMediumTools.h"
 #include "UIMediumManager.h"
-#include "UIMessageCenter.h"
 #include "UIModalWindowManager.h"
 #include "UINetworkManager.h"
 #include "UINotificationCenter.h"
@@ -1969,7 +1968,7 @@ void UIVirtualBoxManager::sltPerformDiscardMachineState()
 
     /* Confirm discarding: */
     if (   machinesToDiscard.isEmpty()
-        || !msgCenter().confirmDiscardSavedState(machinesToDiscard.join(", ")))
+        || !UINotificationQuestion::confirmDiscardSavedState(machinesToDiscard.join(", ")))
         return;
 
     /* For every confirmed item to discard: */
@@ -2173,7 +2172,7 @@ void UIVirtualBoxManager::sltPerformTerminateMachine()
 
     /* Confirm terminating: */
     if (   machinesToTerminate.isEmpty()
-        || !msgCenter().confirmTerminateCloudInstance(machinesToTerminate.join(", ")))
+        || !UINotificationQuestion::confirmTerminateCloudInstance(machinesToTerminate.join(", ")))
         return;
 
     /* For every confirmed item to terminate: */
@@ -2209,7 +2208,7 @@ void UIVirtualBoxManager::sltPerformShutdownMachine()
     AssertMsg(!machineNames.isEmpty(), ("This action should not be allowed!"));
 
     /* Confirm ACPI shutdown current VM: */
-    if (!msgCenter().confirmACPIShutdownMachine(machineNames.join(", ")))
+    if (!UINotificationQuestion::confirmACPIShutdownMachine(machineNames.join(", ")))
         return;
 
     /* For each selected item: */
@@ -2267,7 +2266,7 @@ void UIVirtualBoxManager::sltPerformPowerOffMachine()
     AssertMsg(!machineNames.isEmpty(), ("This action should not be allowed!"));
 
     /* Confirm Power Off current VM: */
-    if (!msgCenter().confirmPowerOffMachine(machineNames.join(", ")))
+    if (!UINotificationQuestion::confirmPowerOffMachine(machineNames.join(", ")))
         return;
 
     /* For each selected item: */
@@ -3106,7 +3105,7 @@ void UIVirtualBoxManager::performStartVirtualMachines(const QList<UIVirtualMachi
     /* But if we have more than one item to start =>
      * We should still ask user for a confirmation: */
     if (startableItems.size() > 1)
-        fStartConfirmed = msgCenter().confirmStartMultipleMachines(startableMachineNames.join(", "));
+        fStartConfirmed = UINotificationQuestion::confirmStartMultipleMachines(startableMachineNames.join(", "));
 
     /* For every item => check if it could be launched: */
     foreach (UIVirtualMachineItem *pItem, items)
