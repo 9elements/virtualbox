@@ -1,4 +1,4 @@
-/* $Id: UINotificationQuestion.cpp 113151 2026-02-24 16:22:59Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationQuestion.cpp 113160 2026-02-25 14:16:00Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationQuestion implementations.
  */
@@ -127,6 +127,21 @@ bool UINotificationQuestion::confirmCancelingPortForwardingDialog(QWidget *pPare
         QApplication::translate("UIMessageCenter", "Discard port forwarding changes?"),
         QApplication::translate("UIMessageCenter", "<p>There are unsaved changes in the port forwarding configuration.</p>"
                                                    "<p>If you proceed your changes will be discarded.</p>"),
+        QStringList() /* no button name redefinition */,
+        false /* ok button by default? */,
+        QString() /* ok button text */,
+        QString() /* cancel button text */,
+        pParent);
+}
+
+/* static */
+bool UINotificationQuestion::confirmRestoringDefaultKeys(QWidget *pParent)
+{
+    return createBlockingQuestion(
+        QApplication::translate("UIMessageCenter", "Restore default keys?"),
+        QApplication::translate("UIMessageCenter", "<p>You are going to restore default secure boot keys.</p>"
+                                                   "<p>If you proceed your current keys will be rewritten. "
+                                                   "You may not be able to boot affected VM anymore.</p>"),
         QStringList() /* no button name redefinition */,
         false /* ok button by default? */,
         QString() /* ok button text */,

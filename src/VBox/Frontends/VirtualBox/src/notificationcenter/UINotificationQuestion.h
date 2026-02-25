@@ -1,4 +1,4 @@
-/* $Id: UINotificationQuestion.h 113151 2026-02-24 16:22:59Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationQuestion.h 113160 2026-02-25 14:16:00Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationQuestion declarations.
  */
@@ -90,6 +90,8 @@ public:
     static bool confirmStorageBusChangeWithExcessiveRemoval(QWidget *pParent);
     /** Confirms canceling port forwarding dialog. */
     static bool confirmCancelingPortForwardingDialog(QWidget *pParent);
+    /** Confirms restoring default keys. */
+    static bool confirmRestoringDefaultKeys(QWidget *pParent);
 
 protected:
 

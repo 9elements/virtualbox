@@ -1,4 +1,4 @@
-/* $Id: UIMotherboardFeaturesEditor.cpp 112405 2026-01-12 11:51:20Z sergey.dubov@oracle.com $ */
+/* $Id: UIMotherboardFeaturesEditor.cpp 113160 2026-02-25 14:16:00Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMotherboardFeaturesEditor class implementation.
  */
@@ -33,8 +33,8 @@
 
 /* GUI includes: */
 #include "UIIconPool.h"
-#include "UIMessageCenter.h"
 #include "UIMotherboardFeaturesEditor.h"
+#include "UINotificationQuestion.h"
 
 /* COM includes: */
 #include "KPlatformArchitecture.h"
@@ -236,7 +236,7 @@ void UIMotherboardFeaturesEditor::sltResetSecureBoot()
 {
     if (!m_pPushButtonResetSecureBoot->property("clicked_once").toBool())
     {
-        if (msgCenter().confirmRestoringDefaultKeys(window()))
+        if (UINotificationQuestion::confirmRestoringDefaultKeys(window()))
         {
             m_pPushButtonResetSecureBoot->setProperty("clicked_once", true);
             sltHandleEnableSecureBootToggling();

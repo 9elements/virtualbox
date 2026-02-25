@@ -1,4 +1,4 @@
-/* $Id: UIMessageCenter.cpp 113151 2026-02-24 16:22:59Z sergey.dubov@oracle.com $ */
+/* $Id: UIMessageCenter.cpp 113160 2026-02-25 14:16:00Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMessageCenter class implementation.
  */
@@ -656,18 +656,6 @@ bool UIMessageCenter::confirmSettingsReloading(QWidget *pParent /* = 0 */) const
     setWarningShown("confirmSettingsReloading", false);
 
     return fResult;
-}
-
-bool UIMessageCenter::confirmRestoringDefaultKeys(QWidget *pParent /* = 0 */) const
-{
-    return questionBinary(pParent, MessageType_Question,
-                          tr("<p>You are going to restore default secure boot keys.</p>"
-                             "<p>If you proceed your current keys will be rewritten. "
-                             "You may not be able to boot affected VM anymore.</p>"),
-                          0 /* auto-confirm id */,
-                          QString() /* ok button text */,
-                          QString() /* cancel button text */,
-                          false /* ok button by default? */);
 }
 
 bool UIMessageCenter::warnAboutInaccessibleMedia() const
