@@ -1,4 +1,4 @@
-/* $Id: UINotificationQuestion.cpp 113161 2026-02-25 15:12:07Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationQuestion.cpp 113162 2026-02-25 15:18:02Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationQuestion implementations.
  */
@@ -37,15 +37,6 @@
 QMap<QString, QUuid> UINotificationQuestion::m_questions = QMap<QString, QUuid>();
 
 /* static */
-bool UINotificationQuestion::confirmCreatingPath(const QString &strPath)
-{
-    return createBlockingQuestion(
-        QApplication::translate("UIMessageCenter", "Create machine path?"),
-        QApplication::translate("UIMessageCenter", "<p>Selected path doesn't exist:<br>%1</p>"
-                                "<p>Would you like to create it?</p>").arg(strPath));
-}
-
-/* static */
 bool UINotificationQuestion::confirmCheckingInaccessibleMedia()
 {
     return createBlockingQuestion(
@@ -59,6 +50,15 @@ bool UINotificationQuestion::confirmCheckingInaccessibleMedia()
                       << QApplication::translate("UIMessageCenter", "Check", "inaccessible media") /* ok button text */,
         true /* Ok by default? */,
         "confirmCheckingInaccessibleMedia" /* internal name */);
+}
+
+/* static */
+bool UINotificationQuestion::confirmCreatingPath(const QString &strPath)
+{
+    return createBlockingQuestion(
+        QApplication::translate("UIMessageCenter", "Create machine path?"),
+        QApplication::translate("UIMessageCenter", "<p>Selected path doesn't exist:<br>%1</p>"
+                                "<p>Would you like to create it?</p>").arg(strPath));
 }
 
 /* static */

@@ -1,4 +1,4 @@
-/* $Id: UINotificationQuestion.h 113161 2026-02-25 15:12:07Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationQuestion.h 113162 2026-02-25 15:18:02Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationQuestion declarations.
  */
@@ -73,28 +73,37 @@ public:
     /** Returns whether object is done. */
     virtual bool isDone() const RT_OVERRIDE RT_FINAL { return m_fDone; }
 
-    /** Confirms creation of the @a strPath for the machine to move in. */
-    static bool confirmCreatingPath(const QString &strPath);
+    /** @name General VirtualBox Manager warnings.
+      * @{ */
+        /** Confirm checking inaccessible media. */
+        static bool confirmCheckingInaccessibleMedia();
 
-    /** Confirm checking inaccessible media. */
-    static bool confirmCheckingInaccessibleMedia();
+        /** Confirms creation of the @a strPath for the machine to move in. */
+        static bool confirmCreatingPath(const QString &strPath);
+    /** @} */
 
-    /** Confirms reset for the machine with @a strNames specified. */
-    static bool confirmResetMachine(const QString &strNames);
+    /** @name VirtualBox Manager warnings / Modify VM
+      * @{ */
+        /** Confirms reset for the machine with @a strNames specified. */
+        static bool confirmResetMachine(const QString &strNames);
 
-    /** Confirms removal for the snapshot with @a strName specified. */
-    static bool confirmSnapshotRemoval(const QString &strName);
+        /** Confirms removal for the snapshot with @a strName specified. */
+        static bool confirmSnapshotRemoval(const QString &strName);
+    /** @} */
 
-    /** Confirms removal of the last DVD device. */
-    static bool confirmRemovingOfLastDVDDevice(QWidget *pParent);
-    /** Confirms storage bus change with optical devices removal. */
-    static bool confirmStorageBusChangeWithOpticalRemoval(QWidget *pParent);
-    /** Confirms storage bus change with excessive devices removal. */
-    static bool confirmStorageBusChangeWithExcessiveRemoval(QWidget *pParent);
-    /** Confirms canceling port forwarding dialog. */
-    static bool confirmCancelingPortForwardingDialog(QWidget *pParent);
-    /** Confirms restoring default keys. */
-    static bool confirmRestoringDefaultKeys(QWidget *pParent);
+    /** @name Advanced Settings Dialog warnings
+      * @{ */
+        /** Confirms removal of the last DVD device. */
+        static bool confirmRemovingOfLastDVDDevice(QWidget *pParent);
+        /** Confirms storage bus change with optical devices removal. */
+        static bool confirmStorageBusChangeWithOpticalRemoval(QWidget *pParent);
+        /** Confirms storage bus change with excessive devices removal. */
+        static bool confirmStorageBusChangeWithExcessiveRemoval(QWidget *pParent);
+        /** Confirms canceling port forwarding dialog. */
+        static bool confirmCancelingPortForwardingDialog(QWidget *pParent);
+        /** Confirms restoring default keys. */
+        static bool confirmRestoringDefaultKeys(QWidget *pParent);
+    /** @} */
 
 protected:
 
