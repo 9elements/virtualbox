@@ -1,4 +1,4 @@
-# $Id: Config.kmk 113159 2026-02-25 12:40:41Z knut.osmundsen@oracle.com $
+# $Id: Config.kmk 113174 2026-02-26 12:07:32Z knut.osmundsen@oracle.com $
 ## @file
 # The global build configuration file for VBox.
 #
@@ -3809,27 +3809,24 @@ endif
 # Version dependent Visual C++ stuff.
 #
 if1of (win, $(KBUILD_TARGET) $(KBUILD_HOST))
+ VBOX_VCC_CC_GUARD_CF         :=
+ VBOX_VCC_LD_GUARD_CF         :=
+ VBOX_VCC_CC_GUARD_EHCONT     :=
+ VBOX_VCC_LD_GUARD_EHCONT     :=
+ VBOX_VCC_LD_HIGH_ENTRYOPY_VA :=
+ VBOX_VCC_LD_CET_COMPAT       :=
+
  ifn1of ($(VBOX_VCC_TOOL_STEM), VCC100 VCC110 VCC120)
   ifndef VBOX_WITHOUT_CONTROL_FLOW_GUARD
-   VBOX_VCC_CC_GUARD_CF        = -guard:cf
-   VBOX_VCC_LD_GUARD_CF        = -Guard:CF
-  else
-   VBOX_VCC_CC_GUARD_CF        =
-   VBOX_VCC_LD_GUARD_CF        =
+   VBOX_VCC_CC_GUARD_CF       := -guard:cf
+   VBOX_VCC_LD_GUARD_CF       := -Guard:CF
   endif
   VBOX_VCC_LD_HIGH_ENTRYOPY_VA = /HighEntropyVA
- else
-  VBOX_VCC_CC_GUARD_CF         =
-  VBOX_VCC_LD_GUARD_CF         =
-  VBOX_VCC_LD_HIGH_ENTRYOPY_VA =
- endif
- ifn1of ((VBOX_VCC_TOOL_STEM), VCC100 VCC110 VCC120 VCC140 VCC141)
-  # 16.7 and later, so not in our linker yet.
-  ## @todo BUGBUG! Update VCC before 7.0 is released.
-  #VBOX_VCC_LD_CET_COMPAT       = /CetCompat
-  VBOX_VCC_LD_CET_COMPAT       =
- else
-  VBOX_VCC_LD_CET_COMPAT       =
+  if $(VBOX_VCC_TOOL_STEM) >= VCC142 # since 16.7
+   VBOX_VCC_LD_CET_COMPAT     := -CetCompat
+   #VBOX_VCC_CC_GUARD_EHCONT  := -guard:ehcont
+   #VBOX_VCC_LD_GUARD_EHCONT  := -Guard:ehcont
+  endif
  endif
 endif
 
@@ -5623,7 +5620,7 @@ ifeq ($(VBOX_LDR_FMT),pe)
  TEMPLATE_VBoxR0_CFLAGS             = $(filter-out $(VBOX_VCC_std),$(TEMPLATE_VBoxR0_CXXFLAGS))
  TEMPLATE_VBoxR0_LDFLAGS            = -Ignore:4197 \
  	-Driver -Subsystem:NATIVE -Incremental:NO -Align:4096 -MapInfo:Exports -NoD $(VBOX_VCC_LD_WERR) \
- 	-Release -Debug -Opt:Ref -Opt:Icf $(VBOX_VCC_LD_GUARD_CF) \
+ 	-Release -Debug -Opt:Ref -Opt:Icf $(VBOX_VCC_LD_GUARD_CF) $(VBOX_VCC_LD_CET_COMPAT) \
  	-Version:$(VBOX_VERSION_MAJOR)0$(VBOX_VERSION_MINOR).$(VBOX_VERSION_BUILD) \
  	-Stub:$(PATH_ROOT)/src/VBox/HostDrivers/Support/win/winstub.com
  ifdef VBOX_WITH_DTRACE_R0
@@ -5844,7 +5841,7 @@ ifeq ($(KBUILD_TARGET),win)
  TEMPLATE_VBoxR0Drv_CFLAGS             = $(TEMPLATE_VBoxR0Drv_CXXFLAGS)
  TEMPLATE_VBoxR0Drv_LDFLAGS            = -Ignore:4197 \
  	-Driver -Subsystem:NATIVE -Incremental:NO -Align:4096 -MapInfo:Exports -NoD -Release -Debug -Opt:Ref -Opt:Icf \
- 	$(VBOX_VCC_LD_GUARD_CF) \
+ 	$(VBOX_VCC_LD_GUARD_CF) $(VBOX_VCC_LD_CET_COMPAT) \
  	-Version:$(VBOX_VERSION_MAJOR)0$(VBOX_VERSION_MINOR).$(VBOX_VERSION_BUILD) \
  	-Stub:$(PATH_ROOT)/src/VBox/HostDrivers/Support/win/winstub.com
  ifdef VBOX_WITH_DTRACE_R0DRV
@@ -6430,7 +6427,7 @@ ifeq ($(KBUILD_TARGET),win)
  TEMPLATE_VBoxR3Exe_PCHFLAGS.kprofile  = $(TEMPLATE_VBoxR3Exe_CXXFLAGS.kprofile)
  TEMPLATE_VBoxR3Exe_LDFLAGS            = -Ignore:4197 \
  	/NOD /INCREMENTAL:NO /MAPINFO:EXPORTS /LargeAddressAware /DynamicBase /NxCompat /Release /Debug /Opt:Ref /Opt:Icf \
- 	$(VBOX_VCC_LD_GUARD_CF) $(VBOX_VCC_SANITIZER_LDFLAGS) \
+ 	$(VBOX_VCC_LD_GUARD_CF) $(VBOX_VCC_LD_CET_COMPAT) $(VBOX_VCC_SANITIZER_LDFLAGS) \
  	/Version:$(VBOX_VERSION_MAJOR)0$(VBOX_VERSION_MINOR).$(VBOX_VERSION_BUILD) \
  	/STUB:$(PATH_ROOT)/src/VBox/HostDrivers/Support/win/winstub.com \
  	/DISALLOWLIB:libc.lib \
@@ -7497,7 +7494,7 @@ ifeq ($(KBUILD_TARGET),win)
  TEMPLATE_VBoxMainExe_PCHFLAGS.kprofile  = $(TEMPLATE_VBoxMainExe_CXXFLAGS.kprofile)
  TEMPLATE_VBoxMainExe_LDFLAGS            = -Ignore:4197 \
  	/NOD /INCREMENTAL:NO /MAPINFO:EXPORTS /LargeAddressAware /DynamicBase /NxCompat /Release /Debug /Opt:Ref /Opt:Icf \
- 	$(VBOX_VCC_LD_GUARD_CF) $(VBOX_VCC_SANITIZER_LDFLAGS) \
+ 	$(VBOX_VCC_LD_GUARD_CF) $(VBOX_VCC_LD_CET_COMPAT) $(VBOX_VCC_SANITIZER_LDFLAGS) \
  	/Version:$(VBOX_VERSION_MAJOR)0$(VBOX_VERSION_MINOR).$(VBOX_VERSION_BUILD) \
  	/STUB:$(PATH_ROOT)/src/VBox/HostDrivers/Support/win/winstub.com \
  	/DISALLOWLIB:libc.lib \
@@ -8238,7 +8235,7 @@ ifdef VBOX_WITH_QTGUI
   TEMPLATE_VBoxQtGuiExe_PCHFLAGS.dbgopt = $(TEMPLATE_VBoxQtGuiExe_CXXFLAGS.dbgopt)
   TEMPLATE_VBoxQtGuiExe_LDFLAGS = -Ignore:4197 \
   	/NOD /INCREMENTAL:NO /MAPINFO:EXPORTS /LargeAddressAware /DynamicBase /NxCompat /Release /Debug /Opt:Ref /Opt:Icf \
-  	$(VBOX_VCC_LD_GUARD_CF)  $(VBOX_VCC_SANITIZER_LDFLAGS) \
+  	$(VBOX_VCC_LD_GUARD_CF) $(VBOX_VCC_LD_CET_COMPAT)  $(VBOX_VCC_SANITIZER_LDFLAGS) \
   	/Version:$(VBOX_VERSION_MAJOR)0$(VBOX_VERSION_MINOR).$(VBOX_VERSION_BUILD) \
   	/STUB:$(PATH_ROOT)/src/VBox/HostDrivers/Support/win/winstub.com
   if defined(VBOX_SIGNING_MODE) && defined(VBOX_WITH_HARDENING) && !defined(VBOX_WITHOUT_WINDOWS_KERNEL_CODE_SIGNING_CERT)
@@ -8546,7 +8543,7 @@ ifeq ($(KBUILD_HOST),win)
  TEMPLATE_VBoxBldProg_PCHFLAGS.kprofile  = $(TEMPLATE_VBoxBldProg_CXXFLAGS.kprofile)
  TEMPLATE_VBoxBldProg_LDFLAGS            = -Ignore:4197 \
  	/NOD /INCREMENTAL:NO /MAPINFO:EXPORTS /LargeAddressAware /DynamicBase /NxCompat /Release /Debug /Opt:Ref /Opt:Icf \
- 	$(VBOX_VCC_LD_GUARD_CF) \
+ 	$(VBOX_VCC_LD_GUARD_CF) $(VBOX_VCC_LD_CET_COMPAT) \
  	/Version:$(VBOX_VERSION_MAJOR)0$(VBOX_VERSION_MINOR).$(VBOX_VERSION_BUILD) \
  	/DISALLOWLIB:libc$(VBOX_VCC_CRT_TYPE_N).lib \
  	/DISALLOWLIB:libcmt$(VBOX_VCC_CRT_TYPE_N).lib \
@@ -9491,7 +9488,7 @@ SVN                    ?= svn$(HOSTSUFF_EXE)
 GIT                    ?= git$(HOSTSUFF_EXE)
 VBOX_SVN_REV_KMK        = $(PATH_OUT)/revision.kmk
 ifndef VBOX_SVN_REV
- VBOX_SVN_REV_CONFIG_FALLBACK := $(patsubst %:,,  $Rev: 113159 $  )
+ VBOX_SVN_REV_CONFIG_FALLBACK := $(patsubst %:,,  $Rev: 113174 $  )
  VBOX_SVN_REV_FALLBACK := $(if-expr $(VBOX_SVN_REV_CONFIG_FALLBACK) > $(VBOX_SVN_REV_VERSION_FALLBACK),$(VBOX_SVN_REV_CONFIG_FALLBACK),$(VBOX_SVN_REV_VERSION_FALLBACK))
  VBOX_SVN_DEP          := $(firstword $(wildcard $(PATH_ROOT)/.svn/wc.db $(abspath $(PATH_ROOT)/../.svn/wc.db) $(abspath $(PATH_ROOT)/../../.svn/wc.db) $(PATH_ROOT)/.svn/entries))
  VBOX_GIT_DEP          := $(firstword $(wildcard $(PATH_ROOT)/.git/config $(abspath $(PATH_ROOT)/../.git/config) $(abspath $(PATH_ROOT)/../../.git/config)))
@@ -9505,7 +9502,7 @@ ifndef VBOX_SVN_REV
  ifneq ($(VBOX_GIT_DEP),)
   #
   # VBOX_SVN_REV_CONFIG_FALLBACK is not properly populated for a git checkout,
-  # as the $Rev: 113159 $ is not expanded, so we have to set it based on the information in the repo.
+  # as the $Rev: 113174 $ is not expanded, so we have to set it based on the information in the repo.
   #
   VBOX_SVN_REV_FALLBACK := $(shell $(GIT) log -1 $(PATH_ROOT)/Config.kmk | $(SED) -e 's/^[ \t]*//' -e '/svn:sync-xref-src-repo-rev\: r/!d' -e 's/svn:sync-xref-src-repo-rev\: r*//; t a; :a q')
  endif
