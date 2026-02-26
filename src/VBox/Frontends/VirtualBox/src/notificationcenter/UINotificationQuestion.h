@@ -1,4 +1,4 @@
-/* $Id: UINotificationQuestion.h 113163 2026-02-25 16:29:50Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationQuestion.h 113170 2026-02-26 11:25:34Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationQuestion declarations.
  */
@@ -77,15 +77,12 @@ public:
       * @{ */
         /** Confirm checking inaccessible media. */
         static bool confirmCheckingInaccessibleMedia();
-
-        /** Confirms creation of the @a strPath for the machine to move in. */
-        static bool confirmCreatingPath(const QString &strPath);
     /** @} */
 
     /** @name VirtualBox Manager warnings / Modify VM
       * @{ */
-        /** Confirms reset for the machine with @a strNames specified. */
-        static bool confirmResetMachine(const QString &strNames);
+        /** Confirms creation of the @a strPath for the machine to move in. */
+        static bool confirmCreatingPath(const QString &strPath);
 
         /** Confirms removal for the snapshot with @a strName specified. */
         static bool confirmSnapshotRemoval(const QString &strName);
@@ -93,16 +90,19 @@ public:
 
     /** @name VirtualBox Manager warnings / Control VM
       * @{ */
-        /** Confirms discarding saved state for machines with @a strNames specified. */
-        static bool confirmDiscardSavedState(const QString &strNames);
-        /** Confirms terminating cloud instance for machines with @a strNames specified. */
-        static bool confirmTerminateCloudInstance(const QString &strNames);
+        /** Confirms starting machines with @a strNames specified. */
+        static bool confirmStartMultipleMachines(const QString &strNames);
+        /** Confirms reset for the machine with @a strNames specified. */
+        static bool confirmResetMachine(const QString &strNames);
         /** Confirms sending ACPI shutdown signal for machines with @a strNames specified. */
         static bool confirmACPIShutdownMachine(const QString &strNames);
         /** Confirms powering off machines with @a strNames specified. */
         static bool confirmPowerOffMachine(const QString &strNames);
-        /** Confirms starting machines with @a strNames specified. */
-        static bool confirmStartMultipleMachines(const QString &strNames);
+        /** Confirms discarding saved state for machines with @a strNames specified. */
+        static bool confirmDiscardSavedState(const QString &strNames);
+
+        /** Confirms terminating cloud instance for machines with @a strNames specified. */
+        static bool confirmTerminateCloudInstance(const QString &strNames);
     /** @} */
 
     /** @name Advanced Settings Dialog warnings
