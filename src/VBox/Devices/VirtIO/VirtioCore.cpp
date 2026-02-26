@@ -1,4 +1,4 @@
-/* $Id: VirtioCore.cpp 112994 2026-02-13 11:54:29Z aleksey.ilyushin@oracle.com $ */
+/* $Id: VirtioCore.cpp 113169 2026-02-26 11:01:18Z aleksey.ilyushin@oracle.com $ */
 
 /** @file
  * VirtioCore - Virtio Core (PCI, feature & config mgt, queue mgt & proxy, notification mgt)
@@ -266,7 +266,8 @@ DECLINLINE(void) virtioWriteUsedElem(PPDMDEVINS pDevIns, PVIRTIOCORE pVirtio, PV
 DECLINLINE(void) virtioWriteUsedRingFlags(PPDMDEVINS pDevIns, PVIRTIOCORE pVirtio, PVIRTQUEUE pVirtq, uint16_t fFlags)
 {
     AssertMsg(pVirtio->fLegacyDriver || IS_DRIVER_OK(pVirtio), ("Called with guest driver not ready\n"));
-    RT_UNTRUSTED_VALIDATED_FENCE(); /* VirtIO 1.0, Section 3.2.1.4.1 */
+    // aleksey: lfence on amd64 is not useful! RT_UNTRUSTED_VALIDATED_FENCE(); /* VirtIO 1.0, Section 3.2.1.4.1 */
+    ASMMemoryFence(); // Use mfence instead! Theoretically sfence should be enough, but I am not sure about non-x86.
     virtioCoreGCPhysWrite(pVirtio, pDevIns,
                           pVirtq->GCPhysVirtqUsed + RT_UOFFSETOF(VIRTQ_USED_T, fFlags),
                           &fFlags, sizeof(fFlags));
@@ -276,7 +277,8 @@ DECLINLINE(void) virtioWriteUsedRingFlags(PPDMDEVINS pDevIns, PVIRTIOCORE pVirti
 DECLINLINE(void) virtioWriteUsedRingIdx(PPDMDEVINS pDevIns, PVIRTIOCORE pVirtio, PVIRTQUEUE pVirtq, uint16_t uIdx)
 {
     AssertMsg(pVirtio->fLegacyDriver || IS_DRIVER_OK(pVirtio), ("Called with guest driver not ready\n"));
-    RT_UNTRUSTED_VALIDATED_FENCE(); /* VirtIO 1.0, Section 3.2.1.4.1 */
+    // aleksey: lfence on amd64 is not useful! RT_UNTRUSTED_VALIDATED_FENCE(); /* VirtIO 1.0, Section 3.2.1.4.1 */
+    ASMMemoryFence(); // Use mfence instead! Theoretically sfence should be enough, but I am not sure about non-x86.
     virtioCoreGCPhysWrite(pVirtio, pDevIns,
                           pVirtq->GCPhysVirtqUsed + RT_UOFFSETOF(VIRTQ_USED_T, uIdx),
                           &uIdx, sizeof(uIdx));
@@ -1149,7 +1151,7 @@ DECLHIDDEN(int) virtioCoreR3VirtqAvailBufGet(PPDMDEVINS pDevIns, PVIRTIOCORE pVi
             LogRelMax(64, ("Too many output descriptors (cSegsOut=%u).\n", cSegsOut));
             break;
         }
-        RT_UNTRUSTED_VALIDATED_FENCE();
+        RT_UNTRUSTED_VALIDATED_FENCE(); // aleksey: I see no point for amd64 in having lfence here. the guest must have done memory fence before passing idx via avail.
 
         virtioReadDesc(pDevIns, pVirtio, pVirtq, uDescIdx, &desc);
 

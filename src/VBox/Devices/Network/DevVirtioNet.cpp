@@ -1,4 +1,4 @@
-/* $Id: DevVirtioNet.cpp 112506 2026-01-13 14:56:09Z aleksey.ilyushin@oracle.com $ */
+/* $Id: DevVirtioNet.cpp 113169 2026-02-26 11:01:18Z aleksey.ilyushin@oracle.com $ */
 /** @file
  * VBox storage devices - Virtio NET Driver
  *
@@ -2938,8 +2938,8 @@ static int virtioNetR3TransmitPkts(PPDMDEVINS pDevIns, PVIRTIONET pThis, PVIRTIO
             virtioCoreR3VirtqAvailBufNext(pVirtio, pTxVirtq->uIdx);
 
             /* No data to return to guest, but necessary to put elem (e.g. desc chain head idx) on used ring */
-            virtioCoreR3VirtqUsedBufPut(pVirtio->pDevInsR3, pVirtio, pTxVirtq->uIdx, NULL, pVirtqBuf, true /* fFence */);
-            virtioCoreVirtqUsedRingSync(pVirtio->pDevInsR3, pVirtio, pTxVirtq->uIdx);
+            virtioCoreR3VirtqUsedBufPut(pVirtio->pDevInsR3, pVirtio, pTxVirtq->uIdx, NULL, pVirtqBuf, false /* fFence */);  /* aleksey: i believe this lfence has no effect whatsoever! */
+            virtioCoreVirtqUsedRingSync(pVirtio->pDevInsR3, pVirtio, pTxVirtq->uIdx); /* aleksey: mfence should be used by virtioCoreVirtqUsedRingSync before updating the used index! */
         }
 
         /* Before we break the loop we need to check if the queue is empty,

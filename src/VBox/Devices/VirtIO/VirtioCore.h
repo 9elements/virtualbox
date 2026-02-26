@@ -1,4 +1,4 @@
-/* $Id: VirtioCore.h 112996 2026-02-13 12:29:02Z aleksey.ilyushin@oracle.com $ */
+/* $Id: VirtioCore.h 113169 2026-02-26 11:01:18Z aleksey.ilyushin@oracle.com $ */
 
 /** @file
  * VirtioCore.h - Virtio Declarations
@@ -36,7 +36,7 @@
  * WARNING! NEVER ENABLE IN PRODUCTION BUILDS!
  * Enables temporary printouts to release log in descriptor chain handling code.
  */
-//#define VIRTIO_REL_INFO_DUMP 1
+#define VIRTIO_REL_INFO_DUMP 1
 //#define VIRTIO_REL_INFO_DUMP_TEST 1
 
 /* Do not allocate VIRTQBUF from the heap when possible */
