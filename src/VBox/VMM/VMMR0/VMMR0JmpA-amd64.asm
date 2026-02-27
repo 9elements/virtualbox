@@ -1,4 +1,4 @@
-; $Id: VMMR0JmpA-amd64.asm 113195 2026-02-27 07:20:57Z knut.osmundsen@oracle.com $
+; $Id: VMMR0JmpA-amd64.asm 113196 2026-02-27 07:51:00Z knut.osmundsen@oracle.com $
 ;; @file
 ; VMM - R0 SetJmp / LongJmp routines for AMD64.
 ;
@@ -39,7 +39,7 @@
 ;*********************************************************************************************************************************
 ;*  External Symbols                                                                                                             *
 ;*********************************************************************************************************************************
-extern RT_NOCRT(longjmp)
+extern NAME(RT_NOCRT(longjmp))
 
 
 %ifdef RT_STRICT
