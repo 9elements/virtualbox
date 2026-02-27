@@ -1,4 +1,4 @@
-; $Id: VMMR0JmpA-amd64.asm 113159 2026-02-25 12:40:41Z knut.osmundsen@oracle.com $
+; $Id: VMMR0JmpA-amd64.asm 113195 2026-02-27 07:20:57Z knut.osmundsen@oracle.com $
 ;; @file
 ; VMM - R0 SetJmp / LongJmp routines for AMD64.
 ;
@@ -242,9 +242,9 @@ SEH64_END_PROLOGUE
 .the_stack_is_aligned:
 %endif
 %ifdef VBOX_WITH_VBOXR0_AS_DLL
-    call    RT_NOCRT(longjmp) wrt ..plt
+    call    NAME(RT_NOCRT(longjmp)) wrt ..plt
 %else
-    call    RT_NOCRT(longjmp)
+    call    NAME(RT_NOCRT(longjmp))
 %endif
 
 .unexpected_return_loop:
