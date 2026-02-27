@@ -1,4 +1,4 @@
-# $Id: .scm-settings 112265 2026-01-05 03:36:39Z knut.osmundsen@oracle.com $
+# $Id: .scm-settings 113203 2026-02-27 16:12:37Z alexander.rudnev@oracle.com $
 ## @file
 # Source code massager settings for .github.
 #
@@ -27,3 +27,4 @@
 
 # For some reason, we're not copyrighting the github issue config.
 /ISSUE_TEMPLATE/*: --external-copyright
+workflows/*: --external-copyright
