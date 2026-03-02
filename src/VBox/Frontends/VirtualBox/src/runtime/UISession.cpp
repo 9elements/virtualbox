@@ -1,4 +1,4 @@
-/* $Id: UISession.cpp 113207 2026-03-02 11:33:36Z sergey.dubov@oracle.com $ */
+/* $Id: UISession.cpp 113208 2026-03-02 11:36:22Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UISession class implementation.
  */
@@ -2795,7 +2795,11 @@ bool UISession::preprocessInitialization()
                     case KNetworkAttachmentType_Bridged:
                         strInterfaceName = comNetworkAdapter.GetBridgedInterface();
                         break;
-# ifndef VBOX_WITH_VMNET
+# ifdef VBOX_WITH_VMNET
+                    case KNetworkAttachmentType_HostOnlyNetwork:
+                        strInterfaceName = comNetworkAdapter.GetHostOnlyNetwork();
+                        break;
+# else
                     case KNetworkAttachmentType_HostOnly:
                         strInterfaceName = comNetworkAdapter.GetHostOnlyInterface();
                         break;
