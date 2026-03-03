@@ -1,4 +1,4 @@
-/* $Id: NvramStoreImpl.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: NvramStoreImpl.cpp 113216 2026-03-03 11:27:23Z alexander.eichner@oracle.com $ */
 /** @file
  * VirtualBox COM NVRAM store class implementation
  */
@@ -1520,7 +1520,11 @@ HRESULT NvramStore::i_applyDefaults(GuestOSType *aOSType)
             {
                 hrc = pVarStore->EnrollOraclePlatformKey();
                 if (SUCCEEDED(hrc))
+                {
                     hrc = pVarStore->EnrollDefaultMsSignatures();
+                    if (SUCCEEDED(hrc))
+                        hrc = pVarStore->SetSecureBootEnabled(TRUE);
+                }
             }
         }
     }
