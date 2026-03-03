@@ -1,4 +1,4 @@
-/* $Id: UefiVariableStoreImpl.cpp 113214 2026-03-03 08:40:28Z alexander.eichner@oracle.com $ */
+/* $Id: UefiVariableStoreImpl.cpp 113215 2026-03-03 11:23:33Z alexander.eichner@oracle.com $ */
 /** @file
  * VirtualBox COM NVRAM store class implementation
  */
@@ -554,8 +554,29 @@ HRESULT UefiVariableStore::enrollDefaultMsSignatures(void)
                         hrc = i_uefiVarStoreAddSignatureToDb(&EfiGuidSecurityDb, "db", g_abUefiMicrosoftWinCa2023, g_cbUefiMicrosoftWinCa2023,
                                                              GuidMs, SignatureType_X509);
                         if (SUCCEEDED(hrc))
+                        {
                             hrc = i_uefiVarStoreAddSignatureToDb(&EfiGuidSecurityDb, "db", g_abUefiMicrosoftOpRomUefiCa2023, g_cbUefiMicrosoftOpRomUefiCa2023,
                                                                  GuidMs, SignatureType_X509);
+                            if (SUCCEEDED(hrc))
+                            {
+                                /*
+                                 * Create a simple dbx database because Windows doesn't seem to create it if it doesn't exist.
+                                 * There will be only a single entry by default because a variable can't be empty but we also don't
+                                 * want to automatically reject things which the user might want to run in a VM. The guest or the user
+                                 * can update the revocation database with the latest updates if required.
+                                 *
+                                 * The default value comes from the first LenovoBT.EFI entry from:
+                                 *     https://github.com/microsoft/secureboot_objects/blob/main/PreSignedObjects/DBX/dbx_info_msft_latest.json
+                                 *
+                                 * This will be applied to the arm64 and x86 32-bit NVRAM images as well to keep it simple, even though that is technically
+                                 * not correct. But it also doesn't hurt.
+                                 */
+                                static const uint8_t s_abDbxDefault[] = { 0xf5, 0x2f, 0x83, 0xa3, 0xfa, 0x9c, 0xfb, 0xd6, 0x92, 0x0f, 0x72, 0x28, 0x24, 0xdb, 0xe4, 0x03,
+                                                                          0x45, 0x34, 0xd2, 0x5b, 0x85, 0x07, 0x24, 0x6b, 0x3b, 0x95, 0x7d, 0xac, 0x6e, 0x1b, 0xce, 0x7a};
+                                hrc = i_uefiVarStoreAddSignatureToDb(&EfiGuidSecurityDb, "dbx", s_abDbxDefault, sizeof(s_abDbxDefault),
+                                                                     GuidMs, SignatureType_Sha256);
+                            }
+                        }
                     }
                 }
             }
