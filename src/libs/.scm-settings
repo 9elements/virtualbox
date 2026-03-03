@@ -1,4 +1,4 @@
-# $Id: .scm-settings 113231 2026-03-03 16:07:58Z alexander.rudnev@oracle.com $
+# $Id: .scm-settings 113232 2026-03-03 16:25:26Z alexander.rudnev@oracle.com $
 ## @file
 # Source code massager settings for src/libs.
 #
@@ -302,7 +302,7 @@ Makefile.release|*.mak|*.mk:                --treat-as make
 /zlib*/old/descrip.mms:                                 --treat-as make
 /zlib*/os400/bndsrc:                                    --treat-as plaintext
 /zlib*/qnx/package.qpg:                                 --treat-as xml
-/zlib*/test/*:                                          --svn-sync-process-export none
-/zlib*/*.cmake:                                         --svn-sync-process-export none
-/zlib*/*.in:                                            --svn-sync-process-export none
-/zlib*/*.txt:                                           --svn-sync-process-export none
+/zlib*/test/*:                                          --svn-sync-process-export subdir-either-or
+/zlib*/*.cmake:                                         --svn-sync-process-export subdir-either-or
+/zlib*/*.in:                                            --svn-sync-process-export subdir-either-or
+/zlib*/*.txt:                                           --svn-sync-process-export subdir-either-or
