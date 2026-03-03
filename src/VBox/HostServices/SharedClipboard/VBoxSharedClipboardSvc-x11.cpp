@@ -1,4 +1,4 @@
-/* $Id: VBoxSharedClipboardSvc-x11.cpp 106320 2024-10-15 12:08:41Z klaus.espenlaub@oracle.com $ */
+/* $Id: VBoxSharedClipboardSvc-x11.cpp 113219 2026-03-03 12:22:27Z brent.paulson@oracle.com $ */
 /** @file
  * Shared Clipboard Service - Linux host.
  */
@@ -131,7 +131,10 @@ void ShClBackendSetCallbacks(PSHCLBACKEND pBackend, PSHCLCALLBACKS pCallbacks)
         pBackend->Callbacks.pfn##a_Fn = pCallbacks->pfn##a_Fn;
 
     SET_FN_IF_NOT_NULL(ReportFormats);
+    SET_FN_IF_NOT_NULL(OnClipboardRead);
+    SET_FN_IF_NOT_NULL(OnClipboardWrite);
     SET_FN_IF_NOT_NULL(OnRequestDataFromSource);
+    SET_FN_IF_NOT_NULL(OnSendDataToDest);
 
 #undef SET_FN_IF_NOT_NULL
 }
