@@ -1,4 +1,4 @@
-/* $Id: tstClipboardMockHGCM.cpp 113171 2026-02-26 11:30:55Z brent.paulson@oracle.com $ */
+/* $Id: tstClipboardMockHGCM.cpp 113235 2026-03-03 22:53:23Z brent.paulson@oracle.com $ */
 /** @file
  * Shared Clipboard host service test case.
  */
@@ -266,7 +266,6 @@ static void testGuestSimple(void)
     /*
      * Feature tests.
      */
-
     RTTESTI_CHECK_RC_OK(VbglR3ClipboardReportFeatures(Ctx.idClient, 0x0,        NULL /* pfHostFeatures */));
     /* Report bogus features to the host. */
     RTTESTI_CHECK_RC_OK(VbglR3ClipboardReportFeatures(Ctx.idClient, 0xdeadb33f, NULL /* pfHostFeatures */));
@@ -296,8 +295,32 @@ static void testGuestSimple(void)
     tstClipboardSetMode(pSvc, VBOX_SHCL_MODE_BIDIRECTIONAL);
 
     /* Try reading data from host. */
-    RTTESTI_CHECK_RC_OK(VbglR3ClipboardReadData(Ctx.idClient, VBOX_SHCL_FMT_UNICODETEXT,
-                                                abData, sizeof(abData), &cbIgnored));
+    int rc = VbglR3ClipboardReadData(Ctx.idClient, VBOX_SHCL_FMT_UNICODETEXT,
+                                     abData, sizeof(abData), &cbIgnored);
+    /*
+     * The VbglR3ClipboardConnectEx() call above reaches the X11
+     * ShClBackendConnect() routine which calls ShClX11ThreadStart() to start the
+     * "SHCLX11" thread, an Xt thread for handling the Shared Clipboard, which
+     * sits in clipThreadMain() where it loops calling XtGetSelectionValue(3X11).
+     * When the "SHCLX11" thread is starting up at connect time, clipThreadMain()
+     * calls clipQueryX11Targets() which calls XtGetSelectionValue(3X11) to request
+     * the supported targets of the clipboard selection and then asynchronously calls
+     * the specified callback, clipQueryX11TargetsCallback(), with the results.
+     * Meanwhile, clipThreadMain() signals its parent and ShClX11ThreadStart() then
+     * returns as does ShClBackendConnect().  Attempting to read from the clipboard
+     * here before clipQueryX11TargetsCallback() returns will fail when
+     * ShClBackendReadData() -> ShClX11ReadDataFromX11() ->
+     * shClX11ReadDataFromX11Internal() -> ShClX11ReadDataFromX11Async() ->
+     * ShClX11ReadDataFromX11Worker() finds the clipboard busy (fXtBusy == true)
+     * and returns VERR_TRY_AGAIN.
+     */
+    if (rc == VERR_TRY_AGAIN)
+    {
+        RTThreadSleep(RT_MS_1SEC);
+        rc = VbglR3ClipboardReadData(Ctx.idClient, VBOX_SHCL_FMT_UNICODETEXT,
+                                     abData, sizeof(abData), &cbIgnored);
+    }
+    RTTESTI_CHECK_RC_OK(rc);
     /* Report bogus formats to the host. */
     RTTESTI_CHECK_RC_OK(VbglR3ClipboardReportFormats(Ctx.idClient, 0xdeadb33f));
     /* Report supported formats to host. */
@@ -553,10 +576,10 @@ static DECLCALLBACK(int) tstTestReadFromHost_ThreadGuest(PTSTHGCMUTILSCTX pCtx, 
     AssertPtr(pTstTask);
     tstTestReadFromHost_DoIt(pTstCtx, pTstTask);
 
+    RTTEST_CHECK_RC_OK(g_hTest, VbglR3ClipboardDisconnectEx(&pTstCtx->Guest.CmdCtx));
+
     /* Signal that the task ended. */
     TstHGCMUtilsTaskSignal(&pCtx->Task, VINF_SUCCESS);
-
-    RTTEST_CHECK_RC_OK(g_hTest, VbglR3ClipboardDisconnectEx(&pTstCtx->Guest.CmdCtx));
 
     return VINF_SUCCESS;
 }
@@ -805,7 +828,7 @@ static int tstClipboardCopyThreadStop(PCLIPBOARDTESTCTX pTstCtx)
     ASMAtomicWriteBool(&pTask->X11.fShutdown, true);
 
     int rcThread;
-    int rc = RTThreadWait(pTask->X11.hThread, RT_MS_5SEC, &rcThread);
+    int rc = RTThreadWait(pTask->X11.hThread, RT_MS_30SEC, &rcThread);
     if (RT_SUCCESS(rc))
         rc = rcThread;
     if (RT_SUCCESS(rc))
