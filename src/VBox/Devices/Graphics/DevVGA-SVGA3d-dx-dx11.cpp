@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA3d-dx-dx11.cpp 112485 2026-01-13 13:22:59Z vitali.pelenjow@oracle.com $ */
+/* $Id: DevVGA-SVGA3d-dx-dx11.cpp 113256 2026-03-04 16:59:22Z vitali.pelenjow@oracle.com $ */
 /** @file
  * DevVMWare - VMWare SVGA device
  */
@@ -11393,7 +11393,14 @@ static DECLCALLBACK(int) vmsvga3dBackVBDXVideoDecoderSubmitBuffers(PVGASTATECC p
                                                         &DecoderBufferSize, &pDecoderBuffer);
         AssertReturnStmt(SUCCEEDED(hr), RTMemTmpFree(paDesc), VERR_NOT_SUPPORTED);
 
-        ASSERT_GUEST_CONTINUE(DecoderBufferSize >= s->dataSize);
+        if (DecoderBufferSize < s->dataSize)
+        {
+            ASSERT_GUEST_FAILED();
+            hr = pDXDevice->pVideoContext->ReleaseDecoderBuffer(pDXVideoDecoder->pVideoDecoder, d->BufferType);
+            AssertReturnStmt(SUCCEEDED(hr), RTMemTmpFree(paDesc), VERR_NOT_SUPPORTED);
+
+            continue;
+        }
 
         if (pSurface->pBackendSurface)
         {
