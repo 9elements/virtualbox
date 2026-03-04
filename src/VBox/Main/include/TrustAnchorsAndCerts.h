@@ -1,4 +1,4 @@
-/* $Id: TrustAnchorsAndCerts.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: TrustAnchorsAndCerts.h 113245 2026-03-04 11:35:32Z alexander.eichner@oracle.com $ */
 /** @file
  * Main - Collection of trust anchors and certificates included in VBoxSVC.
  */
@@ -52,6 +52,9 @@ extern const unsigned g_cbUefiMicrosoftWinCa;
 
 extern const unsigned char g_abUefiMicrosoftWinCa2023[];
 extern const unsigned g_cbUefiMicrosoftWinCa2023;
+
+extern const unsigned char g_abUefiMicrosoftOpRomUefiCa2023[];
+extern const unsigned g_cbUefiMicrosoftOpRomUefiCa2023;
 
 extern const unsigned char g_abUefiOracleDefPk[];
 extern const unsigned g_cbUefiOracleDefPk;
