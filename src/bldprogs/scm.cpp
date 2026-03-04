@@ -1,4 +1,4 @@
-/* $Id: scm.cpp 112420 2026-01-12 20:29:14Z knut.osmundsen@oracle.com $ */
+/* $Id: scm.cpp 113240 2026-03-04 08:56:00Z knut.osmundsen@oracle.com $ */
 /** @file
  * IPRT Testcase / Tool - Source Code Massager.
  */
@@ -104,8 +104,8 @@ typedef enum SCMOPT
     SCMOPT_NO_PAGE_RESTRICTIONS,
     SCMOPT_NO_RC_USE,
     SCMOPT_UNRESTRICTED_RC_USE,
-    SCMOPT_STANDARIZE_KMK,
-    SCMOPT_NO_STANDARIZE_KMK,
+    SCMOPT_STANDARDIZE_KMK,
+    SCMOPT_NO_STANDARDIZE_KMK,
     SCMOPT_UPDATE_COPYRIGHT_YEAR,
     SCMOPT_NO_UPDATE_COPYRIGHT_YEAR,
     SCMOPT_EXTERNAL_COPYRIGHT,
@@ -289,8 +289,10 @@ static RTGETOPTDEF  g_aScmOpts[] =
     { "--unrestricted-ASMMemPage-use",      SCMOPT_UNRESTRICTED_ASM_MEM_PAGE_USE,   RTGETOPT_REQ_NOTHING },
     { "--no-rc-use",                        SCMOPT_NO_RC_USE,                       RTGETOPT_REQ_NOTHING },
     { "--unrestricted-rc-use",              SCMOPT_UNRESTRICTED_RC_USE,             RTGETOPT_REQ_NOTHING },
-    { "--standarize-kmk",                   SCMOPT_STANDARIZE_KMK,                  RTGETOPT_REQ_NOTHING },
-    { "--no-standarize-kmk",                SCMOPT_NO_STANDARIZE_KMK,               RTGETOPT_REQ_NOTHING },
+    { "--standardize-kmk",                  SCMOPT_STANDARDIZE_KMK,                 RTGETOPT_REQ_NOTHING },
+    { "--standarize-kmk",                   SCMOPT_STANDARDIZE_KMK,                 RTGETOPT_REQ_NOTHING },
+    { "--no-standarize-kmk",                SCMOPT_NO_STANDARDIZE_KMK,              RTGETOPT_REQ_NOTHING },
+    { "--no-standardize-kmk",               SCMOPT_NO_STANDARDIZE_KMK,              RTGETOPT_REQ_NOTHING },
     { "--update-copyright-year",            SCMOPT_UPDATE_COPYRIGHT_YEAR,           RTGETOPT_REQ_NOTHING },
     { "--no-update-copyright-year",         SCMOPT_NO_UPDATE_COPYRIGHT_YEAR,        RTGETOPT_REQ_NOTHING },
     { "--external-copyright",               SCMOPT_EXTERNAL_COPYRIGHT,              RTGETOPT_REQ_NOTHING },
@@ -1342,10 +1344,10 @@ static int scmSettingsBaseHandleOpt(PSCMSETTINGSBASE pSettings, int rc, PRTGETOP
             pSettings->fOnlyHrcVrcInsteadOfRc = false;
             return VINF_SUCCESS;
 
-        case SCMOPT_STANDARIZE_KMK:
+        case SCMOPT_STANDARDIZE_KMK:
             pSettings->fStandarizeKmk = true;
             return VINF_SUCCESS;
-        case SCMOPT_NO_STANDARIZE_KMK:
+        case SCMOPT_NO_STANDARDIZE_KMK:
             pSettings->fStandarizeKmk = false;
             return VINF_SUCCESS;
 
@@ -1571,7 +1573,7 @@ static int scmSettingsBaseHandleOpt(PSCMSETTINGSBASE pSettings, int rc, PRTGETOP
                 pszSrc += cchPattern + 1;
             }
             /* not reached */
-#if RT_MSC_PREREQ(RT_MSC_VER_VS2022) /* VS 2022 complains about fall thru, other compilers complains about unreachable code. */
+#if RT_MSC_PREREQ(RT_MSC_VER_VS2022) /* VS 2022 complains about fall thru, other compilers complain about unreachable code. */
            break;
 #endif
         }
@@ -3264,7 +3266,7 @@ static int scmHelp(PCRTGETOPTDEF paOpts, size_t cOpts)
                 hlpPrntf("      No rc declaration allowed, must instead use vrc for IPRT status codes and hrc for COM status "
                          "codes.  Default: %RTbool\n", g_Defaults.fOnlyHrcVrcInsteadOfRc);
                 break;
-            case SCMOPT_STANDARIZE_KMK:
+            case SCMOPT_STANDARDIZE_KMK:
                 hlpPrntf("      Clean up kmk files (the makefile-kmk action).  Default: %RTbool\n", g_Defaults.fStandarizeKmk);
                 break;
             case SCMOPT_UPDATE_COPYRIGHT_YEAR:
@@ -3316,7 +3318,7 @@ static int scmHelp(PCRTGETOPTDEF paOpts, size_t cOpts)
             case SCMOPT_FILTER_OUT_FILES:       hlpPrntf("      Default: %s\n", g_Defaults.pszFilterOutFiles); break;
 
             case SCMOPT_TREAT_AS:
-                hlpPrntf("      For treat the input file(s) differently, restting any --add-action. If the value is empty "
+                hlpPrntf("      For treat the input file(s) differently, resetting any --add-action. If the value is empty "
                          "defaults will be used again.  Possible values:\n");
                 for (size_t iCfg = 0; iCfg < RT_ELEMENTS(g_aConfigs); iCfg++)
                     RTStrmWrappedPrintf(g_pStdOut, RTSTRMWRAPPED_F_HANGING_INDENT | RTSTRMWRAPPED_F_SPLIT_ON_PIPE,
@@ -3436,7 +3438,7 @@ int main(int argc, char **argv)
             case 'V':
             {
                 /* The following is assuming that svn does it's job here. */
-                static const char s_szRev[] = "$Revision: 112420 $";
+                static const char s_szRev[] = "$Revision: 113240 $";
                 const char *psz = RTStrStripL(strchr(s_szRev, ' '));
                 RTPrintf("r%.*s\n", strchr(psz, ' ') - psz, psz);
                 return 0;
