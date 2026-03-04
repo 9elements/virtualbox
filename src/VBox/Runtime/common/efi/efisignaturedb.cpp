@@ -1,4 +1,4 @@
-/* $Id: efisignaturedb.cpp 106320 2024-10-15 12:08:41Z klaus.espenlaub@oracle.com $ */
+/* $Id: efisignaturedb.cpp 113246 2026-03-04 11:35:58Z alexander.eichner@oracle.com $ */
 /** @file
  * IPRT - EFI signature database helpers.
  */
@@ -397,7 +397,7 @@ static int rtEfiSigDbWriteList(PRTLISTANCHOR pLst, PCRTEFISIGDBDESC pDesc, RTVFS
             EFI_SIGNATURE_DATA SigData;
             RTEfiGuidFromUuid(&SigData.GuidOwner, &pIt->UuidOwner);
 
-            Assert(pDesc->cbSig == pIt->cbSignature);
+            Assert(pDesc->cbSig - sizeof(SigData) == pIt->cbSignature);
             aSegs[0].pvSeg = &SigData;
             aSegs[0].cbSeg = sizeof(SigData);
             aSegs[1].pvSeg = &pIt->abSignature[0];
