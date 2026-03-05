@@ -1,4 +1,4 @@
-/* $Id: UIMachineLogic.cpp 113252 2026-03-04 14:45:19Z sergey.dubov@oracle.com $ */
+/* $Id: UIMachineLogic.cpp 113272 2026-03-05 16:06:54Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMachineLogic class implementation.
  */
@@ -3112,16 +3112,9 @@ void UIMachineLogic::checkUnattendedLeftOvers()
         comUnattendedVISO = comMedium;
         break;
     }
-    if (!comUnattendedVISO.isNull())
+    if (   !comUnattendedVISO.isNull()
+        && UINotificationQuestion::confirmUnattendedFilesRemoval())
     {
-        int iReturn = msgCenter().confirmUnattendedFilesRemoval(activeMachineWindow());
-
-        if (iReturn & AlertOption_CheckBox)
-            gEDataManager->setSuppressedMessages(gEDataManager->suppressedMessages() << strDialogName);
-
-        if (iReturn != AlertButton_Ok)
-            return;
-
         UINotificationProgressMediumDeletingStorage *pNotification = new UINotificationProgressMediumDeletingStorage(comUnattendedVISO);
         // connect(pNotification, &UINotificationProgressMediumDeletingStorage::sigMediumStorageDeleted,
         //         this, &UIMediumItemHD::sltHandleMediumRemoveRequest);

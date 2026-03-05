@@ -1,4 +1,4 @@
-/* $Id: UINotificationQuestion.cpp 113270 2026-03-05 13:48:24Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationQuestion.cpp 113272 2026-03-05 16:06:54Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationQuestion implementations.
  */
@@ -862,6 +862,19 @@ bool UINotificationQuestion::warnAboutNetworkInterfaceNotFound(const QString &st
                                                    .arg(strMachineName, strIfNames),
         QStringList() << QApplication::translate("UIMessageCenter", "Close VM") /* cancel button text */
                       << QApplication::translate("UIMessageCenter", "Change Network Settings") /* ok button text */);
+}
+
+/* static */
+bool UINotificationQuestion::confirmUnattendedFilesRemoval()
+{
+    return createBlockingQuestion(
+        QApplication::translate("UIMessageCenter", "Delete unused files?"),
+        QApplication::translate("UIMessageCenter", "<p>The VM folder contains files that were used for unattended guest OS "
+                                                   "installation and are no longer needed.</p><p>Delete them now?</p>"),
+        QStringList() << QString() /* cancel button text */
+                      << QApplication::translate("UIMessageCenter", "Delete", "files") /* ok button text */,
+        false /* ok button by default? */,
+        "confirmUnattendedFilesRemoval" /* internal name */);
 }
 
 /* static */

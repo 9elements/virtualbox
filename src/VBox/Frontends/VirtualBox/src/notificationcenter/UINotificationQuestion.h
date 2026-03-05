@@ -1,4 +1,4 @@
-/* $Id: UINotificationQuestion.h 113270 2026-03-05 13:48:24Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationQuestion.h 113272 2026-03-05 16:06:54Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationQuestion declarations.
  */
@@ -236,6 +236,9 @@ public:
       * @{ */
         /** Confirms network interface choice. */
         static bool warnAboutNetworkInterfaceNotFound(const QString &strMachineName, const QString &strIfNames);
+
+        /** Confirms removal for unattended installation files. */
+        static bool confirmUnattendedFilesRemoval();
 
         /** Confirms capturing keyboard/mouse input. */
         static bool confirmInputCapture(bool &fAutoConfirmed);

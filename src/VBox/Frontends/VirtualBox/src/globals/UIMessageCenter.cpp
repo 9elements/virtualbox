@@ -1,4 +1,4 @@
-/* $Id: UIMessageCenter.cpp 113270 2026-03-05 13:48:24Z sergey.dubov@oracle.com $ */
+/* $Id: UIMessageCenter.cpp 113272 2026-03-05 16:06:54Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMessageCenter class implementation.
  */
@@ -810,19 +810,6 @@ bool UIMessageCenter::confirmVisoDiscard(QWidget *pParent /* = 0*/) const
                           tr("Discard") /* ok button text */,
                           QString() /* cancel button text */,
                           false /* ok button by default? */);
-}
-
-int UIMessageCenter::confirmUnattendedFilesRemoval(QWidget *pParent /*= 0 */) const
-{
-    return messageWithOption(pParent, MessageType_Question,
-                             tr("<p>The VM folder contains files that were used for unattended guest OS installation and are no longer needed.</p>"
-                                "<p>Delete them now?</p>"),
-                             tr("Don't ask again"),
-                             false /* default option value */,
-                             AlertButton_Ok,
-                             AlertButton_Cancel | AlertButtonOption_Default | AlertButtonOption_Escape,
-                             0,
-                             tr("Delete"));
 }
 
 bool UIMessageCenter::warnAboutGuruMeditation(const QString &strLogFolder)
