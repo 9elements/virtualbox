@@ -1,4 +1,4 @@
-/* $Id: UIMachineLogicSeamless.cpp 113265 2026-03-05 08:50:41Z sergey.dubov@oracle.com $ */
+/* $Id: UIMachineLogicSeamless.cpp 113267 2026-03-05 10:14:03Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMachineLogicSeamless class implementation.
  */
@@ -85,10 +85,7 @@ bool UIMachineLogicSeamless::checkAvailability()
         quint64 uAvailBits = uVRAMSize * _1M /* MiB to bytes */ * 8 /* to bits */;
         quint64 uUsedBits = m_pScreenLayout->memoryRequirements();
         if (uAvailBits < uUsedBits)
-        {
-            UINotificationMessage::cannotEnterSeamlessMode((((uUsedBits + 7) / 8 + _1M - 1) / _1M) * _1M);
-            return false;
-        }
+            return UINotificationMessage::cannotEnterSeamlessMode((((uUsedBits + 7) / 8 + _1M - 1) / _1M) * _1M);
     }
 
     /* Show the info message. */

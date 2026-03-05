@@ -1,4 +1,4 @@
-/* $Id: UINotificationMessage.h 113265 2026-03-05 08:50:41Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationMessage.h 113267 2026-03-05 10:14:03Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationMessage declarations.
  */
@@ -174,15 +174,15 @@ public:
       * @{ */
         /** Notifies about inability to create machine folder.
           * @param  strPath  Brings the machine folder path. */
-        static void cannotCreateMachineFolder(const QString &strPath,
+        static bool cannotCreateMachineFolder(const QString &strPath,
                                               QWidget *pParent);
         /** Notifies about inability to overwrite machine folder.
           * @param  strPath  Brings the machine folder path. */
-        static void cannotOverwriteMachineFolder(const QString &strPath,
+        static bool cannotOverwriteMachineFolder(const QString &strPath,
                                                  QWidget *pParent);
         /** Notifies about inability to remove machine folder.
           * @param  strPath  Brings the machine folder path. */
-        static void cannotRemoveMachineFolder(const QString &strPath,
+        static bool cannotRemoveMachineFolder(const QString &strPath,
                                               QWidget *pParent);
         /** Notifies about inability to move machine folder.
           * @param  strPath  Brings the machine folder path. */
@@ -229,43 +229,43 @@ public:
 
         /** Notifies about DHCP server isn't enabled.
           * @param  strName  Brings the interface name. */
-        static void warnAboutDHCPServerIsNotEnabled(const QString &strName);
+        static bool warnAboutDHCPServerIsNotEnabled(const QString &strName);
         /** Notifies about invalid IPv4 address.
           * @param  strName  Brings the interface name. */
-        static void warnAboutInvalidIPv4Address(const QString &strName);
+        static bool warnAboutInvalidIPv4Address(const QString &strName);
         /** Notifies about invalid IPv4 mask.
           * @param  strName  Brings the interface name. */
-        static void warnAboutInvalidIPv4Mask(const QString &strName);
+        static bool warnAboutInvalidIPv4Mask(const QString &strName);
         /** Notifies about invalid IPv6 address.
           * @param  strName  Brings the interface name. */
-        static void warnAboutInvalidIPv6Address(const QString &strName);
+        static bool warnAboutInvalidIPv6Address(const QString &strName);
         /** Notifies about invalid IPv6 prefix length.
           * @param  strName  Brings the interface name. */
-        static void warnAboutInvalidIPv6PrefixLength(const QString &strName);
+        static bool warnAboutInvalidIPv6PrefixLength(const QString &strName);
         /** Notifies about invalid DHCP server address.
           * @param  strName  Brings the interface name. */
-        static void warnAboutInvalidDHCPServerAddress(const QString &strName);
+        static bool warnAboutInvalidDHCPServerAddress(const QString &strName);
         /** Notifies about invalid DHCP server mask.
           * @param  strName  Brings the interface name. */
-        static void warnAboutInvalidDHCPServerMask(const QString &strName);
+        static bool warnAboutInvalidDHCPServerMask(const QString &strName);
         /** Notifies about invalid DHCP server lower address.
           * @param  strName  Brings the interface name. */
-        static void warnAboutInvalidDHCPServerLowerAddress(const QString &strName);
+        static bool warnAboutInvalidDHCPServerLowerAddress(const QString &strName);
         /** Notifies about invalid DHCP server upper address.
           * @param  strName  Brings the interface name. */
-        static void warnAboutInvalidDHCPServerUpperAddress(const QString &strName);
+        static bool warnAboutInvalidDHCPServerUpperAddress(const QString &strName);
         /** Notifies about no name specified.
           * @param  strName  Brings the interface name. */
-        static void warnAboutNoNameSpecified(const QString &strName);
+        static bool warnAboutNoNameSpecified(const QString &strName);
         /** Notifies about name already busy.
           * @param  strName  Brings the interface name. */
-        static void warnAboutNameAlreadyBusy(const QString &strName);
+        static bool warnAboutNameAlreadyBusy(const QString &strName);
         /** Notifies about no IPv4 prefix specified.
           * @param  strName  Brings the interface name. */
-        static void warnAboutNoIPv4PrefixSpecified(const QString &strName);
+        static bool warnAboutNoIPv4PrefixSpecified(const QString &strName);
         /** Notifies about no IPv6 prefix specified.
           * @param  strName  Brings the interface name. */
-        static void warnAboutNoIPv6PrefixSpecified(const QString &strName);
+        static bool warnAboutNoIPv6PrefixSpecified(const QString &strName);
 
         /** Notifies about incorrect port specified. */
         static bool warnAboutIncorrectPort(QWidget *pParent);
@@ -294,7 +294,7 @@ public:
 
         /** Notifies about inability to enter seamless mode.
           * @param  uMinVRAM  Brings the minimum VRAM amount required. */
-        static void cannotEnterSeamlessMode(quint64 uMinVRAM);
+        static bool cannotEnterSeamlessMode(quint64 uMinVRAM);
         /** Notifies about inability to switch screen in seamless mode.
           * @param  uMinVRAM  Brings the minimum VRAM amount required. */
         static void cannotSwitchScreenInSeamless(quint64 uMinVRAM);
@@ -302,7 +302,7 @@ public:
         /** Notifies about inability to mount image.
           * @param  strMachineName  Brings the machine name.
           * @param  strMediumName   Brings the medium name. */
-        static void cannotMountImage(const QString &strMachineName, const QString &strMediumName);
+        static bool cannotMountImage(const QString &strMachineName, const QString &strMediumName);
 
         /** Notifies about inability to send ACPI shutdown. */
         static void cannotSendACPIToMachine();
@@ -337,7 +337,7 @@ public:
       * @{ */
         /** Notifies about inability to acquire IVirtualBox parameter.
           * @param  comVBox  Brings the object parameter get acquired from. */
-        static void cannotAcquireVirtualBoxParameter(const CVirtualBox &comVBox,
+        static bool cannotAcquireVirtualBoxParameter(const CVirtualBox &comVBox,
                                                      QWidget *pParent = 0);
         /** Notifies about inability to acquire IAppliance parameter.
           * @param  comVBox  Brings the object parameter get acquired from. */
@@ -360,7 +360,7 @@ public:
         static void cannotAcquireExtensionPackParameter(const CExtPack &comPackage);
         /** Notifies about inability to acquire IHost parameter.
           * @param  comHost  Brings the object parameter get acquired from. */
-        static void cannotAcquireHostParameter(const CHost &comHost);
+        static bool cannotAcquireHostParameter(const CHost &comHost);
         /** Notifies about inability to acquire IStorageController parameter.
           * @param  comStorageController  Brings the object parameter get acquired from. */
         static void cannotAcquireStorageControllerParameter(const CStorageController &comStorageController);
@@ -378,7 +378,7 @@ public:
         static void cannotAcquireSessionParameter(const CSession &comSession);
         /** Notifies about inability to acquire IMachine parameter.
           * @param  comMachine  Brings the object parameter get acquired from. */
-        static void cannotAcquireMachineParameter(const CMachine &comMachine);
+        static bool cannotAcquireMachineParameter(const CMachine &comMachine);
         /** Notifies about inability to acquire IMachineDebugger parameter.
           * @param  comMachineDebugger  Brings the object parameter get acquired from. */
         static void cannotAcquireMachineDebuggerParameter(const CMachineDebugger &comMachineDebugger);
@@ -426,7 +426,7 @@ public:
         static void cannotAcquireDisplayParameter(const CDisplay &comDisplay);
         /** Notifies about inability to acquire IUpdateAgent parameter.
           * @param  comAgent  Brings the object parameter get acquired from. */
-        static void cannotAcquireUpdateAgentParameter(const CUpdateAgent &comAgent);
+        static bool cannotAcquireUpdateAgentParameter(const CUpdateAgent &comAgent);
         /** Notifies about inability to acquire IMouse parameter.
           * @param  comMouse  Brings the object parameter get acquired from. */
         static void cannotAcquireMouseParameter(const CMouse &comMouse);
@@ -475,7 +475,7 @@ public:
         static void cannotChangeSystemProperties(const CSystemProperties &comProperties, QWidget *pParent = 0);
         /** Notifies about inability to change IMedium parameter.
           * @param  comMedium  Brings the object parameter being changed for. */
-        static void cannotChangeMediumParameter(const CMedium &comMedium);
+        static bool cannotChangeMediumParameter(const CMedium &comMedium);
         /** Notifies about inability to change IMachine parameter.
           * @param  comMachine  Brings the object parameter being changed for. */
         static void cannotChangeMachineParameter(const CMachine &comMachine);
@@ -514,7 +514,7 @@ public:
         static void cannotChangeCloudProfileParameter(const CCloudProfile &comProfile);
         /** Notifies about inability to change IUpdateAgent parameter.
           * @param  comAgent  Brings the object parameter being changed for. */
-        static void cannotChangeUpdateAgentParameter(const CUpdateAgent &comAgent);
+        static bool cannotChangeUpdateAgentParameter(const CUpdateAgent &comAgent);
         /** Notifies about inability to change IKeyboard parameter.
           * @param  comKeyboard  Brings the object parameter being changed for. */
         static void cannotChangeKeyboardParameter(const CKeyboard &comKeyboard);
@@ -532,7 +532,7 @@ public:
         /** Notifies about inability to open medium.
           * @param  comVBox      Brings common VBox object trying to open medium.
           * @param  strLocation  Brings the medium location. */
-        static void cannotOpenMedium(const CVirtualBox &comVBox, const QString &strLocation,
+        static bool cannotOpenMedium(const CVirtualBox &comVBox, const QString &strLocation,
                                      QWidget *pParent = 0);
 
         /** Notifies about inability to pause machine.
@@ -564,7 +564,7 @@ public:
         static void cannotRegisterMachine(const CVirtualBox &comVBox, const QString &strName, QWidget *pParent = 0);
         /** Notifies about inability to create machine.
           * @param  comVBox  Brings common VBox object trying to create machine. */
-        static void cannotCreateMachine(const CVirtualBox &comVBox, QWidget *pParent);
+        static bool cannotCreateMachine(const CVirtualBox &comVBox, QWidget *pParent);
         /** Notifies about inability to find machine by ID.
           * @param  comVBox     Brings common VBox object trying to find machine.
           * @param  uMachineId  Brings the machine ID. */
@@ -578,7 +578,7 @@ public:
         /** Notifies about inability to create medium storage.
           * @param  comVBox  Brings common VBox object trying to create medium storage.
           * @param  strPath  Brings the medium path. */
-        static void cannotCreateMediumStorage(const CVirtualBox &comVBox,
+        static bool cannotCreateMediumStorage(const CVirtualBox &comVBox,
                                               const QString &strPath,
                                               QWidget *pParent);
         /** Notifies about inability to get ext pack manager.
@@ -587,13 +587,13 @@ public:
 
         /** Notifies about inability to create VFS explorer.
           * @param  comAppliance  Brings appliance trying to create VFS explorer. */
-        static void cannotCreateVfsExplorer(const CAppliance &comAppliance, QWidget *pParent);
+        static bool cannotCreateVfsExplorer(const CAppliance &comAppliance, QWidget *pParent);
         /** Notifies about inability to add disk scryption password.
           * @param  comAppliance  Brings appliance trying to add disk scryption password. */
-        static void cannotAddDiskEncryptionPassword(const CAppliance &comAppliance, QWidget *pParent);
+        static bool cannotAddDiskEncryptionPassword(const CAppliance &comAppliance, QWidget *pParent);
         /** Notifies about inability to interpret appliance.
           * @param  comAppliance  Brings appliance we are trying to interpret. */
-        static void cannotInterpretAppliance(const CAppliance &comAppliance, QWidget *pParent);
+        static bool cannotInterpretAppliance(const CAppliance &comAppliance, QWidget *pParent);
         /** Notifies about inability to create VSD.
           * @param  comAppliance  Brings appliance trying to create VSD. */
         static void cannotCreateVirtualSystemDescription(const CAppliance &comAppliance, QWidget *pParent);
@@ -697,7 +697,7 @@ public:
                                        QWidget *pParent = 0);
         /** Notifies about inability to attach device.
           * @param  comMachine  Brings machine trying to attach device. */
-        static void cannotDetachDevice(const CMachine &comMachine,
+        static bool cannotDetachDevice(const CMachine &comMachine,
                                        UIMediumDeviceType enmType,
                                        const QString &strLocation,
                                        const StorageSlot &storageSlot,
@@ -710,7 +710,7 @@ public:
         /** Notifies about inability to find snapshot by name.
           * @param  comMachine  Brings the machine being searched for particular snapshot.
           * @param  strName     Brings the required snapshot name. */
-        static void cannotFindSnapshotByName(const CMachine &comMachine, const QString &strName, QWidget *pParent);
+        static bool cannotFindSnapshotByName(const CMachine &comMachine, const QString &strName, QWidget *pParent);
         /** Notifies about inability to change snapshot.
           * @param  comSnapshot      Brings the snapshot being changed.
           * @param  strSnapshotName  Brings snapshot name.
@@ -719,7 +719,7 @@ public:
 
         /** Notifies about inability to run unattended guest install.
           * @param  comUnattended  Brings the unattended being running guest install. */
-        static void cannotRunUnattendedGuestInstall(const CUnattended &comUnattended);
+        static bool cannotRunUnattendedGuestInstall(const CUnattended &comUnattended);
     /** @} */
 
     /** @name COM Runtime UI warnings.
@@ -733,7 +733,7 @@ public:
 
         /** Notifies about inability to add disk scryption password.
           * @param  comConsole  Brings console trying to add disk scryption password. */
-        static void cannotAddDiskEncryptionPassword(const CConsole &comConsole);
+        static bool cannotAddDiskEncryptionPassword(const CConsole &comConsole);
 
         /** Notifies about inability to attach USB device.
           * @param  comConsole  Brings console USB device belongs to.

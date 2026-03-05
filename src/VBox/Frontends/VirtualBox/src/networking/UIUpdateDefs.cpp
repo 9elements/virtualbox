@@ -1,4 +1,4 @@
-/* $Id: UIUpdateDefs.cpp 113062 2026-02-17 12:37:07Z sergey.dubov@oracle.com $ */
+/* $Id: UIUpdateDefs.cpp 113267 2026-03-05 10:14:03Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Update routine related implementations.
  */
@@ -178,36 +178,24 @@ bool VBoxUpdateData::load(const CHost &comHost)
     /* Acquire update agent: */
     CUpdateAgent comAgent = comHost.GetUpdateHost();
     if (!comHost.isOk())
-    {
-        UINotificationMessage::cannotAcquireHostParameter(comHost);
-        return false;
-    }
+        return UINotificationMessage::cannotAcquireHostParameter(comHost);
 
     /* Fetch whether agent is enabled: */
     const BOOL fEnabled = comAgent.GetEnabled();
     if (!comAgent.isOk())
-    {
-        UINotificationMessage::cannotAcquireUpdateAgentParameter(comAgent);
-        return false;
-    }
+        return UINotificationMessage::cannotAcquireUpdateAgentParameter(comAgent);
     m_fCheckEnabled = fEnabled;
 
     /* Fetch 'period' value: */
     const ULONG uFrequency = comAgent.GetCheckFrequency();
     if (!comAgent.isOk())
-    {
-        UINotificationMessage::cannotAcquireUpdateAgentParameter(comAgent);
-        return false;
-    }
+        return UINotificationMessage::cannotAcquireUpdateAgentParameter(comAgent);
     m_enmUpdatePeriod = gatherSuitablePeriod(uFrequency);
 
     /* Fetch 'date' value: */
     const QString strLastDate = comAgent.GetLastCheckDate();
     if (!comAgent.isOk())
-    {
-        UINotificationMessage::cannotAcquireUpdateAgentParameter(comAgent);
-        return false;
-    }
+        return UINotificationMessage::cannotAcquireUpdateAgentParameter(comAgent);
     m_date = QDate::fromString(strLastDate, Qt::ISODate);
     const ULONG uFrequencyInDays = (uFrequency / 86400) + 1;
     m_date = m_date.addDays(uFrequencyInDays);
@@ -215,37 +203,25 @@ bool VBoxUpdateData::load(const CHost &comHost)
     /* Fetch 'update channel' value: */
     KUpdateChannel enmUpdateChannel = comAgent.GetChannel();
     if (!comAgent.isOk())
-    {
-        UINotificationMessage::cannotAcquireUpdateAgentParameter(comAgent);
-        return false;
-    }
+        return UINotificationMessage::cannotAcquireUpdateAgentParameter(comAgent);
     m_enmUpdateChannel = enmUpdateChannel;
 
     /* Fetch 'version' value: */
     const QString strVersion = comAgent.GetVersion();
     if (!comAgent.isOk())
-    {
-        UINotificationMessage::cannotAcquireUpdateAgentParameter(comAgent);
-        return false;
-    }
+        return UINotificationMessage::cannotAcquireUpdateAgentParameter(comAgent);
     m_version = strVersion;
 
     /* Fetch whether we need to check: */
     const BOOL fNeedToCheck = comAgent.GetIsCheckNeeded();
     if (!comAgent.isOk())
-    {
-        UINotificationMessage::cannotAcquireUpdateAgentParameter(comAgent);
-        return false;
-    }
+        return UINotificationMessage::cannotAcquireUpdateAgentParameter(comAgent);
     m_fCheckRequired = fNeedToCheck;
 
     /* Optional stuff goes last; Fetch supported update channels: */
     const QVector<KUpdateChannel> supportedUpdateChannels = comAgent.GetSupportedChannels();
     if (!comAgent.isOk())
-    {
-        UINotificationMessage::cannotAcquireUpdateAgentParameter(comAgent);
-        return false;
-    }
+        return UINotificationMessage::cannotAcquireUpdateAgentParameter(comAgent);
     m_supportedUpdateChannels = supportedUpdateChannels;
 
     /* Success finally: */
@@ -257,34 +233,22 @@ bool VBoxUpdateData::save(const CHost &comHost) const
     /* Acquire update agent: */
     CUpdateAgent comAgent = comHost.GetUpdateHost();
     if (!comHost.isOk())
-    {
-        UINotificationMessage::cannotAcquireHostParameter(comHost);
-        return false;
-    }
+        return UINotificationMessage::cannotAcquireHostParameter(comHost);
 
     /* Save whether agent is enabled: */
     comAgent.SetEnabled(m_fCheckEnabled);
     if (!comAgent.isOk())
-    {
-        UINotificationMessage::cannotChangeUpdateAgentParameter(comAgent);
-        return false;
-    }
+        return UINotificationMessage::cannotChangeUpdateAgentParameter(comAgent);
 
     /* Save 'period' value: */
     comAgent.SetCheckFrequency(s_days.at(m_enmUpdatePeriod).length);
     if (!comAgent.isOk())
-    {
-        UINotificationMessage::cannotChangeUpdateAgentParameter(comAgent);
-        return false;
-    }
+        return UINotificationMessage::cannotChangeUpdateAgentParameter(comAgent);
 
     /* Save 'update channel' value: */
     comAgent.SetChannel(m_enmUpdateChannel);
     if (!comAgent.isOk())
-    {
-        UINotificationMessage::cannotChangeUpdateAgentParameter(comAgent);
-        return false;
-    }
+        return UINotificationMessage::cannotChangeUpdateAgentParameter(comAgent);
 
     /* Success finally: */
     return true;

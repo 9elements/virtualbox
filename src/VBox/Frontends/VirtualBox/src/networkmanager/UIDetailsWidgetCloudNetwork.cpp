@@ -1,4 +1,4 @@
-/* $Id: UIDetailsWidgetCloudNetwork.cpp 113058 2026-02-17 10:55:13Z sergey.dubov@oracle.com $ */
+/* $Id: UIDetailsWidgetCloudNetwork.cpp 113267 2026-03-05 10:14:03Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIDetailsWidgetCloudNetwork class implementation.
  */
@@ -215,19 +215,10 @@ bool UIDetailsWidgetCloudNetwork::revalidate() const
 {
     /* Make sure network name isn't empty: */
     if (m_newData.m_strName.isEmpty())
-    {
-        UINotificationMessage::warnAboutNoNameSpecified(m_oldData.m_strName);
-        return false;
-    }
-    else
-    {
-        /* Make sure item names are unique: */
-        if (m_busyNames.contains(m_newData.m_strName))
-        {
-            UINotificationMessage::warnAboutNameAlreadyBusy(m_newData.m_strName);
-            return false;
-        }
-    }
+        return UINotificationMessage::warnAboutNoNameSpecified(m_oldData.m_strName);
+    /* Make sure item names are unique: */
+    else if (m_busyNames.contains(m_newData.m_strName))
+        return UINotificationMessage::warnAboutNameAlreadyBusy(m_newData.m_strName);
 
     return true;
 }

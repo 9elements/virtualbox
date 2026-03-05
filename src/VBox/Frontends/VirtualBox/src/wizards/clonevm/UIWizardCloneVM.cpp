@@ -1,4 +1,4 @@
-/* $Id: UIWizardCloneVM.cpp 112845 2026-02-05 16:55:12Z sergey.dubov@oracle.com $ */
+/* $Id: UIWizardCloneVM.cpp 113267 2026-03-05 10:14:03Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIWizardCloneVM class implementation.
  */
@@ -181,10 +181,7 @@ bool UIWizardCloneVM::cloneVM()
         /* Look for created snapshot: */
         const CSnapshot comCreatedSnapshot = m_machine.FindSnapshot(uSnapshotId.toString());
         if (comCreatedSnapshot.isNull())
-        {
-            UINotificationMessage::cannotFindSnapshotByName(m_machine, strSnapshotName, this);
-            return false;
-        }
+            return UINotificationMessage::cannotFindSnapshotByName(m_machine, strSnapshotName, this);
 
         /* Update machine for cloning finally: */
         srcMachine = comCreatedSnapshot.GetMachine();
@@ -197,10 +194,7 @@ bool UIWizardCloneVM::cloneVM()
                                                   QVector<QString>(), QString(), QString(),
                                                   QString(), QString(), QString());
     if (!comVBox.isOk())
-    {
-        UINotificationMessage::cannotCreateMachine(comVBox, this);
-        return false;
-    }
+        return UINotificationMessage::cannotCreateMachine(comVBox, this);
 
     /* Clone options vector to pass to cloning: */
     QVector<KCloneOptions> options;

@@ -1,4 +1,4 @@
-/* $Id: UIDetailsWidgetNATNetwork.cpp 113064 2026-02-17 12:58:12Z sergey.dubov@oracle.com $ */
+/* $Id: UIDetailsWidgetNATNetwork.cpp 113267 2026-03-05 10:14:03Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIDetailsWidgetNATNetwork class implementation.
  */
@@ -94,32 +94,17 @@ bool UIDetailsWidgetNATNetwork::revalidate() const
 {
     /* Make sure network name isn't empty: */
     if (m_newData.m_strName.isEmpty())
-    {
-        UINotificationMessage::warnAboutNoNameSpecified(m_oldData.m_strName);
-        return false;
-    }
-    else
-    {
-        /* Make sure item names are unique: */
-        if (m_busyNames.contains(m_newData.m_strName))
-        {
-            UINotificationMessage::warnAboutNameAlreadyBusy(m_newData.m_strName);
-            return false;
-        }
-    }
+        return UINotificationMessage::warnAboutNoNameSpecified(m_oldData.m_strName);
+    /* Make sure item names are unique: */
+    else if (m_busyNames.contains(m_newData.m_strName))
+        return UINotificationMessage::warnAboutNameAlreadyBusy(m_newData.m_strName);
 
     /* Make sure IPv4 prefix isn't empty: */
     if (m_newData.m_strPrefixIPv4.isEmpty())
-    {
-        UINotificationMessage::warnAboutNoIPv4PrefixSpecified(m_newData.m_strName);
-        return false;
-    }
+        return UINotificationMessage::warnAboutNoIPv4PrefixSpecified(m_newData.m_strName);
     /* Make sure IPv6 prefix isn't empty if IPv6 is supported: */
     if (m_newData.m_fSupportsIPv6 && m_newData.m_strPrefixIPv6.isEmpty())
-    {
-        UINotificationMessage::warnAboutNoIPv6PrefixSpecified(m_newData.m_strName);
-        return false;
-    }
+        return UINotificationMessage::warnAboutNoIPv6PrefixSpecified(m_newData.m_strName);
 
     /* Validate 'Forwarding' tab content: */
     return m_pForwardingTableIPv4->validate() && m_pForwardingTableIPv6->validate();

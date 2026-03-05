@@ -1,4 +1,4 @@
-/* $Id: UIWizardImportApp.cpp 112853 2026-02-06 13:04:48Z sergey.dubov@oracle.com $ */
+/* $Id: UIWizardImportApp.cpp 113267 2026-03-05 10:14:03Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIWizardImportApp class implementation.
  */
@@ -197,10 +197,7 @@ bool UIWizardImportApp::setFile(const QString &strName)
     /* Now we have to interpret that stuff: */
     comAppliance.Interpret();
     if (!comAppliance.isOk())
-    {
-        UINotificationMessage::cannotInterpretAppliance(comAppliance, this);
-        return false;
-    }
+        return UINotificationMessage::cannotInterpretAppliance(comAppliance, this);
 
     /* Remember appliance: */
     m_comLocalAppliance = comAppliance;

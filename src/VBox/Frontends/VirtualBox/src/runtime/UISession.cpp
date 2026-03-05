@@ -1,4 +1,4 @@
-/* $Id: UISession.cpp 113208 2026-03-02 11:36:22Z sergey.dubov@oracle.com $ */
+/* $Id: UISession.cpp 113267 2026-03-05 10:14:03Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UISession class implementation.
  */
@@ -657,10 +657,7 @@ bool UISession::isClipboardFileTransferEnabled()
     bool fEnabled = comMachine.GetClipboardFileTransfersEnabled();
     const bool fSuccess = comMachine.isOk();
     if (!fSuccess)
-    {
-        UINotificationMessage::cannotAcquireMachineParameter(comMachine);
-        return false;
-    }
+        return UINotificationMessage::cannotAcquireMachineParameter(comMachine);
     return fEnabled;
 }
 
@@ -893,10 +890,7 @@ bool UISession::mountBootMedium(const QUuid &uMediumId)
     CVirtualBox comVBox = gpGlobalSession->virtualBox();
 
     if (!comVBox.isOk())
-    {
-        UINotificationMessage::cannotAcquireVirtualBoxParameter(comVBox);
-        return false;
-    }
+        return UINotificationMessage::cannotAcquireVirtualBoxParameter(comVBox);
 
     const KStorageBus enmRecommendedDvdBus = gpGlobalSession->guestOSTypeManager().getRecommendedDVDStorageBus(osTypeId());
     const KStorageControllerType enmRecommendedDvdType = gpGlobalSession->guestOSTypeManager().getRecommendedDVDStorageController(osTypeId());
@@ -2863,10 +2857,7 @@ bool UISession::mountAdHocImage(KDeviceType enmDeviceType, UIMediumDeviceType en
         /* Open the medium: */
         const CMedium comMedium = comVBox.OpenMedium(strMediumName, enmDeviceType, KAccessMode_ReadWrite, false /* fForceNewUuid */);
         if (!comVBox.isOk() || comMedium.isNull())
-        {
-            UINotificationMessage::cannotOpenMedium(comVBox, strMediumName);
-            return false;
-        }
+            return UINotificationMessage::cannotOpenMedium(comVBox, strMediumName);
 
         /* Make sure medium ID is valid: */
         const QUuid uMediumId = comMedium.GetId();
@@ -2906,10 +2897,7 @@ bool UISession::mountAdHocImage(KDeviceType enmDeviceType, UIMediumDeviceType en
     /* Make sure at least one storage slot found: */
     QList<ExactStorageSlot> sStorageSlots = aFreeStorageSlots + aBusyStorageSlots;
     if (sStorageSlots.isEmpty())
-    {
-        UINotificationMessage::cannotMountImage(machineName(), strMediumName);
-        return false;
-    }
+        return UINotificationMessage::cannotMountImage(machineName(), strMediumName);
 
     /* Try to mount medium into first available storage slot: */
     while (!sStorageSlots.isEmpty())

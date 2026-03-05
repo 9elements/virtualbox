@@ -1,4 +1,4 @@
-/* $Id: UIWizardExportApp.cpp 112850 2026-02-06 11:10:07Z sergey.dubov@oracle.com $ */
+/* $Id: UIWizardExportApp.cpp 113267 2026-03-05 10:14:03Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIWizardExportApp class implementation.
  */
@@ -153,10 +153,7 @@ bool UIWizardExportApp::exportAppliance()
         /* Initialize VFS explorer: */
         CVFSExplorer comExplorer = comAppliance.CreateVFSExplorer(uri(false /* fWithFile */));
         if (!comAppliance.isOk())
-        {
-            UINotificationMessage::cannotCreateVfsExplorer(comAppliance, this);
-            return false;
-        }
+            return UINotificationMessage::cannotCreateVfsExplorer(comAppliance, this);
 
         /* Update VFS explorer: */
         UINotificationProgressVFSExplorerUpdate *pNotification =
@@ -299,10 +296,7 @@ bool UIWizardExportApp::exportVMs(CAppliance &comAppliance)
         comAppliance.AddPasswords(encryptionPasswords.keys().toVector(),
                                   encryptionPasswords.values().toVector());
         if (!comAppliance.isOk())
-        {
-            UINotificationMessage::cannotAddDiskEncryptionPassword(comAppliance, this);
-            return false;
-        }
+            return UINotificationMessage::cannotAddDiskEncryptionPassword(comAppliance, this);
     }
 
     /* Prepare export options: */

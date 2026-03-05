@@ -1,4 +1,4 @@
-/* $Id: UIVirtualBoxManager.cpp 113262 2026-03-04 20:12:57Z sergey.dubov@oracle.com $ */
+/* $Id: UIVirtualBoxManager.cpp 113267 2026-03-05 10:14:03Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVirtualBoxManager class implementation.
  */
@@ -2914,10 +2914,7 @@ bool UIVirtualBoxManager::isCloudProfileUpdateInProgress() const
 bool UIVirtualBoxManager::checkUnattendedInstallError(const CUnattended &comUnattended) const
 {
     if (!comUnattended.isOk())
-    {
-        UINotificationMessage::cannotRunUnattendedGuestInstall(comUnattended);
-        return false;
-    }
+        return UINotificationMessage::cannotRunUnattendedGuestInstall(comUnattended);
     return true;
 }
 

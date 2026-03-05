@@ -1,4 +1,4 @@
-/* $Id: UIWizardNewVM.cpp 112845 2026-02-05 16:55:12Z sergey.dubov@oracle.com $ */
+/* $Id: UIWizardNewVM.cpp 113267 2026-03-05 10:14:03Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIWizardNewVM class implementation.
  */
@@ -854,10 +854,7 @@ void UIWizardNewVM::setUnattendedPageVisible(bool fVisible)
 bool UIWizardNewVM::checkUnattendedInstallError(const CUnattended &comUnattended) const
 {
     if (!comUnattended.isOk())
-    {
-        UINotificationMessage::cannotRunUnattendedGuestInstall(comUnattended);
-        return false;
-    }
+        return UINotificationMessage::cannotRunUnattendedGuestInstall(comUnattended);
     return true;
 }
 

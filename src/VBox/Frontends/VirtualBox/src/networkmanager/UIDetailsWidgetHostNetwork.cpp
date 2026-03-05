@@ -1,4 +1,4 @@
-/* $Id: UIDetailsWidgetHostNetwork.cpp 113062 2026-02-17 12:37:07Z sergey.dubov@oracle.com $ */
+/* $Id: UIDetailsWidgetHostNetwork.cpp 113267 2026-03-05 10:14:03Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIDetailsWidgetHostNetwork class implementation.
  */
@@ -113,73 +113,43 @@ bool UIDetailsWidgetHostNetwork::revalidate() const
 #ifdef VBOX_WS_MAC
     /* Make sure network name isn't empty: */
     if (m_newData.m_strName.isEmpty())
-    {
-        UINotificationMessage::warnAboutNoNameSpecified(m_oldData.m_strName);
-        return false;
-    }
-    else
-    {
-        /* Make sure item names are unique: */
-        if (m_busyNames.contains(m_newData.m_strName))
-        {
-            UINotificationMessage::warnAboutNameAlreadyBusy(m_newData.m_strName);
-            return false;
-        }
-    }
+        return UINotificationMessage::warnAboutNoNameSpecified(m_oldData.m_strName);
+    /* Make sure item names are unique: */
+    else if (m_busyNames.contains(m_newData.m_strName))
+        return UINotificationMessage::warnAboutNameAlreadyBusy(m_newData.m_strName);
 
     /* Make sure mask isn't empty: */
     if (m_newData.m_strMask.isEmpty())
-    {
-        UINotificationMessage::warnAboutInvalidIPv4Mask(m_newData.m_strMask);
-        return false;
-    }
+        return UINotificationMessage::warnAboutInvalidIPv4Mask(m_newData.m_strMask);
     /* Make sure lower bound isn't empty: */
     if (m_newData.m_strLBnd.isEmpty())
-    {
-        UINotificationMessage::warnAboutInvalidDHCPServerLowerAddress(m_newData.m_strLBnd);
-        return false;
-    }
+        return UINotificationMessage::warnAboutInvalidDHCPServerLowerAddress(m_newData.m_strLBnd);
     /* Make sure upper bound isn't empty: */
     if (m_newData.m_strUBnd.isEmpty())
-    {
-        UINotificationMessage::warnAboutInvalidDHCPServerUpperAddress(m_newData.m_strUBnd);
-        return false;
-    }
+        return UINotificationMessage::warnAboutInvalidDHCPServerUpperAddress(m_newData.m_strUBnd);
 
 #else /* !VBOX_WS_MAC */
 
     /* Validate 'Interface' tab content: */
     if (   m_newData.m_interface.m_fDHCPEnabled
         && !m_newData.m_dhcpserver.m_fEnabled)
-    {
-        UINotificationMessage::warnAboutDHCPServerIsNotEnabled(m_newData.m_interface.m_strName);
-        return false;
-    }
+        return UINotificationMessage::warnAboutDHCPServerIsNotEnabled(m_newData.m_interface.m_strName);
     if (   !m_newData.m_interface.m_fDHCPEnabled
         && !m_newData.m_interface.m_strAddress.trimmed().isEmpty()
         && (   !RTNetIsIPv4AddrStr(m_newData.m_interface.m_strAddress.toUtf8().constData())
             || RTNetStrIsIPv4AddrAny(m_newData.m_interface.m_strAddress.toUtf8().constData())))
-    {
-        UINotificationMessage::warnAboutInvalidIPv4Address(m_newData.m_interface.m_strName);
-        return false;
-    }
+        return UINotificationMessage::warnAboutInvalidIPv4Address(m_newData.m_interface.m_strName);
     if (   !m_newData.m_interface.m_fDHCPEnabled
         && !m_newData.m_interface.m_strMask.trimmed().isEmpty()
         && (   !RTNetIsIPv4AddrStr(m_newData.m_interface.m_strMask.toUtf8().constData())
             || RTNetStrIsIPv4AddrAny(m_newData.m_interface.m_strMask.toUtf8().constData())))
-    {
-        UINotificationMessage::warnAboutInvalidIPv4Mask(m_newData.m_interface.m_strName);
-        return false;
-    }
+        return UINotificationMessage::warnAboutInvalidIPv4Mask(m_newData.m_interface.m_strName);
     if (    !m_newData.m_interface.m_fDHCPEnabled
         && m_newData.m_interface.m_fSupportedIPv6
         && !m_newData.m_interface.m_strAddress6.trimmed().isEmpty()
         && (   !RTNetIsIPv6AddrStr(m_newData.m_interface.m_strAddress6.toUtf8().constData())
             || RTNetStrIsIPv6AddrAny(m_newData.m_interface.m_strAddress6.toUtf8().constData())))
-    {
-        UINotificationMessage::warnAboutInvalidIPv6Address(m_newData.m_interface.m_strName);
-        return false;
-    }
+        return UINotificationMessage::warnAboutInvalidIPv6Address(m_newData.m_interface.m_strName);
     bool fIsMaskPrefixLengthNumber = false;
     const int iMaskPrefixLength = m_newData.m_interface.m_strPrefixLength6.trimmed().toInt(&fIsMaskPrefixLengthNumber);
     if (   !m_newData.m_interface.m_fDHCPEnabled
@@ -187,40 +157,25 @@ bool UIDetailsWidgetHostNetwork::revalidate() const
         && (   !fIsMaskPrefixLengthNumber
             || iMaskPrefixLength < 0
             || iMaskPrefixLength > 128))
-    {
-        UINotificationMessage::warnAboutInvalidIPv6PrefixLength(m_newData.m_interface.m_strName);
-        return false;
-    }
+        return UINotificationMessage::warnAboutInvalidIPv6PrefixLength(m_newData.m_interface.m_strName);
 
     /* Validate 'DHCP server' tab content: */
     if (   m_newData.m_dhcpserver.m_fEnabled
         && (   !RTNetIsIPv4AddrStr(m_newData.m_dhcpserver.m_strAddress.toUtf8().constData())
             || RTNetStrIsIPv4AddrAny(m_newData.m_dhcpserver.m_strAddress.toUtf8().constData())))
-    {
-        UINotificationMessage::warnAboutInvalidDHCPServerAddress(m_newData.m_interface.m_strName);
-        return false;
-    }
+        return UINotificationMessage::warnAboutInvalidDHCPServerAddress(m_newData.m_interface.m_strName);
     if (   m_newData.m_dhcpserver.m_fEnabled
         && (   !RTNetIsIPv4AddrStr(m_newData.m_dhcpserver.m_strMask.toUtf8().constData())
             || RTNetStrIsIPv4AddrAny(m_newData.m_dhcpserver.m_strMask.toUtf8().constData())))
-    {
-        UINotificationMessage::warnAboutInvalidDHCPServerMask(m_newData.m_interface.m_strName);
-        return false;
-    }
+        return UINotificationMessage::warnAboutInvalidDHCPServerMask(m_newData.m_interface.m_strName);
     if (   m_newData.m_dhcpserver.m_fEnabled
         && (   !RTNetIsIPv4AddrStr(m_newData.m_dhcpserver.m_strLowerAddress.toUtf8().constData())
             || RTNetStrIsIPv4AddrAny(m_newData.m_dhcpserver.m_strLowerAddress.toUtf8().constData())))
-    {
-        UINotificationMessage::warnAboutInvalidDHCPServerLowerAddress(m_newData.m_interface.m_strName);
-        return false;
-    }
+        return UINotificationMessage::warnAboutInvalidDHCPServerLowerAddress(m_newData.m_interface.m_strName);
     if (   m_newData.m_dhcpserver.m_fEnabled
         && (   !RTNetIsIPv4AddrStr(m_newData.m_dhcpserver.m_strUpperAddress.toUtf8().constData())
             || RTNetStrIsIPv4AddrAny(m_newData.m_dhcpserver.m_strUpperAddress.toUtf8().constData())))
-    {
-        UINotificationMessage::warnAboutInvalidDHCPServerUpperAddress(m_newData.m_interface.m_strName);
-        return false;
-    }
+        return UINotificationMessage::warnAboutInvalidDHCPServerUpperAddress(m_newData.m_interface.m_strName);
 #endif /* !VBOX_WS_MAC */
 
     /* True by default: */

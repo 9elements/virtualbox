@@ -1,4 +1,4 @@
-/* $Id: UIWizardNewVD.cpp 112845 2026-02-05 16:55:12Z sergey.dubov@oracle.com $ */
+/* $Id: UIWizardNewVD.cpp 113267 2026-03-05 10:14:03Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIWizardNewVD class implementation.
  */
@@ -183,10 +183,7 @@ bool UIWizardNewVD::createVirtualDisk()
     CMedium comVirtualDisk = comVBox.CreateMedium(m_comMediumFormat.GetName(),
                                                   m_strMediumPath, KAccessMode_ReadWrite, m_enmDeviceType);
     if (!comVBox.isOk())
-    {
-        UINotificationMessage::cannotCreateMediumStorage(comVBox, m_strMediumPath, this);
-        return false;
-    }
+        return UINotificationMessage::cannotCreateMediumStorage(comVBox, m_strMediumPath, this);
 
     /* Compose medium-variant: */
     QVector<KMediumVariant> variants(sizeof(qulonglong) * 8);

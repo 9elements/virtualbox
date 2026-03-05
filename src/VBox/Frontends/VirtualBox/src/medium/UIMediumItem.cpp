@@ -1,4 +1,4 @@
-/* $Id: UIMediumItem.cpp 113209 2026-03-02 12:21:07Z sergey.dubov@oracle.com $ */
+/* $Id: UIMediumItem.cpp 113267 2026-03-05 10:14:03Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMediumItem class implementation.
  */
@@ -221,10 +221,7 @@ bool UIMediumItem::changeMediumType(KMediumType enmNewType)
     CMedium comMedium = medium().medium();
     comMedium.SetType(enmNewType);
     if (!comMedium.isOk())
-    {
-        UINotificationMessage::cannotChangeMediumParameter(comMedium);
-        return false;
-    }
+        return UINotificationMessage::cannotChangeMediumParameter(comMedium);
 
     /* Reattach the medium to all the VMs it was previously attached: */
     foreach (const AttachmentCache &attachmentCache, attachmentCacheList)
@@ -460,16 +457,12 @@ bool UIMediumItemHD::releaseFrom(CMachine comMachine)
         /* Try to detach device: */
         comMachine.DetachDevice(attachment.GetController(), attachment.GetPort(), attachment.GetDevice());
         if (!comMachine.isOk())
-        {
-            /* Return failure: */
-            UINotificationMessage::cannotDetachDevice(comMachine,
-                                                      UIMediumDeviceType_HardDisk,
-                                                      location(),
-                                                      StorageSlot(controller.GetBus(),
-                                                                  attachment.GetPort(),
-                                                                  attachment.GetDevice()));
-            return false;
-        }
+            return UINotificationMessage::cannotDetachDevice(comMachine,
+                                                             UIMediumDeviceType_HardDisk,
+                                                             location(),
+                                                             StorageSlot(controller.GetBus(),
+                                                                         attachment.GetPort(),
+                                                                         attachment.GetDevice()));
         else
             fAtLeastOneRelease = true;
     }
