@@ -1,4 +1,4 @@
-/* $Id: vbox_drv.h 112577 2026-01-14 19:13:22Z vadim.galitsyn@oracle.com $ */
+/* $Id: vbox_drv.h 113278 2026-03-06 17:05:07Z vadim.galitsyn@oracle.com $ */
 /** @file
  * VirtualBox Additions Linux kernel video driver
  */
@@ -306,7 +306,7 @@ struct vbox_private {
 	} ttm;
 
 	struct mutex hw_mutex; /* protects modeset and accel/vbva accesses */
-#if RTLNX_VER_MIN(6,18,0)
+#if RTLNX_VER_MIN(6,18,0) || RTLNX_RHEL_RANGE(10,2, 10,99)
 	/** Replacement for struct drm_device .struct_mutex. */
 	struct mutex struct_mutex;
 #endif

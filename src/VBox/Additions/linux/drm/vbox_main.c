@@ -1,4 +1,4 @@
-/* $Id: vbox_main.c 112578 2026-01-14 19:14:12Z vadim.galitsyn@oracle.com $ */
+/* $Id: vbox_main.c 113278 2026-03-06 17:05:07Z vadim.galitsyn@oracle.com $ */
 /** @file
  * VirtualBox Additions Linux kernel video driver
  */
@@ -485,7 +485,7 @@ int vbox_driver_load(struct drm_device *dev, unsigned long flags)
 	vbox->dev = dev;
 
 	mutex_init(&vbox->hw_mutex);
-#if RTLNX_VER_MIN(6,18,0)
+#if RTLNX_VER_MIN(6,18,0) || RTLNX_RHEL_RANGE(10,2, 10,99)
 	mutex_init(&vbox->struct_mutex);
 #endif
 	ret = vbox_hw_init(vbox);
@@ -690,7 +690,7 @@ vbox_dumb_mmap_offset(struct drm_file *file,
 	struct vbox_bo *bo;
 	struct mutex *struct_mutex;
 
-#if RTLNX_VER_MIN(6,18,0)
+#if RTLNX_VER_MIN(6,18,0) || RTLNX_RHEL_RANGE(10,2, 10,99)
 	struct vbox_private *vbox = dev->dev_private;
 	struct_mutex = &vbox->struct_mutex;
 #else
