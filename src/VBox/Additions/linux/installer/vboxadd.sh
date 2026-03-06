@@ -1,7 +1,7 @@
 #! /bin/sh
-# $Id: vboxadd.sh 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+# $Id: vboxadd.sh 113275 2026-03-06 16:56:44Z vadim.galitsyn@oracle.com $
 ## @file
-# Linux Additions kernel module init script ($Revision: 111747 $)
+# Linux Additions kernel module init script ($Revision: 113275 $)
 #
 
 #
@@ -902,6 +902,11 @@ cleanup()
         for i in $OLDMODULES; do
           rm -rf /usr/src/$i-*
         done
+    fi
+
+    # Cleanup SELinux records.
+    if command -v semanage > /dev/null; then
+        semanage fcontext -d -t mount_exec_t "${INSTALL_DIR}/other/mount.vboxsf" > /dev/null 2>&1
     fi
 
     # Clean-up X11-related bits
