@@ -1,7 +1,7 @@
 #! /bin/sh
-# $Id: vboxadd.sh 113275 2026-03-06 16:56:44Z vadim.galitsyn@oracle.com $
+# $Id: vboxadd.sh 113276 2026-03-06 17:00:44Z vadim.galitsyn@oracle.com $
 ## @file
-# Linux Additions kernel module init script ($Revision: 113275 $)
+# Linux Additions kernel module init script ($Revision: 113276 $)
 #
 
 #
@@ -70,6 +70,14 @@ VBOXSERVICE_PIDFILE="/var/run/vboxadd-service.sh"
 ## systemd logs information about service status, otherwise do that ourselves.
 QUIET=
 test -z "${TARGET_VER}" && TARGET_VER=`uname -r`
+
+# We deprecate vboxvideo for Linux kernel 7.0 and newer.
+KERN_MAJ=$(uname -r | cut -d . -f1)
+KERN_MIN=$(uname -r | cut -d . -f2)
+have_vboxvideo_build=1
+if test -n "$KERN_MAJ" -a -n "$KERN_MIN"; then
+    [ $KERN_MAJ -ge 7 -a $KERN_MIN -ge 0 ] && have_vboxvideo_build=
+fi
 
 export VBOX_KBUILD_TYPE
 export USERNAME
@@ -464,7 +472,7 @@ sign_modules()
     # Make list of mudules to sign.
     MODULE_LIST="vboxguest vboxsf"
     # vboxvideo might not present on for older kernels.
-    [ -f "/lib/modules/"$KERN_VER"/misc/vboxvideo.ko" ] && MODULE_LIST="$MODULE_LIST vboxvideo"
+    [ -n "$have_vboxvideo_build" -a -f "/lib/modules/"$KERN_VER"/misc/vboxvideo.ko" ] && MODULE_LIST="$MODULE_LIST vboxvideo"
 
     # Sign kernel modules if kernel configuration requires it.
     if test "$(kernel_requires_module_signature $KERN_VER)" = "1"; then
@@ -581,18 +589,25 @@ setup_modules()
         info  "Look at $LOG to find out what went wrong"
         return 0
     fi
-    log "Building the graphics driver module."
-    if ! myerr=`$BUILDINTMP \
-        --use-module-symvers /tmp/vboxguest-Module.symvers \
-        --module-source $MODULE_SRC/vboxvideo \
-        --no-print-directory install 2>&1`; then
-        module_build_log "$myerr"
-        info "Look at $LOG to find out what went wrong"
+
+    if [ -n "$have_vboxvideo_build" ]; then
+        log "Building the graphics driver module."
+        if ! myerr=`$BUILDINTMP \
+            --use-module-symvers /tmp/vboxguest-Module.symvers \
+            --module-source $MODULE_SRC/vboxvideo \
+            --no-print-directory install 2>&1`; then
+            module_build_log "$myerr"
+            info "Look at $LOG to find out what went wrong"
+        fi
     fi
     [ -d /etc/depmod.d ] || mkdir /etc/depmod.d
+
     echo "override vboxguest * misc" > /etc/depmod.d/vboxvideo-upstream.conf
     echo "override vboxsf * misc" >> /etc/depmod.d/vboxvideo-upstream.conf
-    echo "override vboxvideo * misc" >> /etc/depmod.d/vboxvideo-upstream.conf
+
+    if [ -n "$have_vboxvideo_build" ]; then
+        echo "override vboxvideo * misc" >> /etc/depmod.d/vboxvideo-upstream.conf
+    fi
 
     sign_modules "${KERN_VER}"
 
@@ -1062,25 +1077,30 @@ check_status_kernel()
         false
     fi
 
-    # Module vboxvideo is optional and expected to be loaded only when VM is
-    # running VBoxVGA or VBoxSVGA graphics.
-    if [ $? -eq 0 ]; then
-        gpu_vendor=$(lspci | grep 'VGA compatible controller' | cut -d ' ' -f 5 2>/dev/null)
+    if [ -n "$have_vboxvideo_build" ]; then
+        # Module vboxvideo is optional and expected to be loaded only when VM is
+        # running VBoxVGA or VBoxSVGA graphics.
+        if [ $? -eq 0 ]; then
+            gpu_vendor=$(lspci | grep 'VGA compatible controller' | cut -d ' ' -f 5 2>/dev/null)
 
-        # vboxvideo is not installed for kernels 3.10.x and older.
-        have_vboxvideo=
-        if [ "$(printf '%s\n%s\n' "3.10" "$(uname -r)" | sort -Vr | head -1)" = "$(uname -r)" ]; then
-            have_vboxvideo="1"
-        fi
+            # vboxvideo is not installed for kernels 3.10.x and older.
+            have_vboxvideo=
+            if [ "$(printf '%s\n%s\n' "3.10" "$(uname -r)" | sort -Vr | head -1)" = "$(uname -r)" ]; then
+                have_vboxvideo="1"
+            fi
 
-        if [ -n "$have_vboxvideo" -a "$gpu_vendor" = "InnoTek" ]; then
-            check_running_module "vboxvideo"
+            if [ -n "$have_vboxvideo" -a "$gpu_vendor" = "InnoTek" ]; then
+                check_running_module "vboxvideo"
+            else
+                # Do not spoil $?.
+                true
+            fi
         else
-            # Do not spoil $?.
-            true
+            false
         fi
     else
-        false
+        # Do not spoil $?.
+        true
     fi
 }
 
