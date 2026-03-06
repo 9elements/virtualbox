@@ -1,7 +1,7 @@
 #! /bin/sh
-# $Id: vboxadd.sh 113279 2026-03-06 17:06:19Z vadim.galitsyn@oracle.com $
+# $Id: vboxadd.sh 113280 2026-03-06 17:08:45Z vadim.galitsyn@oracle.com $
 ## @file
-# Linux Additions kernel module init script ($Revision: 113279 $)
+# Linux Additions kernel module init script ($Revision: 113280 $)
 #
 
 #
@@ -551,6 +551,7 @@ setup_modules()
     case "$KERN_VER" in
         5.15.0-*.el8uek*) PATH="/opt/rh/gcc-toolset-11/root/usr/bin:$PATH";;
         6.12.0-*.el9uek*) PATH="/opt/rh/gcc-toolset-14/root/usr/bin:$PATH";;
+        6.18.0-*.el9uek*) PATH="/opt/rh/gcc-toolset-14/root/usr/bin:$PATH";;
     esac
 
     # Detect if kernel was built with clang.

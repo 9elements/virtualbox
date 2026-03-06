@@ -104,6 +104,7 @@ KERN_VER=`uname -r`
 case "$KERN_VER" in
     5.15.0-*.el8uek*) PATH="/opt/rh/gcc-toolset-11/root/usr/bin:$PATH";;
     6.12.0-*.el9uek*)PATH="/opt/rh/gcc-toolset-14/root/usr/bin:$PATH";;
+    6.18.0-*.el9uek*)PATH="/opt/rh/gcc-toolset-14/root/usr/bin:$PATH";;
 esac
 
 if test -e "${MODULE_SRC}/vboxpci"; then
