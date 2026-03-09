@@ -1,4 +1,4 @@
-/* $Id: UINotificationObject.h 113228 2026-03-03 14:46:16Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationObject.h 113285 2026-03-09 09:09:02Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationObject class declaration.
  */
@@ -93,6 +93,19 @@ class SHARED_LIBRARY_STUFF UINotificationSimple : public UINotificationObject
 
 public:
 
+    /** Returns object name. */
+    virtual QString name() const RT_OVERRIDE RT_FINAL { return m_strName; }
+    /** Returns object details. */
+    virtual QString details() const RT_OVERRIDE RT_FINAL { return m_strDetails; }
+    /** Returns object internal name. */
+    virtual QString internalName() const RT_OVERRIDE RT_FINAL { return m_strInternalName; }
+    /** Returns object help keyword. */
+    virtual QString helpKeyword() const RT_OVERRIDE RT_FINAL { return m_strHelpKeyword; }
+    /** Returns whether object is critical. */
+    virtual bool isCritical() const RT_OVERRIDE RT_FINAL { return m_fCritical; }
+    /** Handles notification-object being added. */
+    virtual void handle() RT_OVERRIDE RT_FINAL {}
+
     /** Defines whether object is @a fCritical. */
     void setCritical(bool fCritical) { m_fCritical = fCritical; }
 
@@ -107,19 +120,6 @@ protected:
                          const QString &strDetails,
                          const QString &strInternalName,
                          const QString &strHelpKeyword);
-
-    /** Returns object name. */
-    virtual QString name() const RT_OVERRIDE RT_FINAL { return m_strName; }
-    /** Returns object details. */
-    virtual QString details() const RT_OVERRIDE RT_FINAL { return m_strDetails; }
-    /** Returns object internal name. */
-    virtual QString internalName() const RT_OVERRIDE RT_FINAL { return m_strInternalName; }
-    /** Returns object help keyword. */
-    virtual QString helpKeyword() const RT_OVERRIDE RT_FINAL { return m_strHelpKeyword; }
-    /** Returns whether object is critical. */
-    virtual bool isCritical() const RT_OVERRIDE RT_FINAL { return m_fCritical; }
-    /** Handles notification-object being added. */
-    virtual void handle() RT_OVERRIDE RT_FINAL {}
 
     /** Returns whether message with passed @a strInternalName is suppressed. */
     static bool isSuppressed(const QString &strInternalName);
