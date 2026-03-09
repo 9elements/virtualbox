@@ -217,7 +217,7 @@ my $current_segment;
 #
 my @segment_stack = ();
 my $current_function;
-my $cfi_state; #
+my $cfi_state; # value: undef, 'prologue', 'body', 'endproc'
 my %globals;
 
 { package opcode;	# pick up opcodes
@@ -785,13 +785,12 @@ my %globals;
 				die "unpaired .cfi_remember_state" if (@cfa_stack);
 				die "bogus .cfi_endproc (state: $cfi_state)" if ($cfi_state ne 'body');
                                 $self->{value} = "SEH64_ENDPROC_FRAME\t$current_function->{name}" if ($nasm || $masm);
-				$cfi_state = undef;
+				$cfi_state = 'endproc';
 				last;
 			      };
 	    /def_cfa_register/
 			&& do { $cfa_reg = $$line;
 				$last_cfa_expression = undef;
-				#$self->{value} = "; $dir $$line" if (($nasm || $masm) && $cfi_state eq 'prologue');
 				last;
 			      };
 	    /def_cfa_offset/
@@ -1045,6 +1044,7 @@ my %globals;
 			$self->{value} .= "${decor}SEH_end_$current_function->{name}:"
 				if ($win64 && $current_function->{abi} eq "svr4");
 			undef $current_function;
+			undef $cfi_state;
 		    }
 		} elsif (!$elf && $dir =~ /\.align/) {
 		    $self->{value} = ".p2align\t" . (log($$line)/log(2));
@@ -1229,8 +1229,9 @@ my %globals;
 					    $self->{value}="${decor}SEH_end_$current_function->{name}:";
 					    $self->{value}.=":\n" if($masm);
 					}
-					$self->{value}.="$current_function->{name}\tENDP" if($masm && $current_function->{name});
+					$self->{value}.="$current_function->{name}\tENDP" if($masm && $current_function->{name} && $cfi_state ne 'endproc');
 					undef $current_function;
+					undef $cfi_state;
 				    }
 				    last;
 				  };
