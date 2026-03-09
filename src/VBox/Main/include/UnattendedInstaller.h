@@ -1,4 +1,4 @@
-/* $Id: UnattendedInstaller.h 112637 2026-01-19 11:42:20Z serkan.bayraktar@oracle.com $ */
+/* $Id: UnattendedInstaller.h 113293 2026-03-09 13:12:31Z serkan.bayraktar@oracle.com $ */
 /** @file
  * UnattendedInstaller class header
  */
@@ -648,7 +648,7 @@ public:
     DECLARE_TRANSLATE_METHODS(UnattendedUbuntuPreseedInstaller)
 
     UnattendedUbuntuPreseedInstaller(Unattended *pParent)
-        : UnattendedDebianInstaller(pParent, "ubuntu_preseed.cfg")
+        : UnattendedDebianInstaller(pParent, "ubuntu_preseed.cfg", "ubuntu_postinstall.sh")
     { Assert(!isOriginalIsoNeeded()); Assert(isAuxiliaryIsoNeeded()); Assert(!isAuxiliaryFloppyNeeded()); Assert(isAuxiliaryIsoIsVISO()); }
     ~UnattendedUbuntuPreseedInstaller() {}
 };
@@ -668,7 +668,7 @@ public:
     UnattendedUbuntuAutoInstallInstaller(Unattended *pParent)
         : UnattendedDebianInstaller(pParent,
                                     /* pszMainScriptTemplateName = */ "ubuntu_autoinstall_user_data",
-                                    /* pszPostScriptTemplateName = */ "debian_postinstall.sh",
+                                    /* pszPostScriptTemplateName = */ "ubuntu_postinstall.sh",
                                     /* pszMainScriptFilename     = */ "user-data")
     {
         Assert(!isOriginalIsoNeeded()); Assert(isAuxiliaryIsoNeeded());
