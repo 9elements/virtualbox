@@ -1,4 +1,4 @@
-# $Id: Config.kmk 113230 2026-03-03 14:59:20Z aleksey.ilyushin@oracle.com $
+# $Id: Config.kmk 113295 2026-03-09 23:13:19Z knut.osmundsen@oracle.com $
 ## @file
 # The global build configuration file for VBox.
 #
@@ -3824,8 +3824,8 @@ if1of (win, $(KBUILD_TARGET) $(KBUILD_HOST))
   VBOX_VCC_LD_HIGH_ENTRYOPY_VA = /HighEntropyVA
   if $(VBOX_VCC_TOOL_STEM) >= VCC142 # since 16.7
    VBOX_VCC_LD_CET_COMPAT     := -CetCompat
-   #VBOX_VCC_CC_GUARD_EHCONT  := -guard:ehcont
-   #VBOX_VCC_LD_GUARD_EHCONT  := -Guard:ehcont
+   VBOX_VCC_CC_GUARD_EHCONT   := -guard:ehcont
+   VBOX_VCC_LD_GUARD_EHCONT   := -Guard:ehcont
   endif
  endif
 endif
@@ -5604,7 +5604,7 @@ ifeq ($(VBOX_LDR_FMT),pe)
  TEMPLATE_VBoxR0_TOOL               = $(VBOX_VCC_TOOL)
  TEMPLATE_VBoxR0_RCDEFS             = VBOX_SVN_REV=$(VBOX_SVN_REV) VBOX_SVN_REV_MOD_5K=$(expr $(VBOX_SVN_REV) % 50000)
  TEMPLATE_VBoxR0_CXXFLAGS           = -Zi -Zl -GR- -EHs- -GF -GS- $(VBOX_VCC_WCHAR_T_VARIANT) $(VBOX_VCC_OPT) $(VBOX_VCC_FP) \
- 	-Gy $(VBOX_VCC_CC_GUARD_CF) $(VBOX_VCC_std) $(VBOX_VCC_WARN_ALL) -wd4505 $(VBOX_VCC_WERR)
+ 	-Gy $(VBOX_VCC_CC_GUARD_CF) $(VBOX_VCC_CC_GUARD_EHCONT) $(VBOX_VCC_std) $(VBOX_VCC_WARN_ALL) -wd4505 $(VBOX_VCC_WERR)
  if "$(VBOX_VCC_TOOL_STEM)" >= "VCC120"
   TEMPLATE_VBoxR0_CXXFLAGS         += -Gw
  endif
@@ -5632,8 +5632,8 @@ ifeq ($(VBOX_LDR_FMT),pe)
  if "$(VBOX_VCC_TOOL_STEM)" >= "VCC142" # Don't waste space on x86/amd64-on-arm emulation optimizations.
   TEMPLATE_VBoxR0_LDFLAGS          += -EmitVolatileMetadata:NO
  endif
- TEMPLATE_VBoxR0_LDFLAGS.win.amd64  = $(VBOX_VCC_LD_HIGH_ENTRYOPY_VA) $(VBOX_VCC_LD_CET_COMPAT)
- TEMPLATE_VBoxR0_LDFLAGS.win.arm64  = $(VBOX_VCC_LD_HIGH_ENTRYOPY_VA)
+ TEMPLATE_VBoxR0_LDFLAGS.win.amd64  = $(VBOX_VCC_LD_HIGH_ENTRYOPY_VA) $(VBOX_VCC_LD_GUARD_EHCONT) $(VBOX_VCC_LD_CET_COMPAT)
+ TEMPLATE_VBoxR0_LDFLAGS.win.arm64  = $(VBOX_VCC_LD_HIGH_ENTRYOPY_VA) $(VBOX_VCC_LD_GUARD_EHCONT)
  TEMPLATE_VBoxR0_LDFLAGS.win.x86    = $(VBOX_VCC_LD_CET_COMPAT)
  ifneq ($(VBOX_VCC_CC_GUARD_CF),)
   TEMPLATE_VBoxR0_LDFLAGS.win.amd64 += -Include:__security_init_cookie -Export:ModuleInitSecurityCookie=__security_init_cookie
@@ -5826,7 +5826,7 @@ ifeq ($(KBUILD_TARGET),win)
  TEMPLATE_VBoxR0Drv_DEFS.arm64         = _ARM64_
  TEMPLATE_VBoxR0Drv_DEFS.win           = IPRT_NT_MAP_TO_ZW
  TEMPLATE_VBoxR0Drv_CXXFLAGS           = -Zi -Zl -GR- -EHs- -GF -Gz -GS- $(VBOX_VCC_WCHAR_T_VARIANT) $(VBOX_VCC_FP) -Gs4096 $(VBOX_VCC_OPT) \
- 	-Gy $(VBOX_VCC_CC_GUARD_CF) $(VBOX_VCC_WARN_ALL) $(VBOX_VCC_WERR)
+ 	-Gy $(VBOX_VCC_CC_GUARD_CF) $(VBOX_VCC_CC_GUARD_EHCONT) $(VBOX_VCC_WARN_ALL) $(VBOX_VCC_WERR)
  if "$(VBOX_VCC_TOOL_STEM)" >= "VCC120"
   TEMPLATE_VBoxR0Drv_CXXFLAGS         += -Gw
  endif
@@ -5854,8 +5854,8 @@ ifeq ($(KBUILD_TARGET),win)
  if "$(VBOX_VCC_TOOL_STEM)" >= "VCC142" # Don't waste space on x86/amd64-on-arm emulation optimizations.
   TEMPLATE_VBoxR0Drv_LDFLAGS          += -EmitVolatileMetadata:NO
  endif
- TEMPLATE_VBoxR0Drv_LDFLAGS.win.amd64  = $(VBOX_VCC_LD_HIGH_ENTRYOPY_VA) $(VBOX_VCC_LD_CET_COMPAT)
- TEMPLATE_VBoxR0Drv_LDFLAGS.win.arm64  = $(VBOX_VCC_LD_HIGH_ENTRYOPY_VA)
+ TEMPLATE_VBoxR0Drv_LDFLAGS.win.amd64  = $(VBOX_VCC_LD_HIGH_ENTRYOPY_VA) $(VBOX_VCC_LD_GUARD_EHCONT) $(VBOX_VCC_LD_CET_COMPAT)
+ TEMPLATE_VBoxR0Drv_LDFLAGS.win.arm64  = $(VBOX_VCC_LD_HIGH_ENTRYOPY_VA) $(VBOX_VCC_LD_GUARD_EHCONT)
  TEMPLATE_VBoxR0Drv_LDFLAGS.win.x86    = $(VBOX_VCC_LD_CET_COMPAT)
  TEMPLATE_VBoxR0Drv_ORDERDEPS          = $(VBOX_SIGN_DRIVER_ORDERDEPS)
  TEMPLATE_VBoxR0Drv_POST_CMDS          = $(VBOX_SIGN_DRIVER_CMDS)
@@ -6403,7 +6403,7 @@ ifeq ($(KBUILD_TARGET),win)
   TEMPLATE_VBoxR3Exe_SDKS              = ReorderCompilerIncs $(VBOX_WINPSDK)
  endif
  TEMPLATE_VBoxR3Exe_CXXFLAGS           = -Zi -Zl -GR- -EHsc -GF -MD$(VBOX_VCC_CRT_TYPE) $(VBOX_VCC_WCHAR_T_VARIANT) $(VBOX_VCC_OPT) $(VBOX_VCC_FP) \
- 	-Gy $(VBOX_VCC_CC_GUARD_CF) $(VBOX_VCC_SANITIZER_FLAGS) $(VBOX_VCC_std) $(VBOX_VCC_WARN_ALL) $(VBOX_VCC_WERR)
+ 	-Gy $(VBOX_VCC_CC_GUARD_CF) $(VBOX_VCC_CC_GUARD_EHCONT) $(VBOX_VCC_SANITIZER_FLAGS) $(VBOX_VCC_std) $(VBOX_VCC_WARN_ALL) $(VBOX_VCC_WERR)
  if "$(VBOX_VCC_TOOL_STEM)" >= "VCC120"
   TEMPLATE_VBoxR3Exe_CXXFLAGS         += -Gw
  endif
@@ -6444,8 +6444,8 @@ ifeq ($(KBUILD_TARGET),win)
  if defined(VBOX_SIGNING_MODE) && defined(VBOX_WITH_HARDENING) && !defined(VBOX_WITHOUT_WINDOWS_KERNEL_CODE_SIGNING_CERT)
   TEMPLATE_VBoxR3Exe_LDFLAGS          += -IntegrityCheck
  endif
- TEMPLATE_VBoxR3Exe_LDFLAGS.win.amd64  = $(VBOX_VCC_LD_HIGH_ENTRYOPY_VA) $(VBOX_VCC_LD_CET_COMPAT)
- TEMPLATE_VBoxR3Exe_LDFLAGS.win.arm64  = $(VBOX_VCC_LD_HIGH_ENTRYOPY_VA)
+ TEMPLATE_VBoxR3Exe_LDFLAGS.win.amd64  = $(VBOX_VCC_LD_HIGH_ENTRYOPY_VA) $(VBOX_VCC_LD_GUARD_EHCONT) $(VBOX_VCC_LD_CET_COMPAT)
+ TEMPLATE_VBoxR3Exe_LDFLAGS.win.arm64  = $(VBOX_VCC_LD_HIGH_ENTRYOPY_VA) $(VBOX_VCC_LD_GUARD_EHCONT)
  TEMPLATE_VBoxR3Exe_LDFLAGS.win.x86    = $(VBOX_VCC_LD_CET_COMPAT)
  if "$(VBOX_VCC_TOOL_STEM)" >= "VCC142" # Don't waste space on x86/amd64-on-arm emulation optimizations.
   TEMPLATE_VBoxR3Exe_LDFLAGS          += -EmitVolatileMetadata:NO
@@ -7072,15 +7072,17 @@ ifeq ($(KBUILD_TARGET),win)
   TEMPLATE_VBoxR3StaticNoCrt_LATE_LIBS.win.x86 = \
   	$(PATH_TOOL_$(TEMPLATE_VBoxR3StaticNoCrt_TOOL.win.x86)_LIB)/chkstk.obj
  endif
- TEMPLATE_VBoxR3StaticNoCrt_LDFLAGS         = $(filter-out $(VBOX_VCC_LD_GUARD_CF) $(VBOX_VCC_SANITIZER_LDFLAGS), $(TEMPLATE_VBoxR3Static_LDFLAGS))
- TEMPLATE_VBoxR3StaticNoCrt_LDFLAGS.win.x86 = $(filter-out -Include%, $(TEMPLATE_VBoxR3Static_LDFLAGS.win.x86))
- TEMPLATE_VBoxR3StaticNoCrt_CFLAGS          = $(filter-out -EH% -GS $(VBOX_VCC_CC_GUARD_CF) $(VBOX_VCC_SANITIZER_FLAGS),$(TEMPLATE_VBoxR3Static_CFLAGS)) /GS- -EHs-
- TEMPLATE_VBoxR3StaticNoCrt_CXXFLAGS        = $(filter-out -EH% -GS $(VBOX_VCC_CC_GUARD_CF) $(VBOX_VCC_SANITIZER_FLAGS),$(TEMPLATE_VBoxR3Static_CXXFLAGS)) /GS- -EHs-
- TEMPLATE_VBoxR3StaticNoCrt_PCHFLAGS        = $(filter-out -EH% -GS $(VBOX_VCC_CC_GUARD_CF) $(VBOX_VCC_SANITIZER_FLAGS),$(TEMPLATE_VBoxR3Static_PCHFLAGS)) /GS- -EHs-
- TEMPLATE_VBoxR3StaticNoCrt_CXXFLAGS.debug  = $(filter-out /RTC% -RTC%, $(TEMPLATE_VBoxR3Static_CXXFLAGS.debug))
+ TEMPLATE_VBoxR3StaticNoCrt_LDFLAGS           = $(filter-out $(VBOX_VCC_LD_GUARD_CF) $(VBOX_VCC_SANITIZER_LDFLAGS), $(TEMPLATE_VBoxR3Static_LDFLAGS))
+ TEMPLATE_VBoxR3StaticNoCrt_LDFLAGS.win.amd64 = $(filter-out $(VBOX_VCC_LD_GUARD_EHCONT), $(TEMPLATE_VBoxR3Static_LDFLAGS.win.amd64))
+ TEMPLATE_VBoxR3StaticNoCrt_LDFLAGS.win.arm64 = $(filter-out $(VBOX_VCC_LD_GUARD_EHCONT), $(TEMPLATE_VBoxR3Static_LDFLAGS.win.arm64))
+ TEMPLATE_VBoxR3StaticNoCrt_LDFLAGS.win.x86   = $(filter-out -Include%, $(TEMPLATE_VBoxR3Static_LDFLAGS.win.x86))
+ TEMPLATE_VBoxR3StaticNoCrt_CFLAGS            = $(filter-out -EH% -GS $(VBOX_VCC_CC_GUARD_CF) $(VBOX_VCC_CC_GUARD_EHCONT) $(VBOX_VCC_SANITIZER_FLAGS),$(TEMPLATE_VBoxR3Static_CFLAGS)) /GS- -EHs-
+ TEMPLATE_VBoxR3StaticNoCrt_CXXFLAGS          = $(filter-out -EH% -GS $(VBOX_VCC_CC_GUARD_CF) $(VBOX_VCC_CC_GUARD_EHCONT) $(VBOX_VCC_SANITIZER_FLAGS),$(TEMPLATE_VBoxR3Static_CXXFLAGS)) /GS- -EHs-
+ TEMPLATE_VBoxR3StaticNoCrt_PCHFLAGS          = $(filter-out -EH% -GS $(VBOX_VCC_CC_GUARD_CF) $(VBOX_VCC_CC_GUARD_EHCONT) $(VBOX_VCC_SANITIZER_FLAGS),$(TEMPLATE_VBoxR3Static_PCHFLAGS)) /GS- -EHs-
+ TEMPLATE_VBoxR3StaticNoCrt_CXXFLAGS.debug    = $(filter-out /RTC% -RTC%, $(TEMPLATE_VBoxR3Static_CXXFLAGS.debug))
 else
- TEMPLATE_VBoxR3StaticNoCrt_CXXFLAGS        = $(TEMPLATE_VBoxR3Static_CXXFLAGS) -fno-exceptions
- TEMPLATE_VBoxR3StaticNoCrt_PCHFLAGS        = $(TEMPLATE_VBoxR3Static_PCHFLAGS) -fno-exceptions
+ TEMPLATE_VBoxR3StaticNoCrt_CXXFLAGS          = $(TEMPLATE_VBoxR3Static_CXXFLAGS) -fno-exceptions
+ TEMPLATE_VBoxR3StaticNoCrt_PCHFLAGS          = $(TEMPLATE_VBoxR3Static_PCHFLAGS) -fno-exceptions
 endif
 
 
@@ -7468,7 +7470,7 @@ ifeq ($(KBUILD_TARGET),win)
   TEMPLATE_VBoxMainExe_SDKS              = ReorderCompilerIncs $(VBOX_WINPSDK) $(VBOX_WINDDK)
  endif
  TEMPLATE_VBoxMainExe_CXXFLAGS           = -Zi -Zl -GR -EHsc -GF -MD$(VBOX_VCC_CRT_TYPE) $(VBOX_VCC_WCHAR_T_VARIANT) \
- 	$(VBOX_VCC_OPT) $(VBOX_VCC_FP) $(VBOX_VCC_CC_GUARD_CF) $(VBOX_VCC_SANITIZER_FLAGS) $(VBOX_VCC_std)
+ 	$(VBOX_VCC_OPT) $(VBOX_VCC_FP) $(VBOX_VCC_CC_GUARD_CF) $(VBOX_VCC_CC_GUARD_EHCONT) $(VBOX_VCC_SANITIZER_FLAGS) $(VBOX_VCC_std)
  #    -wd4625: 'DisplaySourceBitmap' : copy constructor could not be generated because a base class copy constructor is inaccessible
  #    -wd4626: 'DisplaySourceBitmap' : assignment operator could not be generated because a base class assignment operator is inaccessible
  #             The two above can be cured by adding private: DECLARE_CLS_COPY_CTOR_ASSIGN_NOOP(xxxx); but too much work.
@@ -7518,8 +7520,8 @@ ifeq ($(KBUILD_TARGET),win)
  ifdef VBOX_WITH_DTRACE_R3_MAIN
   TEMPLATE_VBoxMainExe_LDFLAGS          += -Merge:VTGPrLc.Data=VTGPrLc.Begin -Merge:VTGPrLc.End=VTGPrLc.Begin -Merge:VTGPrLc.Begin=VTGObj
  endif
- TEMPLATE_VBoxMainExe_LDFLAGS.win.amd64  = $(VBOX_VCC_LD_HIGH_ENTRYOPY_VA) $(VBOX_VCC_LD_CET_COMPAT)
- TEMPLATE_VBoxMainExe_LDFLAGS.win.arm64  = $(VBOX_VCC_LD_HIGH_ENTRYOPY_VA)
+ TEMPLATE_VBoxMainExe_LDFLAGS.win.amd64  = $(VBOX_VCC_LD_HIGH_ENTRYOPY_VA) $(VBOX_VCC_LD_GUARD_EHCONT) $(VBOX_VCC_LD_CET_COMPAT)
+ TEMPLATE_VBoxMainExe_LDFLAGS.win.arm64  = $(VBOX_VCC_LD_HIGH_ENTRYOPY_VA) $(VBOX_VCC_LD_GUARD_EHCONT)
  TEMPLATE_VBoxMainExe_LDFLAGS.win.x86    = $(VBOX_VCC_LD_CET_COMPAT)
  if "$(VBOX_VCC_TOOL_STEM)" >= "VCC142"
   TEMPLATE_VBoxMainExe_LDFLAGS.asan      = -InferAsanLibs:No
@@ -8176,7 +8178,7 @@ ifdef VBOX_WITH_QTGUI
   	QT_DLL _CRT_SECURE_NO_DEPRECATE \
   	$(QMAKE_PRL_DEFINES)
   TEMPLATE_VBoxQtGuiExe_CXXFLAGS = -nologo -Zm200 -MD$(if-expr "$(VBOX_QT_DBG)" == "$(VBOX_VCC_CRT_TYPE)",$(VBOX_VCC_CRT_TYPE),) \
-  	-Zi -EHsc $(VBOX_VCC_WCHAR_T_VARIANT) $(VBOX_VCC_CC_GUARD_CF) $(VBOX_VCC_SANITIZER_FLAGS) $(VBOX_VCC_std)
+  	-Zi -EHsc $(VBOX_VCC_WCHAR_T_VARIANT) $(VBOX_VCC_CC_GUARD_CF) $(VBOX_VCC_CC_GUARD_EHCONT) $(VBOX_VCC_SANITIZER_FLAGS) $(VBOX_VCC_std)
   #    -wd4481: nonstandard extension used: override specifier 'override'
   #    -wd4625: 'QRubberBand' : copy constructor could not be generated because a base class copy constructor is inaccessible
   #    -wd4626: 'QRubberBand' : assignment operator could not be generated because a base class assignment operator is inaccessible
@@ -8249,8 +8251,8 @@ ifdef VBOX_WITH_QTGUI
   if "$(VBOX_VCC_TOOL_STEM)" >= "VCC142" # Don't waste space on x86/amd64-on-arm emulation optimizations.
    TEMPLATE_VBoxQtGuiExe_LDFLAGS += -EmitVolatileMetadata:NO
   endif
-  TEMPLATE_VBoxQtGuiExe_LDFLAGS.win.amd64 = $(VBOX_VCC_LD_HIGH_ENTRYOPY_VA) $(VBOX_VCC_LD_CET_COMPAT)
-  TEMPLATE_VBoxQtGuiExe_LDFLAGS.win.arm64 = $(VBOX_VCC_LD_HIGH_ENTRYOPY_VA)
+  TEMPLATE_VBoxQtGuiExe_LDFLAGS.win.amd64 = $(VBOX_VCC_LD_HIGH_ENTRYOPY_VA) $(VBOX_VCC_LD_GUARD_EHCONT) $(VBOX_VCC_LD_CET_COMPAT)
+  TEMPLATE_VBoxQtGuiExe_LDFLAGS.win.arm64 = $(VBOX_VCC_LD_HIGH_ENTRYOPY_VA) $(VBOX_VCC_LD_GUARD_EHCONT)
   TEMPLATE_VBoxQtGuiExe_LDFLAGS.win.x86   = $(VBOX_VCC_LD_CET_COMPAT)
   if "$(VBOX_VCC_TOOL_STEM)" >= "VCC142"
    TEMPLATE_VBoxQtGuiExe_LDFLAGS.asan = -InferAsanLibs:No
@@ -8518,7 +8520,7 @@ ifeq ($(KBUILD_HOST),win)
   TEMPLATE_VBoxBldProg_SDKS             := ReorderCompilerIncs $(VBOX_WINPSDK)
  endif
  TEMPLATE_VBoxBldProg_CXXFLAGS          := -Zi -Zl -GR- -EHsc -GF $(VBOX_VCC_WCHAR_T_VARIANT) $(VBOX_VCC_OPT) $(VBOX_VCC_FP) \
- 	-MT$(VBOX_VCC_CRT_TYPE) -Gy $(VBOX_VCC_CC_GUARD_CF) $(VBOX_VCC_std) $(VBOX_VCC_WARN_ALL) $(VBOX_VCC_WERR)
+ 	-MT$(VBOX_VCC_CRT_TYPE) -Gy $(VBOX_VCC_CC_GUARD_CF) $(VBOX_VCC_CC_GUARD_EHCONT) $(VBOX_VCC_std) $(VBOX_VCC_WARN_ALL) $(VBOX_VCC_WERR)
  if "$(VBOX_VCC_TOOL_STEM)" >= "VCC120"
   TEMPLATE_VBoxBldProg_CXXFLAGS         += -Gw
  endif
@@ -8563,8 +8565,8 @@ ifeq ($(KBUILD_HOST),win)
  	/DISALLOWLIB:vcruntimed.lib \
  	/DISALLOWLIB:ucrt.lib \
  	/DISALLOWLIB:ucrtd.lib
- TEMPLATE_VBoxBldProg_LDFLAGS.win.amd64  = $(VBOX_VCC_LD_HIGH_ENTRYOPY_VA) $(VBOX_VCC_LD_CET_COMPAT)
- TEMPLATE_VBoxBldProg_LDFLAGS.win.arm64  = $(VBOX_VCC_LD_HIGH_ENTRYOPY_VA)
+ TEMPLATE_VBoxBldProg_LDFLAGS.win.amd64  = $(VBOX_VCC_LD_HIGH_ENTRYOPY_VA) $(VBOX_VCC_LD_GUARD_EHCONT) $(VBOX_VCC_LD_CET_COMPAT)
+ TEMPLATE_VBoxBldProg_LDFLAGS.win.arm64  = $(VBOX_VCC_LD_HIGH_ENTRYOPY_VA) $(VBOX_VCC_LD_GUARD_EHCONT)
  TEMPLATE_VBoxBldProg_LDFLAGS.win.x86    = $(VBOX_VCC_LD_CET_COMPAT)
  if "$(VBOX_VCC_TOOL_STEM)" >= "VCC142" # Don't waste space on x86/amd64-on-arm emulation optimizations.
   TEMPLATE_VBoxBldProg_LDFLAGS          += -EmitVolatileMetadata:NO
@@ -9081,25 +9083,27 @@ endif
 TEMPLATE_VBoxGuestR3NoCrtExe_LATE_LIBS       = \
 	$(PATH_STAGE_LIB)/RuntimeR3NoCrt$(VBOX_SUFF_LIB)
 ifeq ($(KBUILD_TARGET),win)
- TEMPLATE_VBoxGuestR3NoCrtExe_LATE_LIBS.x86  = $(NO_SUCH_VARIABLE)
- TEMPLATE_VBoxGuestR3NoCrtExe_LATE_LIBS.amd64 = $(NO_SUCH_VARIABLE)
- TEMPLATE_VBoxGuestR3NoCrtExe_LATE_LIBS.win  = $(NO_SUCH_VARIABLE)
+ TEMPLATE_VBoxGuestR3NoCrtExe_LATE_LIBS.x86     = $(NO_SUCH_VARIABLE)
+ TEMPLATE_VBoxGuestR3NoCrtExe_LATE_LIBS.amd64   = $(NO_SUCH_VARIABLE)
+ TEMPLATE_VBoxGuestR3NoCrtExe_LATE_LIBS.win     = $(NO_SUCH_VARIABLE)
  TEMPLATE_VBoxGuestR3NoCrtExe_LATE_LIBS.win.x86 = \
  	$(PATH_TOOL_$(TEMPLATE_VBoxGuestR3NoCrtExe_TOOL.win.x86)_LIB)/chkstk.obj
- TEMPLATE_VBoxGuestR3NoCrtExe_LIBS           = $(NO_SUCH_VARIABLE) # These four aren't necessary, just being careful.
- TEMPLATE_VBoxGuestR3NoCrtExe_LIBS.x86       = $(NO_SUCH_VARIABLE)
- TEMPLATE_VBoxGuestR3NoCrtExe_LIBS.amd64     = $(NO_SUCH_VARIABLE)
- TEMPLATE_VBoxGuestR3NoCrtExe_LIBS.win       = $(NO_SUCH_VARIABLE)
- TEMPLATE_VBoxGuestR3NoCrtExe_LDFLAGS        = $(filter-out $(VBOX_VCC_LD_GUARD_CF) $(VBOX_VCC_SANITIZER_LDFLAGS), $(TEMPLATE_VBoxGuestR3Exe_LDFLAGS))
- TEMPLATE_VBoxGuestR3NoCrtExe_LDFLAGS.win.x86 = $(filter-out -Include%, $(TEMPLATE_VBoxGuestR3Exe_LDFLAGS.win.x86))
- TEMPLATE_VBoxGuestR3NoCrtExe_LDFLAGS.win    = $(TEMPLATE_VBoxGuestR3Exe_LDFLAGS.win) /entry:CustomMainEntrypoint /subsystem:console
- TEMPLATE_VBoxGuestR3NoCrtExe_CFLAGS         = $(filter-out -EH% -GS $(VBOX_VCC_CC_GUARD_CF) $(VBOX_VCC_SANITIZER_FLAGS),$(TEMPLATE_VBoxGuestR3Exe_CFLAGS)) /GS- -EHs-
- TEMPLATE_VBoxGuestR3NoCrtExe_CXXFLAGS       = $(filter-out -EH% -GS $(VBOX_VCC_CC_GUARD_CF) $(VBOX_VCC_SANITIZER_FLAGS),$(TEMPLATE_VBoxGuestR3Exe_CXXFLAGS)) /GS- -EHs-
- TEMPLATE_VBoxGuestR3NoCrtExe_PCHFLAGS       = $(filter-out -EH% -GS $(VBOX_VCC_CC_GUARD_CF) $(VBOX_VCC_SANITIZER_FLAGS),$(TEMPLATE_VBoxGuestR3Exe_PCHFLAGS)) /GS- -EHs-
- TEMPLATE_VBoxGuestR3NoCrtExe_CXXFLAGS.debug = $(filter-out /RTC% -RTC%, $(TEMPLATE_VBoxGuestR3Exe_CXXFLAGS.debug))
+ TEMPLATE_VBoxGuestR3NoCrtExe_LIBS              = $(NO_SUCH_VARIABLE) # These four aren't necessary, just being careful.
+ TEMPLATE_VBoxGuestR3NoCrtExe_LIBS.x86          = $(NO_SUCH_VARIABLE)
+ TEMPLATE_VBoxGuestR3NoCrtExe_LIBS.amd64        = $(NO_SUCH_VARIABLE)
+ TEMPLATE_VBoxGuestR3NoCrtExe_LIBS.win          = $(NO_SUCH_VARIABLE)
+ TEMPLATE_VBoxGuestR3NoCrtExe_LDFLAGS           = $(filter-out $(VBOX_VCC_LD_GUARD_CF) $(VBOX_VCC_SANITIZER_LDFLAGS), $(TEMPLATE_VBoxGuestR3Exe_LDFLAGS))
+ TEMPLATE_VBoxGuestR3NoCrtExe_LDFLAGS.win.amd64 = $(filter-out $(VBOX_VCC_LD_GUARD_EHCONT), $(TEMPLATE_VBoxGuestR3Exe_LDFLAGS.win.amd64))
+ TEMPLATE_VBoxGuestR3NoCrtExe_LDFLAGS.win.arm64 = $(filter-out $(VBOX_VCC_LD_GUARD_EHCONT), $(TEMPLATE_VBoxGuestR3Exe_LDFLAGS.win.arm64))
+ TEMPLATE_VBoxGuestR3NoCrtExe_LDFLAGS.win.x86   = $(filter-out -Include%, $(TEMPLATE_VBoxGuestR3Exe_LDFLAGS.win.x86))
+ TEMPLATE_VBoxGuestR3NoCrtExe_LDFLAGS.win       = $(TEMPLATE_VBoxGuestR3Exe_LDFLAGS.win) /entry:CustomMainEntrypoint /subsystem:console
+ TEMPLATE_VBoxGuestR3NoCrtExe_CFLAGS            = $(filter-out -EH% -GS $(VBOX_VCC_CC_GUARD_CF) $(VBOX_VCC_CC_GUARD_EHCONT) $(VBOX_VCC_SANITIZER_FLAGS),$(TEMPLATE_VBoxGuestR3Exe_CFLAGS)) /GS- -EHs-
+ TEMPLATE_VBoxGuestR3NoCrtExe_CXXFLAGS          = $(filter-out -EH% -GS $(VBOX_VCC_CC_GUARD_CF) $(VBOX_VCC_CC_GUARD_EHCONT) $(VBOX_VCC_SANITIZER_FLAGS),$(TEMPLATE_VBoxGuestR3Exe_CXXFLAGS)) /GS- -EHs-
+ TEMPLATE_VBoxGuestR3NoCrtExe_PCHFLAGS          = $(filter-out -EH% -GS $(VBOX_VCC_CC_GUARD_CF) $(VBOX_VCC_CC_GUARD_EHCONT) $(VBOX_VCC_SANITIZER_FLAGS),$(TEMPLATE_VBoxGuestR3Exe_PCHFLAGS)) /GS- -EHs-
+ TEMPLATE_VBoxGuestR3NoCrtExe_CXXFLAGS.debug    = $(filter-out /RTC% -RTC%, $(TEMPLATE_VBoxGuestR3Exe_CXXFLAGS.debug))
 else
- TEMPLATE_VBoxGuestR3NoCrtExe_CXXFLAGS       = $(TEMPLATE_VBoxGuestR3Exe_CXXFLAGS) -fno-exceptions
- TEMPLATE_VBoxGuestR3NoCrtExe_PCHFLAGS       = $(TEMPLATE_VBoxGuestR3Exe_PCHFLAGS) -fno-exceptions
+ TEMPLATE_VBoxGuestR3NoCrtExe_CXXFLAGS          = $(TEMPLATE_VBoxGuestR3Exe_CXXFLAGS) -fno-exceptions
+ TEMPLATE_VBoxGuestR3NoCrtExe_PCHFLAGS          = $(TEMPLATE_VBoxGuestR3Exe_PCHFLAGS) -fno-exceptions
 endif
 
 
@@ -9495,7 +9499,7 @@ SVN                    ?= svn$(HOSTSUFF_EXE)
 GIT                    ?= git$(HOSTSUFF_EXE)
 VBOX_SVN_REV_KMK        = $(PATH_OUT)/revision.kmk
 ifndef VBOX_SVN_REV
- VBOX_SVN_REV_CONFIG_FALLBACK := $(patsubst %:,,  $Rev: 113230 $  )
+ VBOX_SVN_REV_CONFIG_FALLBACK := $(patsubst %:,,  $Rev: 113295 $  )
  VBOX_SVN_REV_FALLBACK := $(if-expr $(VBOX_SVN_REV_CONFIG_FALLBACK) > $(VBOX_SVN_REV_VERSION_FALLBACK),$(VBOX_SVN_REV_CONFIG_FALLBACK),$(VBOX_SVN_REV_VERSION_FALLBACK))
  VBOX_SVN_DEP          := $(firstword $(wildcard $(PATH_ROOT)/.svn/wc.db $(abspath $(PATH_ROOT)/../.svn/wc.db) $(abspath $(PATH_ROOT)/../../.svn/wc.db) $(PATH_ROOT)/.svn/entries))
  VBOX_GIT_DEP          := $(firstword $(wildcard $(PATH_ROOT)/.git/config $(abspath $(PATH_ROOT)/../.git/config) $(abspath $(PATH_ROOT)/../../.git/config)))
@@ -9509,7 +9513,7 @@ ifndef VBOX_SVN_REV
  ifneq ($(VBOX_GIT_DEP),)
   #
   # VBOX_SVN_REV_CONFIG_FALLBACK is not properly populated for a git checkout,
-  # as the $Rev: 113230 $ is not expanded, so we have to set it based on the information in the repo.
+  # as the $Rev: 113295 $ is not expanded, so we have to set it based on the information in the repo.
   #
   VBOX_SVN_REV_FALLBACK := $(shell $(GIT) log -1 $(PATH_ROOT)/Config.kmk | $(SED) -e 's/^[ \t]*//' -e '/svn:sync-xref-src-repo-rev\: r/!d' -e 's/svn:sync-xref-src-repo-rev\: r*//; t a; :a q')
  endif
