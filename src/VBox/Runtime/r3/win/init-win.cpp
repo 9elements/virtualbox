@@ -1,4 +1,4 @@
-/* $Id: init-win.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: init-win.cpp 113311 2026-03-10 21:10:42Z knut.osmundsen@oracle.com $ */
 /** @file
  * IPRT - Init Ring-3, Windows Specific Code.
  */
@@ -127,8 +127,12 @@ DECL_HIDDEN_DATA(PFNWSACREATEEVENT)             g_pfnWSACreateEvent = NULL;
 DECL_HIDDEN_DATA(PFNWSACLOSEEVENT)              g_pfnWSACloseEvent = NULL;
 /** WSASetEvent */
 DECL_HIDDEN_DATA(PFNWSASETEVENT)                g_pfnWSASetEvent = NULL;
-/** WSAEventSelect   */
+/** WSAResetEvent */
+DECL_HIDDEN_DATA(PFNWSARESETEVENT)              g_pfnWSAResetEvent = NULL;
+/** WSAEventSelect */
 DECL_HIDDEN_DATA(PFNWSAEVENTSELECT)             g_pfnWSAEventSelect = NULL;
+/** WSAWaitForMultipleEvents */
+DECL_HIDDEN_DATA(PFNWSAWAITFORMULTIPLEEVENTS)   g_pfnWSAWaitForMultipleEvents = NULL;
 /** WSAEnumNetworkEvents */
 DECL_HIDDEN_DATA(PFNWSAENUMNETWORKEVENTS)       g_pfnWSAEnumNetworkEvents = NULL;
 /** WSASocketW */
@@ -416,8 +420,8 @@ static void rtR3InitWinSockApis(void)
 {
     /*
      * Try get ws2_32.dll, then try load it, then finally fall back to the old
-     * wsock32.dll.  We use RTLdrLoadSystem to the loading as it has all the fancy
-     * logic for safely doing that.
+     * wsock32.dll.  We use RTLdrLoadSystem to do the loading as it has all the
+     * fancy logic for safely doing that.
      */
     g_hModWinSock = GetModuleHandleW(L"ws2_32.dll");
     if (g_hModWinSock == NULL)
@@ -438,50 +442,56 @@ static void rtR3InitWinSockApis(void)
         RTLdrClose(hLdrMod);
     }
 
-    g_pfnWSAStartup           = (decltype(g_pfnWSAStartup))         GetProcAddress(g_hModWinSock, "WSAStartup");
-    g_pfnWSACleanup           = (decltype(g_pfnWSACleanup))         GetProcAddress(g_hModWinSock, "WSACleanup");
-    g_pfnWSAGetLastError      = (decltype(g_pfnWSAGetLastError))    GetProcAddress(g_hModWinSock, "WSAGetLastError");
-    g_pfnWSASetLastError      = (decltype(g_pfnWSASetLastError))    GetProcAddress(g_hModWinSock, "WSASetLastError");
-    g_pfnWSACreateEvent       = (decltype(g_pfnWSACreateEvent))     GetProcAddress(g_hModWinSock, "WSACreateEvent");
-    g_pfnWSACloseEvent        = (decltype(g_pfnWSACloseEvent))      GetProcAddress(g_hModWinSock, "WSACloseEvent");
-    g_pfnWSASetEvent          = (decltype(g_pfnWSASetEvent))        GetProcAddress(g_hModWinSock, "WSASetEvent");
-    g_pfnWSAEventSelect       = (decltype(g_pfnWSAEventSelect))     GetProcAddress(g_hModWinSock, "WSAEventSelect");
-    g_pfnWSAEnumNetworkEvents = (decltype(g_pfnWSAEnumNetworkEvents))GetProcAddress(g_hModWinSock,"WSAEnumNetworkEvents");
-    g_pfnWSASocketW           = (decltype(g_pfnWSASocketW))         GetProcAddress(g_hModWinSock, "WSASocketW");
-    g_pfnWSASend              = (decltype(g_pfnWSASend))            GetProcAddress(g_hModWinSock, "WSASend");
-    g_pfnWSAIoctl             = (decltype(g_pfnWSAIoctl))           GetProcAddress(g_hModWinSock, "WSAIoctl");
-    g_pfnsocket               = (decltype(g_pfnsocket))             GetProcAddress(g_hModWinSock, "socket");
-    g_pfnclosesocket          = (decltype(g_pfnclosesocket))        GetProcAddress(g_hModWinSock, "closesocket");
-    g_pfnrecv                 = (decltype(g_pfnrecv))               GetProcAddress(g_hModWinSock, "recv");
-    g_pfnsend                 = (decltype(g_pfnsend))               GetProcAddress(g_hModWinSock, "send");
-    g_pfnrecvfrom             = (decltype(g_pfnrecvfrom))           GetProcAddress(g_hModWinSock, "recvfrom");
-    g_pfnsendto               = (decltype(g_pfnsendto))             GetProcAddress(g_hModWinSock, "sendto");
-    g_pfnbind                 = (decltype(g_pfnbind))               GetProcAddress(g_hModWinSock, "bind");
-    g_pfnlisten               = (decltype(g_pfnlisten))             GetProcAddress(g_hModWinSock, "listen");
-    g_pfnaccept               = (decltype(g_pfnaccept))             GetProcAddress(g_hModWinSock, "accept");
-    g_pfnconnect              = (decltype(g_pfnconnect))            GetProcAddress(g_hModWinSock, "connect");
-    g_pfnshutdown             = (decltype(g_pfnshutdown))           GetProcAddress(g_hModWinSock, "shutdown");
-    g_pfngetsockopt           = (decltype(g_pfngetsockopt))         GetProcAddress(g_hModWinSock, "getsockopt");
-    g_pfnsetsockopt           = (decltype(g_pfnsetsockopt))         GetProcAddress(g_hModWinSock, "setsockopt");
-    g_pfnioctlsocket          = (decltype(g_pfnioctlsocket))        GetProcAddress(g_hModWinSock, "ioctlsocket");
-    g_pfngetpeername          = (decltype(g_pfngetpeername))        GetProcAddress(g_hModWinSock, "getpeername");
-    g_pfngetsockname          = (decltype(g_pfngetsockname))        GetProcAddress(g_hModWinSock, "getsockname");
-    g_pfn__WSAFDIsSet         = (decltype(g_pfn__WSAFDIsSet))       GetProcAddress(g_hModWinSock, "__WSAFDIsSet");
-    g_pfnselect               = (decltype(g_pfnselect))             GetProcAddress(g_hModWinSock, "select");
-    g_pfngethostbyname        = (decltype(g_pfngethostbyname))      GetProcAddress(g_hModWinSock, "gethostbyname");
+    /** @todo Map *Event* to kernel32.dll apis if not found. */
+    /** @todo Provide __imp_ entries for curl & openssl to use. */
+    g_pfnWSAStartup               = (decltype(g_pfnWSAStartup))              GetProcAddress(g_hModWinSock, "WSAStartup");
+    g_pfnWSACleanup               = (decltype(g_pfnWSACleanup))              GetProcAddress(g_hModWinSock, "WSACleanup");
+    g_pfnWSAGetLastError          = (decltype(g_pfnWSAGetLastError))         GetProcAddress(g_hModWinSock, "WSAGetLastError");
+    g_pfnWSASetLastError          = (decltype(g_pfnWSASetLastError))         GetProcAddress(g_hModWinSock, "WSASetLastError");
+    g_pfnWSACreateEvent           = (decltype(g_pfnWSACreateEvent))          GetProcAddress(g_hModWinSock, "WSACreateEvent");
+    g_pfnWSACloseEvent            = (decltype(g_pfnWSACloseEvent))           GetProcAddress(g_hModWinSock, "WSACloseEvent");
+    g_pfnWSASetEvent              = (decltype(g_pfnWSASetEvent))             GetProcAddress(g_hModWinSock, "WSASetEvent");
+    g_pfnWSAResetEvent            = (decltype(g_pfnWSAResetEvent))           GetProcAddress(g_hModWinSock, "WSAResetEvent");
+    g_pfnWSAEventSelect           = (decltype(g_pfnWSAEventSelect))          GetProcAddress(g_hModWinSock, "WSAEventSelect");
+    g_pfnWSAWaitForMultipleEvents = (decltype(g_pfnWSAWaitForMultipleEvents))GetProcAddress(g_hModWinSock, "WSAWaitForMultipleEvents");
+    g_pfnWSAEnumNetworkEvents     = (decltype(g_pfnWSAEnumNetworkEvents))    GetProcAddress(g_hModWinSock, "WSAEnumNetworkEvents");
+    g_pfnWSASocketW               = (decltype(g_pfnWSASocketW))              GetProcAddress(g_hModWinSock, "WSASocketW");
+    g_pfnWSASend                  = (decltype(g_pfnWSASend))                 GetProcAddress(g_hModWinSock, "WSASend");
+    g_pfnWSAIoctl                 = (decltype(g_pfnWSAIoctl))                GetProcAddress(g_hModWinSock, "WSAIoctl");
+    g_pfnsocket                   = (decltype(g_pfnsocket))                  GetProcAddress(g_hModWinSock, "socket");
+    g_pfnclosesocket              = (decltype(g_pfnclosesocket))             GetProcAddress(g_hModWinSock, "closesocket");
+    g_pfnrecv                     = (decltype(g_pfnrecv))                    GetProcAddress(g_hModWinSock, "recv");
+    g_pfnsend                     = (decltype(g_pfnsend))                    GetProcAddress(g_hModWinSock, "send");
+    g_pfnrecvfrom                 = (decltype(g_pfnrecvfrom))                GetProcAddress(g_hModWinSock, "recvfrom");
+    g_pfnsendto                   = (decltype(g_pfnsendto))                  GetProcAddress(g_hModWinSock, "sendto");
+    g_pfnbind                     = (decltype(g_pfnbind))                    GetProcAddress(g_hModWinSock, "bind");
+    g_pfnlisten                   = (decltype(g_pfnlisten))                  GetProcAddress(g_hModWinSock, "listen");
+    g_pfnaccept                   = (decltype(g_pfnaccept))                  GetProcAddress(g_hModWinSock, "accept");
+    g_pfnconnect                  = (decltype(g_pfnconnect))                 GetProcAddress(g_hModWinSock, "connect");
+    g_pfnshutdown                 = (decltype(g_pfnshutdown))                GetProcAddress(g_hModWinSock, "shutdown");
+    g_pfngetsockopt               = (decltype(g_pfngetsockopt))              GetProcAddress(g_hModWinSock, "getsockopt");
+    g_pfnsetsockopt               = (decltype(g_pfnsetsockopt))              GetProcAddress(g_hModWinSock, "setsockopt");
+    g_pfnioctlsocket              = (decltype(g_pfnioctlsocket))             GetProcAddress(g_hModWinSock, "ioctlsocket");
+    g_pfngetpeername              = (decltype(g_pfngetpeername))             GetProcAddress(g_hModWinSock, "getpeername");
+    g_pfngetsockname              = (decltype(g_pfngetsockname))             GetProcAddress(g_hModWinSock, "getsockname");
+    g_pfn__WSAFDIsSet             = (decltype(g_pfn__WSAFDIsSet))            GetProcAddress(g_hModWinSock, "__WSAFDIsSet");
+    g_pfnselect                   = (decltype(g_pfnselect))                  GetProcAddress(g_hModWinSock, "select");
+    g_pfngethostbyname            = (decltype(g_pfngethostbyname))           GetProcAddress(g_hModWinSock, "gethostbyname");
 
     Assert(g_pfnWSAStartup);
     Assert(g_pfnWSACleanup);
     Assert(g_pfnWSAGetLastError);
     Assert(g_pfnWSASetLastError);
-    Assert(g_pfnWSACreateEvent       || g_fOldWinSock);
-    Assert(g_pfnWSACloseEvent        || g_fOldWinSock);
-    Assert(g_pfnWSASetEvent          || g_fOldWinSock);
-    Assert(g_pfnWSAEventSelect       || g_fOldWinSock);
-    Assert(g_pfnWSAEnumNetworkEvents || g_fOldWinSock);
-    Assert(g_pfnWSASocketW           || g_fOldWinSock);
-    Assert(g_pfnWSASend              || g_fOldWinSock);
-    Assert(g_pfnWSAIoctl             || g_fOldWinSock);
+    Assert(g_pfnWSACreateEvent           || g_fOldWinSock);
+    Assert(g_pfnWSACloseEvent            || g_fOldWinSock);
+    Assert(g_pfnWSASetEvent              || g_fOldWinSock);
+    Assert(g_pfnWSAResetEvent            || g_fOldWinSock);
+    Assert(g_pfnWSAEventSelect           || g_fOldWinSock);
+    Assert(g_pfnWSAEnumNetworkEvents     || g_fOldWinSock);
+    Assert(g_pfnWSAWaitForMultipleEvents || g_fOldWinSock);
+    Assert(g_pfnWSASocketW               || g_fOldWinSock);
+    Assert(g_pfnWSASend                  || g_fOldWinSock);
+    Assert(g_pfnWSAIoctl                 || g_fOldWinSock);
     Assert(g_pfnsocket);
     Assert(g_pfnclosesocket);
     Assert(g_pfnrecv);
