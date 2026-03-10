@@ -486,7 +486,12 @@ void icmp_reflect(struct mbuf *m)
         m->m_len -= optlen;
     }
 
+#ifdef VBOX
+    if (ip->ip_ttl < 0 && ip->ip_ttl > MAXTTL)
+        ip->ip_ttl = MAXTTL;
+#else
     ip->ip_ttl = MAXTTL;
+#endif
     { /* swap */
         struct in_addr icmp_dst;
         icmp_dst = ip->ip_dst;
