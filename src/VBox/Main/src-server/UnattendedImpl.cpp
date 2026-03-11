@@ -1,4 +1,4 @@
-/* $Id: UnattendedImpl.cpp 113113 2026-02-20 20:16:20Z serkan.bayraktar@oracle.com $ */
+/* $Id: UnattendedImpl.cpp 113344 2026-03-11 12:56:53Z knut.osmundsen@oracle.com $ */
 /** @file
  * Unattended class implementation
  */
@@ -2434,8 +2434,9 @@ HRESULT Unattended::i_innerDetectIsoOSLinuxFedora(RTVFS hVfsIso, DETECTBUFFER *p
      * Split up the pre-arch/version bits into words and use them as the flavor.
      */
     psz = pszFlavor;
-    while ((psz = strchr(psz, '-')) != NULL)
-        *psz++ = ' ';
+    if (psz) /* MSC /analyze paranoia  */
+        while ((psz = strchr(psz, '-')) != NULL)
+            *psz++ = ' ';
     try { mStrDetectedOSFlavor = RTStrStrip(pszFlavor); }
     catch (std::bad_alloc &) { return E_OUTOFMEMORY; }
 
