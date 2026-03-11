@@ -1,4 +1,4 @@
-/* $Id: VirtualBoxImpl.cpp 113348 2026-03-11 13:06:35Z knut.osmundsen@oracle.com $ */
+/* $Id: VirtualBoxImpl.cpp 113368 2026-03-11 22:14:28Z knut.osmundsen@oracle.com $ */
 /** @file
  * Implementation of IVirtualBox in VBoxSVC.
  */
@@ -3421,13 +3421,16 @@ HRESULT VirtualBox::i_startSVCHelperClient(bool aPrivileged,
 void VirtualBox::i_SVCHelperClientThreadTask(StartSVCHelperClientData *pTask)
 {
     LogFlowFuncEnter();
+
+    /* some paranoia */
+    AssertLogRelReturnVoid(pTask);
+    AssertLogRelReturnVoid(pTask->progress.isNotNull());
+
     HRESULT hrc = S_OK;
     bool userFuncCalled = false;
 
     do
     {
-        AssertBreakStmt(pTask, hrc = E_POINTER);
-        AssertReturnVoid(!pTask->progress.isNull());
 
         /* protect VirtualBox from uninitialization */
         AutoCaller autoCaller(pTask->that);
