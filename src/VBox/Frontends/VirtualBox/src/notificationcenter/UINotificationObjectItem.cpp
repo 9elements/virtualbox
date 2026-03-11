@@ -1,4 +1,4 @@
-/* $Id: UINotificationObjectItem.cpp 113303 2026-03-10 11:32:48Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationObjectItem.cpp 113321 2026-03-11 09:23:59Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationObjectItem class implementation.
  */
@@ -361,10 +361,10 @@ void UINotificationMessageItem::prepareConnections()
     UINotificationObjectItem::prepareConnections();
 
     /* Connect buttons: */
-    AssertPtrReturnVoid(m_pButtonForget);
-    connect(m_pButtonForget, &QIToolButton::clicked,
-            m_pObject, &UINotificationObject::dismiss,
-            Qt::QueuedConnection);
+    if (m_pButtonForget)
+        connect(m_pButtonForget, &QIToolButton::clicked,
+                m_pObject, &UINotificationObject::dismiss,
+                Qt::QueuedConnection);
 }
 
 int UINotificationMessageItem::widthHintForgetControl() const
