@@ -1,4 +1,4 @@
-/* $Id: PlatformX86Impl.h 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: PlatformX86Impl.h 113333 2026-03-11 12:41:33Z knut.osmundsen@oracle.com $ */
 /** @file
  * VirtualBox COM class implementation - x86 platform settings.
  */
@@ -54,7 +54,7 @@ public:
 
     // public initializer/uninitializer for internal purposes only
     HRESULT init(Platform *aParent, Machine *aMachine);
-    HRESULT init(Platform *aParent, Machine *aMachine, PlatformX86 *aThat);
+    HRESULT initWithPeer(Platform *aParent, Machine *aMachine, PlatformX86 *aThat);
     HRESULT initCopy(Platform *aParent, Machine *aMachine, PlatformX86 *aThat);
     void uninit();
 

@@ -1,4 +1,4 @@
-/* $Id: PlatformImpl.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: PlatformImpl.cpp 113333 2026-03-11 12:41:33Z knut.osmundsen@oracle.com $ */
 /** @file
  * VirtualBox COM class implementation - Platform settings.
  */
@@ -677,12 +677,11 @@ HRESULT Platform::i_initArchitecture(PlatformArchitecture_T aArchitecture, Platf
 
     AutoWriteLock alock(this COMMA_LOCKVAL_SRC_POS);
 
-    HRESULT hrc = S_OK;
-
     /* Currently we only keep the current platform-specific object around,
      * e.g. we destroy any data for the former architecture (if any). */
     uninitArchitecture();
 
+    HRESULT hrc;
     switch (aArchitecture)
     {
         case PlatformArchitecture_x86:
@@ -696,7 +695,7 @@ HRESULT Platform::i_initArchitecture(PlatformArchitecture_T aArchitecture, Platf
                 if (fCopy)
                     hrc = mX86->initCopy(this, mParent, aThat->mX86);
                 else
-                    hrc = mX86->init(this, mParent, aThat->mX86);
+                    hrc = mX86->initWithPeer(this, mParent, aThat->mX86);
             }
             else
                 hrc = mX86->init(this, mParent);
@@ -708,14 +707,14 @@ HRESULT Platform::i_initArchitecture(PlatformArchitecture_T aArchitecture, Platf
         {
             /* Create associated ARM-specific platform object. */
             Assert(mARM.isNull());
-            unconst(mARM).createObject();
+            hrc = unconst(mARM).createObject();
             ComAssertComRCRetRC(hrc);
             if (aThat)
             {
                 if (fCopy)
                     hrc = mARM->initCopy(this, mParent, aThat->mARM);
                 else
-                    hrc = mARM->init(this, mParent, aThat->mARM);
+                    hrc = mARM->initWithPeer(this, mParent, aThat->mARM);
             }
             else
                 hrc = mARM->init(this, mParent);
@@ -742,7 +741,7 @@ HRESULT Platform::i_applyDefaults(GuestOSType *aOsType)
     AutoCaller autoCaller(this);
     AssertComRCReturn(autoCaller.hrc(), autoCaller.hrc());
 
-    HRESULT hrc = S_OK;
+    HRESULT hrc;
 
     ChipsetType_T enmChipsetType = ChipsetType_Null;
     IommuType_T   enmIommuType   = IommuType_None;

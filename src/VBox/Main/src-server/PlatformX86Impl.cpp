@@ -1,4 +1,4 @@
-/* $Id: PlatformX86Impl.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: PlatformX86Impl.cpp 113333 2026-03-11 12:41:33Z knut.osmundsen@oracle.com $ */
 /** @file
  * VirtualBox COM class implementation - x86 platform settings.
  */
@@ -83,6 +83,9 @@ void PlatformX86::FinalRelease()
 
 HRESULT PlatformX86::init(Platform *aParent, Machine *aMachine)
 {
+    AssertPtrReturn(aParent, E_INVALIDARG);
+    AssertPtrReturn(aMachine, E_INVALIDARG);
+
     /* Enclose the state transition NotReady->InInit->Ready */
     AutoInitSpan autoInitSpan(this);
     AssertReturn(autoInitSpan.isOk(), E_FAIL);
@@ -108,13 +111,15 @@ HRESULT PlatformX86::init(Platform *aParent, Machine *aMachine)
  * @note This object must be destroyed before the original object
  *       it shares data with is destroyed.
  */
-HRESULT PlatformX86::init(Platform *aParent, Machine *aMachine, PlatformX86 *aThat)
+HRESULT PlatformX86::initWithPeer(Platform *aParent, Machine *aMachine, PlatformX86 *aThat)
 {
+    AssertPtrReturn(aParent, E_INVALIDARG);
+    AssertPtrReturn(aMachine, E_INVALIDARG);
+    AssertPtrReturn(aThat, E_INVALIDARG);
+
     /* Enclose the state transition NotReady->InInit->Ready */
     AutoInitSpan autoInitSpan(this);
     AssertReturn(autoInitSpan.isOk(), E_FAIL);
-
-    ComAssertRet(aParent && aParent, E_INVALIDARG);
 
     unconst(mParent)  = aParent;
     unconst(mMachine) = aMachine;
@@ -137,7 +142,9 @@ HRESULT PlatformX86::init(Platform *aParent, Machine *aMachine, PlatformX86 *aTh
  */
 HRESULT PlatformX86::initCopy(Platform *aParent, Machine *aMachine, PlatformX86 *aThat)
 {
-    ComAssertRet(aParent && aParent, E_INVALIDARG);
+    AssertPtrReturn(aParent, E_INVALIDARG);
+    AssertPtrReturn(aMachine, E_INVALIDARG);
+    AssertPtrReturn(aThat, E_INVALIDARG);
 
     /* Enclose the state transition NotReady->InInit->Ready */
     AutoInitSpan autoInitSpan(this);
@@ -938,15 +945,10 @@ HRESULT PlatformX86::i_applyDefaults(GuestOSType *aOsType)
     {
         /* No guest OS type object. Pick some plausible defaults which the
          * host can handle. There's no way to know or validate anything. */
+        AssertCompile(HC_ARCH_BITS == 64);
         fX2APIC           = FALSE;
-        enmLongMode       =   HC_ARCH_BITS == 64
-                          ? settings::PlatformX86::LongMode_Enabled : settings::PlatformX86::LongMode_Disabled;
-
-#if HC_ARCH_BITS == 64 || defined(RT_OS_WINDOWS) || defined(RT_OS_DARWIN)
+        enmLongMode       = settings::PlatformX86::LongMode_Enabled;
         fPAE              = TRUE;
-#else
-        fPAE              = FALSE;
-#endif
         fHPET             = FALSE;
         fTripleFaultReset = FALSE;
     }
