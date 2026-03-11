@@ -1,4 +1,4 @@
-/* $Id: NetIf-win.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: NetIf-win.cpp 113345 2026-03-11 12:59:57Z knut.osmundsen@oracle.com $ */
 /** @file
  * Main - NetIfList, Windows implementation.
  */
@@ -59,6 +59,8 @@
 #include "Global.h"
 #include "netif.h"
 #include "ThreadTask.h"
+
+#include <iprt/system.h>
 
 DECLARE_TRANSLATION_CONTEXT(NetIfWin);
 
@@ -939,17 +941,11 @@ int netIfNetworkInterfaceHelperServer(SVCHlpClient *aClient,
  */
 static BOOL IsUACEnabled()
 {
-    OSVERSIONINFOEX info;
-    ZeroMemory(&info, sizeof(OSVERSIONINFOEX));
-    info.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
-    BOOL frc = GetVersionEx((OSVERSIONINFO *) &info);
-    AssertReturn(frc != FALSE, FALSE);
-
-    LogFlowFunc(("dwMajorVersion=%d, dwMinorVersion=%d\n", info.dwMajorVersion, info.dwMinorVersion));
-
     /* we are interested only in Vista (and newer versions...). In all
      * earlier versions UAC is not present. */
-    if (info.dwMajorVersion < 6)
+    uint64_t const uNtVer = RTSystemGetNtVersion();
+    LogFlowFunc(("uNtVer=%#RX64\n", uNtVer));
+    if (uNtVer < RTSYSTEM_MAKE_NT_VERSION(6,0,0))
         return FALSE;
 
     /* the default EnableLUA value is 1 (Enabled) */
@@ -1613,9 +1609,9 @@ static HRESULT netIfGetBoundAdapters(std::list<BoundAdapter> &boundAdapters)
     }
 
     INetCfgComponent *pFilter;
-    if ((hrc = pNetCfg->FindComponent(L"oracle_VBoxNetLwf", &pFilter)) != S_OK
+    if (   (hrc = pNetCfg->FindComponent(L"oracle_VBoxNetLwf", &pFilter)) != S_OK
         /* fall back to NDIS5 miniport lookup */
-        && (hrc = pNetCfg->FindComponent(L"sun_VBoxNetFlt", &pFilter)))
+        && (hrc = pNetCfg->FindComponent(L"sun_VBoxNetFlt", &pFilter)) != S_OK)
         LogRelFunc(("could not find either 'oracle_VBoxNetLwf' or 'sun_VBoxNetFlt' components (0x%x)\n", hrc));
     else
     {
@@ -1959,11 +1955,7 @@ int NetIfList(std::list<ComObjPtr<HostNetworkInterface> > &list)
                     info.enmStatus = pAdapter->OperStatus == IfOperStatusUp ? NETIF_S_UP : NETIF_S_DOWN;
                     info.fIsDefault = (pAdapter->IfIndex == (DWORD)iDefault);
                     info.fDhcpEnabled = pAdapter->Flags & IP_ADAPTER_DHCP_ENABLED;
-                    OSVERSIONINFOEX OSInfoEx;
-                    RT_ZERO(OSInfoEx);
-                    OSInfoEx.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
-                    if (   GetVersionEx((LPOSVERSIONINFO)&OSInfoEx)
-                        && OSInfoEx.dwMajorVersion < 6)
+                    if (RTSystemGetNtVersion() < RTSYSTEM_MAKE_NT_VERSION(6,0,0))
                         netIfFillInfoWithAddressesXp(&info, pAdapter);
                     else
                         netIfFillInfoWithAddressesVista(&info, pAdapter);
