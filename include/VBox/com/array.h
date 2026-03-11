@@ -440,16 +440,16 @@ protected:
         if (    std::is_integral<T>::value
             && !std::is_signed<T>::value)
         {
-            if (sizeof(T) % 8 == 0) return VT_UI8;
-            if (sizeof(T) % 4 == 0) return VT_UI4;
-            if (sizeof(T) % 2 == 0) return VT_UI2;
-            return VT_UI1;
+            if      RT_CONSTEXPR_IF(sizeof(T) % 8 == 0) return VT_UI8;
+            else if RT_CONSTEXPR_IF(sizeof(T) % 4 == 0) return VT_UI4;
+            else if RT_CONSTEXPR_IF(sizeof(T) % 2 == 0) return VT_UI2;
+            else                                        return VT_UI1;
         }
 #endif
-        if (sizeof(T) % 8 == 0) return VT_I8;
-        if (sizeof(T) % 4 == 0) return VT_I4;
-        if (sizeof(T) % 2 == 0) return VT_I2;
-        return VT_I1;
+        if      RT_CONSTEXPR_IF(sizeof(T) % 8 == 0) return VT_I8;
+        else if RT_CONSTEXPR_IF(sizeof(T) % 4 == 0) return VT_I4;
+        else if RT_CONSTEXPR_IF(sizeof(T) % 2 == 0) return VT_I2;
+        else                                        return VT_I1;
     }
 
     /*
@@ -458,26 +458,26 @@ protected:
      */
     static VARTYPE VarTypeUnsigned()
     {
-        if (sizeof(T) % 8 == 0) return VT_UI8;
-        if (sizeof(T) % 4 == 0) return VT_UI4;
-        if (sizeof(T) % 2 == 0) return VT_UI2;
-        return VT_UI1;
+        if      RT_CONSTEXPR_IF(sizeof(T) % 8 == 0) return VT_UI8;
+        else if RT_CONSTEXPR_IF(sizeof(T) % 4 == 0) return VT_UI4;
+        else if RT_CONSTEXPR_IF(sizeof(T) % 2 == 0) return VT_UI2;
+        else                                        return VT_UI1;
     }
 
     static ULONG VarCount(size_t aSize)
     {
-        if (sizeof(T) % 8 == 0) return (ULONG)((sizeof(T) / 8) * aSize);
-        if (sizeof(T) % 4 == 0) return (ULONG)((sizeof(T) / 4) * aSize);
-        if (sizeof(T) % 2 == 0) return (ULONG)((sizeof(T) / 2) * aSize);
-        return (ULONG)(sizeof(T) * aSize);
+        if      RT_CONSTEXPR_IF(sizeof(T) % 8 == 0) return (ULONG)((sizeof(T) / 8) * aSize);
+        else if RT_CONSTEXPR_IF(sizeof(T) % 4 == 0) return (ULONG)((sizeof(T) / 4) * aSize);
+        else if RT_CONSTEXPR_IF(sizeof(T) % 2 == 0) return (ULONG)((sizeof(T) / 2) * aSize);
+        else                                        return (ULONG)(sizeof(T) * aSize);
     }
 
     static size_t Size(ULONG aVarCount)
     {
-        if (sizeof(T) % 8 == 0) return (size_t)(aVarCount * 8) / sizeof(T);
-        if (sizeof(T) % 4 == 0) return (size_t)(aVarCount * 4) / sizeof(T);
-        if (sizeof(T) % 2 == 0) return (size_t)(aVarCount * 2) / sizeof(T);
-        return (size_t) aVarCount / sizeof(T);
+        if      RT_CONSTEXPR_IF(sizeof(T) % 8 == 0) return (size_t)(aVarCount * 8) / sizeof(T);
+        else if RT_CONSTEXPR_IF(sizeof(T) % 4 == 0) return (size_t)(aVarCount * 4) / sizeof(T);
+        else if RT_CONSTEXPR_IF(sizeof(T) % 2 == 0) return (size_t)(aVarCount * 2) / sizeof(T);
+        else                                        return (size_t)aVarCount / sizeof(T);
     }
 
     static void Copy(T aFrom, T &aTo) { aTo = aFrom; }
@@ -1251,7 +1251,6 @@ protected:
 #else
 
         SAFEARRAYBOUND bound = { Traits::VarCount(aNewSize), 0 };
-        HRESULT rc;
 
         if (m.arr == NULL)
         {
@@ -1262,12 +1261,12 @@ protected:
         {
             SafeArrayUnaccessData(m.arr);
 
-            rc = SafeArrayRedim(m.arr, &bound);
-            AssertComRCReturn(rc == S_OK, false);
+            HRESULT const hrc = SafeArrayRedim(m.arr, &bound);
+            AssertMsgReturn(hrc == S_OK, ("SafeArrayRedim -> %Rhrc (%#010x)\n", hrc, hrc), false);
         }
 
-        rc = SafeArrayAccessData(m.arr, (void HUGEP **)&m.raw);
-        AssertComRCReturn(rc, false);
+        HRESULT const hrc = SafeArrayAccessData(m.arr, (void HUGEP **)&m.raw);
+        AssertComRCReturn(hrc, false);
 
 #endif
         return true;
