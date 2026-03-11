@@ -1,4 +1,4 @@
-/* $Id: USBProxyBackendWindows.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: USBProxyBackendWindows.cpp 113346 2026-03-11 13:01:27Z knut.osmundsen@oracle.com $ */
 /** @file
  * VirtualBox USB Proxy Service, Windows Specialization.
  */
@@ -74,7 +74,7 @@ int USBProxyBackendWindows::init(USBProxyService *aUsbProxyService, const com::U
      * Create the semaphore (considered fatal).
      */
     mhEventInterrupt = CreateEvent(NULL, FALSE, FALSE, NULL);
-    AssertReturn(mhEventInterrupt != INVALID_HANDLE_VALUE, VERR_OUT_OF_RESOURCES);
+    AssertReturn(mhEventInterrupt != INVALID_HANDLE_VALUE && mhEventInterrupt != NULL, VERR_OUT_OF_RESOURCES);
 
     /*
      * Initialize the USB lib and stuff.
