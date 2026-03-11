@@ -1,4 +1,4 @@
-/* $Id: UINotificationObjectItem.cpp 113321 2026-03-11 09:23:59Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationObjectItem.cpp 113358 2026-03-11 15:00:30Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationObjectItem class implementation.
  */
@@ -385,6 +385,7 @@ UINotificationMessage *UINotificationMessageItem::message() const
 UINotificationQuestionItem::UINotificationQuestionItem(QWidget *pParent,
                                                        UINotificationObject *pObject)
     : UINotificationObjectItem(pParent, pObject)
+    , m_pCheckBoxOption(0)
     , m_pCheckBoxForget(0)
     , m_pButtonBox(0)
     , m_fPolished(false)
@@ -413,7 +414,22 @@ void UINotificationQuestionItem::prepareWidgets()
         UINotificationQuestion *pQuestion = question();
         AssertPtrReturnVoid(pQuestion);
 
-        /* Prepare forget button: */
+        /* Prepare options check-box: */
+        if (!pQuestion->option().isEmpty())
+        {
+            m_pCheckBoxOption = new QCheckBox(this);
+            if (m_pCheckBoxOption)
+            {
+                QFont myFont = m_pCheckBoxOption->font();
+                myFont.setPointSize(myFont.pointSize() - 2);
+                m_pCheckBoxOption->setFont(myFont);
+                m_pCheckBoxOption->setText(pQuestion->option());
+
+                m_pLayoutMain->addWidget(m_pCheckBoxOption);
+            }
+        }
+
+        /* Prepare forget check-box: */
         if (!pQuestion->internalName().isEmpty())
         {
             m_pCheckBoxForget = new QCheckBox(this);
@@ -481,7 +497,12 @@ void UINotificationQuestionItem::prepareConnections()
 
 int UINotificationQuestionItem::widthHintForgetControl() const
 {
-    return m_pCheckBoxForget ? m_pCheckBoxForget->minimumSizeHint().width() : 0;
+    int iResult = 0;
+    if (m_pCheckBoxOption)
+        iResult = qMax(iResult, m_pCheckBoxOption->minimumSizeHint().width());
+    if (m_pCheckBoxForget)
+        iResult = qMax(iResult, m_pCheckBoxForget->minimumSizeHint().width());
+    return iResult;
 }
 
 void UINotificationQuestionItem::showEvent(QShowEvent *pEvent)
@@ -572,7 +593,10 @@ void UINotificationQuestionItem::sltHandleButtonClick(QAbstractButton *pButton)
     QMap<Question::Result, QAbstractButton*> results;
     results[Question::Result_Accept] = m_pButtonBox->button(QDialogButtonBox::Ok);
     results[Question::Result_AcceptAlternative] = m_pButtonBox->button(QDialogButtonBox::Yes);
-    const Question::Result enmResult = results.key(pButton, Question::Result_Cancel);
+    Question::Result enmResult = results.key(pButton, Question::Result_Cancel);
+    if (   enmResult != Question::Result_Cancel
+        && m_pCheckBoxOption->checkState() == Qt::Checked)
+        enmResult = (Question::Result)(enmResult | Question::Result_AcceptOption);
 
     /* Assign result: */
     pQuestion->setResult(enmResult);

@@ -1,4 +1,4 @@
-/* $Id: UINotificationQuestion.h 113350 2026-03-11 13:34:02Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationQuestion.h 113358 2026-03-11 15:00:30Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationQuestion declarations.
  */
@@ -49,9 +49,10 @@ namespace Question
     /** Result options. */
     enum Result
     {
-        Result_Cancel = 0,
-        Result_Accept,
-        Result_AcceptAlternative
+        Result_Cancel            = 0,
+        Result_Accept            = RT_BIT(0),
+        Result_AcceptAlternative = RT_BIT(1),
+        Result_AcceptOption      = RT_BIT(2),
     };
 }
 
@@ -66,6 +67,8 @@ public:
     QStringList buttonNames() const { return m_buttonNames; }
     /** Returns whether Ok button should be default one. */
     bool isOkByDefault() const { return m_fOkByDefault; }
+    /** Returns the option text. */
+    QString option() const { return m_strOption; }
 
     /** Returns the result. */
     Question::Result result() const { return m_enmResult; }

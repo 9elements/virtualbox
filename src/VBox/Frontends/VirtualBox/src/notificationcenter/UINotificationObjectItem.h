@@ -1,4 +1,4 @@
-/* $Id: UINotificationObjectItem.h 113303 2026-03-10 11:32:48Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationObjectItem.h 113358 2026-03-11 15:00:30Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationObjectItem class declaration.
  */
@@ -215,7 +215,9 @@ private:
     /** Holds the notification-question this item created for. */
     UINotificationQuestion *question() const;
 
-    /** Holds the forget button instance. */
+    /** Holds the option check-box instance. */
+    QCheckBox *m_pCheckBoxOption;
+    /** Holds the forget check-box instance. */
     QCheckBox *m_pCheckBoxForget;
 
     /** Holds the button-box instance. */
