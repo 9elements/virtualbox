@@ -1,4 +1,4 @@
-/* $Id: UIExtraDataManager.cpp 112949 2026-02-11 14:04:57Z sergey.dubov@oracle.com $ */
+/* $Id: UIExtraDataManager.cpp 113360 2026-03-11 15:21:26Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIExtraDataManager class implementation.
  */
@@ -584,11 +584,6 @@ QStringList UIExtraDataManager::suppressedMessages(const QUuid &uID /* = GlobalI
 void UIExtraDataManager::setSuppressedMessages(const QStringList &list)
 {
     setExtraDataStringList(GUI_SuppressMessages, list);
-}
-
-QStringList UIExtraDataManager::messagesWithInvertedOption()
-{
-    return extraDataStringList(GUI_InvertMessageOption);
 }
 
 #ifdef VBOX_NOTIFICATION_CENTER_WITH_KEEP_BUTTON

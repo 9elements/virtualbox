@@ -1,4 +1,4 @@
-/* $Id: UIMessageCenter.cpp 113274 2026-03-06 15:28:08Z sergey.dubov@oracle.com $ */
+/* $Id: UIMessageCenter.cpp 113360 2026-03-11 15:21:26Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMessageCenter class implementation.
  */
@@ -774,31 +774,6 @@ int UIMessageCenter::confirmCloudMachineRemoval(const QList<CCloudMachine> &mach
                    AlertButton_Cancel | AlertButtonOption_Default | AlertButtonOption_Escape,
                    tr("Delete everything"),
                    tr("Remove only"));
-}
-
-int UIMessageCenter::confirmSnapshotRestoring(const QString &strSnapshotName, bool fAlsoCreateNewSnapshot) const
-{
-    return fAlsoCreateNewSnapshot ?
-           messageWithOption(0, MessageType_Question,
-                             tr("<p>You are about to restore snapshot <nobr><b>%1</b></nobr>.</p>"
-                                "<p>You can create a snapshot of the current state of the virtual machine first by checking the box below; "
-                                "if you do not do this the current state will be permanently lost. Do you wish to proceed?</p>")
-                                .arg(strSnapshotName),
-                             tr("Create a snapshot of the current machine state"),
-                             !gEDataManager->messagesWithInvertedOption().contains("confirmSnapshotRestoring"),
-                             AlertButton_Ok,
-                             AlertButton_Cancel | AlertButtonOption_Default | AlertButtonOption_Escape,
-                             0 /* 3rd button */,
-                             tr("Restore"), tr("Cancel"), QString() /* 3rd button text */) :
-           message(0, MessageType_Question,
-                   tr("<p>Are you sure you want to restore snapshot <nobr><b>%1</b></nobr>?</p>")
-                      .arg(strSnapshotName),
-                   QString() /* details */,
-                   0 /* auto-confirm id */,
-                   AlertButton_Ok,
-                   AlertButton_Cancel | AlertButtonOption_Default | AlertButtonOption_Escape,
-                   0 /* 3rd button */,
-                   tr("Restore"), tr("Cancel"), QString() /* 3rd button text */);
 }
 
 bool UIMessageCenter::confirmVisoDiscard(QWidget *pParent /* = 0*/) const

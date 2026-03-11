@@ -1,4 +1,4 @@
-/* $Id: UISnapshotPane.cpp 113121 2026-02-23 13:36:42Z sergey.dubov@oracle.com $ */
+/* $Id: UISnapshotPane.cpp 113360 2026-03-11 15:21:26Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UISnapshotPane class implementation.
  */
@@ -52,7 +52,6 @@
 #include "UILocalMachineStuff.h"
 #include "UILoggingDefs.h"
 #include "UIMediumTools.h"
-#include "UIMessageCenter.h"
 #include "UIModalWindowManager.h"
 #include "UINotificationCenter.h"
 #include "UISnapshotDetailsWidget.h"
@@ -1787,12 +1786,13 @@ bool UISnapshotPane::restoreSnapshot(bool fAutomatically /* = false */)
     if (!fAutomatically && comMachine.GetCurrentStateModified())
     {
         /* Ask if user really wants to restore the selected snapshot: */
-        int iResultCode = msgCenter().confirmSnapshotRestoring(comSnapshot.GetName(), comMachine.GetCurrentStateModified());
-        if (iResultCode & AlertButton_Cancel)
+        const int iResultCode = UINotificationQuestion::confirmSnapshotRestoring(comSnapshot.GetName(),
+                                                                                 comMachine.GetCurrentStateModified());
+        if (iResultCode == Question::Result_Cancel)
             return false;
 
         /* Ask if user also wants to create new snapshot of current state which is changed: */
-        if (iResultCode & AlertOption_CheckBox)
+        if (iResultCode & Question::Result_AcceptOption)
         {
             /* Take snapshot of changed current state: */
             m_pSnapshotTree->setCurrentItem(m_currentStateItems.value(pSnapshotItem->machineID()));

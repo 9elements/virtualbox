@@ -1,4 +1,4 @@
-/* $Id: UINotificationQuestion.cpp 113350 2026-03-11 13:34:02Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationQuestion.cpp 113360 2026-03-11 15:21:26Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationQuestion implementations.
  */
@@ -96,10 +96,33 @@ bool UINotificationQuestion::confirmMachineItemRemoval(const QString &strNames)
 }
 
 /* static */
+int UINotificationQuestion::confirmSnapshotRestoring(const QString &strName, bool fAlsoCreateNewSnapshot)
+{
+    return fAlsoCreateNewSnapshot
+        ? createBlockingQuestion(
+            QApplication::translate("UIMessageCenter", "Restoring snapshot?"),
+            QApplication::translate("UIMessageCenter", "<p>You are about to restore snapshot <nobr><b>%1</b></nobr>.</p>"
+                                                       "<p>You can create a snapshot of the current state of the virtual machine "
+                                                       "first by checking the box below; if you do not do this the current state "
+                                                       "will be permanently lost. Do you wish to proceed?</p>").arg(strName),
+            QStringList() << QString() /* cancel button text */
+                          << QApplication::translate("UIMessageCenter", "Restore", "snapshot") /* ok button text */,
+            false /* Ok by default? */,
+            QApplication::translate("UIMessageCenter", "Create a snapshot of the current machine state"))
+        : createBlockingQuestion(
+            QApplication::translate("UIMessageCenter", "Restoring snapshot?"),
+            QApplication::translate("UIMessageCenter", "<p>Are you sure you want to restore snapshot "
+                                                       "<nobr><b>%1</b></nobr>?</p>").arg(strName),
+            QStringList() << QString() /* cancel button text */
+                          << QApplication::translate("UIMessageCenter", "Restore", "snapshot") /* ok button text */,
+            false /* Ok by default? */);
+}
+
+/* static */
 bool UINotificationQuestion::confirmSnapshotRemoval(const QString &strName)
 {
     return createBlockingQuestion(
-        QApplication::translate("UIMessageCenter", "Deleting the snapshot?"),
+        QApplication::translate("UIMessageCenter", "Deleting snapshot?"),
         QApplication::translate("UIMessageCenter", "<p>Deleting the snapshot will cause the state information saved in it to be "
                                                    "lost, and storage data spread over several image files that VirtualBox has "
                                                    "created together with the snapshot will be merged into one file. This can be "

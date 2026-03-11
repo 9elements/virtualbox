@@ -1,4 +1,4 @@
-/* $Id: UIExtraDataDefs.h 113262 2026-03-04 20:12:57Z sergey.dubov@oracle.com $ */
+/* $Id: UIExtraDataDefs.h 113360 2026-03-11 15:21:26Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Extra-data related definitions.
  */
@@ -60,8 +60,6 @@ namespace UIExtraDataDefs
       * @{ */
         /** Holds the list of suppressed messages for the Message/Popup center frameworks. */
         SHARED_LIBRARY_STUFF extern const char *GUI_SuppressMessages;
-        /** Holds the list of messages for the Message/Popup center frameworks with inverted check-box state. */
-        SHARED_LIBRARY_STUFF extern const char *GUI_InvertMessageOption;
 #ifdef VBOX_NOTIFICATION_CENTER_WITH_KEEP_BUTTON
         /** Holds whether successfull notification-progresses should NOT close automatically. */
         SHARED_LIBRARY_STUFF extern const char *GUI_NotificationCenter_KeepSuccessfullProgresses;

@@ -1,4 +1,4 @@
-/* $Id: UIExtraDataManager.h 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: UIExtraDataManager.h 113360 2026-03-11 15:21:26Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIExtraDataManager class declaration.
  */
@@ -205,9 +205,6 @@ public:
         QStringList suppressedMessages(const QUuid &uID = GlobalID);
         /** Defines the @a list of suppressed messages for the Message/Popup center frameworks. */
         void setSuppressedMessages(const QStringList &list);
-
-        /** Returns the list of messages for the Message/Popup center frameworks with inverted check-box state. */
-        QStringList messagesWithInvertedOption();
 
 #ifdef VBOX_NOTIFICATION_CENTER_WITH_KEEP_BUTTON
         /** Returns whether successfull notification-progresses should NOT close automatically. */

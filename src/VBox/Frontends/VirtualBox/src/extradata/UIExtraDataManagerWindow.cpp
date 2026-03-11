@@ -1,4 +1,4 @@
-/* $Id: UIExtraDataManagerWindow.cpp 113052 2026-02-17 09:56:11Z sergey.dubov@oracle.com $ */
+/* $Id: UIExtraDataManagerWindow.cpp 113360 2026-03-11 15:21:26Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIExtraDataManagerWindow class implementation.
  */
@@ -331,7 +331,7 @@ QStringList UIAddExtraDataRecordDialog::knownExtraDataKeys()
     return QStringList()
            << QString()
            << GUI_RestrictedDialogs
-           << GUI_SuppressMessages << GUI_InvertMessageOption
+           << GUI_SuppressMessages
 #ifdef VBOX_NOTIFICATION_CENTER_WITH_KEEP_BUTTON
            << GUI_NotificationCenter_KeepSuccessfullProgresses
 #endif
