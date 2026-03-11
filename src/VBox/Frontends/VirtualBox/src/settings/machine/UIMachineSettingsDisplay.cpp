@@ -1,4 +1,4 @@
-/* $Id: UIMachineSettingsDisplay.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: UIMachineSettingsDisplay.cpp 113322 2026-03-11 09:29:06Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMachineSettingsDisplay class implementation.
  */
@@ -263,8 +263,8 @@ void UIMachineSettingsDisplay::loadToCacheFrom(QVariant &data)
     UIDataSettingsMachineDisplay oldDisplayData;
 
     /* Check whether graphics adapter is valid: */
-    const CGraphicsAdapter &comGraphics = m_machine.GetGraphicsAdapter();
-    if (!comGraphics.isNull())
+    CGraphicsAdapter comGraphics = m_machine.GetGraphicsAdapter();
+    if (comGraphics.isNotNull())
     {
         /* Gather old 'Screen' data: */
         oldDisplayData.m_iCurrentVRAM = comGraphics.GetVRAMSize();
@@ -295,14 +295,14 @@ void UIMachineSettingsDisplay::loadToCacheFrom(QVariant &data)
     }
 
     /* Gather old 'Recording' data: */
-    CRecordingSettings recordingSettings = m_machine.GetRecordingSettings();
-    Assert(recordingSettings.isNotNull());
-    oldDisplayData.m_fRecordingEnabled = recordingSettings.GetEnabled();
+    CRecordingSettings comRecordingSettings = m_machine.GetRecordingSettings();
+    Assert(comRecordingSettings.isNotNull());
+    oldDisplayData.m_fRecordingEnabled = comRecordingSettings.GetEnabled();
 
     /* Check if recording is currently running: */
     if (isMachineOnline())
     {
-        CProgress comProgress = recordingSettings.GetProgress();
+        CProgress comProgress = comRecordingSettings.GetProgress();
         oldDisplayData.m_fRecordingRunning =    comProgress.isNotNull()
                                              && !comProgress.GetCompleted()
                                              && !comProgress.GetCanceled();
@@ -311,7 +311,7 @@ void UIMachineSettingsDisplay::loadToCacheFrom(QVariant &data)
     /* For now we're using the same settings for all screens; so get settings from screen 0 and work with that. */
     /** @todo r=andy Since VBox 7.0 (settings 1.19) the per-screen settings can be handled. i.e. screens can have
      *               different settings.  See @bugref{10259} */
-    CRecordingScreenSettings comRecordingScreen0Settings = recordingSettings.GetScreenSettings(0);
+    CRecordingScreenSettings comRecordingScreen0Settings = comRecordingSettings.GetScreenSettings(0);
     if (!comRecordingScreen0Settings.isNull())
     {
         oldDisplayData.m_strRecordingFolder = QFileInfo(m_machine.GetSettingsFilePath()).absolutePath();
@@ -331,7 +331,7 @@ void UIMachineSettingsDisplay::loadToCacheFrom(QVariant &data)
             oldDisplayData.m_strAudioProfile = "med";
     }
 
-    CRecordingScreenSettingsVector comRecordingScreenSettingsVector = recordingSettings.GetScreens();
+    CRecordingScreenSettingsVector comRecordingScreenSettingsVector = comRecordingSettings.GetScreens();
     oldDisplayData.m_vecRecordingScreens.resize(comRecordingScreenSettingsVector.size());
     for (int iScreenIndex = 0; iScreenIndex < comRecordingScreenSettingsVector.size(); ++iScreenIndex)
     {
