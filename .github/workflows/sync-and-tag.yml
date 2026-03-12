@@ -1,0 +1,49 @@
+name: Sync upstream and create version tags
+
+on:
+  schedule:
+    - cron: '17 */6 * * *'  # Every 6 hours at :17
+  workflow_dispatch:          # Manual trigger
+
+jobs:
+  sync-and-tag:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout ci branch
+        uses: actions/checkout@v4
+        with:
+          ref: ci
+          fetch-depth: 0
+
+      - name: Fetch all origin refs
+        run: |
+          git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune
+          git fetch origin --tags --prune-tags
+
+      - name: Add upstream remote and fetch
+        run: |
+          git remote add upstream https://github.com/VirtualBox/virtualbox.git
+          git fetch upstream --prune
+
+      - name: Sync branches from upstream
+        run: |
+          # Sync main
+          echo "::group::Syncing main"
+          git push origin upstream/main:refs/heads/main
+          echo "::endgroup::"
+
+          # Sync all upstream VBox-* branches
+          for ref in $(git for-each-ref --format='%(refname:short)' refs/remotes/upstream/ \
+                       | grep '^upstream/VBox-'); do
+            branch="${ref#upstream/}"
+            echo "::group::Syncing $branch"
+            git push origin "$ref:refs/heads/$branch"
+            echo "::endgroup::"
+          done
+
+      - name: Create version tags
+        run: |
+          chmod +x .github/scripts/create-version-tags.sh
+          .github/scripts/create-version-tags.sh --push
