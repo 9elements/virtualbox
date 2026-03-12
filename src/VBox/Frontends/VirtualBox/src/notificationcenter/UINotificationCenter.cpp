@@ -1,4 +1,4 @@
-/* $Id: UINotificationCenter.cpp 113375 2026-03-12 12:32:20Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationCenter.cpp 113376 2026-03-12 13:24:42Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationCenter class implementation.
  */
@@ -37,6 +37,7 @@
 #include <QState>
 #include <QStateMachine>
 #include <QStyle>
+#include <QThread>
 #include <QTimer>
 #include <QVBoxLayout>
 
@@ -430,33 +431,38 @@ void UINotificationCenter::createMessageInt(const QString &strName,
                                             const QString &strInternalName,
                                             const QString &strHelpKeyword)
 {
-    /* Check if message suppressed: */
-    if (isMessageSuppressed(strInternalName))
+    /* If this is NOT a GUI thread: */
+    if (thread() != QThread::currentThread())
+    {
+        /* We have to throw a blocking signal
+         * to create a message in the GUI thread: */
+        emit sigToCreateMessage(strName,
+                                strDetails,
+                                strInternalName,
+                                strHelpKeyword);
         return;
+    }
 
-    /* Check if message already exists: */
-    if (   !strInternalName.isEmpty()
-        && m_messages.contains(strInternalName))
-        return;
-
-    /* Create message finally: */
-    const QUuid uId = append(new UINotificationMessage(strName,
-                                                       strDetails,
-                                                       strInternalName,
-                                                       strHelpKeyword));
-    if (!strInternalName.isEmpty())
-        m_messages[strInternalName] = uId;
+    /* In usual case we create a message directly: */
+    return sltCreateMessage(strName,
+                            strDetails,
+                            strInternalName,
+                            strHelpKeyword);
 }
 
 void UINotificationCenter::destroyMessageInt(const QString &strInternalName)
 {
-    /* Check if message really exists: */
-    if (!m_messages.contains(strInternalName))
+    /* If this is NOT a GUI thread: */
+    if (thread() != QThread::currentThread())
+    {
+        /* We have to throw a blocking signal
+         * to destroy the message in the GUI thread: */
+        emit sigToDeleteMessage(strInternalName);
         return;
+    }
 
-    /* Destroy message finally: */
-    revoke(m_messages.value(strInternalName));
-    m_messages.remove(strInternalName);
+    /* In usual case we destroy the message directly: */
+    return sltDeleteMessage(strInternalName);
 }
 
 void UINotificationCenter::createBlockingMessageInt(const QString &strName,
@@ -689,6 +695,40 @@ void UINotificationCenter::sltHandleOpenTimerTimeout()
     m_pButtonOpen->animateClick();
 }
 
+void UINotificationCenter::sltCreateMessage(const QString &strName,
+                                            const QString &strDetails,
+                                            const QString &strInternalName,
+                                            const QString &strHelpKeyword)
+{
+    /* Check if message suppressed: */
+    if (isMessageSuppressed(strInternalName))
+        return;
+
+    /* Check if message already exists: */
+    if (   !strInternalName.isEmpty()
+        && m_messages.contains(strInternalName))
+        return;
+
+    /* Create message finally: */
+    const QUuid uId = append(new UINotificationMessage(strName,
+                                                       strDetails,
+                                                       strInternalName,
+                                                       strHelpKeyword));
+    if (!strInternalName.isEmpty())
+        m_messages[strInternalName] = uId;
+}
+
+void UINotificationCenter::sltDeleteMessage(const QString &strInternalName)
+{
+    /* Check if message really exists: */
+    if (!m_messages.contains(strInternalName))
+        return;
+
+    /* Destroy message finally: */
+    revoke(m_messages.value(strInternalName));
+    m_messages.remove(strInternalName);
+}
+
 void UINotificationCenter::sltHandleModelItemAdded(const QUuid &uId)
 {
     /* Make sure there is no item with such uId: */
@@ -781,9 +821,16 @@ void UINotificationCenter::prepare()
             this, &UINotificationCenter::sltHandleOrderChange);
     sltHandleOrderChange();
 
+    /* Prepare inter-thread handling: */
+    connect(this, &UINotificationCenter::sigToCreateMessage,
+            this, &UINotificationCenter::sltCreateMessage,
+            Qt::BlockingQueuedConnection);
+    connect(this, &UINotificationCenter::sigToDeleteMessage,
+            this, &UINotificationCenter::sltDeleteMessage,
+            Qt::BlockingQueuedConnection);
+
     /* Apply language settings: */
     sltRetranslateUI();
-
     connect(&translationEventListener(), &UITranslationEventListener::sigRetranslateUI,
             this, &UINotificationCenter::sltRetranslateUI);
 }

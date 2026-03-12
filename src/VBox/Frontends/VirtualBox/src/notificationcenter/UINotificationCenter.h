@@ -1,4 +1,4 @@
-/* $Id: UINotificationCenter.h 113375 2026-03-12 12:32:20Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationCenter.h 113376 2026-03-12 13:24:42Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationCenter class declaration.
  */
@@ -70,6 +70,19 @@ signals:
 
     /** Notifies listener about all operations aborted. */
     void sigOperationsAborted();
+
+    /** Notifies itself to create inter-thread message.
+      * @param  strName          Brings the message name.
+      * @param  strDetails       Brings the message details.
+      * @param  strInternalName  Brings the message internal name.
+      * @param  strHelpKeyword   Brings the message help keyword. */
+    void sigToCreateMessage(const QString &strName,
+                            const QString &strDetails,
+                            const QString &strInternalName,
+                            const QString &strHelpKeyword);
+    /** Notifies itself to delete inter-thread message.
+      * @param  strInternalName  Brings the message internal name. */
+    void sigToDeleteMessage(const QString &strInternalName);
 
 public:
 
@@ -190,6 +203,19 @@ private slots:
 
     /** Handles open-timer timeout. */
     void sltHandleOpenTimerTimeout();
+
+    /** Handles request to create message.
+      * @param  strName          Brings the message name.
+      * @param  strDetails       Brings the message details.
+      * @param  strInternalName  Brings the message internal name.
+      * @param  strHelpKeyword   Brings the message help keyword. */
+    void sltCreateMessage(const QString &strName,
+                          const QString &strDetails,
+                          const QString &strInternalName,
+                          const QString &strHelpKeyword);
+    /** Handles request to delete message.
+      * @param  strInternalName  Brings the message internal name. */
+    void sltDeleteMessage(const QString &strInternalName);
 
     /** Handles signal about model item with specified @a uId was added. */
     void sltHandleModelItemAdded(const QUuid &uId);
