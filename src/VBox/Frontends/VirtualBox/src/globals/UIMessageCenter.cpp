@@ -1,4 +1,4 @@
-/* $Id: UIMessageCenter.cpp 113360 2026-03-11 15:21:26Z sergey.dubov@oracle.com $ */
+/* $Id: UIMessageCenter.cpp 113372 2026-03-12 09:40:15Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMessageCenter class implementation.
  */
@@ -26,87 +26,33 @@
  */
 
 /* Qt includes: */
-#include <QAbstractButton>
-#include <QApplication>
-#include <QDir>
-#include <QFileInfo>
-#include <QLocale>
-#include <QProcess>
 #include <QThread>
 #include <QWindow>
-#ifdef VBOX_WS_MAC
-# include <QPushButton>
-#endif
 
 /* GUI includes: */
 #include "QIMessageBox.h"
 #include "UICommon.h"
-#include "UIConverter.h"
 #include "UIErrorString.h"
 #include "UIExtraDataManager.h"
 #include "UIGlobalSession.h"
-#include "UIHelpBrowserDialog.h"
-#include "UIHostComboEditor.h"
 #include "UIIconPool.h"
 #include "UIMedium.h"
 #include "UIMessageCenter.h"
 #include "UIModalWindowManager.h"
 #include "UIProgressDialog.h"
-#include "UITranslator.h"
 #include "UIVersion.h"
 #include "VBoxAboutDlg.h"
-#ifdef VBOX_GUI_WITH_NETWORK_MANAGER
-# include "UINetworkRequestManager.h"
-#endif
-#ifdef VBOX_WS_WIN
-# include <Htmlhelp.h>
-#endif
 
 /* COM includes: */
-#include "CAppliance.h"
-#include "CBooleanFormValue.h"
-#include "CChoiceFormValue.h"
-#include "CCloudClient.h"
 #include "CCloudMachine.h"
-#include "CCloudProfile.h"
-#include "CCloudProvider.h"
-#include "CCloudProviderManager.h"
 #include "CConsole.h"
-#include "CDHCPServer.h"
-#include "CDisplay.h"
-#include "CExtPack.h"
-#include "CExtPackFile.h"
-#include "CExtPackManager.h"
-#include "CForm.h"
+#include "CHost.h"
 #include "CHostNetworkInterface.h"
 #include "CMachine.h"
-#include "CMediumAttachment.h"
-#include "CMediumFormat.h"
-#include "CNATEngine.h"
-#include "CNATNetwork.h"
-#include "CRangedIntegerFormValue.h"
-#include "CSerialPort.h"
 #include "CSession.h"
-#include "CSharedFolder.h"
-#include "CSnapshot.h"
-#include "CStorageController.h"
-#include "CStringFormValue.h"
-#include "CSystemProperties.h"
-#include "CUnattended.h"
-#include "CVFSExplorer.h"
-#include "CVirtualSystemDescription.h"
-#include "CVirtualSystemDescriptionForm.h"
-#ifdef VBOX_WITH_DRAG_AND_DROP
-# include "CDnDSource.h"
-# include "CDnDTarget.h"
-# include "CGuest.h"
-#endif
+#include "CVirtualBox.h"
 
 /* Other VBox includes: */
-#include <iprt/errcore.h>
-#include <iprt/param.h>
-#include <iprt/path.h>
-
 #include <VBox/version.h>
 
 /* static */
@@ -674,78 +620,6 @@ bool UIMessageCenter::confirmSettingsReloading(QWidget *pParent /* = 0 */) const
     setWarningShown("confirmSettingsReloading", false);
 
     return fResult;
-}
-
-int UIMessageCenter::confirmMachineRemoval(const QList<CMachine> &machines) const
-{
-    /* Enumerate the machines: */
-    int cInacessibleMachineCount = 0;
-    bool fMachineWithHardDiskPresent = false;
-    QStringList machineNames;
-    foreach (const CMachine &machine, machines)
-    {
-        /* Prepare machine name: */
-        QString strMachineName;
-        if (machine.GetAccessible())
-        {
-            /* Just get machine name: */
-            strMachineName = machine.GetName();
-            /* Enumerate the attachments: */
-            const CMediumAttachmentVector &attachments = machine.GetMediumAttachments();
-            foreach (const CMediumAttachment &attachment, attachments)
-            {
-                /* Check if the medium is a hard disk: */
-                if (attachment.GetType() == KDeviceType_HardDisk)
-                {
-                    /* Check if that hard disk isn't shared.
-                     * If hard disk is shared, it will *never* be deleted: */
-                    QVector<QUuid> usedMachineList = attachment.GetMedium().GetMachineIds();
-                    if (usedMachineList.size() == 1)
-                    {
-                        fMachineWithHardDiskPresent = true;
-                        break;
-                    }
-                }
-            }
-        }
-        else
-        {
-            /* Compose machine name: */
-            QFileInfo fi(machine.GetSettingsFilePath());
-            strMachineName = UICommon::hasAllowedExtension(fi.completeSuffix(), VBoxFileExts) ? fi.completeBaseName() : fi.fileName();
-            /* Increment inacessible machine count: */
-            ++cInacessibleMachineCount;
-        }
-        /* Append machine name: */
-        machineNames << strMachineName;
-    }
-
-    /* Prepare message text: */
-    const QString strText = tr("<p>Remove these virtual machines from the machine list?</p>"
-                               "<p><b>%1</b></p>")
-                               .arg(machineNames.join(", "));
-
-    /* Prepare option text: */
-    const QString strOption = fMachineWithHardDiskPresent
-                            ? tr("Delete the virtual machine files and virtual hard disks.")
-                            : tr("Delete the virtual machine files.");
-
-    /* Prepare message itself: */
-    return cInacessibleMachineCount == machines.size() ?
-           message(0, MessageType_Question,
-                   strText, QString(),
-                   0 /* auto-confirm id */,
-                   AlertButton_Ok,
-                   AlertButton_Cancel | AlertButtonOption_Default | AlertButtonOption_Escape,
-                   0,
-                   tr("Remove")) :
-           messageWithOption(0, MessageType_Question,
-                             strText, strOption,
-                             false /* default option value */,
-                             AlertButton_Ok,
-                             AlertButton_Cancel | AlertButtonOption_Default | AlertButtonOption_Escape,
-                             0,
-                             tr("Remove"));
 }
 
 int UIMessageCenter::confirmCloudMachineRemoval(const QList<CCloudMachine> &machines) const

@@ -1,4 +1,4 @@
-/* $Id: UINotificationQuestion.cpp 113360 2026-03-11 15:21:26Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationQuestion.cpp 113372 2026-03-12 09:40:15Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationQuestion implementations.
  */
@@ -27,8 +27,10 @@
 
 /* Qt includes: */
 #include <QApplication>
+#include <QFileInfo>
 
 /* GUI includes: */
+#include "UICommon.h"
 #include "UIExtraDataManager.h"
 #include "UIHostComboEditor.h"
 #include "UIMedium.h"
@@ -37,6 +39,7 @@
 #include "UITranslator.h"
 
 /* COM includes: */
+#include "CMediumAttachment.h"
 #include "CMediumFormat.h"
 #include "KMediumFormatCapabilities.h"
 
@@ -93,6 +96,79 @@ bool UINotificationQuestion::confirmMachineItemRemoval(const QString &strNames)
         QStringList() << QString() /* cancel button text */
                       << QApplication::translate("UIMessageCenter", "Remove", "machine item") /* ok button text */,
         false /* Ok by default? */);
+}
+
+/* static */
+int UINotificationQuestion::confirmMachineRemoval(const QList<CMachine> &machines)
+{
+    /* Enumerate the machines: */
+    int cInacessibleMachineCount = 0;
+    bool fMachineWithHardDiskPresent = false;
+    QStringList machineNames;
+    foreach (const CMachine &comMachine, machines)
+    {
+        /* Prepare machine name: */
+        QString strMachineName;
+        if (comMachine.GetAccessible())
+        {
+            /* Just get machine name: */
+            strMachineName = comMachine.GetName();
+            /* Enumerate the attachments: */
+            foreach (const CMediumAttachment &attachment, comMachine.GetMediumAttachments())
+            {
+                /* Check if the medium is a hard disk: */
+                if (attachment.GetType() == KDeviceType_HardDisk)
+                {
+                    /* Check if that hard disk isn't shared.
+                     * If hard disk is shared, it will *never* be deleted: */
+                    const QVector<QUuid> usedMachineList = attachment.GetMedium().GetMachineIds();
+                    if (usedMachineList.size() == 1)
+                    {
+                        fMachineWithHardDiskPresent = true;
+                        break;
+                    }
+                }
+            }
+        }
+        else
+        {
+            /* Compose machine name: */
+            QFileInfo fi(comMachine.GetSettingsFilePath());
+            strMachineName = UICommon::hasAllowedExtension(fi.completeSuffix(), VBoxFileExts)
+                           ? fi.completeBaseName() : fi.fileName();
+            /* Increment inacessible machine count: */
+            ++cInacessibleMachineCount;
+        }
+        /* Append machine name: */
+        machineNames << strMachineName;
+    }
+
+    /* Prepare message title/text: */
+    const QString strTitle = QApplication::translate("UIMessageCenter", "Remove machines?");
+    const QString strText = QApplication::translate("UIMessageCenter", "<p>Remove these virtual machines from the machine "
+                                                                       "list?</p><p><b>%1</b></p>").arg(machineNames.join(", "));
+
+    /* Prepare option text: */
+    const QString strOption = fMachineWithHardDiskPresent
+                            ? QApplication::translate("UIMessageCenter", "Delete the virtual machine files "
+                                                                         "and virtual hard disks.")
+                            : QApplication::translate("UIMessageCenter", "Delete the virtual machine files.");
+
+    /* Prepare message itself: */
+    return cInacessibleMachineCount == machines.size() ?
+        createBlockingQuestion(
+            strTitle,
+            strText,
+            QStringList() << QString() /* cancel button text */
+                          << QApplication::translate("UIMessageCenter", "Remove", "machine") /* ok button text */,
+            false /* Ok by default? */) :
+        createBlockingQuestion(
+            strTitle,
+            strText,
+            QStringList() << QString() /* cancel button text */
+                          << QApplication::translate("UIMessageCenter", "Remove", "machine") /* ok button text */,
+            false /* Ok by default? */,
+            strOption);
 }
 
 /* static */

@@ -1,4 +1,4 @@
-/* $Id: UIMessageCenter.h 113360 2026-03-11 15:21:26Z sergey.dubov@oracle.com $ */
+/* $Id: UIMessageCenter.h 113372 2026-03-12 09:40:15Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMessageCenter class declaration.
  */
@@ -36,17 +36,12 @@
 
 /* GUI includes: */
 #include "UILibraryDefs.h"
-#include "UIMediumDefs.h"
 
 /* COM includes: */
 #include "CProgress.h"
 
 /* Forward declarations: */
 class UIMedium;
-struct StorageSlot;
-#ifdef VBOX_WITH_DRAG_AND_DROP
-class CGuest;
-#endif
 
 /** Possible message types. */
 enum MessageType
@@ -290,7 +285,6 @@ public:
 
     /** @name VirtualBox Manager / Chooser Pane warnings.
       * @{ */
-        int confirmMachineRemoval(const QList<CMachine> &machines) const;
         int confirmCloudMachineRemoval(const QList<CCloudMachine> &machines) const;
     /** @} */
 

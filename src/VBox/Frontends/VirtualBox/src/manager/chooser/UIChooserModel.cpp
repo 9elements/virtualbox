@@ -1,4 +1,4 @@
-/* $Id: UIChooserModel.cpp 113173 2026-02-26 11:58:51Z sergey.dubov@oracle.com $ */
+/* $Id: UIChooserModel.cpp 113372 2026-03-12 09:40:15Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIChooserModel class implementation.
  */
@@ -1976,8 +1976,8 @@ void UIChooserModel::removeLocalMachineItems(const QList<UIChooserItemMachine*> 
 void UIChooserModel::unregisterLocalMachines(const QList<CMachine> &machines)
 {
     /* Confirm machine removal: */
-    const int iResultCode = msgCenter().confirmMachineRemoval(machines);
-    if (iResultCode & AlertButton_Cancel)
+    const int iResultCode = UINotificationQuestion::confirmMachineRemoval(machines);
+    if (iResultCode == Question::Result_Cancel)
         return;
 
     /* For every selected machine: */
@@ -1992,7 +1992,7 @@ void UIChooserModel::unregisterLocalMachines(const QList<CMachine> &machines)
         }
 
         /* Now remove machine fully if requested: */
-        if (iResultCode & AlertOption_CheckBox)
+        if (iResultCode & Question::Result_AcceptOption)
         {
             /* Removing machine fully (together with config file and all the media): */
             UINotificationProgressMachineMediaRemove *pNotification =
