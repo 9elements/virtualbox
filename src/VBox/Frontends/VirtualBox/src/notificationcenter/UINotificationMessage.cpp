@@ -1,4 +1,4 @@
-/* $Id: UINotificationMessage.cpp 113375 2026-03-12 12:32:20Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationMessage.cpp 113377 2026-03-12 13:25:38Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationMessage implementations.
  */
@@ -86,8 +86,7 @@ void UINotificationMessage::cannotFindHelpFile(const QString &strLocation)
 {
     createMessage(
         QApplication::translate("UIMessageCenter", "Can't find help file ..."),
-        QApplication::translate("UIMessageCenter", "Failed to find the following help file: <b>%1</b>")
-                                                   .arg(strLocation));
+        QApplication::translate("UIMessageCenter", "Failed to find the following help file: <b>%1</b>").arg(strLocation));
 }
 
 /* static */
@@ -95,9 +94,8 @@ void UINotificationMessage::cannotOpenURL(const QString &strUrl)
 {
     createMessage(
         QApplication::translate("UIMessageCenter", "Can't open URL ..."),
-        QApplication::translate("UIMessageCenter", "Failed to open <tt>%1</tt>. "
-                                                   "Make sure your desktop environment can properly handle URLs of this type.")
-                                                   .arg(strUrl));
+        QApplication::translate("UIMessageCenter", "Failed to open <tt>%1</tt>. Make sure your desktop "
+                                                   "environment can properly handle URLs of this type.").arg(strUrl));
 }
 
 /* static */
@@ -155,7 +153,7 @@ void UINotificationMessage::warnAboutCannotSaveSettings(const QString strDetails
                                                         QWidget *pParent)
 {
     createMessage(
-        QApplication::translate("UIMessageCenter", "Failed to save the settings."),
+        QApplication::translate("UIMessageCenter", "Failed to save settings ..."),
         strDetails.toUtf8().constData(),
         pParent);
 }
@@ -174,8 +172,8 @@ void UINotificationMessage::showUpdateSuccess(const QString &strVersion, const Q
 {
     createMessage(
         QApplication::translate("UIMessageCenter", "New version found ..."),
-        QApplication::translate("UIMessageCenter", "<p>A new version of VirtualBox has been released! Version <b>%1</b> is available "
-                                                   "at <a href=\"https://www.virtualbox.org/\">virtualbox.org</a>.</p>"
+        QApplication::translate("UIMessageCenter", "<p>A new version of VirtualBox has been released! Version <b>%1</b> is "
+                                                   "available at <a href=\"https://www.virtualbox.org/\">virtualbox.org</a>.</p>"
                                                    "<p>You can download this version using the link:</p>"
                                                    "<p><a href=%2>%3</a></p>").arg(strVersion, strLink, strLink));
 }
@@ -251,8 +249,7 @@ bool UINotificationMessage::cannotCreateMachineFolder(const QString &strPath,
 {
     createMessage(
         QApplication::translate("UIMessageCenter", "Can't create machine folder ..."),
-        QApplication::translate("UIMessageCenter", "Failed to create machine folder at <nobr><b>%1</b></nobr>.")
-                                                   .arg(strPath),
+        QApplication::translate("UIMessageCenter", "Failed to create machine folder at <nobr><b>%1</b></nobr>.").arg(strPath),
         pParent);
     return false;
 }
@@ -263,8 +260,7 @@ bool UINotificationMessage::cannotOverwriteMachineFolder(const QString &strPath,
 {
     createMessage(
         QApplication::translate("UIMessageCenter", "Can't overwrite machine folder ..."),
-        QApplication::translate("UIMessageCenter", "Failed to overwrite machine folder at <nobr><b>%1</b></nobr>.")
-                                                   .arg(strPath),
+        QApplication::translate("UIMessageCenter", "Failed to overwrite machine folder at <nobr><b>%1</b></nobr>.").arg(strPath),
         pParent);
     return false;
 }
@@ -275,8 +271,7 @@ bool UINotificationMessage::cannotRemoveMachineFolder(const QString &strPath,
 {
     createMessage(
         QApplication::translate("UIMessageCenter", "Can't remove machine folder ..."),
-        QApplication::translate("UIMessageCenter", "Failed to remove machine folder at <nobr><b>%1</b></nobr>.")
-                                                   .arg(strPath),
+        QApplication::translate("UIMessageCenter", "Failed to remove machine folder at <nobr><b>%1</b></nobr>.").arg(strPath),
         pParent);
     return false;
 }
@@ -287,8 +282,7 @@ void UINotificationMessage::cannotMoveMachineFolder(const QString &strPath)
     createMessage(
         QApplication::translate("UIMessageCenter", "Can't move machine folder ..."),
         QApplication::translate("UIMessageCenter", "Failed to move machine folder to <nobr><b>%1</b></nobr>.  "
-                                                   "A file with the same name already exists!")
-                                                   .arg(strPath));
+                                                   "A file with the same name already exists!").arg(strPath));
 }
 
 /* static */
@@ -297,8 +291,7 @@ void UINotificationMessage::cannotReregisterExistingMachine(const QString &strNa
     createMessage(
         QApplication::translate("UIMessageCenter", "Can't add machine ..."),
         QApplication::translate("UIMessageCenter", "Failed to add virtual machine <b>%1</b> located in <i>%2</i> because its "
-                                                   "already present.")
-                                                   .arg(strName, strLocation));
+                                                   "already present.").arg(strName, strLocation));
 }
 
 /* static */
@@ -327,8 +320,7 @@ void UINotificationMessage::cannotCreateMediumStorageInFAT(const QString &strPat
 {
     createMessage(
         QApplication::translate("UIMessageCenter", "Can't create medium ..."),
-        QApplication::translate("UIMessageCenter", "Failed to create medium storage at <nobr><b>%1</b></nobr>.")
-                                                   .arg(strPath),
+        QApplication::translate("UIMessageCenter", "Failed to create medium storage at <nobr><b>%1</b></nobr>.").arg(strPath),
         pParent);
 }
 
@@ -338,8 +330,7 @@ void UINotificationMessage::cannotOverwriteMediumStorage(const QString &strPath,
 {
     createMessage(
         QApplication::translate("UIMessageCenter", "Can't overwrite medium ..."),
-        QApplication::translate("UIMessageCenter", "Failed to overwrite medium storage at <nobr><b>%1</b></nobr>.")
-                                                   .arg(strPath),
+        QApplication::translate("UIMessageCenter", "Failed to overwrite medium storage at <nobr><b>%1</b></nobr>.").arg(strPath),
         pParent);
 }
 
@@ -404,8 +395,7 @@ bool UINotificationMessage::warnAboutInvalidIPv4Address(const QString &strName)
     createMessage(
         QApplication::translate("UIMessageCenter", "Invalid IPv4 address ..."),
         QApplication::translate("UIMessageCenter", "Network <nobr><b>%1</b></nobr> does not "
-                                                   "currently have a valid IPv4 address.")
-                                                   .arg(strName));
+                                                   "currently have a valid IPv4 address.").arg(strName));
     return false;
 }
 
@@ -415,8 +405,7 @@ bool UINotificationMessage::warnAboutInvalidIPv4Mask(const QString &strName)
     createMessage(
         QApplication::translate("UIMessageCenter", "Invalid IPv4 mask ..."),
         QApplication::translate("UIMessageCenter", "Network <nobr><b>%1</b></nobr> does not "
-                                                   "currently have a valid IPv4 mask.")
-                                                   .arg(strName));
+                                                   "currently have a valid IPv4 mask.").arg(strName));
     return false;
 }
 
@@ -426,8 +415,7 @@ bool UINotificationMessage::warnAboutInvalidIPv6Address(const QString &strName)
     createMessage(
         QApplication::translate("UIMessageCenter", "Invalid IPv6 address ..."),
         QApplication::translate("UIMessageCenter", "Network <nobr><b>%1</b></nobr> does not "
-                                                   "currently have a valid IPv6 address.")
-                                                   .arg(strName));
+                                                   "currently have a valid IPv6 address.").arg(strName));
     return false;
 }
 
@@ -436,9 +424,8 @@ bool UINotificationMessage::warnAboutInvalidIPv6PrefixLength(const QString &strN
 {
     createMessage(
         QApplication::translate("UIMessageCenter", "Invalid IPv6 prefix length ..."),
-        QApplication::translate("UIMessageCenter", "Network <nobr><b>%1</b></nobr> does not "
-                                                   "currently have a valid IPv6 prefix length.")
-                                                   .arg(strName));
+        QApplication::translate("UIMessageCenter", "Network <nobr><b>%1</b></nobr> does not currently "
+                                                   "have a valid IPv6 prefix length.").arg(strName));
     return false;
 }
 
@@ -447,9 +434,8 @@ bool UINotificationMessage::warnAboutInvalidDHCPServerAddress(const QString &str
 {
     createMessage(
         QApplication::translate("UIMessageCenter", "Invalid DHCP server address ..."),
-        QApplication::translate("UIMessageCenter", "Network <nobr><b>%1</b></nobr> does not "
-                                                   "currently have a valid DHCP server address.")
-                                                   .arg(strName));
+        QApplication::translate("UIMessageCenter", "Network <nobr><b>%1</b></nobr> does not currently "
+                                                   "have a valid DHCP server address.").arg(strName));
     return false;
 }
 
@@ -458,9 +444,8 @@ bool UINotificationMessage::warnAboutInvalidDHCPServerMask(const QString &strNam
 {
     createMessage(
         QApplication::translate("UIMessageCenter", "Invalid DHCP server mask ..."),
-        QApplication::translate("UIMessageCenter", "Network <nobr><b>%1</b></nobr> does not "
-                                                   "currently have a valid DHCP server mask.")
-                                                   .arg(strName));
+        QApplication::translate("UIMessageCenter", "Network <nobr><b>%1</b></nobr> does not currently "
+                                                   "have a valid DHCP server mask.").arg(strName));
     return false;
 }
 
@@ -469,9 +454,8 @@ bool UINotificationMessage::warnAboutInvalidDHCPServerLowerAddress(const QString
 {
     createMessage(
         QApplication::translate("UIMessageCenter", "Invalid DHCP lower address ..."),
-        QApplication::translate("UIMessageCenter", "Network <nobr><b>%1</b></nobr> does not "
-                                                   "currently have a valid DHCP server lower address bound.")
-                                                   .arg(strName));
+        QApplication::translate("UIMessageCenter", "Network <nobr><b>%1</b></nobr> does not currently "
+                                                   "have a valid DHCP server lower address bound.").arg(strName));
     return false;
 }
 
@@ -480,9 +464,8 @@ bool UINotificationMessage::warnAboutInvalidDHCPServerUpperAddress(const QString
 {
     createMessage(
         QApplication::translate("UIMessageCenter", "Invalid DHCP upper address ..."),
-        QApplication::translate("UIMessageCenter", "Network <nobr><b>%1</b></nobr> does not "
-                                                   "currently have a valid DHCP server upper address bound.")
-                                                   .arg(strName));
+        QApplication::translate("UIMessageCenter", "Network <nobr><b>%1</b></nobr> does not currently "
+                                                   "have a valid DHCP server upper address bound.").arg(strName));
     return false;
 }
 
@@ -501,8 +484,7 @@ bool UINotificationMessage::warnAboutNameAlreadyBusy(const QString &strName)
 {
     createMessage(
         QApplication::translate("UIMessageCenter", "Name already busy ..."),
-        QApplication::translate("UIMessageCenter", "The name <b>%1</b> is being used for several networks.")
-                                                   .arg(strName));
+        QApplication::translate("UIMessageCenter", "The name <b>%1</b> is being used for several networks.").arg(strName));
     return false;
 }
 
@@ -511,8 +493,7 @@ bool UINotificationMessage::warnAboutNoIPv4PrefixSpecified(const QString &strNam
 {
     createMessage(
         QApplication::translate("UIMessageCenter", "No IPv4 prefix specified ..."),
-        QApplication::translate("UIMessageCenter", "No IPv4 prefix specified for the NAT network <b>%1</b>.")
-                                                   .arg(strName));
+        QApplication::translate("UIMessageCenter", "No IPv4 prefix specified for the NAT network <b>%1</b>.").arg(strName));
     return false;
 }
 
@@ -530,7 +511,7 @@ bool UINotificationMessage::warnAboutNoIPv6PrefixSpecified(const QString &strNam
 bool UINotificationMessage::warnAboutIncorrectPort(QWidget *pParent)
 {
     createMessage(
-          QApplication::translate("UIMessageCenter", "Invalid port forwarding rules..."),
+          QApplication::translate("UIMessageCenter", "Invalid port forwarding rules ..."),
           QApplication::translate("UIMessageCenter", "None of the host or guest port values may be set to zero."),
           pParent);
     return false;
@@ -540,7 +521,7 @@ bool UINotificationMessage::warnAboutIncorrectPort(QWidget *pParent)
 bool UINotificationMessage::warnAboutIncorrectAddress(QWidget *pParent)
 {
     createMessage(
-        QApplication::translate("UIMessageCenter", "Invalid port forwarding rules..."),
+        QApplication::translate("UIMessageCenter", "Invalid port forwarding rules ..."),
         QApplication::translate("UIMessageCenter", "All of the host or guest address values should be correct or empty."),
         pParent);
     return false;
@@ -550,7 +531,7 @@ bool UINotificationMessage::warnAboutIncorrectAddress(QWidget *pParent)
 bool UINotificationMessage::warnAboutEmptyGuestAddress(QWidget *pParent)
 {
     createMessage(
-        QApplication::translate("UIMessageCenter", "Invalid port forwarding rules..."),
+        QApplication::translate("UIMessageCenter", "Invalid port forwarding rules ..."),
         QApplication::translate("UIMessageCenter", "None of the guest address values may be empty."),
         pParent);
     return false;
@@ -560,7 +541,7 @@ bool UINotificationMessage::warnAboutEmptyGuestAddress(QWidget *pParent)
 bool UINotificationMessage::warnAboutNameShouldBeUnique(QWidget *pParent)
 {
     createMessage(
-        QApplication::translate("UIMessageCenter", "Invalid port forwarding rules..."),
+        QApplication::translate("UIMessageCenter", "Invalid port forwarding rules ..."),
         QApplication::translate("UIMessageCenter", "Rule names should be unique."),
         pParent);
     return false;
@@ -570,7 +551,7 @@ bool UINotificationMessage::warnAboutNameShouldBeUnique(QWidget *pParent)
 bool UINotificationMessage::warnAboutRulesConflict(QWidget *pParent)
 {
     createMessage(
-        QApplication::translate("UIMessageCenter", "Invalid port forwarding rules..."),
+        QApplication::translate("UIMessageCenter", "Invalid port forwarding rules ..."),
         QApplication::translate("UIMessageCenter", "Few rules have same host ports and conflicting IP addresses."),
         pParent);
     return false;
@@ -632,8 +613,10 @@ void UINotificationMessage::showRuntimeError(NotificationType emnNotificationTyp
                              "<tr><td>%4</td><td>%5</td></tr>"
                              "</table>")
                              .arg(QApplication::palette().color(QPalette::Active, QPalette::Window).name(QColor::HexRgb))
-                             .arg(QApplication::translate("UIMessageCenter", "<nobr>Error ID:</nobr>", "runtime error info"), strErrorId)
-                             .arg(QApplication::translate("UIMessageCenter", "Severity:", "runtime error info"), strSeverity);
+                             .arg(QApplication::translate("UIMessageCenter", "<nobr>Error ID:</nobr>", "runtime error info"),
+                                  strErrorId)
+                             .arg(QApplication::translate("UIMessageCenter", "Severity:", "runtime error info"),
+                                  strSeverity);
     if (!formatted.isEmpty())
         formatted = "<qt>" + formatted + "</qt>";
 
@@ -683,8 +666,7 @@ bool UINotificationMessage::cannotEnterSeamlessMode(quint64 uMinVRAM)
         QApplication::translate("UIMessageCenter", "Can't enter seamless mode ..."),
         QApplication::translate("UIMessageCenter", "<p>Could not enter seamless mode due to insufficient guest video memory.</p>"
                                                    "<p>You should configure the virtual machine to have at least <b>%1</b> of "
-                                                   "video memory.</p>")
-                                                   .arg(UITranslator::formatSize(uMinVRAM)));
+                                                   "video memory.</p>").arg(UITranslator::formatSize(uMinVRAM)));
     return false;
 }
 
@@ -732,8 +714,8 @@ void UINotificationMessage::remindAboutAutoCapture()
                                                    "unavailable to other applications running on your host machine: "
                                                    "when the keyboard is captured, all keystrokes (including system ones "
                                                    "like Alt-Tab) will be directed to the VM.</p>"
-                                                   "<p>You can press the <b>host key combo</b> at any time to <b>uncapture</b> the "
-                                                   "keyboard and mouse (if it is captured) and return them to normal "
+                                                   "<p>You can press the <b>host key combo</b> at any time to <b>uncapture</b> "
+                                                   "the keyboard and mouse (if it is captured) and return them to normal "
                                                    "operation. The currently assigned host key combo is shown on the status bar "
                                                    "at the bottom of the Virtual Machine window. This icon, together "
                                                    "with the mouse icon placed nearby, indicate the current keyboard "
@@ -1518,8 +1500,7 @@ void UINotificationMessage::cannotSetGroups(const CMachine &comMachine)
         QApplication::translate("UIMessageCenter", "Failed to set groups ..."),
         QApplication::translate("UIMessageCenter", "Failed to set groups of the virtual "
                                                    "machine <b>%1</b>.").arg(strName) +
-        UIErrorString::formatErrorInfo(comMachine),
-        0);
+        UIErrorString::formatErrorInfo(comMachine));
 }
 
 /* static */
@@ -1652,8 +1633,7 @@ void UINotificationMessage::cannotOpenExtPack(const CExtPackManager &comExtPackM
 {
     createMessage(
         QApplication::translate("UIMessageCenter", "Can't open extension pack ..."),
-        QApplication::translate("UIMessageCenter", "Failed to open the Extension Pack <b>%1</b>.")
-                                                   .arg(strFilename) +
+        QApplication::translate("UIMessageCenter", "Failed to open the Extension Pack <b>%1</b>.").arg(strFilename) +
         UIErrorString::formatErrorInfo(comExtPackManager));
 }
 
@@ -1662,8 +1642,7 @@ void UINotificationMessage::cannotReadExtPack(const CExtPackFile &comExtPackFile
 {
     createMessage(
         QApplication::translate("UIMessageCenter", "Can't read extension pack ..."),
-        QApplication::translate("UIMessageCenter", "Failed to read the Extension Pack <b>%1</b>.")
-                                                   .arg(strFilename) +
+        QApplication::translate("UIMessageCenter", "Failed to read the Extension Pack <b>%1</b>.").arg(strFilename) +
         comExtPackFile.GetWhyUnusable());
 }
 
@@ -1672,8 +1651,7 @@ void UINotificationMessage::cannotFindCloudNetwork(const CVirtualBox &comVBox, c
 {
     createMessage(
         QApplication::translate("UIMessageCenter", "Can't find cloud network ..."),
-        QApplication::translate("UIMessageCenter", "Unable to find the cloud network <b>%1</b>.")
-                                                   .arg(strNetworkName) +
+        QApplication::translate("UIMessageCenter", "Unable to find the cloud network <b>%1</b>.").arg(strNetworkName) +
         UIErrorString::formatErrorInfo(comVBox));
 }
 
@@ -1682,8 +1660,7 @@ void UINotificationMessage::cannotFindHostNetworkInterface(const CHost &comHost,
 {
     createMessage(
         QApplication::translate("UIMessageCenter", "Can't find host network interface ..."),
-        QApplication::translate("UIMessageCenter", "Unable to find the host network interface <b>%1</b>.")
-                                                   .arg(strInterfaceName) +
+        QApplication::translate("UIMessageCenter", "Unable to find the host network interface <b>%1</b>.").arg(strInterfaceName) +
         UIErrorString::formatErrorInfo(comHost));
 }
 
@@ -1692,8 +1669,7 @@ void UINotificationMessage::cannotFindHostOnlyNetwork(const CVirtualBox &comVBox
 {
     createMessage(
         QApplication::translate("UIMessageCenter", "Can't find host only network ..."),
-        QApplication::translate("UIMessageCenter", "Unable to find the host only network <b>%1</b>.")
-                                                   .arg(strNetworkName) +
+        QApplication::translate("UIMessageCenter", "Unable to find the host only network <b>%1</b>.").arg(strNetworkName) +
         UIErrorString::formatErrorInfo(comVBox));
 }
 
@@ -1702,8 +1678,7 @@ void UINotificationMessage::cannotFindNATNetwork(const CVirtualBox &comVBox, con
 {
     createMessage(
         QApplication::translate("UIMessageCenter", "Can't find NAT network ..."),
-        QApplication::translate("UIMessageCenter", "Unable to find the NAT network <b>%1</b>.")
-                                                   .arg(strNetworkName) +
+        QApplication::translate("UIMessageCenter", "Unable to find the NAT network <b>%1</b>.").arg(strNetworkName) +
         UIErrorString::formatErrorInfo(comVBox));
 }
 
@@ -1741,8 +1716,7 @@ void UINotificationMessage::cannotRemoveCloudNetwork(const CVirtualBox &comVBox,
 {
     createMessage(
         QApplication::translate("UIMessageCenter", "Can't remove cloud network ..."),
-        QApplication::translate("UIMessageCenter", "Failed to remove the cloud network <b>%1</b>.")
-                                                   .arg(strNetworkName) +
+        QApplication::translate("UIMessageCenter", "Failed to remove the cloud network <b>%1</b>.").arg(strNetworkName) +
         UIErrorString::formatErrorInfo(comVBox));
 }
 
@@ -1760,8 +1734,7 @@ void UINotificationMessage::cannotRemoveHostOnlyNetwork(const CVirtualBox &comVB
 {
     createMessage(
         QApplication::translate("UIMessageCenter", "Can't remove host only network ..."),
-        QApplication::translate("UIMessageCenter", "Failed to remove the host only network <b>%1</b>.")
-                                                   .arg(strNetworkName) +
+        QApplication::translate("UIMessageCenter", "Failed to remove the host only network <b>%1</b>.").arg(strNetworkName) +
         UIErrorString::formatErrorInfo(comVBox));
 }
 
@@ -1779,8 +1752,7 @@ void UINotificationMessage::cannotRemoveNATNetwork(const CVirtualBox &comVBox, c
 {
     createMessage(
         QApplication::translate("UIMessageCenter", "Can't remove NAT network ..."),
-        QApplication::translate("UIMessageCenter", "Failed to remove the NAT network <b>%1</b>.")
-                                                   .arg(strNetworkName) +
+        QApplication::translate("UIMessageCenter", "Failed to remove the NAT network <b>%1</b>.").arg(strNetworkName) +
         UIErrorString::formatErrorInfo(comVBox));
 }
 
@@ -1990,8 +1962,7 @@ void UINotificationMessage::cannotFindSnapshotById(const CMachine &comMachine, c
 {
     createMessage(
         QApplication::translate("UIMessageCenter", "Can't find snapshot ..."),
-        QApplication::translate("UIMessageCenter", "Failed to find snapshot with ID=<b>%1</b>.")
-                                                   .arg(uId.toString()) +
+        QApplication::translate("UIMessageCenter", "Failed to find snapshot with ID=<b>%1</b>.").arg(uId.toString()) +
         UIErrorString::formatErrorInfo(comMachine));
 }
 
@@ -2002,8 +1973,7 @@ bool UINotificationMessage::cannotFindSnapshotByName(const CMachine &comMachine,
 {
     createMessage(
         QApplication::translate("UIMessageCenter", "Can't find snapshot ..."),
-        QApplication::translate("UIMessageCenter", "Failed to find snapshot with name=<b>%1</b>.")
-                                                   .arg(strName) +
+        QApplication::translate("UIMessageCenter", "Failed to find snapshot with name=<b>%1</b>.").arg(strName) +
         UIErrorString::formatErrorInfo(comMachine),
         pParent);
     return false;
@@ -2055,8 +2025,7 @@ bool UINotificationMessage::cannotAddDiskEncryptionPassword(const CConsole &comC
     createMessage(
         QApplication::translate("UIMessageCenter", "Bad password ..."),
         QApplication::translate("UIMessageCenter", "Bad password or authentication failure.") +
-        UIErrorString::formatErrorInfo(comConsole),
-        0);
+        UIErrorString::formatErrorInfo(comConsole));
     return false;
 }
 
@@ -2086,8 +2055,8 @@ void UINotificationMessage::cannotDetachUSBDevice(const CConsole &comConsole, co
 {
     createMessage(
         QApplication::translate("UIMessageCenter", "Can't detach USB device ..."),
-        QApplication::translate("UIMessageCenter", "Failed to detach the USB device <b>%1</b> from the virtual machine <b>%2</b>.")
-                                .arg(strDevice, CConsole(comConsole).GetMachine().GetName()) +
+        QApplication::translate("UIMessageCenter", "Failed to detach the USB device <b>%1</b> from the virtual machine "
+                                                   "<b>%2</b>.").arg(strDevice, CConsole(comConsole).GetMachine().GetName()) +
         UIErrorString::formatErrorInfo(comConsole));
 }
 
@@ -2097,8 +2066,8 @@ void UINotificationMessage::cannotDetachUSBDevice(const CVirtualBoxErrorInfo &co
 {
     createMessage(
         QApplication::translate("UIMessageCenter", "Can't detach USB device ..."),
-        QApplication::translate("UIMessageCenter", "Failed to detach the USB device <b>%1</b> from the virtual machine <b>%2</b>.")
-                                .arg(strDevice, strMachineName) +
+        QApplication::translate("UIMessageCenter", "Failed to detach the USB device <b>%1</b> from the virtual machine "
+                                                   "<b>%2</b>.").arg(strDevice, strMachineName) +
         UIErrorString::formatErrorInfo(comErrorInfo));
 }
 
@@ -2144,10 +2113,10 @@ void UINotificationMessage::cannotToggleAudioInput(const CAudioAdapter &comAdapt
     createMessage(
         QApplication::translate("UIMessageCenter", "Can't toggle audio input ..."),
         (  fEnable
-         ? QApplication::translate("UIMessageCenter", "Failed to enable the audio adapter input for the virtual machine <b>%1</b>.")
-                                   .arg(strMachineName)
-         : QApplication::translate("UIMessageCenter", "Failed to disable the audio adapter input for the virtual machine <b>%1</b>.")
-                                   .arg(strMachineName)) +
+         ? QApplication::translate("UIMessageCenter", "Failed to enable the audio adapter input for the virtual machine "
+                                                      "<b>%1</b>.").arg(strMachineName)
+         : QApplication::translate("UIMessageCenter", "Failed to disable the audio adapter input for the virtual machine "
+                                                      "<b>%1</b>.").arg(strMachineName)) +
         UIErrorString::formatErrorInfo(comAdapter));
 }
 
@@ -2158,10 +2127,10 @@ void UINotificationMessage::cannotToggleAudioOutput(const CAudioAdapter &comAdap
     createMessage(
         QApplication::translate("UIMessageCenter", "Can't toggle audio output ..."),
         (  fEnable
-         ? QApplication::translate("UIMessageCenter", "Failed to enable the audio adapter output for the virtual machine <b>%1</b>.")
-                                   .arg(strMachineName)
-         : QApplication::translate("UIMessageCenter", "Failed to disable the audio adapter output for the virtual machine <b>%1</b>.")
-                                   .arg(strMachineName)) +
+         ? QApplication::translate("UIMessageCenter", "Failed to enable the audio adapter output for the virtual machine "
+                                                      "<b>%1</b>.").arg(strMachineName)
+         : QApplication::translate("UIMessageCenter", "Failed to disable the audio adapter output for the virtual machine "
+                                                      "<b>%1</b>.").arg(strMachineName)) +
         UIErrorString::formatErrorInfo(comAdapter));
 }
 
@@ -2172,15 +2141,17 @@ void UINotificationMessage::cannotToggleNetworkCable(const CNetworkAdapter &comA
     createMessage(
         QApplication::translate("UIMessageCenter", "Can't toggle network cable ..."),
         (  fConnect
-         ? QApplication::translate("UIMessageCenter", "Failed to connect the network adapter cable of the virtual machine <b>%1</b>.")
-                                   .arg(strMachineName)
-         : QApplication::translate("UIMessageCenter", "Failed to disconnect the network adapter cable of the virtual machine <b>%1</b>.")
-                                   .arg(strMachineName)) +
+         ? QApplication::translate("UIMessageCenter", "Failed to connect the network adapter cable of the virtual machine "
+                                                      "<b>%1</b>.").arg(strMachineName)
+         : QApplication::translate("UIMessageCenter", "Failed to disconnect the network adapter cable of the virtual machine "
+                                                      "<b>%1</b>.").arg(strMachineName)) +
         UIErrorString::formatErrorInfo(comAdapter));
 }
 
 /* static */
-void UINotificationMessage::cannotToggleRecording(const CRecordingSettings &comRecording, const QString &strMachineName, bool fEnable)
+void UINotificationMessage::cannotToggleRecording(const CRecordingSettings &comRecording,
+                                                  const QString &strMachineName,
+                                                  bool fEnable)
 {
     createMessage(
         QApplication::translate("UIMessageCenter", "Can't toggle recording ..."),
@@ -2194,15 +2165,16 @@ void UINotificationMessage::cannotToggleRecording(const CRecordingSettings &comR
 
 /* static */
 void UINotificationMessage::cannotToggleVRDEServer(const CVRDEServer &comServer,
-                                                   const QString &strMachineName, bool fEnable)
+                                                   const QString &strMachineName,
+                                                   bool fEnable)
 {
     createMessage(
         QApplication::translate("UIMessageCenter", "Can't toggle VRDE server ..."),
         (  fEnable
-         ? QApplication::translate("UIMessageCenter", "Failed to enable the remote desktop server for the virtual machine <b>%1</b>.")
-                                   .arg(strMachineName)
-         : QApplication::translate("UIMessageCenter", "Failed to disable the remote desktop server for the virtual machine <b>%1</b>.")
-                                   .arg(strMachineName)) +
+         ? QApplication::translate("UIMessageCenter", "Failed to enable the remote desktop server for the virtual machine "
+                                                      "<b>%1</b>.").arg(strMachineName)
+         : QApplication::translate("UIMessageCenter", "Failed to disable the remote desktop server for the virtual machine "
+                                                      "<b>%1</b>.").arg(strMachineName)) +
         UIErrorString::formatErrorInfo(comServer));
 }
 

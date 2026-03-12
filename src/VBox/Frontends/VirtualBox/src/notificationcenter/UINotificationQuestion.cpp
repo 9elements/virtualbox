@@ -1,4 +1,4 @@
-/* $Id: UINotificationQuestion.cpp 113375 2026-03-12 12:32:20Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationQuestion.cpp 113377 2026-03-12 13:25:38Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationQuestion implementations.
  */
@@ -893,7 +893,9 @@ bool UINotificationQuestion::confirmLookingForExtensionPack(const QString &strEx
 }
 
 /* static */
-bool UINotificationQuestion::confirmDownloadingExtensionPack(const QString &strExtPackName, const QString &strURL, qulonglong uSize)
+bool UINotificationQuestion::confirmDownloadingExtensionPack(const QString &strExtPackName,
+                                                             const QString &strURL,
+                                                             qulonglong uSize)
 {
     return createBlockingQuestion(
         QApplication::translate("UIMessageCenter", "Download extension pack?"),
@@ -906,7 +908,9 @@ bool UINotificationQuestion::confirmDownloadingExtensionPack(const QString &strE
 }
 
 /* static */
-bool UINotificationQuestion::confirmInstallingExtentionPack(const QString &strExtPackName, const QString &strFrom, const QString &strTo)
+bool UINotificationQuestion::confirmInstallingExtentionPack(const QString &strExtPackName,
+                                                            const QString &strFrom,
+                                                            const QString &strTo)
 {
     return createBlockingQuestion(
         QApplication::translate("UIMessageCenter", "Install extension pack?"),
