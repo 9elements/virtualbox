@@ -1,4 +1,4 @@
-/* $Id: UINotificationObject.cpp 113302 2026-03-10 11:24:07Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationObject.cpp 113375 2026-03-12 12:32:20Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationObject class implementation.
  */
@@ -70,19 +70,6 @@ UINotificationSimple::UINotificationSimple(const QString &strName,
     , m_strHelpKeyword(strHelpKeyword)
     , m_fCritical(false)
 {
-}
-
-/* static */
-bool UINotificationSimple::isSuppressed(const QString &strInternalName)
-{
-    /* Sanity check: */
-    if (strInternalName.isEmpty())
-        return false;
-
-    /* Acquire and check suppressed message names: */
-    const QStringList suppressedMessages = gEDataManager->suppressedMessages();
-    return    suppressedMessages.contains(strInternalName)
-           || suppressedMessages.contains("all");
 }
 
 

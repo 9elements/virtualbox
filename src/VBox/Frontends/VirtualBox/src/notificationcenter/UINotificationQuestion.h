@@ -1,4 +1,4 @@
-/* $Id: UINotificationQuestion.h 113373 2026-03-12 10:04:12Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationQuestion.h 113375 2026-03-12 12:32:20Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationQuestion declarations.
  */
@@ -269,8 +269,6 @@ public:
         static bool confirmSwitchingScreenInFullscreen(quint64 uMinVRAM);
     /** @} */
 
-protected:
-
     /** Constructs question notification-object.
       * @param  strName          Brings the question name.
       * @param  strDetails       Brings the question details.
@@ -286,28 +284,8 @@ protected:
                            const QString &strOption,
                            const QString &strInternalName,
                            const QString &strHelpKeyword);
-    /** Destructs question notification-object. */
-    virtual ~UINotificationQuestion() RT_OVERRIDE RT_FINAL;
 
 private:
-
-    /** Creates blocking question.
-      * @param  pParent          Brings the local notification-center reference.
-      * @param  strName          Brings the question name.
-      * @param  strDetails       Brings the question details.
-      * @param  buttonNames      Brings the list of button names.
-      * @param  fOkByDefault     Brings whether Ok button should be default one.
-      * @param  strOption        Brings the question option.
-      * @param  strInternalName  Brings the question internal name.
-      * @param  strHelpKeyword   Brings the question help keyword. */
-    static int createBlockingQuestionInt(UINotificationCenter *pParent,
-                                         const QString &strName,
-                                         const QString &strDetails,
-                                         const QStringList &buttonNames,
-                                         bool fOkByDefault,
-                                         const QString &strOption,
-                                         const QString &strInternalName,
-                                         const QString &strHelpKeyword);
 
     /** Creates blocking question.
       * @param  strName          Brings the question name.
@@ -326,15 +304,6 @@ private:
                                       const QString &strInternalName = QString(),
                                       const QString &strHelpKeyword = QString(),
                                       QWidget *pParent = 0);
-
-    /** Destroys question.
-      * @param  strInternalName  Brings the question internal name.
-      * @param  pParent          Brings the local notification-center reference. */
-    static void destroyQuestion(const QString &strInternalName,
-                                UINotificationCenter *pParent = 0);
-
-    /** Holds the IDs of questions registered. */
-    static QMap<QString, QUuid>  m_questions;
 
     /** Holds the button names. */
     QStringList  m_buttonNames;

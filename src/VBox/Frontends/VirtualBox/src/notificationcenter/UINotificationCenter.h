@@ -1,4 +1,4 @@
-/* $Id: UINotificationCenter.h 113088 2026-02-19 13:38:35Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationCenter.h 113375 2026-03-12 12:32:20Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationCenter class declaration.
  */
@@ -83,6 +83,9 @@ public:
     /** Returns notification-center contained within @a pParent. */
     static UINotificationCenter *acquire(QWidget *pParent);
 
+    /** Returns whether message with passed @a strInternalName is suppressed. */
+    static bool isMessageSuppressed(const QString &strInternalName);
+
     /** Constructs notification-center passing @a pParent to the base-class. */
     UINotificationCenter(QWidget *pParent);
     /** Destructs notification-center. */
@@ -112,6 +115,45 @@ public:
     bool hasOperationsPending() const;
     /** Aborts blocking operations being performed. */
     void abortOperations();
+
+    /** Creates message.
+      * @param  strName          Brings the message name.
+      * @param  strDetails       Brings the message details.
+      * @param  strInternalName  Brings the message internal name.
+      * @param  strHelpKeyword   Brings the message help keyword. */
+    void createMessageInt(const QString &strName,
+                          const QString &strDetails,
+                          const QString &strInternalName,
+                          const QString &strHelpKeyword);
+    /** Destroys message.
+      * @param  strInternalName  Brings the message internal name. */
+    void destroyMessageInt(const QString &strInternalName);
+
+    /** Creates blocking message.
+      * @param  strName          Brings the message name.
+      * @param  strDetails       Brings the message details.
+      * @param  strInternalName  Brings the message internal name.
+      * @param  strHelpKeyword   Brings the message help keyword. */
+    void createBlockingMessageInt(const QString &strName,
+                                  const QString &strDetails,
+                                  const QString &strInternalName,
+                                  const QString &strHelpKeyword);
+
+    /** Creates blocking question.
+      * @param  strName          Brings the question name.
+      * @param  strDetails       Brings the question details.
+      * @param  buttonNames      Brings the list of button names.
+      * @param  fOkByDefault     Brings whether Ok button should be default one.
+      * @param  strOption        Brings the question option.
+      * @param  strInternalName  Brings the question internal name.
+      * @param  strHelpKeyword   Brings the question help keyword. */
+    int createBlockingQuestionInt(const QString &strName,
+                                  const QString &strDetails,
+                                  const QStringList &buttonNames,
+                                  bool fOkByDefault,
+                                  const QString &strOption,
+                                  const QString &strInternalName,
+                                  const QString &strHelpKeyword);
 
 protected:
 
@@ -230,6 +272,9 @@ private:
     QIToolButton *m_pButtonRemoveFinished;
     /** Holds the items layout instance. */
     QVBoxLayout  *m_pLayoutItems;
+
+    /** Holds the IDs of messages registered. */
+    QMap<QString, QUuid>  m_messages;
 
     /** Holds the map of item instances. */
     QMap<QUuid, UINotificationObjectItem*>  m_items;

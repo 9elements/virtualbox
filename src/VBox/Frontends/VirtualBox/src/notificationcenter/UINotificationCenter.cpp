@@ -1,4 +1,4 @@
-/* $Id: UINotificationCenter.cpp 113228 2026-03-03 14:46:16Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationCenter.cpp 113375 2026-03-12 12:32:20Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationCenter class implementation.
  */
@@ -174,6 +174,19 @@ UINotificationCenter *UINotificationCenter::acquire(QWidget *pParent)
 
     /* Return global one otherwise: */
     return gpNotificationCenter;
+}
+
+/* static */
+bool UINotificationCenter::isMessageSuppressed(const QString &strInternalName)
+{
+    /* Sanity check: */
+    if (strInternalName.isEmpty())
+        return false;
+
+    /* Acquire and check suppressed message names: */
+    const QStringList suppressedMessages = gEDataManager->suppressedMessages();
+    return    suppressedMessages.contains(strInternalName)
+           || suppressedMessages.contains("all");
 }
 
 UINotificationCenter::UINotificationCenter(QWidget *pParent)
@@ -412,6 +425,83 @@ void UINotificationCenter::abortOperations()
     emit sigOperationsAborted();
 }
 
+void UINotificationCenter::createMessageInt(const QString &strName,
+                                            const QString &strDetails,
+                                            const QString &strInternalName,
+                                            const QString &strHelpKeyword)
+{
+    /* Check if message suppressed: */
+    if (isMessageSuppressed(strInternalName))
+        return;
+
+    /* Check if message already exists: */
+    if (   !strInternalName.isEmpty()
+        && m_messages.contains(strInternalName))
+        return;
+
+    /* Create message finally: */
+    const QUuid uId = append(new UINotificationMessage(strName,
+                                                       strDetails,
+                                                       strInternalName,
+                                                       strHelpKeyword));
+    if (!strInternalName.isEmpty())
+        m_messages[strInternalName] = uId;
+}
+
+void UINotificationCenter::destroyMessageInt(const QString &strInternalName)
+{
+    /* Check if message really exists: */
+    if (!m_messages.contains(strInternalName))
+        return;
+
+    /* Destroy message finally: */
+    revoke(m_messages.value(strInternalName));
+    m_messages.remove(strInternalName);
+}
+
+void UINotificationCenter::createBlockingMessageInt(const QString &strName,
+                                                    const QString &strDetails,
+                                                    const QString &strInternalName,
+                                                    const QString &strHelpKeyword)
+{
+    /* Check if message suppressed: */
+    if (isMessageSuppressed(strInternalName))
+        return;
+
+    /* Create message finally: */
+    QPointer<UINotificationMessage> pMessage = new UINotificationMessage(strName,
+                                                                         strDetails,
+                                                                         strInternalName,
+                                                                         strHelpKeyword);
+    showBlocking(pMessage);
+    delete pMessage;
+}
+
+int UINotificationCenter::createBlockingQuestionInt(const QString &strName,
+                                                    const QString &strDetails,
+                                                    const QStringList &buttonNames,
+                                                    bool fOkByDefault,
+                                                    const QString &strOption,
+                                                    const QString &strInternalName,
+                                                    const QString &strHelpKeyword)
+{
+    /* Check if question suppressed: */
+    if (isMessageSuppressed(strInternalName))
+        return Question::Result_Accept;
+
+    /* Create question finally: */
+    QPointer<UINotificationQuestion> pQuestion = new UINotificationQuestion(strName,
+                                                                            strDetails,
+                                                                            buttonNames,
+                                                                            fOkByDefault,
+                                                                            strOption,
+                                                                            strInternalName,
+                                                                            strHelpKeyword);
+    const int iResult = showBlocking(pQuestion);
+    delete pQuestion;
+    return iResult;
+}
+
 void UINotificationCenter::sltRetranslateUI()
 {
     if (m_pButtonOpen)
@@ -613,6 +703,11 @@ void UINotificationCenter::sltHandleModelItemAdded(const QUuid &uId)
 
 void UINotificationCenter::sltHandleModelItemRemoved(const QUuid &uId)
 {
+    /* Wipe out message from list of shown messages if it's present: */
+    const QString strInternalName = m_messages.key(uId);
+    if (!strInternalName.isNull())
+        m_messages.remove(strInternalName);
+
     /* If item representation registered: */
     if (m_items.contains(uId))
     {

@@ -1,4 +1,4 @@
-/* $Id: UINotificationMessage.cpp 113267 2026-03-05 10:14:03Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationMessage.cpp 113375 2026-03-12 12:32:20Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationMessage implementations.
  */
@@ -80,9 +80,6 @@
 /*********************************************************************************************************************************
 *   Class UINotificationMessage implementation.                                                                                  *
 *********************************************************************************************************************************/
-
-/* static */
-QMap<QString, QUuid> UINotificationMessage::m_messages = QMap<QString, QUuid>();
 
 /* static */
 void UINotificationMessage::cannotFindHelpFile(const QString &strLocation)
@@ -2258,65 +2255,6 @@ UINotificationMessage::UINotificationMessage(const QString &strName,
 {
 }
 
-UINotificationMessage::~UINotificationMessage()
-{
-    /* Remove message from known: */
-    m_messages.remove(internalName());
-}
-
-/* static */
-void UINotificationMessage::createMessageInt(UINotificationCenter *pParent,
-                                             const QString &strName,
-                                             const QString &strDetails,
-                                             const QString &strInternalName,
-                                             const QString &strHelpKeyword)
-{
-    /* Make sure parent is set: */
-    AssertPtr(pParent);
-    UINotificationCenter *pEffectiveParent = pParent ? pParent : gpNotificationCenter;
-
-    /* Check if message suppressed: */
-    if (isSuppressed(strInternalName))
-        return;
-
-    /* Check if message already exists: */
-    if (   !strInternalName.isEmpty()
-        && m_messages.contains(strInternalName))
-        return;
-
-    /* Create message finally: */
-    const QUuid uId = pEffectiveParent->append(new UINotificationMessage(strName,
-                                                                         strDetails,
-                                                                         strInternalName,
-                                                                         strHelpKeyword));
-    if (!strInternalName.isEmpty())
-        m_messages[strInternalName] = uId;
-}
-
-/* static */
-void UINotificationMessage::createBlockingMessageInt(UINotificationCenter *pParent,
-                                                     const QString &strName,
-                                                     const QString &strDetails,
-                                                     const QString &strInternalName,
-                                                     const QString &strHelpKeyword)
-{
-    /* Make sure parent is set: */
-    AssertPtr(pParent);
-    UINotificationCenter *pEffectiveParent = pParent ? pParent : gpNotificationCenter;
-
-    /* Check if message suppressed: */
-    if (isSuppressed(strInternalName))
-        return;
-
-    /* Create message finally: */
-    QPointer<UINotificationMessage> pMessage = new UINotificationMessage(strName,
-                                                                         strDetails,
-                                                                         strInternalName,
-                                                                         strHelpKeyword);
-    pEffectiveParent->showBlocking(pMessage);
-    delete pMessage;
-}
-
 /* static */
 void UINotificationMessage::createMessage(const QString &strName,
                                           const QString &strDetails,
@@ -2326,8 +2264,11 @@ void UINotificationMessage::createMessage(const QString &strName,
     UINotificationCenter *pCenter = UINotificationCenter::acquire(pParent);
     AssertPtrReturnVoid(pCenter);
 
-    /* Redirect to wrapper above: */
-    return createMessageInt(pCenter, strName, strDetails, QString(), QString());
+    /* Redirect to notification-center: */
+    return pCenter->createMessageInt(strName,
+                                     strDetails,
+                                     QString(),
+                                     QString());
 }
 
 /* static */
@@ -2341,8 +2282,23 @@ void UINotificationMessage::createMessage(const QString &strName,
     UINotificationCenter *pCenter = UINotificationCenter::acquire(pParent);
     AssertPtrReturnVoid(pCenter);
 
-    /* Redirect to wrapper above: */
-    return createMessageInt(pCenter, strName, strDetails, strInternalName, strHelpKeyword);
+    /* Redirect to notification-center: */
+    return pCenter->createMessageInt(strName,
+                                     strDetails,
+                                     strInternalName,
+                                     strHelpKeyword);
+}
+
+/* static */
+void UINotificationMessage::destroyMessage(const QString &strInternalName,
+                                           UINotificationCenter *pParent /* = 0 */)
+{
+    /* Acquire notification-center, make sure it's present: */
+    UINotificationCenter *pCenter = UINotificationCenter::acquire(pParent);
+    AssertPtrReturnVoid(pCenter);
+
+    /* Redirect to notification-center: */
+    pCenter->destroyMessageInt(strInternalName);
 }
 
 /* static */
@@ -2354,8 +2310,11 @@ void UINotificationMessage::createBlockingMessage(const QString &strName,
     UINotificationCenter *pCenter = UINotificationCenter::acquire(pParent);
     AssertPtrReturnVoid(pCenter);
 
-    /* Redirect to wrapper above: */
-    return createBlockingMessageInt(pCenter, strName, strDetails, QString(), QString());
+    /* Redirect to notification-center: */
+    return pCenter->createBlockingMessageInt(strName,
+                                             strDetails,
+                                             QString(),
+                                             QString());
 }
 
 /* static */
@@ -2369,22 +2328,9 @@ void UINotificationMessage::createBlockingMessage(const QString &strName,
     UINotificationCenter *pCenter = UINotificationCenter::acquire(pParent);
     AssertPtrReturnVoid(pCenter);
 
-    /* Redirect to wrapper above: */
-    return createBlockingMessageInt(pCenter, strName, strDetails, strInternalName, strHelpKeyword);
-}
-
-/* static */
-void UINotificationMessage::destroyMessage(const QString &strInternalName,
-                                           UINotificationCenter *pParent /* = 0 */)
-{
-    /* Check if message really exists: */
-    if (!m_messages.contains(strInternalName))
-        return;
-
-    /* Choose effective parent: */
-    UINotificationCenter *pEffectiveParent = pParent ? pParent : gpNotificationCenter;
-
-    /* Destroy message finally: */
-    pEffectiveParent->revoke(m_messages.value(strInternalName));
-    m_messages.remove(strInternalName);
+    /* Redirect to notification-center: */
+    return pCenter->createBlockingMessageInt(strName,
+                                             strDetails,
+                                             strInternalName,
+                                             strHelpKeyword);
 }

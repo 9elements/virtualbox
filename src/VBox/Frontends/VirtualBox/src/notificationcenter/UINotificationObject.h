@@ -1,4 +1,4 @@
-/* $Id: UINotificationObject.h 113302 2026-03-10 11:24:07Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationObject.h 113375 2026-03-12 12:32:20Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationObject class declaration.
  */
@@ -130,9 +130,6 @@ protected:
                          const QString &strDetails,
                          const QString &strInternalName,
                          const QString &strHelpKeyword);
-
-    /** Returns whether message with passed @a strInternalName is suppressed. */
-    static bool isSuppressed(const QString &strInternalName);
 
     /** Holds the message name. */
     QString  m_strName;

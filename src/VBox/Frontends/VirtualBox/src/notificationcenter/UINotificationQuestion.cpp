@@ -1,4 +1,4 @@
-/* $Id: UINotificationQuestion.cpp 113373 2026-03-12 10:04:12Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationQuestion.cpp 113375 2026-03-12 12:32:20Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationQuestion implementations.
  */
@@ -43,9 +43,6 @@
 #include "CMediumFormat.h"
 #include "KMediumFormatCapabilities.h"
 
-
-/* static */
-QMap<QString, QUuid> UINotificationQuestion::m_questions = QMap<QString, QUuid>();
 
 /* static */
 bool UINotificationQuestion::confirmCheckingInaccessibleMedia()
@@ -1033,7 +1030,7 @@ bool UINotificationQuestion::confirmUnattendedFilesRemoval()
 bool UINotificationQuestion::confirmInputCapture(bool &fAutoConfirmed)
 {
     /* Will the question be auto-confirmed? */
-    fAutoConfirmed = isSuppressed("confirmInputCapture");
+    fAutoConfirmed = UINotificationCenter::isMessageSuppressed("confirmInputCapture");
 
     /* Now the question itself: */
     return createBlockingQuestion(
@@ -1160,43 +1157,6 @@ UINotificationQuestion::UINotificationQuestion(const QString &strName,
 {
 }
 
-UINotificationQuestion::~UINotificationQuestion()
-{
-    /* Remove questions from known: */
-    m_questions.remove(internalName());
-}
-
-/* static */
-int UINotificationQuestion::createBlockingQuestionInt(UINotificationCenter *pParent,
-                                                      const QString &strName,
-                                                      const QString &strDetails,
-                                                      const QStringList &buttonNames,
-                                                      bool fOkByDefault,
-                                                      const QString &strOption,
-                                                      const QString &strInternalName,
-                                                      const QString &strHelpKeyword)
-{
-    /* Make sure parent is set: */
-    AssertPtr(pParent);
-    UINotificationCenter *pEffectiveParent = pParent ? pParent : gpNotificationCenter;
-
-    /* Check if question suppressed: */
-    if (isSuppressed(strInternalName))
-        return Question::Result_Accept;
-
-    /* Create question finally: */
-    QPointer<UINotificationQuestion> pQuestion = new UINotificationQuestion(strName,
-                                                                            strDetails,
-                                                                            buttonNames,
-                                                                            fOkByDefault,
-                                                                            strOption,
-                                                                            strInternalName,
-                                                                            strHelpKeyword);
-    const int iResult = pEffectiveParent->showBlocking(pQuestion);
-    delete pQuestion;
-    return iResult;
-}
-
 /* static */
 int UINotificationQuestion::createBlockingQuestion(const QString &strName,
                                                    const QString &strDetails,
@@ -1211,29 +1171,12 @@ int UINotificationQuestion::createBlockingQuestion(const QString &strName,
     UINotificationCenter *pCenter = UINotificationCenter::acquire(pParent);
     AssertPtrReturn(pCenter, 0);
 
-    /* Redirect to wrapper above: */
-    return createBlockingQuestionInt(pCenter,
-                                     strName,
-                                     strDetails,
-                                     buttonNames,
-                                     fOkByDefault,
-                                     strOption,
-                                     strInternalName,
-                                     strHelpKeyword);
-}
-
-/* static */
-void UINotificationQuestion::destroyQuestion(const QString &strInternalName,
-                                             UINotificationCenter *pParent /* = 0 */)
-{
-    /* Check if question really exists: */
-    if (!m_questions.contains(strInternalName))
-        return;
-
-    /* Choose effective parent: */
-    UINotificationCenter *pEffectiveParent = pParent ? pParent : gpNotificationCenter;
-
-    /* Destroy question finally: */
-    pEffectiveParent->revoke(m_questions.value(strInternalName));
-    m_questions.remove(strInternalName);
+    /* Redirect to notification-center: */
+    return pCenter->createBlockingQuestionInt(strName,
+                                              strDetails,
+                                              buttonNames,
+                                              fOkByDefault,
+                                              strOption,
+                                              strInternalName,
+                                              strHelpKeyword);
 }

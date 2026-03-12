@@ -1,4 +1,4 @@
-/* $Id: UINotificationMessage.h 113267 2026-03-05 10:14:03Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationMessage.h 113375 2026-03-12 12:32:20Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationMessage declarations.
  */
@@ -823,8 +823,6 @@ public:
 #endif /* VBOX_WITH_DRAG_AND_DROP */
     /** @} */
 
-protected:
-
     /** Constructs message notification-object.
       * @param  strName          Brings the message name.
       * @param  strDetails       Brings the message details.
@@ -834,33 +832,8 @@ protected:
                           const QString &strDetails,
                           const QString &strInternalName,
                           const QString &strHelpKeyword);
-    /** Destructs message notification-object. */
-    virtual ~UINotificationMessage() RT_OVERRIDE RT_FINAL;
 
 private:
-
-    /** Creates message.
-      * @param  pParent          Brings the local notification-center reference.
-      * @param  strName          Brings the message name.
-      * @param  strDetails       Brings the message details.
-      * @param  strInternalName  Brings the message internal name.
-      * @param  strHelpKeyword   Brings the message help keyword. */
-    static void createMessageInt(UINotificationCenter *pParent,
-                                 const QString &strName,
-                                 const QString &strDetails,
-                                 const QString &strInternalName,
-                                 const QString &strHelpKeyword);
-    /** Creates blocking message.
-      * @param  pParent          Brings the local notification-center reference.
-      * @param  strName          Brings the message name.
-      * @param  strDetails       Brings the message details.
-      * @param  strInternalName  Brings the message internal name.
-      * @param  strHelpKeyword   Brings the message help keyword. */
-    static void createBlockingMessageInt(UINotificationCenter *pParent,
-                                         const QString &strName,
-                                         const QString &strDetails,
-                                         const QString &strInternalName,
-                                         const QString &strHelpKeyword);
 
     /** Creates message.
       * @param  strName     Brings the message name.
@@ -880,6 +853,12 @@ private:
                               const QString &strInternalName,
                               const QString &strHelpKeyword = QString(),
                               QWidget *pParent = 0);
+    /** Destroys message.
+      * @param  strInternalName  Brings the message internal name.
+      * @param  pParent          Brings the local notification-center reference. */
+    static void destroyMessage(const QString &strInternalName,
+                               UINotificationCenter *pParent = 0);
+
     /** Creates blocking message.
       * @param  strName     Brings the message name.
       * @param  strDetails  Brings the message details.
@@ -898,15 +877,6 @@ private:
                                       const QString &strInternalName,
                                       const QString &strHelpKeyword = QString(),
                                       QWidget *pParent = 0);
-
-    /** Destroys message.
-      * @param  strInternalName  Brings the message internal name.
-      * @param  pParent          Brings the local notification-center reference. */
-    static void destroyMessage(const QString &strInternalName,
-                               UINotificationCenter *pParent = 0);
-
-    /** Holds the IDs of messages registered. */
-    static QMap<QString, QUuid>  m_messages;
 };
 
 #endif /* !FEQT_INCLUDED_SRC_notificationcenter_UINotificationMessage_h */
