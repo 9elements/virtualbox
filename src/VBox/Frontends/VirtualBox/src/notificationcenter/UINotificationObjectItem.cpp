@@ -1,4 +1,4 @@
-/* $Id: UINotificationObjectItem.cpp 113358 2026-03-11 15:00:30Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationObjectItem.cpp 113374 2026-03-12 11:55:48Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationObjectItem class implementation.
  */
@@ -595,7 +595,7 @@ void UINotificationQuestionItem::sltHandleButtonClick(QAbstractButton *pButton)
     results[Question::Result_AcceptAlternative] = m_pButtonBox->button(QDialogButtonBox::Yes);
     Question::Result enmResult = results.key(pButton, Question::Result_Cancel);
     if (   enmResult != Question::Result_Cancel
-        && m_pCheckBoxOption->checkState() == Qt::Checked)
+        && m_pCheckBoxOption && m_pCheckBoxOption->checkState() == Qt::Checked)
         enmResult = (Question::Result)(enmResult | Question::Result_AcceptOption);
 
     /* Assign result: */
