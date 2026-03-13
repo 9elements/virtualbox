@@ -1,4 +1,4 @@
-/* $Id: RecordingInternals.cpp 113381 2026-03-13 10:11:44Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingInternals.cpp 113384 2026-03-13 11:37:56Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording internals code.
  */
@@ -610,9 +610,8 @@ int RecordingCircBufCreate(PRECORDINGCIRCBUF pBuf, size_t cbSize)
     AssertPtrReturn(pBuf, VERR_INVALID_POINTER);
     AssertReturn(cbSize, VERR_INVALID_PARAMETER);
 
-    int rc = RTCircBufCreate(&pBuf->pCircBuf, cbSize);
-    if (RT_FAILURE(rc))
-        return rc;
+    int vrc = RTCircBufCreate(&pBuf->pCircBuf, cbSize);
+    AssertRCReturn(vrc, vrc);
 
     pBuf->uBasePos  = 0;
     pBuf->uWritePos = 0;
@@ -759,9 +758,8 @@ int RecordingCircBufAcquireWrite(PRECORDINGCIRCBUF pBuf, size_t cbReq, void **pp
     *ppv = NULL;
     *pcbAcquired = 0;
 
-    int rc = recCircBufSyncReclaimWriter(pBuf);
-    if (RT_FAILURE(rc))
-        return rc;
+    int vrc = recCircBufSyncReclaimWriter(pBuf);
+    AssertRCReturn(vrc, vrc);
 
     void  *pvDst = NULL;
     size_t cbBlk = 0;
