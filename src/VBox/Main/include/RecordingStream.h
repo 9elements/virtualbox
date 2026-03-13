@@ -1,4 +1,4 @@
-/* $Id: RecordingStream.h 113380 2026-03-13 10:01:45Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingStream.h 113381 2026-03-13 10:11:44Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording stream code header.
  */
@@ -65,6 +65,8 @@ class RecordingContext;
  */
 class RecordingStream
 {
+protected:
+
     struct RECORDINGCMD;
 
 public:

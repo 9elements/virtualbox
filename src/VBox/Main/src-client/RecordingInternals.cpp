@@ -1,4 +1,4 @@
-/* $Id: RecordingInternals.cpp 113380 2026-03-13 10:01:45Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingInternals.cpp 113381 2026-03-13 10:11:44Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording internals code.
  */
@@ -335,6 +335,7 @@ DECLINLINE(void) recordingVideoFrameBlitRawAlpha(PRECORDINGVIDEOFRAME pFrame, ui
                                                  const uint8_t *pu8Src, size_t cbSrc, uint32_t uSrcX, uint32_t uSrcY, uint32_t uSrcWidth, uint32_t uSrcHeight,
                                                  uint32_t uSrcBytesPerLine, uint8_t uSrcBPP, RECORDINGPIXELFMT enmFmt)
 {
+    RT_NOREF(enmFmt);
     Assert(enmFmt == RECORDINGPIXELFMT_BRGA32);
     Assert(pFrame->Info.enmPixelFmt == enmFmt);
     Assert(pFrame->Info.uBPP % 8 == 0);

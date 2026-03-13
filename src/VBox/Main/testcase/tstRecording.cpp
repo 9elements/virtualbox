@@ -1,4 +1,4 @@
-/* $Id: tstRecording.cpp 113380 2026-03-13 10:01:45Z andreas.loeffler@oracle.com $ */
+/* $Id: tstRecording.cpp 113381 2026-03-13 10:11:44Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording testcases.
  */
@@ -393,7 +393,7 @@ static void tstRecCircBufRecFrames(RTTEST hTest)
         size_t cReadTotalB = 0;
         while (cToWrite || cToReadA || cToReadB)
         {
-            size_t const cCurToWrite = RTRandU32Ex(0, cToWrite);
+            size_t const cCurToWrite = RTRandU32Ex(0, (uint32_t)cToWrite);
             RTTestPrintf(hTest, RTTESTLVL_ALWAYS, "Writing %zu frames (cWrittenTotal=%zu)\n", cCurToWrite, cWrittenTotal);
             size_t cWritten = 0;
             for (size_t i = 0; i < cCurToWrite; i++)
@@ -421,7 +421,7 @@ static void tstRecCircBufRecFrames(RTTEST hTest)
             RTTESTI_CHECK((RecordingCircBufUsed(&Buf) % cbFrame) == 0); /* Writes must be an integral of cbFrame. */
 
             /* Reader A */
-            size_t cCurToRead = RTRandU32Ex(0, cToReadA);
+            size_t cCurToRead = RTRandU32Ex(0, (uint32_t)cToReadA);
                    cCurToRead = RT_MIN(cCurToRead, cWrittenTotal - cReadTotalA);
             size_t cRead = 0;
             for (size_t i = 0; i < cCurToRead; i++)
@@ -447,7 +447,7 @@ static void tstRecCircBufRecFrames(RTTEST hTest)
             RTTestPrintf(hTest, RTTESTLVL_ALWAYS, "\tA: Read %zu frames (cReadTotal=%zu)\n", cRead, cReadTotalA);
 
             /* Reader B */
-            cCurToRead = RTRandU32Ex(0, cToReadB);
+            cCurToRead = RTRandU32Ex(0, (uint32_t)cToReadB);
             cCurToRead = RT_MIN(cCurToRead, cWrittenTotal - cReadTotalB);
             cRead      = 0;
             for (size_t i = 0; i < cCurToRead; i++)
