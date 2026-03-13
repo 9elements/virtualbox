@@ -1,4 +1,4 @@
-/* $Id: UIMachineSettingsDisplay.cpp 113390 2026-03-13 17:20:10Z sergey.dubov@oracle.com $ */
+/* $Id: UIMachineSettingsDisplay.cpp 113391 2026-03-13 17:24:37Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMachineSettingsDisplay class implementation.
  */
@@ -50,7 +50,6 @@
 #endif
 
 /* COM includes: */
-#include "CExtPackManager.h"
 #include "CGraphicsAdapter.h"
 #include "CPlatformProperties.h"
 #include "CProgress.h" /* For starting recording. */
@@ -71,7 +70,6 @@ struct UIDataSettingsMachineDisplay
 #ifdef VBOX_WITH_3D_ACCELERATION
         , m_f3dAccelerationEnabled(false)
 #endif
-        , m_fRemoteDisplayServerSupported(false)
         , m_fRemoteDisplayServerEnabled(false)
         , m_strRemoteDisplayPort(QString())
         , m_remoteDisplaySecurityMethod(UIVRDESecurityMethod_Max)
@@ -99,7 +97,6 @@ struct UIDataSettingsMachineDisplay
 #ifdef VBOX_WITH_3D_ACCELERATION
                && (m_f3dAccelerationEnabled == other.m_f3dAccelerationEnabled)
 #endif
-               && (m_fRemoteDisplayServerSupported == other.m_fRemoteDisplayServerSupported)
                && (m_fRemoteDisplayServerEnabled == other.m_fRemoteDisplayServerEnabled)
                && (m_strRemoteDisplayPort == other.m_strRemoteDisplayPort)
                && (m_remoteDisplaySecurityMethod == other.m_remoteDisplaySecurityMethod)
@@ -250,8 +247,6 @@ struct UIDataSettingsMachineDisplay
     /** Holds whether the 3D acceleration is enabled. */
     bool                     m_f3dAccelerationEnabled;
 #endif
-    /** Holds whether the remote display server is supported. */
-    bool                     m_fRemoteDisplayServerSupported;
     /** Holds whether the remote display server is enabled. */
     bool                     m_fRemoteDisplayServerEnabled;
     /** Holds the remote display server port. */
@@ -389,12 +384,8 @@ void UIMachineSettingsDisplay::loadToCacheFrom(QVariant &data)
     }
 
     /* Check whether remote display server is valid: */
-    CExtPackManager comExtPackManager = gpGlobalSession->virtualBox().GetExtensionPackManager();
-    const bool fExtPackPresent = comExtPackManager.isNotNull() && comExtPackManager.IsExtPackUsable(GUI_ExtPackName);
     CVRDEServer comVrdeServer = m_machine.GetVRDEServer();
-    const bool fServerExists = m_machine.isOk() && comVrdeServer.isNotNull();
-    oldDisplayData.m_fRemoteDisplayServerSupported = fExtPackPresent && fServerExists;
-    if (oldDisplayData.m_fRemoteDisplayServerSupported)
+    if (comVrdeServer.isNotNull())
     {
         /* Gather old 'Remote Display' data: */
         oldDisplayData.m_fRemoteDisplayServerEnabled = comVrdeServer.GetEnabled();
@@ -476,19 +467,15 @@ void UIMachineSettingsDisplay::getFromCache()
     if (m_pEditorVideoMemorySize)
         m_pEditorVideoMemorySize->setValue(oldDisplayData.m_iCurrentVRAM);
 
-    /* If remote display server is supported: */
-    if (oldDisplayData.m_fRemoteDisplayServerSupported)
+    /* Load old 'Remote Display' data from cache: */
+    if (m_pEditorVRDESettings)
     {
-        /* Load old 'Remote Display' data from cache: */
-        if (m_pEditorVRDESettings)
-        {
-            m_pEditorVRDESettings->setFeatureEnabled(oldDisplayData.m_fRemoteDisplayServerEnabled);
-            m_pEditorVRDESettings->setPort(oldDisplayData.m_strRemoteDisplayPort);
-            m_pEditorVRDESettings->setSecurityMethod(oldDisplayData.m_remoteDisplaySecurityMethod);
-            m_pEditorVRDESettings->setAuthType(oldDisplayData.m_remoteDisplayAuthType);
-            m_pEditorVRDESettings->setTimeout(QString::number(oldDisplayData.m_uRemoteDisplayTimeout));
-            m_pEditorVRDESettings->setMultipleConnectionsAllowed(oldDisplayData.m_fRemoteDisplayMultiConnAllowed);
-        }
+        m_pEditorVRDESettings->setFeatureEnabled(oldDisplayData.m_fRemoteDisplayServerEnabled);
+        m_pEditorVRDESettings->setPort(oldDisplayData.m_strRemoteDisplayPort);
+        m_pEditorVRDESettings->setSecurityMethod(oldDisplayData.m_remoteDisplaySecurityMethod);
+        m_pEditorVRDESettings->setAuthType(oldDisplayData.m_remoteDisplayAuthType);
+        m_pEditorVRDESettings->setTimeout(QString::number(oldDisplayData.m_uRemoteDisplayTimeout));
+        m_pEditorVRDESettings->setMultipleConnectionsAllowed(oldDisplayData.m_fRemoteDisplayMultiConnAllowed);
     }
 
     if (m_pEditorRecordingSettings)
@@ -551,10 +538,7 @@ void UIMachineSettingsDisplay::putToCache()
         newDisplayData.m_f3dAccelerationEnabled = m_pEditorDisplayScreenFeatures->isEnabled3DAcceleration();
 #endif
 
-    /* If remote display server is supported: */
-    newDisplayData.m_fRemoteDisplayServerSupported = m_pCache->base().m_fRemoteDisplayServerSupported;
-    if (   newDisplayData.m_fRemoteDisplayServerSupported
-        && m_pEditorVRDESettings)
+    if (m_pEditorVRDESettings)
     {
         /* Gather new 'Remote Display' data: */
         newDisplayData.m_fRemoteDisplayServerEnabled = m_pEditorVRDESettings->isFeatureEnabled();
@@ -728,20 +712,6 @@ bool UIMachineSettingsDisplay::validate(QList<UIValidationMessage> &messages)
         UIValidationMessage message;
         message.first = UITranslator::removeAccelMark(m_pTabWidget->tabText(1));
 
-        /* Extension Pack presence test: */
-        if (m_pEditorVRDESettings->isFeatureEnabled())
-        {
-            CExtPackManager extPackManager = gpGlobalSession->virtualBox().GetExtensionPackManager();
-            if (!extPackManager.isNull() && !extPackManager.IsExtPackUsable(GUI_ExtPackName))
-            {
-                message.second << tr("Remote Display is currently enabled for this virtual machine. "
-                                     "However, this requires the <i>%1</i> to be installed. "
-                                     "Please install the Extension Pack from the VirtualBox download site as "
-                                     "otherwise your VM will be started with Remote Display disabled.")
-                                     .arg(GUI_ExtPackName);
-            }
-        }
-
         /* Check VRDE server port: */
         if (m_pEditorVRDESettings->port().trimmed().isEmpty())
         {
@@ -782,9 +752,6 @@ void UIMachineSettingsDisplay::handleFilterChange()
 
 void UIMachineSettingsDisplay::polishPage()
 {
-    /* Get old data from cache: */
-    const UIDataSettingsMachineDisplay &oldDisplayData = m_pCache->base();
-
     /* Polish 'Screen' availability: */
     m_pEditorVideoMemorySize->setEnabled(isMachineOffline());
     m_pEditorMonitorCount->setEnabled(isMachineOffline());
@@ -795,7 +762,6 @@ void UIMachineSettingsDisplay::polishPage()
 #endif
 
     /* Polish 'Remote Display' availability: */
-    m_pTabWidget->setTabEnabled(1, oldDisplayData.m_fRemoteDisplayServerSupported);
     m_pTabRemoteDisplay->setEnabled(isMachineInValidMode());
     m_pEditorVRDESettings->setVRDEOptionsAvailable(isMachineOffline() || isMachineSaved());
 
@@ -1182,11 +1148,6 @@ bool UIMachineSettingsDisplay::saveRemoteDisplayData()
         const UIDataSettingsMachineDisplay &oldDisplayData = m_pCache->base();
         /* Get new data from cache: */
         const UIDataSettingsMachineDisplay &newDisplayData = m_pCache->data();
-
-        /* Do not save anything if server isn't supported: */
-        if (   !oldDisplayData.m_fRemoteDisplayServerSupported
-            || !newDisplayData.m_fRemoteDisplayServerSupported)
-            return fSuccess;
 
         /* Get remote display server for further activities: */
         CVRDEServer comServer = m_machine.GetVRDEServer();
