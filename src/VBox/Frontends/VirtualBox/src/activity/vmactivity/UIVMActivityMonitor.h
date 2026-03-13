@@ -1,4 +1,4 @@
-/* $Id: UIVMActivityMonitor.h 113262 2026-03-04 20:12:57Z sergey.dubov@oracle.com $ */
+/* $Id: UIVMActivityMonitor.h 113389 2026-03-13 15:26:03Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVMActivityMonitor class declaration.
  */
@@ -64,6 +64,7 @@ class UIChart;
 class UISession;
 class UIRuntimeInfoWidget;
 class UIProgressTaskReadCloudMachineMetricList;
+class UIInfoLabelContainer;
 
 #define DATA_SERIES_SIZE 2
 
@@ -179,6 +180,7 @@ protected:
     virtual void start() = 0;
 
     QString dataColorString(Metric_Type enmType, int iDataIndex);
+    QColor dataColor(Metric_Type enmType, int iDataIndex);
 
     /** @name The following functions reset corresponding info labels
       * @{ */
@@ -202,6 +204,7 @@ protected:
     /** @} */
     QMap<Metric_Type, UIChart*>  m_charts;
     QMap<Metric_Type, QLabel*>   m_infoLabels;
+    QMap<Metric_Type, UIInfoLabelContainer*>  m_infoLabelContainers;
 
     /** @name Cached translated strings.
       * @{ */
