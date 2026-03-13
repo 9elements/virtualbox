@@ -55,6 +55,9 @@
 #   pragma warning(disable:5039) /* ws2tcpip.h(874): warning C5039: 'WSAIoctl': pointer or reference to potentially throwing function passed to 'extern "C"' function under -EHc. Undefined behavior may occur if this function throws an exception. */
 #  endif
 # endif
+# ifdef _PREFAST_
+#  pragma warning(disable:6101) /* ws2tcpip.h(968) : warning C6101: Returning uninitialized memory '*Mtu'.  A successful path through the function does not set the named _Out_ parameter. */
+# endif
 #endif
 
 #include <ws2tcpip.h>
