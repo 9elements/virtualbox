@@ -1,4 +1,4 @@
-/* $Id: ConsoleImpl.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: ConsoleImpl.cpp 113400 2026-03-13 23:50:18Z knut.osmundsen@oracle.com $ */
 /** @file
  * VBox Console COM Class implementation
  */
@@ -7049,6 +7049,7 @@ HRESULT Console::i_onlineMergeMedium(IMediumAttachment *aMediumAttachment,
     if (FAILED(hrc))
         return hrc;
 
+    /* what does this step do? */
     bool fInsertDiskIntegrityDrv = false;
     Bstr strDiskIntegrityFlag;
     hrc = mMachine->GetExtraData(Bstr("VBoxInternal2/EnableDiskIntegrityDriver").raw(), strDiskIntegrityFlag.asOutParam());
@@ -7082,20 +7083,16 @@ HRESULT Console::i_onlineMergeMedium(IMediumAttachment *aMediumAttachment,
     if (FAILED(hrc))
         return hrc;
 
+    /* Query the PDM Media interface. */
     PPDMIBASE pIBase = NULL;
-    PPDMIMEDIA pIMedium = NULL;
     vrc = ptrVM.vtable()->pfnPDMR3QueryDriverOnLun(ptrVM.rawUVM(), pcszDevice, uInstance, uLUN, "VD", &pIBase);
-    if (RT_SUCCESS(vrc))
-    {
-        if (pIBase)
-        {
-            pIMedium = (PPDMIMEDIA)pIBase->pfnQueryInterface(pIBase, PDMIMEDIA_IID);
-            if (!pIMedium)
-                return setError(E_FAIL, tr("could not query medium interface of controller"));
-        }
-        else
-            return setError(E_FAIL, tr("could not query base interface of controller"));
-    }
+    if (RT_FAILURE(vrc))
+        return setErrorVrc(vrc, tr("PDMR3QueryDriverOnLun(,%s,%u,%u,,) failed unexpectedly: %Rrc"),
+                           pcszDevice, uInstance, uLUN, vrc);
+    AssertPtrReturn(pIBase, setError(E_FAIL, tr("could not query base interface of controller")));
+    PPDMIMEDIA pIMedium = (PPDMIMEDIA)pIBase->pfnQueryInterface(pIBase, PDMIMEDIA_IID);
+    if (!pIMedium)
+        return setError(E_FAIL, tr("could not query medium interface of controller"));
 
     /* Finally trigger the merge. */
     vrc = pIMedium->pfnMerge(pIMedium, onlineMergeMediumProgress, aProgress);
