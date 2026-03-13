@@ -1,4 +1,4 @@
-/* $Id: UIMachineSettingsGeneral.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: UIMachineSettingsGeneral.cpp 113392 2026-03-13 17:35:52Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMachineSettingsGeneral class implementation.
  */
@@ -48,8 +48,6 @@
 #include "UITranslator.h"
 
 /* COM includes: */
-#include "CExtPack.h"
-#include "CExtPackManager.h"
 #include "CMedium.h"
 #include "CMediumAttachment.h"
 #include "CPlatform.h"
@@ -395,17 +393,6 @@ bool UIMachineSettingsGeneral::validate(QList<UIValidationMessage> &messages)
     AssertPtrReturn(m_pEditorDiskEncryptionSettings, false);
     if (m_pEditorDiskEncryptionSettings->isFeatureEnabled())
     {
-        /* Encryption Extension Pack presence test: */
-        CExtPackManager extPackManager = gpGlobalSession->virtualBox().GetExtensionPackManager();
-        if (!extPackManager.isNull() && !extPackManager.IsExtPackUsable(GUI_ExtPackName))
-        {
-            message.second << tr("You are trying to enable disk encryption for this virtual machine. "
-                                 "However, this requires the <i>%1</i> to be installed. "
-                                 "Please install the Extension Pack from the VirtualBox download site.")
-                                 .arg(GUI_ExtPackName);
-            fPass = false;
-        }
-
         /* Cipher should be chosen if once changed: */
         if (   !m_pCache->base().m_fEncryptionEnabled
             || m_fEncryptionCipherChanged)
