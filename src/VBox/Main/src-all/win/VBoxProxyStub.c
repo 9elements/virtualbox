@@ -1,4 +1,4 @@
-/* $Id: VBoxProxyStub.c 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: VBoxProxyStub.c 113403 2026-03-13 23:55:07Z knut.osmundsen@oracle.com $ */
 /** @file
  * VBoxProxyStub - Proxy Stub and Typelib, COM DLL exports and DLL init/term.
  *
@@ -1221,7 +1221,7 @@ LSTATUS VbpsRegisterClassId(VBPSREGSTATE *pState, const CLSID *pClsId, const cha
     RT_NOREF(pszAppId);
 
     Assert(!pszAppId || *pszAppId == '{');
-    Assert((pwszVBoxDir == NULL && !pState->fUpdate) || pwszVBoxDir[RTUtf16Len(pwszVBoxDir) - 1] == '\\');
+    Assert((pwszVBoxDir == NULL && !pState->fUpdate) || (pwszVBoxDir && pwszVBoxDir[RTUtf16Len(pwszVBoxDir) - 1] == '\\'));
 
     /*
      * We need this, whatever we end up having to do.
@@ -1411,7 +1411,7 @@ static void vbpsUpdateTypeLibRegistration(VBPSREGSTATE *pState, PCRTUTF16 pwszVB
         /* {UUID}/Major.Minor/Default = pszDescription. */
         HKEY hkeyMajMin;
         char szMajMin[64];
-        sprintf(szMajMin, "%u.%u", kTypeLibraryMajorVersion, kTypeLibraryMinorVersion);
+        sprintf(szMajMin, "%u.%u", (unsigned)kTypeLibraryMajorVersion, (unsigned)kTypeLibraryMinorVersion);
         lrc = vbpsCreateRegKeyWithDefaultValueAAEx(pState, hkeyTypeLibId, szMajMin, pszDescription, &hkeyMajMin, __LINE__);
         if (lrc == ERROR_SUCCESS)
         {
@@ -1501,7 +1501,7 @@ static void vbpsUpdateInterfaceRegistrations(VBPSREGSTATE *pState)
 
     vbpsFormatUuidInCurly(szProxyClsId, &g_ProxyClsId);
     vbpsFormatUuidInCurly(szTypeLibId, &LIBID_VirtualBox);
-    sprintf(szTypeLibVersion, "%u.%u", kTypeLibraryMajorVersion, kTypeLibraryMinorVersion);
+    sprintf(szTypeLibVersion, "%u.%u", (unsigned)kTypeLibraryMajorVersion, (unsigned)kTypeLibraryMinorVersion);
 
     Assert(pState->fUpdate && !pState->fDelete);
     lrc = vbpsRegOpenInterfaceKeys(pState);
@@ -1933,7 +1933,7 @@ static void vbpsRemoveOldInterfaces(VBPSREGSTATE *pState)
                             lrc = RegQueryValueExW(hkeySub, L"Version", 0 /*pdwReserved*/, &dwType, (PBYTE)&wszValue[0], &cbValue);
                             if (lrc != ERROR_SUCCESS)
                                 cbValue = 0;
-                            wszValue[cbValue] = '\0';
+                            wszValue[cbValue / sizeof(RTUTF16)] = '\0';
 
                             if (   lrc == ERROR_SUCCESS
                                 && vbpsIsTypeLibVersionToRemove(wszValue))
