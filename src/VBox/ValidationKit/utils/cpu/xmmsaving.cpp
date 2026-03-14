@@ -1,4 +1,4 @@
-/* $Id: xmmsaving.cpp 113412 2026-03-14 20:57:50Z knut.osmundsen@oracle.com $ */
+/* $Id: xmmsaving.cpp 113413 2026-03-14 20:59:41Z knut.osmundsen@oracle.com $ */
 /** @file
  * xmmsaving - Test that all XMM register state is handled correctly and
  *             not corrupted the VMM.
@@ -158,7 +158,7 @@ int main(int argc, char **argv)
                 RTPrintf("usage: %s [--iterations|-i <n>] [--infinite|-I]\n", RTProcShortName());
                 return RTEXITCODE_SUCCESS;
             case 'V':
-                RTPrintf("%s_r%u\n", RTBldCfgVersion(), RTBldCfgRevision());
+                RTPrintf("%sr%u\n", RTBldCfgVersion(), RTBldCfgRevision());
                 return RTEXITCODE_SUCCESS;
             default:
                 return RTGetOptPrintError(rc, &ValueUnion);
