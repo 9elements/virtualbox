@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 113214 2026-03-03 08:40:28Z alexander.eichner@oracle.com $
+# $Id: Makefile.kmk 113410 2026-03-14 00:14:35Z knut.osmundsen@oracle.com $
 ## @file
 # Makefile for the VBox Main module.
 #
@@ -1295,6 +1295,11 @@ if !defined(VBOX_ONLY_SDK) && !defined(VBOX_ONLY_EXTPACKS) # Note this goes on f
   	src-all/AuthLibrary.cpp
  endif
 
+ ifdef VBOX_WITH_MSC_ANALYZE_THIS
+  src-client/GuestSessionImplTasks.cpp_CXXFLAGS.win = /analyze:stacksize 69632
+  src-client/GuestProcessImpl.cpp_CXXFLAGS.win      = /analyze:stacksize 69632
+ endif
+
  $(call KB_FN_DO_PASS0_ON_TARGET,VBoxC) # Sets VBoxC_0_OUTDIR
 
  ifeq ($(KBUILD_TARGET),darwin)
@@ -1413,6 +1418,9 @@ if !defined(VBOX_ONLY_SDK) && !defined(VBOX_ONLY_EXTPACKS) # Note this goes on f
   VBoxExtPackHelperApp_TEMPLATE = VBoxR3SetUidToRoot
   ifdef VBOX_WITH_LIBLZMA
    VBoxExtPackHelperApp_DEFS := VBOX_WITH_LIBLZMA
+  endif
+  ifdef VBOX_WITH_MSC_ANALYZE_THIS
+   VBoxExtPackHelperApp_CXXFLAGS.win := /analyze:stacksize 32678
   endif
   VBoxExtPackHelperApp_LDFLAGS.darwin = -framework Security
   VBoxExtPackHelperApp_LDFLAGS.win = /SUBSYSTEM:windows
