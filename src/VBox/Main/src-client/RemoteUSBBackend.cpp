@@ -1,4 +1,4 @@
-/* $Id: RemoteUSBBackend.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: RemoteUSBBackend.cpp 113408 2026-03-14 00:13:13Z knut.osmundsen@oracle.com $ */
 /** @file
  * VirtualBox Remote USB backend
  */
@@ -1366,8 +1366,10 @@ int RemoteUSBBackend::reapURB(const void *pvBody, uint32_t cbBody)
                         while (prev_qurb->next && prev_qurb->next->fCompleted)
                             prev_qurb = prev_qurb->next;
 
+RT_NO_WARN_MSC_PREFAST_BEGIN(28182); /* warning C28182: Dereferencing NULL pointer. 'prev_qurb' contains the same NULL value as 'prev_qurb->next' did. ; Ditto 'qurb'. */
                         qurb->next = prev_qurb->next;
                         qurb->prev = prev_qurb;
+RT_NO_WARN_MSC_PREFAST_END();
 
                         if (prev_qurb->next)
                             prev_qurb->next->prev = qurb;
