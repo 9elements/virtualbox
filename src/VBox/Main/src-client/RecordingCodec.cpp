@@ -1,4 +1,4 @@
-/* $Id: RecordingCodec.cpp 113387 2026-03-13 14:11:41Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingCodec.cpp 113414 2026-03-15 05:52:58Z bela.lubkin@oracle.com $ */
 /** @file
  * Recording codec wrapper.
  */
@@ -1138,12 +1138,14 @@ static void recordingCodecReset(PRECORDINGCODEC pCodec)
     pCodec->State.cEncErrors = 0;
     pCodec->State.fHaveWrittenFrame = false;
 
+# ifdef VBOX_WITH_LIBVPX
     if (pCodec->Parms.enmType == RECORDINGCODECTYPE_VIDEO)
     {
         PRECORDINGCODECVPX pVPX = &pCodec->Video.VPX;
         pVPX->fRawImageDirty  = true;
         pVPX->pFrameComposite = &pVPX->Front;
     }
+# endif /* VBOX_WITH_LIBVPX */
 }
 
 /**
