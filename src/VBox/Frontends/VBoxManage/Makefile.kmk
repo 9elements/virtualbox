@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $
+# $Id: Makefile.kmk 113423 2026-03-16 14:29:32Z alexander.eichner@oracle.com $
 ## @file
 # Sub-Makefile for VBoxManage (the CLI frontend).
 #
@@ -52,7 +52,6 @@ VBOX_COMMON_VBOXMANAGE_DEFS = \
 	$(if $(VBOX_WITH_MAIN_NLS),VBOX_WITH_MAIN_NLS) \
 	$(if $(VBOX_WITH_NAT_SERVICE),VBOX_WITH_NAT_SERVICE) \
 	$(if $(VBOX_WITH_NETFLT), VBOX_WITH_NETFLT) \
-	$(if $(VBOX_WITH_PCI_PASSTHROUGH),VBOX_WITH_PCI_PASSTHROUGH) \
 	$(if $(VBOX_WITH_RECORDING),VBOX_WITH_RECORDING) \
 	$(if $(VBOX_WITH_SCSI), VBOX_WITH_SCSI) \
 	$(if $(VBOX_WITH_SHARED_CLIPBOARD),VBOX_WITH_SHARED_CLIPBOARD) \

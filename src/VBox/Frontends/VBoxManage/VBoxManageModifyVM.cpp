@@ -1,4 +1,4 @@
-/* $Id: VBoxManageModifyVM.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: VBoxManageModifyVM.cpp 113423 2026-03-16 14:29:32Z alexander.eichner@oracle.com $ */
 /** @file
  * VBoxManage - Implementation of modifyvm command.
  */
@@ -210,10 +210,8 @@ enum
     MODIFYVM_AUTOSTART_ENABLED,
     MODIFYVM_AUTOSTART_DELAY,
     MODIFYVM_AUTOSTOP_TYPE,
-#ifdef VBOX_WITH_PCI_PASSTHROUGH
     MODIFYVM_ATTACH_PCI,
     MODIFYVM_DETACH_PCI,
-#endif
 #ifdef VBOX_WITH_USB_CARDREADER
     MODIFYVM_USBCARDREADER,
 #endif
@@ -474,10 +472,8 @@ static const RTGETOPTDEF g_aModifyVMOptions[] =
     OPT1("--autostart-enabled",                                         MODIFYVM_AUTOSTART_ENABLED,         RTGETOPT_REQ_BOOL_ONOFF),
     OPT1("--autostart-delay",                                           MODIFYVM_AUTOSTART_DELAY,           RTGETOPT_REQ_UINT32),
     OPT1("--autostop-type",                                             MODIFYVM_AUTOSTOP_TYPE,             RTGETOPT_REQ_STRING),
-#ifdef VBOX_WITH_PCI_PASSTHROUGH
     OPT2("--pci-attach",                    "--pciattach",              MODIFYVM_ATTACH_PCI,                RTGETOPT_REQ_STRING),
     OPT2("--pci-detach",                    "--pcidetach",              MODIFYVM_DETACH_PCI,                RTGETOPT_REQ_STRING),
-#endif
 #ifdef VBOX_WITH_USB_CARDREADER
     OPT2("--usb-card-reader",               "--usbcardreader",          MODIFYVM_USBCARDREADER,             RTGETOPT_REQ_BOOL_ONOFF),
 #endif
@@ -582,13 +578,12 @@ static HRESULT setExtraData(ComPtr<IMachine> &rSessionMachine, const char *pszVa
 }
 
 
-#ifdef VBOX_WITH_PCI_PASSTHROUGH
 /** Parse PCI address in format 01:02.03 and convert it to the numeric representation. */
-static int32_t parsePci(const char* szPciAddr)
+static int32_t parsePci(const char *pszPciAddr)
 {
     uint8_t aVals[3] = {0, 0, 0};
 
-    char *pszNext;
+    char *pszNext = (char *)pszPciAddr;
     int vrc = RTStrToUInt8Ex(pszNext, &pszNext, 16, &aVals[0]);
     if (RT_FAILURE(vrc) || pszNext == NULL || *pszNext != ':')
         return -1;
@@ -603,7 +598,7 @@ static int32_t parsePci(const char* szPciAddr)
 
     return (aVals[0] << 8) | (aVals[1] << 3) | (aVals[2] << 0);
 }
-#endif
+
 
 void parseGroups(const char *pcszGroups, com::SafeArray<BSTR> *pGroups)
 {
@@ -3641,7 +3636,6 @@ RTEXITCODE handleModifyVM(HandlerArg *a)
                     CHECK_ERROR(sessionMachine, COMSETTER(AutostopType)(enmAutostopType));
                 break;
             }
-#ifdef VBOX_WITH_PCI_PASSTHROUGH
             case MODIFYVM_ATTACH_PCI:
             {
                 const char* pAt = strchr(ValueUnion.psz, '@');
@@ -3680,7 +3674,6 @@ RTEXITCODE handleModifyVM(HandlerArg *a)
 
                 break;
             }
-#endif
 
 #ifdef VBOX_WITH_USB_CARDREADER
             case MODIFYVM_USBCARDREADER:

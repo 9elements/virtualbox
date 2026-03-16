@@ -1,4 +1,4 @@
-/* $Id: VBoxManageInfo.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: VBoxManageInfo.cpp 113423 2026-03-16 14:29:32Z alexander.eichner@oracle.com $ */
 /** @file
  * VBoxManage - The 'showvminfo' command and helper routines.
  */
@@ -38,9 +38,7 @@
 
 #include <VBox/com/VirtualBox.h>
 
-#ifdef VBOX_WITH_PCI_PASSTHROUGH
 #include <VBox/pci.h>
-#endif
 
 #include <VBox/log.h>
 #include <VBox/version.h>
@@ -2748,7 +2746,6 @@ HRESULT showVMInfo(ComPtr<IVirtualBox> pVirtualBox,
         }
     } /* USB */
 
-#ifdef VBOX_WITH_PCI_PASSTHROUGH
     /* Host PCI passthrough devices */
     {
          SafeIfaceArray <IPCIDeviceAttachment> assignments;
@@ -2786,7 +2783,6 @@ HRESULT showVMInfo(ComPtr<IVirtualBox> pVirtualBox,
          }
     }
     /* Host PCI passthrough devices */
-#endif
 
     /*
      * Bandwidth groups

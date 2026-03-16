@@ -1,4 +1,4 @@
-/* $Id: VBoxManageList.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: VBoxManageList.cpp 113423 2026-03-16 14:29:32Z alexander.eichner@oracle.com $ */
 /** @file
  * VBoxManage - The 'list' command.
  */
@@ -2218,6 +2218,90 @@ static HRESULT listExecutionEngines(const ComPtr<IVirtualBox> &ptrVirtualBox)
 
 
 /**
+ * List all host PCI devices attached to the host.
+ *
+ * @returns See produceList.
+ * @param   ptrVirtualBox       Reference to the smart IVirtualBox pointer.
+ * @param   fOptLong            Flag whether to produce verbose output.
+ */
+static HRESULT listHostPciDevices(const ComPtr<IVirtualBox> &ptrVirtualBox, bool fOptLong)
+{
+    HRESULT hrc = S_OK;
+    ComPtr<IHost> pHost;
+    CHECK_ERROR2I_RET(ptrVirtualBox, COMGETTER(Host)(pHost.asOutParam()), hrcCheck);
+
+    com::SafeIfaceArray<IHostPCIDevice> apHostDevices;
+    CHECK_ERROR2I_RET(pHost, COMGETTER(PCIDevices)(ComSafeArrayAsOutParam(apHostDevices)), hrcCheck);
+    for (size_t i = 0; i < apHostDevices.size(); ++i)
+    {
+        ComPtr<IHostPCIDevice> pHostDevice = apHostDevices[i];
+
+        /* Filter out devices not being supported by default, as they can't be passed through. */
+        PCIDeviceState_T enmState = PCIDeviceState_NotSupported;
+        CHECK_ERROR(pHostDevice, COMGETTER(State)(&enmState));
+
+        if (   enmState == PCIDeviceState_NotSupported
+            && !fOptLong)
+            continue;
+
+        const char *pszState;
+        switch (enmState)
+        {
+            case PCIDeviceState_NotSupported: pszState = List::tr("Not Supported"); break;
+            case PCIDeviceState_Unavailable:  pszState = List::tr("Unavailable");   break;
+            case PCIDeviceState_Busy:         pszState = List::tr("Busy");          break;
+            case PCIDeviceState_AccessDenied: pszState = List::tr("Access Denied"); break;
+            case PCIDeviceState_Available:    pszState = List::tr("Available");     break;
+            case PCIDeviceState_Captured:     pszState = List::tr("Captured");      break;
+            default:
+                AssertFailed();
+                pszState = List::tr("<INVALID>");
+                break;
+        }
+
+        USHORT domain = 0;
+        CHECK_ERROR(pHostDevice, COMGETTER(Domain)(&domain));
+        USHORT bus = 0;
+        CHECK_ERROR(pHostDevice, COMGETTER(Bus)(&bus));
+        USHORT device = 0;
+        CHECK_ERROR(pHostDevice, COMGETTER(Device)(&device));
+        USHORT devFunction = 0;
+        CHECK_ERROR(pHostDevice, COMGETTER(DevFunction)(&devFunction));
+
+        com::Bstr bstrManufacturer;
+        CHECK_ERROR(pHostDevice, COMGETTER(Manufacturer)(bstrManufacturer.asOutParam()));
+        com::Bstr bstrProduct;
+        CHECK_ERROR(pHostDevice, COMGETTER(Product)(bstrProduct.asOutParam()));
+
+        RTPrintf("%04x:%02x:%02x.%01x: [%s] %ls %ls\n",
+                 domain, bus, device, devFunction, pszState,
+                 bstrManufacturer.raw(), bstrProduct.raw());
+        if (fOptLong)
+        {
+            USHORT vendorId = 0;
+            CHECK_ERROR(pHostDevice, COMGETTER(VendorId)(&vendorId));
+            USHORT deviceId = 0;
+            CHECK_ERROR(pHostDevice, COMGETTER(DeviceId)(&deviceId));
+            USHORT revisionId = 0;
+            CHECK_ERROR(pHostDevice, COMGETTER(RevisionId)(&revisionId));
+            ULONG deviceClass = 0;
+            CHECK_ERROR(pHostDevice, COMGETTER(DeviceClass)(&deviceClass));
+
+            com::Bstr bstrAddress;
+            CHECK_ERROR(pHostDevice, COMGETTER(Address)(bstrAddress.asOutParam()));
+
+            RTPrintf("    VendorId:          %#04x\n", vendorId);
+            RTPrintf("    DeviceId:          %#04x\n", deviceId);
+            RTPrintf("    Class:             %#06x\n", deviceClass);
+            RTPrintf("    Revision:          %#04x\n", revisionId);
+            RTPrintf("    Address:           %ls\n",   bstrAddress.raw());
+        }
+    }
+    return hrc;
+}
+
+
+/**
  * The type of lists we can produce.
  */
 enum ListType_T
@@ -2262,7 +2346,8 @@ enum ListType_T
     kListCloudProfiles,
     kListCPUProfiles,
     kListHostDrives,
-    kListExecutionEngines
+    kListExecutionEngines,
+    kListHostPciDevices
 };
 
 
@@ -2622,6 +2707,10 @@ static HRESULT produceList(enum ListType_T enmCommand, bool fOptLong, bool fOptS
             hrc = listExecutionEngines(pVirtualBox);
             break;
 
+        case kListHostPciDevices:
+            hrc = listHostPciDevices(pVirtualBox, fOptLong);
+            break;
+
         /* No default here, want gcc warnings. */
 
     } /* end switch */
@@ -2694,6 +2783,7 @@ RTEXITCODE handleList(HandlerArg *a)
         { "cpu-profiles",       kListCPUProfiles,        RTGETOPT_REQ_NOTHING },
         { "hostdrives",         kListHostDrives,         RTGETOPT_REQ_NOTHING },
         { "execution-engines",  kListExecutionEngines,   RTGETOPT_REQ_NOTHING },
+        { "hostpcidevices",     kListHostPciDevices,     RTGETOPT_REQ_NOTHING },
     };
 
     int                 ch;
@@ -2765,6 +2855,7 @@ RTEXITCODE handleList(HandlerArg *a)
             case kListCPUProfiles:
             case kListHostDrives:
             case kListExecutionEngines:
+            case kListHostPciDevices:
                 enmOptCommand = (enum ListType_T)ch;
                 if (fOptMultiple)
                 {
