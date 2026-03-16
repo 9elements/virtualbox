@@ -1,4 +1,4 @@
-/* $Id: dbgmoddwarf.cpp 113440 2026-03-16 21:21:14Z knut.osmundsen@oracle.com $ */
+/* $Id: dbgmoddwarf.cpp 113441 2026-03-16 22:22:44Z knut.osmundsen@oracle.com $ */
 /** @file
  * IPRT - Debug Info Reader For DWARF.
  */
@@ -3363,7 +3363,8 @@ static int rtDwarfUnwind_Slow(PRTDWARFCURSOR pCursor, RTUINTPTR uRvaCursor,
                               RTDBGSEGIDX idxSeg, RTUINTPTR offSeg, RTUINTPTR uRva,
                               PRTDBGUNWINDSTATE pState, uint8_t bDefaultPtrEnc, bool fIsEhFrame, RTLDRARCH enmImageArch)
 {
-    Log8(("rtDwarfUnwind_Slow: idxSeg=%#x offSeg=%RTptr uRva=%RTptr enmArch=%d PC=%#RX64\n", idxSeg, offSeg, uRva, pState->enmArch, pState->uPc));
+    Log8(("rtDwarfUnwind_Slow: idxSeg=%#x offSeg=%RTptr uRva=%RTptr enmArch=%d PC=%#RX64 f64bitDwarf=%d\n",
+          idxSeg, offSeg, uRva, pState->enmArch, pState->uPc, pCursor->f64bitDwarf));
 
     /*
      * CIE info we collect.
@@ -3375,7 +3376,8 @@ static int rtDwarfUnwind_Slow(PRTDWARFCURSOR pCursor, RTUINTPTR uRvaCursor,
     /*
      * Do the scanning.
      */
-    uint64_t const offCieOffset = pCursor->f64bitDwarf ? UINT64_MAX : UINT32_MAX;
+    uint64_t const offCieOffset2 = pCursor->f64bitDwarf ? UINT64_MAX : UINT32_MAX;
+    uint64_t const offCieOffset  = fIsEhFrame ? 0 : offCieOffset2;
     int rc = VERR_DBG_UNWIND_INFO_NOT_FOUND;
     while (!rtDwarfCursor_IsAtEnd(pCursor))
     {
@@ -3384,7 +3386,8 @@ static int rtDwarfUnwind_Slow(PRTDWARFCURSOR pCursor, RTUINTPTR uRvaCursor,
             break;
 
         uint64_t const offRelCie = rtDwarfCursor_GetUOff(pCursor, offCieOffset);
-        if (offRelCie != offCieOffset)
+        if (   offRelCie != offCieOffset
+            && offRelCie != offCieOffset2 /*paranoia*/)
         {
             /*
              * Frame descriptor entry (FDE).
@@ -3532,6 +3535,8 @@ DECLHIDDEN(int) rtDwarfUnwind_EhData(void const *pvSection, size_t cbSection, RT
                                      RTDBGSEGIDX idxSeg, RTUINTPTR offSeg, RTUINTPTR uRva,
                                      PRTDBGUNWINDSTATE pState, RTLDRARCH enmArch)
 {
+    LogFlow(("rtDwarfUnwind_EhData: pvSection=%p uRvaSection=%RTptr cbSection=%#x; PC: idxSeg=%x, offSeg=%RTptr uRva=%RTptr enmArch=%d\n",
+             pvSection, uRvaSection, cbSection, idxSeg, offSeg, uRva, enmArch));
     RTDWARFCURSOR Cursor;
     rtDwarfCursor_InitForMem(&Cursor, pvSection, cbSection);
     int rc = rtDwarfUnwind_Slow(&Cursor, uRvaSection, idxSeg, offSeg, uRva, pState,
