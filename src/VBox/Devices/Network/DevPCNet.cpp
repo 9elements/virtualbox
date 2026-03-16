@@ -1,4 +1,4 @@
-/* $Id: DevPCNet.cpp 106320 2024-10-15 12:08:41Z klaus.espenlaub@oracle.com $ */
+/* $Id: DevPCNet.cpp 113438 2026-03-16 18:39:33Z klaus.espenlaub@oracle.com $ */
 /** @file
  * DevPCNet - AMD PCnet-PCI II / PCnet-FAST III (Am79C970A / Am79C973) Ethernet Controller Emulation.
  *
@@ -2117,7 +2117,7 @@ static void pcnetXmitRead1stSlow(PPDMDEVINS pDevIns, RTGCPHYS32 GCPhysFrame, uns
 
 
 /**
- * pcnetXmitSgReadMore worker that handles the unlikely + slower segmented code
+ * pcnetXmitReadMore worker that handles the unlikely + slower segmented code
  * path.
  */
 static void pcnetXmitReadMoreSlow(PPDMDEVINS pDevIns, RTGCPHYS32 GCPhysFrame, unsigned cbFrame, PPDMSCATTERGATHER pSgBuf)
