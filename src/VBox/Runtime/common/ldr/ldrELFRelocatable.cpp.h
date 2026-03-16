@@ -1,4 +1,4 @@
-/* $Id: ldrELFRelocatable.cpp.h 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: ldrELFRelocatable.cpp.h 113440 2026-03-16 21:21:14Z knut.osmundsen@oracle.com $ */
 /** @file
  * IPRT - Binary Image Loader, Template for ELF Relocatable Images.
  */
@@ -1987,9 +1987,10 @@ static int RTLDRELF_NAME(ValidateAndProcessDynamicInfo)(PRTLDRMODELF pModElf, ui
     if (pModElf->Ehdr.e_phnum <= 1 || pModElf->Ehdr.e_phnum >= _32K)
         return RTERRINFO_LOG_SET_F(pErrInfo, VERR_BAD_EXE_FORMAT,
                                    "%s: e_phnum=%u is out of bounds (2..32K)", pszLogName, pModElf->Ehdr.e_phnum);
-    if (pModElf->iShDynamic == ~0U)
+    bool const fIsDebugFile = pModElf->iShDynamic == ~0U && (fFlags & RTLDR_O_FOR_DEBUG);
+    if (pModElf->iShDynamic == ~0U && !fIsDebugFile)
         return RTERRINFO_LOG_SET_F(pErrInfo, VERR_BAD_EXE_FORMAT, "%s: no .dynamic section", pszLogName);
-    AssertReturn(pModElf->cDynamic > 1 && pModElf->cDynamic <= _64K, VERR_INTERNAL_ERROR_3);
+    AssertReturn((pModElf->cDynamic > 1 && pModElf->cDynamic <= _64K) || fIsDebugFile, VERR_INTERNAL_ERROR_3);
 
     /* ASSUME that the sections are ordered by address.  That simplifies
        validation code further down. */
@@ -2007,9 +2008,9 @@ static int RTLDRELF_NAME(ValidateAndProcessDynamicInfo)(PRTLDRMODELF pModElf, ui
         }
 
     /* Must have string and symbol tables. */
-    if (pModElf->Dyn.iStrSh == ~0U)
+    if (pModElf->Dyn.iStrSh == ~0U && !fIsDebugFile)
         return RTERRINFO_LOG_SET_F(pErrInfo, VERR_BAD_EXE_FORMAT, "%s: No dynamic string table section", pszLogName);
-    if (pModElf->Dyn.iSymSh == ~0U)
+    if (pModElf->Dyn.iSymSh == ~0U && !fIsDebugFile)
         return RTERRINFO_LOG_SET_F(pErrInfo, VERR_BAD_EXE_FORMAT, "%s: No dynamic symbol table section", pszLogName);
 
     /*
@@ -2043,6 +2044,8 @@ static int RTLDRELF_NAME(ValidateAndProcessDynamicInfo)(PRTLDRMODELF pModElf, ui
     unsigned cDynamic       = 0;
     Elf_Addr cbImage        = 0;
     Elf_Addr uLinkAddress   = ~(Elf_Addr)0;
+    Elf_Off  offDynamicSh   = ~(Elf_Off)0;
+    uint32_t cDynamicShEnts = 0;
     for (unsigned i = 0; i < pModElf->Ehdr.e_phnum; i++)
     {
         const Elf_Phdr * const pPhdr = &paPhdrs[i];
@@ -2139,10 +2142,11 @@ static int RTLDRELF_NAME(ValidateAndProcessDynamicInfo)(PRTLDRMODELF pModElf, ui
                         if (   paShdrs[iLoadShdr].sh_type != SHT_NOBITS
                             && paShdrs[iLoadShdr].sh_size > 0
                             && off < paShdrs[iLoadShdr].sh_offset + paShdrs[iLoadShdr].sh_size
-                            && paShdrs[iLoadShdr].sh_offset < off + cbMem)
+                            && paShdrs[iLoadShdr].sh_offset < off + cbFile)
                             return RTERRINFO_LOG_SET_F(pErrInfo, VERR_BAD_EXE_FORMAT,
-                                                       "%s: Prog Hdr #%u/LOAD#%u: Overlaps with !SHF_ALLOC section at " FMT_ELF_OFF " LB " FMT_ELF_XWORD,
-                                                       pszLogName, i, iLoad, paShdrs[iLoadShdr].sh_offset, paShdrs[iLoadShdr].sh_size);
+                                                       "%s: Prog Hdr #%u/LOAD#%u: Overlaps with !SHF_ALLOC section #%u at " FMT_ELF_OFF " LB " FMT_ELF_XWORD,
+                                                       pszLogName, i, iLoad, iLoadShdr, paShdrs[iLoadShdr].sh_offset,
+                                                       paShdrs[iLoadShdr].sh_size);
                         pModElf->paShdrExtras[iLoadShdr].idxPhdr = UINT16_MAX;
                         iLoadShdr++;
                         continue;
@@ -2236,15 +2240,21 @@ static int RTLDRELF_NAME(ValidateAndProcessDynamicInfo)(PRTLDRMODELF pModElf, ui
 
             case PT_DYNAMIC:
             {
-                const Elf_Shdr *pShdr = &pModElf->paShdrs[pModElf->iShDynamic];
-                if (pPhdr->p_offset != pShdr->sh_offset)
-                    return RTERRINFO_LOG_SET_F(pErrInfo, VERR_BAD_EXE_FORMAT,
-                                               "%s: Prog Hdr #%u/DYNAMIC: p_offset=" FMT_ELF_OFF " expected " FMT_ELF_OFF,
-                                               pszLogName, i, pPhdr->p_offset, pShdr->sh_offset);
-                if (RT_MAX(pPhdr->p_memsz, pPhdr->p_filesz) != pShdr->sh_size)
-                    return RTERRINFO_LOG_SET_F(pErrInfo, VERR_BAD_EXE_FORMAT,
-                                               "%s: Prog Hdr #%u/DYNAMIC: expected " FMT_ELF_XWORD " for RT_MAX(p_memsz=" FMT_ELF_XWORD ", p_filesz=" FMT_ELF_XWORD ")",
-                                               pszLogName, i, pShdr->sh_size, pPhdr->p_memsz, pPhdr->p_filesz);
+                offDynamicSh   = pPhdr->p_offset;
+                cDynamicShEnts = RT_MAX(pPhdr->p_memsz, pPhdr->p_filesz) / sizeof(pModElf->paDynamic[0]);
+                if (!fIsDebugFile)
+                {
+                    const Elf_Shdr *pShdr = &pModElf->paShdrs[pModElf->iShDynamic];
+                    if (pPhdr->p_offset != pShdr->sh_offset)
+                        return RTERRINFO_LOG_SET_F(pErrInfo, VERR_BAD_EXE_FORMAT,
+                                                   "%s: Prog Hdr #%u/DYNAMIC: p_offset=" FMT_ELF_OFF " expected " FMT_ELF_OFF,
+                                                   pszLogName, i, pPhdr->p_offset, pShdr->sh_offset);
+                    if (RT_MAX(pPhdr->p_memsz, pPhdr->p_filesz) != pShdr->sh_size)
+                        return RTERRINFO_LOG_SET_F(pErrInfo, VERR_BAD_EXE_FORMAT,
+                                                   "%s: Prog Hdr #%u/DYNAMIC: expected " FMT_ELF_XWORD " for RT_MAX(p_memsz=" FMT_ELF_XWORD ", p_filesz=" FMT_ELF_XWORD ")",
+                                                   pszLogName, i, pShdr->sh_size, pPhdr->p_memsz, pPhdr->p_filesz);
+                    Assert(cDynamicShEnts == pModElf->cDynamic || cDynamic);
+                }
                 cDynamic++;
                 break;
             }
@@ -2255,6 +2265,7 @@ static int RTLDRELF_NAME(ValidateAndProcessDynamicInfo)(PRTLDRMODELF pModElf, ui
         return RTERRINFO_LOG_SET_F(pErrInfo, rc, "%s: No PT_LOAD program headers", pszLogName);
     if (cDynamic != 1)
         return RTERRINFO_LOG_SET_F(pErrInfo, rc, "%s: No program header for the DYNAMIC section", pszLogName);
+    Assert(cDynamicShEnts == pModElf->cDynamic || (fIsDebugFile && pModElf->cDynamic == 0));
 
     cbImage -= uLinkAddress;
     pModElf->cbImage     = (uint64_t)cbImage;
@@ -2276,18 +2287,19 @@ static int RTLDRELF_NAME(ValidateAndProcessDynamicInfo)(PRTLDRMODELF pModElf, ui
      * Load and validate the dynamic table.  We have got / will get most of the
      * info we need from the section table, so we must make sure this matches up.
      */
-    Log3(("RTLdrELF: Dynamic section - %u entries\n", pModElf->cDynamic));
-    size_t const    cbDynamic = pModElf->cDynamic * sizeof(pModElf->paDynamic[0]);
+    Log3(("RTLdrELF: Dynamic section - %u entries\n", cDynamicShEnts));
+    size_t const    cbDynamic = cDynamicShEnts * sizeof(pModElf->paDynamic[0]); /* paranoia */
     Elf_Dyn * const paDynamic = (Elf_Dyn *)RTMemAlloc(cbDynamic);
     AssertReturn(paDynamic, VERR_NO_MEMORY);
     pModElf->paDynamic = paDynamic;
+    pModElf->cDynamic  = cDynamicShEnts;
 
-    rc = pModElf->Core.pReader->pfnRead(pModElf->Core.pReader, paDynamic, cbDynamic, paShdrs[pModElf->iShDynamic].sh_offset);
+    rc = pModElf->Core.pReader->pfnRead(pModElf->Core.pReader, paDynamic, cbDynamic, offDynamicSh);
     if (RT_FAILURE(rc))
         return RTERRINFO_LOG_SET_F(pErrInfo, rc, "%s: pfnRead(,,%#zx, " FMT_ELF_OFF ") -> %Rrc",
-                                   pszLogName, cbDynamic, paShdrs[pModElf->iShDynamic].sh_offset, rc);
+                                   pszLogName, cbDynamic, offDynamicSh, rc);
 
-    for (uint32_t i = 0; i < pModElf->cDynamic; i++)
+    for (uint32_t i = 0; i < cDynamicShEnts; i++)
     {
 #define LOG_VALIDATE_PTR_RET(szName) do { \
             Log3(("RTLdrELF: DT[%u]: %16s " FMT_ELF_ADDR "\n", i, szName, paDynamic[i].d_un.d_ptr)); \
@@ -2354,14 +2366,14 @@ static int RTLDRELF_NAME(ValidateAndProcessDynamicInfo)(PRTLDRMODELF pModElf, ui
         {
             case DT_NULL:
                 LOG_NON_VALUE_ENTRY("DT_NULL");
-                for (unsigned iNull = i + 1; iNull < pModElf->cDynamic; iNull++)
+                for (unsigned iNull = i + 1; iNull < cDynamicShEnts; iNull++)
                     if (paDynamic[i].d_tag == DT_NULL) /* Not technically a bug, but let's try being extremely strict for now */
                         LOG_NON_VALUE_ENTRY("DT_NULL");
                     else if (!(fFlags & (RTLDR_O_FOR_DEBUG | RTLDR_O_FOR_VALIDATION)))
                         return RTERRINFO_LOG_SET_F(pErrInfo, VERR_BAD_EXE_FORMAT,
                                                    "%s: DT[%u]/DT_NULL: Dynamic section isn't zero padded (extra #%u of #%u)",
-                                                   pszLogName, i, iNull - i, pModElf->cDynamic - i);
-                i = pModElf->cDynamic;
+                                                   pszLogName, i, iNull - i, cDynamicShEnts - i);
+                i = cDynamicShEnts;
                 break;
             case DT_NEEDED:
                 LOG_VALIDATE_STR_RET("DT_NEEDED");
@@ -2377,14 +2389,20 @@ static int RTLDRELF_NAME(ValidateAndProcessDynamicInfo)(PRTLDRMODELF pModElf, ui
                 LOG_VALIDATE_PTR_RET("DT_HASH");
                 break;
             case DT_STRTAB:
-                LOG_VALIDATE_PTR_VAL_RET("DT_STRTAB", paShdrs[pModElf->Dyn.iStrSh].sh_addr);
-                pModElf->paShdrExtras[pModElf->Dyn.iStrSh].idxDt  = i;
-                pModElf->paShdrExtras[pModElf->Dyn.iSymSh].uDtTag = DT_STRTAB;
+                if (pModElf->Dyn.iStrSh != ~0U)
+                {
+                    LOG_VALIDATE_PTR_VAL_RET("DT_STRTAB", paShdrs[pModElf->Dyn.iStrSh].sh_addr);
+                    pModElf->paShdrExtras[pModElf->Dyn.iStrSh].idxDt  = i;
+                    pModElf->paShdrExtras[pModElf->Dyn.iStrSh].uDtTag = DT_STRTAB;
+                }
                 break;
             case DT_SYMTAB:
-                LOG_VALIDATE_PTR_VAL_RET("DT_SYMTAB", paShdrs[pModElf->Dyn.iSymSh].sh_addr);
-                pModElf->paShdrExtras[pModElf->Dyn.iSymSh].idxDt  = i;
-                pModElf->paShdrExtras[pModElf->Dyn.iSymSh].uDtTag = DT_SYMTAB;
+                if (pModElf->Dyn.iSymSh != ~0U)
+                {
+                    LOG_VALIDATE_PTR_VAL_RET("DT_SYMTAB", paShdrs[pModElf->Dyn.iSymSh].sh_addr);
+                    pModElf->paShdrExtras[pModElf->Dyn.iSymSh].idxDt  = i;
+                    pModElf->paShdrExtras[pModElf->Dyn.iSymSh].uDtTag = DT_SYMTAB;
+                }
                 break;
             case DT_RELA:
                 LOG_VALIDATE_PTR_RET("DT_RELA");
