@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 113422 2026-03-16 14:28:47Z alexander.eichner@oracle.com $
+# $Id: Makefile.kmk 113432 2026-03-16 15:26:12Z alexander.eichner@oracle.com $
 ## @file
 # Makefile for the VBox Main module.
 #
@@ -881,7 +881,7 @@ if !defined(VBOX_ONLY_SDK) && !defined(VBOX_ONLY_EXTPACKS) # Note this goes on f
   $(VBoxSVC_0_OUTDIR)/PCIIdDatabase.cpp: $$(PCIIdDatabaseGenerator_1_TARGET) \
   		$(PATH_SUB_CURRENT)/src-server/pci.ids $(PATH_SUB_CURRENT)/src-server/custom.ids | $$(dir $$@)
 	$(call KB_FN_AUTO_CMD_DEPS_COMMANDS)
-	$(call MSG_GENERATE,USBIdDatabase,$@,$(PCIIdDatabaseGenerator_1_TARGET))
+	$(call MSG_GENERATE,PCIIdDatabase,$@,$(PCIIdDatabaseGenerator_1_TARGET))
 	$(QUIET)$(PCIIdDatabaseGenerator_1_TARGET) -o "$@" $(filter %.ids,$^)
 
   BLDPROGS += PCIIdDatabaseGenerator
