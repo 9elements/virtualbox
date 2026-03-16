@@ -1,4 +1,4 @@
-/* $Id: ConsoleImplConfigX86.cpp 113426 2026-03-16 14:37:54Z alexander.eichner@oracle.com $ */
+/* $Id: ConsoleImplConfigX86.cpp 113427 2026-03-16 14:41:03Z alexander.eichner@oracle.com $ */
 /** @file
  * VBox Console COM Class implementation - VM Configuration Bits.
  *
@@ -328,6 +328,8 @@ HRESULT Console::i_attachRawPCIDevices(PCVMMR3VTABLE pVMM, BusAssignmentManager 
     }
 
 #else
+    RT_NOREF(pBusMgr, pDevices);
+
     pVMM->pfnVMR3SetError(pUVM, VERR_NOT_SUPPORTED, RT_SRC_POS,
                           N_("Host PCI device passthrough is not supported on this host"));
     return E_NOTIMPL;
