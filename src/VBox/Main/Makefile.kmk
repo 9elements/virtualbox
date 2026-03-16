@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 113410 2026-03-14 00:14:35Z knut.osmundsen@oracle.com $
+# $Id: Makefile.kmk 113422 2026-03-16 14:28:47Z alexander.eichner@oracle.com $
 ## @file
 # Makefile for the VBox Main module.
 #
@@ -145,9 +145,6 @@ if defined(VBOX_WITH_VMNET) && "$(KBUILD_TARGET)" == "darwin"
 endif
 ifdef VBOX_WITH_CLOUD_NET
  VBOX_MAIN_DEFS += VBOX_WITH_CLOUD_NET
-endif
-ifdef VBOX_WITH_PCI_PASSTHROUGH
- VBOX_MAIN_DEFS += VBOX_WITH_PCI_PASSTHROUGH
 endif
 ifdef VBOX_WITH_PDM_ASYNC_COMPLETION
  VBOX_MAIN_DEFS += VBOX_WITH_PDM_ASYNC_COMPLETION
@@ -694,6 +691,7 @@ if !defined(VBOX_ONLY_SDK) && !defined(VBOX_ONLY_EXTPACKS) # Note this goes on f
  	src-server/HostVideoInputDeviceImpl.cpp \
  	src-server/HostDrivePartitionImpl.cpp \
  	src-server/HostDriveImpl.cpp \
+ 	src-server/HostPCIDeviceImpl.cpp \
  	src-server/MachineImpl.cpp \
  	src-all/MachineLaunchVMCommonWorker.cpp \
  	src-server/MachineImplCloneVM.cpp \
@@ -765,6 +763,7 @@ if !defined(VBOX_ONLY_SDK) && !defined(VBOX_ONLY_EXTPACKS) # Note this goes on f
  VBoxSVC_SOURCES.linux = \
  	src-server/linux/HostHardwareLinux.cpp \
  	src-server/linux/HostDnsServiceLinux.cpp \
+ 	src-server/linux/PCIUpdateDevices.cpp \
  	$(if $(VBOX_WITH_DBUS),src-server/linux/HostPowerLinux.cpp) \
  	src-server/HostDnsServiceResolvConf.cpp
 
@@ -871,6 +870,25 @@ if !defined(VBOX_ONLY_SDK) && !defined(VBOX_ONLY_EXTPACKS) # Note this goes on f
   USBIdDatabaseGenerator_SOURCES = src-server/USBIdDatabaseGenerator.cpp
  else
   VBoxSVC_SOURCES += src-server/USBIdDatabaseStub.cpp
+ endif
+
+ ifdef VBOX_WITH_MAIN_PCI_ID_DATABASE # Generate a database of PCI vendor IDs and device IDs.
+  VBoxSVC_DEFS   += VBOX_WITH_MAIN_PCI_ID_DATABASE
+  VBoxSVC_SOURCES += $(VBoxSVC_0_OUTDIR)/PCIIdDatabase.cpp
+  VBoxSVC_CLEAN  += $(VBoxSVC_0_OUTDIR)/PCIIdDatabase.cpp
+
+  $(call KB_FN_AUTO_CMD_DEPS,$(VBoxSVC_0_OUTDIR)/PCIIdDatabase.cpp)
+  $(VBoxSVC_0_OUTDIR)/PCIIdDatabase.cpp: $$(PCIIdDatabaseGenerator_1_TARGET) \
+  		$(PATH_SUB_CURRENT)/src-server/pci.ids $(PATH_SUB_CURRENT)/src-server/custom.ids | $$(dir $$@)
+	$(call KB_FN_AUTO_CMD_DEPS_COMMANDS)
+	$(call MSG_GENERATE,USBIdDatabase,$@,$(PCIIdDatabaseGenerator_1_TARGET))
+	$(QUIET)$(PCIIdDatabaseGenerator_1_TARGET) -o "$@" $(filter %.ids,$^)
+
+  BLDPROGS += PCIIdDatabaseGenerator
+  PCIIdDatabaseGenerator_TEMPLATE = VBoxAdvBldProg
+  PCIIdDatabaseGenerator_SOURCES = src-server/PCIIdDatabaseGenerator.cpp
+ else
+  VBoxSVC_SOURCES += src-server/PCIIdDatabaseStub.cpp
  endif
 
  src-server/win/VBoxSVC.rc_INCS = $(VBoxSVC_0_OUTDIR)

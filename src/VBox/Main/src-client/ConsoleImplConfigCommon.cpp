@@ -1,4 +1,4 @@
-/* $Id: ConsoleImplConfigCommon.cpp 112868 2026-02-09 09:10:26Z alexander.eichner@oracle.com $ */
+/* $Id: ConsoleImplConfigCommon.cpp 113422 2026-03-16 14:28:47Z alexander.eichner@oracle.com $ */
 /** @file
  * VBox Console COM Class implementation - VM Configuration Bits.
  *
@@ -56,9 +56,6 @@
 #endif
 #include "VMMDev.h"
 #include "Global.h"
-#ifdef VBOX_WITH_PCI_PASSTHROUGH
-# include "PCIRawDevImpl.h"
-#endif
 
 // generated header
 #include "SchemaDefs.h"

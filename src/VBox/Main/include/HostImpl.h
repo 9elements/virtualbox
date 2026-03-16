@@ -1,4 +1,4 @@
-/* $Id: HostImpl.h 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: HostImpl.h 113422 2026-03-16 14:28:47Z alexander.eichner@oracle.com $ */
 /** @file
  * Implementation of IHost.
  */
@@ -40,6 +40,7 @@ class Progress;
 class PerformanceCollector;
 class HostDrive;
 class HostDrivePartition;
+class HostPCIDevice;
 
 namespace settings
 {
@@ -125,6 +126,7 @@ private:
     HRESULT getProcessorCoreCount(ULONG *aProcessorCoreCount);
     HRESULT getProcessorOnlineCoreCount(ULONG *aProcessorOnlineCoreCount);
     HRESULT getHostDrives(std::vector<ComPtr<IHostDrive> > &aHostDrives);
+    HRESULT getPCIDevices(std::vector<ComPtr<IHostPCIDevice> > &aPCIDevices);
     HRESULT getMemorySize(ULONG *aMemorySize);
     HRESULT getMemoryAvailable(ULONG *aMemoryAvailable);
     HRESULT getOperatingSystem(com::Utf8Str &aOperatingSystem);
