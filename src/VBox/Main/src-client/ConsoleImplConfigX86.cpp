@@ -1,4 +1,4 @@
-/* $Id: ConsoleImplConfigX86.cpp 113422 2026-03-16 14:28:47Z alexander.eichner@oracle.com $ */
+/* $Id: ConsoleImplConfigX86.cpp 113426 2026-03-16 14:37:54Z alexander.eichner@oracle.com $ */
 /** @file
  * VBox Console COM Class implementation - VM Configuration Bits.
  *
@@ -255,10 +255,8 @@ int Console::SetBiosDiskInfo(ComPtr<IMachine> pMachine, PCFGMNODE pCfg, PCFGMNOD
 }
 
 
-HRESULT Console::i_attachRawPCIDevices(PUVM pUVM, BusAssignmentManager *pBusMgr, PCFGMNODE pDevices)
+HRESULT Console::i_attachRawPCIDevices(PCVMMR3VTABLE pVMM, BusAssignmentManager *pBusMgr, PCFGMNODE pDevices)
 {
-    RT_NOREF(pUVM);
-
     SafeIfaceArray<IPCIDeviceAttachment> assignments;
     ComPtr<IMachine> aMachine = i_machine();
 
@@ -268,6 +266,8 @@ HRESULT Console::i_attachRawPCIDevices(PUVM pUVM, BusAssignmentManager *pBusMgr,
         return hrc;
 
 #ifdef RT_OS_LINUX
+    RT_NOREF(pVMM);
+
     /* Now actually add devices */
     PCFGMNODE pPCIDevs = NULL;
     PCFGMNODE pInst, pCfg;
@@ -1197,7 +1197,7 @@ int Console::i_configConstructorX86(PUVM pUVM, PVM pVM, PCVMMR3VTABLE pVMM, Auto
             InsertConfigInteger(pCfg,  "McfgLength", cbMcfgLength);
 
             /* Add PCI passthrough devices */
-            hrc = i_attachRawPCIDevices(pUVM, pBusMgr, pDevices);                           H();
+            hrc = i_attachRawPCIDevices(pVMM, pBusMgr, pDevices);                           H();
 
             if (enmIommuType == IommuType_AMD)
             {
