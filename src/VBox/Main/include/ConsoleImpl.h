@@ -1,4 +1,4 @@
-/* $Id: ConsoleImpl.h 113426 2026-03-16 14:37:54Z alexander.eichner@oracle.com $ */
+/* $Id: ConsoleImpl.h 113428 2026-03-16 14:53:20Z alexander.eichner@oracle.com $ */
 /** @file
  * VBox Console COM Class definition
  */
@@ -845,7 +845,7 @@ private:
                                                      IMediumAttachment *aMediumAtt,
                                                      bool fForce);
 
-    HRESULT i_attachRawPCIDevices(PCVMMR3VTABLE pVMM, BusAssignmentManager *BusMgr, PCFGMNODE pDevices);
+    HRESULT i_attachRawPCIDevices(PUVM pUVM, PCVMMR3VTABLE pVMM, BusAssignmentManager *BusMgr, PCFGMNODE pDevices);
     struct LEDSET;
     typedef struct LEDSET *PLEDSET;
     PPDMLED volatile *i_getLedSet(uint32_t iLedSet);
