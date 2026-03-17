@@ -1,4 +1,4 @@
-/* $Id: SUPDrv-linux.c 113066 2026-02-17 15:20:09Z vadim.galitsyn@oracle.com $ */
+/* $Id: SUPDrv-linux.c 113450 2026-03-17 21:17:56Z knut.osmundsen@oracle.com $ */
 /** @file
  * VBoxDrv - The VirtualBox Support Driver - Linux specifics.
  */
@@ -2012,8 +2012,8 @@ SUPR0DECL(bool) SUPR0FpuBegin(bool fCtxHook)
     /*
      * HACK ALERT!
      *
-     * We'd like to use the old __kernel_fpu_begin() API which was removed in
-     * early 2019, because we typically run with preemption enabled and have an
+     * We'd like to use the old __kernel_fpu_begin() API which was removed in 5.3
+     * (early 2019), because we typically run with preemption enabled and have an
      * preemption hook installed which will call kernel_fpu_end() in case we're
      * scheduled out after getting in here.  The preemption hook is almost
      * useless if we run with preemption disabled.
@@ -2029,18 +2029,19 @@ SUPR0DECL(bool) SUPR0FpuBegin(bool fCtxHook)
      * See @bugref{10209#c12} and onwards for more details.
      */
     Assert(fCtxHook || !RTThreadPreemptIsEnabled(NIL_RTTHREAD));
-    kernel_fpu_begin();
 #  if RTLNX_VER_MIN(6,15,0) /* fpregs_unlock may do more than just preempt_enable, so only when necessary now. */
-    if (fCtxHook)
-#  endif
-    {
-#  if RTLNX_VER_MIN(6,15,0)
-        if (!irqs_disabled())
-            fpregs_unlock();
+    /* Always disable IRQs and explicitly lock the FPU state. */
+    unsigned long fSavedIrqs;
+    local_irq_save(fSavedIrqs);
+    kernel_fpu_begin();
+    if (!fCtxHook)
+        fpregs_lock();
+    local_irq_restore(fSavedIrqs);
+    Assert(!irq_fpu_usable());
 #  else
-        preempt_enable();
+    kernel_fpu_begin();
+    preempt_enable();
 #  endif
-    }
     return false; /** @todo Not sure if we have license to use any extended state, or
                    *        if we're limited to the SSE & x87 FPU. If it's the former,
                    *        we should return @a true and the caller can skip
@@ -2059,17 +2060,17 @@ SUPR0DECL(void) SUPR0FpuEnd(bool fCtxHook)
     /* HACK ALERT! See SUPR0FpuBegin for an explanation of this. */
     Assert(!RTThreadPreemptIsEnabled(NIL_RTTHREAD));
 #  if RTLNX_VER_MIN(6,15,0) /* fpregs_unlock may do more than just preempt_enable, so only when necessary now. */
-    if (fCtxHook)
-#  endif
-    {
-#  if RTLNX_VER_MIN(6,15,0)
-        if (!irqs_disabled())
-            fpregs_lock();
+    /* Always disable IRQs and explicitly unlock the FPU state. */
+    unsigned long fSavedIrqs;
+    local_irq_save(fSavedIrqs);
+    if (!fCtxHook)
+        fpregs_unlock();
+    kernel_fpu_begin();
+    local_irq_restore(fSavedIrqs);
 #  else
-        preempt_disable();
-#  endif
-    }
+    preempt_disable();
     kernel_fpu_end();
+#  endif
 # endif
 }
 SUPR0_EXPORT_SYMBOL(SUPR0FpuEnd);
