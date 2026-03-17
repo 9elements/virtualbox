@@ -1,4 +1,4 @@
-/* $Id: dbgmoddwarf.cpp 113441 2026-03-16 22:22:44Z knut.osmundsen@oracle.com $ */
+/* $Id: dbgmoddwarf.cpp 113445 2026-03-17 12:13:54Z knut.osmundsen@oracle.com $ */
 /** @file
  * IPRT - Debug Info Reader For DWARF.
  */
@@ -273,7 +273,9 @@ typedef struct RTDWARFLINESTATE
         uint32_t        uVer;
         uint64_t        offFirstOpcode;
         uint8_t         cbMinInstr;
-        uint8_t         cMaxOpsPerInstr;
+        uint8_t         cMaxOpsPerInstr;    /**< New in DWARF v4 */
+        uint8_t         cbAddr;             /**< New in DWARF v5 */
+        uint8_t         cbSegSel;           /**< New in DWARF v5 */
         uint8_t         u8DefIsStmt;
         int8_t          s8LineBase;
         uint8_t         u8LineRange;
@@ -745,6 +747,9 @@ static const struct RTDWARFTAGDESC
 *********************************************************************************************************************************/
 static int rtDwarfInfo_ParseDie(PRTDBGMODDWARF pThis, PRTDWARFDIE pDie, PCRTDWARFDIEDESC pDieDesc,
                                 PRTDWARFCURSOR pCursor, PCRTDWARFABBREV pAbbrev, bool fInitDie);
+static int rtDwarfDecodeCore_UnsignedInt(void *pvMember, size_t cbMember, uint32_t uForm, PRTDWARFCURSOR pCursor);
+static int rtDwarfDecodeCore_String(PRTDWARFCURSOR pCursor, uint32_t uForm, const char **ppszRet);
+static int rtDwarfInfo_SkipForm(PRTDWARFCURSOR pCursor, uint32_t uForm);
 
 
 
@@ -3913,7 +3918,7 @@ static int rtDwarfLine_RunProgram(PRTDWARFLINESTATE pLnState, PRTDWARFCURSOR pCu
 
 
 /**
- * Reads the include directories for a line number unit.
+ * Reads the include directories for a pre-DWARF v5 line number unit.
  *
  * @returns IPRT status code
  * @param   pLnState            The line number program state.
@@ -3944,7 +3949,75 @@ static int rtDwarfLine_ReadFileNames(PRTDWARFLINESTATE pLnState, PRTDWARFCURSOR 
 
 
 /**
- * Reads the include directories for a line number unit.
+ * Reads the include directories for a DWARF v5 line number unit.
+ *
+ * @returns IPRT status code
+ * @param   pLnState            The line number program state.
+ * @param   pCursor             The cursor.
+ */
+static int rtDwarfLine_ReadFileNamesV5(PRTDWARFLINESTATE pLnState, PRTDWARFCURSOR pCursor)
+{
+    /*
+     * Read the format specs (same as abbreviation).
+     */
+    uint8_t const cAbbrev = rtDwarfCursor_GetUByte(pCursor, UINT8_MAX);
+    struct { uint32_t uAttr, uForm; } aAbbrev[32];
+    AssertMsgReturn(cAbbrev < 32 && cAbbrev, ("cAbbrev=%u\n", cAbbrev), VERR_DWARF_BAD_LINE_NUMBER_HEADER);
+
+    for (uint32_t i = 0; i < cAbbrev; i++)
+    {
+        aAbbrev[i].uAttr = rtDwarfCursor_GetULeb128AsU32(pCursor, 0);
+        aAbbrev[i].uForm = rtDwarfCursor_GetULeb128AsU32(pCursor, 0);
+        AssertRCReturn(pCursor->rc, pCursor->rc);
+        AssertMsgReturn((aAbbrev[i].uAttr != 0 && aAbbrev[i].uForm != 0) || i + 1 == cAbbrev,
+                        ("%u/%u: uAttr=%#x uForm=%#x\n", i, cAbbrev, aAbbrev[i].uAttr, aAbbrev[i].uForm),
+                        VERR_DWARF_BAD_LINE_NUMBER_HEADER);
+        AssertReturn(aAbbrev[i].uForm != DW_FORM_implicit_const, VERR_DWARF_BAD_LINE_NUMBER_HEADER);
+    }
+
+    /*
+     * Read the table.
+     */
+    uint32_t const cFiles = rtDwarfCursor_GetULeb128AsU32(pCursor, 0);
+    AssertRCReturn(pCursor->rc, pCursor->rc);
+    AssertMsgReturn(cFiles > 0 && cFiles < 4096, ("cFiles=%u\n", cFiles), VERR_DWARF_BAD_LINE_NUMBER_HEADER);
+
+    for (uint32_t iFile = 0; iFile < cFiles; iFile++)
+    {
+        /* Decode it. */
+        const char *psz     = NULL;
+        uint32_t    idxPath = UINT32_MAX;
+        for (uint32_t i = 0; i < cAbbrev; i++)
+        {
+            if (aAbbrev[i].uAttr == DW_LNCT_path)
+            {
+                int rc = rtDwarfDecodeCore_String(pCursor, aAbbrev[i].uForm, &psz);
+                AssertRCReturn(rc, rc);
+            }
+            else if (aAbbrev[i].uAttr == DW_LNCT_directory_index)
+            {
+                int rc = rtDwarfDecodeCore_UnsignedInt(&idxPath, sizeof(idxPath), aAbbrev[i].uForm, pCursor);
+                AssertRCReturn(rc, rc);
+            }
+            else if (aAbbrev[i].uAttr != 0)
+                rtDwarfInfo_SkipForm(pCursor, aAbbrev[i].uAttr);
+            else
+                break;
+        }
+        AssertReturn(psz && idxPath != UINT32_MAX, VERR_DWARF_BAD_LINE_NUMBER_HEADER);
+
+        int rc = rtDwarfLine_DefineFileName(pLnState, psz, idxPath);
+        if (RT_FAILURE(rc))
+            return rc;
+    }
+
+    return pCursor->rc;
+
+}
+
+
+/**
+ * Reads the include directories for a pre-DWARF v5 line number unit.
  *
  * @returns IPRT status code
  * @param   pLnState            The line number program state.
@@ -3976,6 +4049,72 @@ static int rtDwarfLine_ReadIncludePaths(PRTDWARFLINESTATE pLnState, PRTDWARFCURS
 
 
 /**
+ * Reads the include directories for a DWARF v5 line number unit.
+ *
+ * @returns IPRT status code
+ * @param   pLnState            The line number program state.
+ * @param   pCursor             The cursor.
+ */
+static int rtDwarfLine_ReadIncludePathsV5(PRTDWARFLINESTATE pLnState, PRTDWARFCURSOR pCursor)
+{
+    /*
+     * Read the format specs (same as abbreviation).
+     */
+    uint8_t const cAbbrev = rtDwarfCursor_GetUByte(pCursor, UINT8_MAX);
+    struct { uint32_t uAttr, uForm; } aAbbrev[32];
+    AssertMsgReturn(cAbbrev < 32 && cAbbrev, ("cAbbrev=%u\n", cAbbrev), VERR_DWARF_BAD_LINE_NUMBER_HEADER);
+
+    for (uint32_t i = 0; i < cAbbrev; i++)
+    {
+        aAbbrev[i].uAttr = rtDwarfCursor_GetULeb128AsU32(pCursor, 0);
+        aAbbrev[i].uForm = rtDwarfCursor_GetULeb128AsU32(pCursor, 0);
+        AssertRCReturn(pCursor->rc, pCursor->rc);
+        AssertMsgReturn((aAbbrev[i].uAttr != 0 && aAbbrev[i].uForm != 0) || i + 1 == cAbbrev,
+                        ("%u/%u: uAttr=%#x uForm=%#x\n", i, cAbbrev, aAbbrev[i].uAttr, aAbbrev[i].uForm),
+                        VERR_DWARF_BAD_LINE_NUMBER_HEADER);
+        AssertReturn(aAbbrev[i].uForm != DW_FORM_implicit_const, VERR_DWARF_BAD_LINE_NUMBER_HEADER);
+    }
+
+    /*
+     * Read the table.
+     */
+    uint32_t const cPaths = rtDwarfCursor_GetULeb128AsU32(pCursor, 0);
+    AssertRCReturn(pCursor->rc, pCursor->rc);
+    AssertMsgReturn(cPaths > 0 && cPaths < 4096, ("cPaths=%u\n", cPaths), VERR_DWARF_BAD_LINE_NUMBER_HEADER);
+
+    Assert(pLnState->cIncPaths == 0);
+    Assert(pLnState->papszIncPaths == NULL);
+    pLnState->papszIncPaths = (const char **)RTMemAllocZ(sizeof(pLnState->papszIncPaths[0]) * cPaths);
+    AssertReturn(pLnState->papszIncPaths, VERR_NO_MEMORY);
+
+    for (uint32_t iPath = 0; iPath < cPaths; iPath++)
+    {
+        /* Decode it. */
+        for (uint32_t i = 0; i < cAbbrev; i++)
+        {
+            if (aAbbrev[i].uAttr == DW_LNCT_path)
+            {
+                int rc = rtDwarfDecodeCore_String(pCursor, aAbbrev[i].uForm, &pLnState->papszIncPaths[iPath]);
+                AssertRCReturn(rc, rc);
+                Log(("  Path #%02u = '%s' [%s]\n", iPath, pLnState->papszIncPaths[iPath], rtDwarfLog_FormName(aAbbrev[i].uForm)));
+            }
+            else if (aAbbrev[i].uAttr != 0)
+            {
+                Assert(aAbbrev[i].uAttr > DW_LNCT_MD5);
+                rtDwarfInfo_SkipForm(pCursor, aAbbrev[i].uAttr);
+            }
+            else
+                break;
+        }
+        AssertStmt(pLnState->papszIncPaths[iPath], pLnState->papszIncPaths[iPath] = "");
+        pLnState->cIncPaths = iPath + 1;
+    }
+
+    return pCursor->rc;
+}
+
+
+/**
  * Explodes the line number table for a compilation unit.
  *
  * @returns IPRT status code
@@ -3995,12 +4134,14 @@ static int rtDwarfLine_ExplodeUnit(PRTDBGMODDWARF pThis, PRTDWARFCURSOR pCursor)
     rtDwarfCursor_GetInitialLength(pCursor);
     LnState.Hdr.uVer           = rtDwarfCursor_GetUHalf(pCursor, 0);
     if (   LnState.Hdr.uVer < 2
-        || LnState.Hdr.uVer > 4)
+        || LnState.Hdr.uVer > 5)
         return rtDwarfCursor_SkipUnit(pCursor);
 
+/** @todo make use of cbAddr and cbSegSel! */
+    LnState.Hdr.cbAddr         = LnState.Hdr.uVer >= 5 ? rtDwarfCursor_GetUByte(pCursor, 0) : 0;
+    LnState.Hdr.cbSegSel       = LnState.Hdr.uVer >= 5 ? rtDwarfCursor_GetUByte(pCursor, 0) : 0;
     LnState.Hdr.offFirstOpcode = rtDwarfCursor_GetUOff(pCursor, 0);
     uint8_t const * const pbFirstOpcode = rtDwarfCursor_CalcPos(pCursor, LnState.Hdr.offFirstOpcode);
-
     LnState.Hdr.cbMinInstr     = rtDwarfCursor_GetUByte(pCursor, 0);
     if (LnState.Hdr.uVer >= 4)
         LnState.Hdr.cMaxOpsPerInstr = rtDwarfCursor_GetUByte(pCursor, 0);
@@ -4011,13 +4152,10 @@ static int rtDwarfLine_ExplodeUnit(PRTDBGMODDWARF pThis, PRTDWARFCURSOR pCursor)
     LnState.Hdr.u8LineRange    = rtDwarfCursor_GetUByte(pCursor, 0);
     LnState.Hdr.u8OpcodeBase   = rtDwarfCursor_GetUByte(pCursor, 0);
 
-    if (   !LnState.Hdr.u8OpcodeBase
-        || !LnState.Hdr.cMaxOpsPerInstr
-        || !LnState.Hdr.u8LineRange
-        || LnState.Hdr.u8DefIsStmt > 1)
-        return VERR_DWARF_BAD_LINE_NUMBER_HEADER;
     Log2(("DWARF Line number header:\n"
           "    uVer             %d\n"
+          "    cbAddr           %u\n"
+          "    cbSegSel         %u\n"
           "    offFirstOpcode   %#llx\n"
           "    cbMinInstr       %u\n"
           "    cMaxOpsPerInstr  %u\n"
@@ -4025,8 +4163,16 @@ static int rtDwarfLine_ExplodeUnit(PRTDBGMODDWARF pThis, PRTDWARFCURSOR pCursor)
           "    s8LineBase       %d\n"
           "    u8LineRange      %u\n"
           "    u8OpcodeBase     %u\n",
-          LnState.Hdr.uVer,    LnState.Hdr.offFirstOpcode, LnState.Hdr.cbMinInstr,  LnState.Hdr.cMaxOpsPerInstr,
-          LnState.Hdr.u8DefIsStmt, LnState.Hdr.s8LineBase, LnState.Hdr.u8LineRange, LnState.Hdr.u8OpcodeBase));
+          LnState.Hdr.uVer,   LnState.Hdr.cbAddr,  LnState.Hdr.cbSegSel, LnState.Hdr.offFirstOpcode, LnState.Hdr.cbMinInstr,
+          LnState.Hdr.cMaxOpsPerInstr, LnState.Hdr.u8DefIsStmt, LnState.Hdr.s8LineBase, LnState.Hdr.u8LineRange,
+          LnState.Hdr.u8OpcodeBase));
+    if (   !LnState.Hdr.u8OpcodeBase
+        || !LnState.Hdr.cMaxOpsPerInstr
+        || !LnState.Hdr.u8LineRange
+        || LnState.Hdr.u8DefIsStmt > 1
+        || (LnState.Hdr.cbAddr   != 0 && LnState.Hdr.cbAddr   != 4 && LnState.Hdr.cbAddr   != 8)
+        || (LnState.Hdr.cbSegSel != 0 && LnState.Hdr.cbSegSel != 1 && LnState.Hdr.cbSegSel != 2 && LnState.Hdr.cbSegSel != 4) )
+        return VERR_DWARF_BAD_LINE_NUMBER_HEADER;
 
     LnState.Hdr.pacStdOperands = pCursor->pb;
     for (uint8_t iStdOpcode = 1; iStdOpcode < LnState.Hdr.u8OpcodeBase; iStdOpcode++)
@@ -4034,9 +4180,20 @@ static int rtDwarfLine_ExplodeUnit(PRTDBGMODDWARF pThis, PRTDWARFCURSOR pCursor)
 
     int rc = pCursor->rc;
     if (RT_SUCCESS(rc))
-        rc = rtDwarfLine_ReadIncludePaths(&LnState, pCursor);
-    if (RT_SUCCESS(rc))
-        rc = rtDwarfLine_ReadFileNames(&LnState, pCursor);
+    {
+        if (LnState.Hdr.uVer < 5)
+        {
+            rc = rtDwarfLine_ReadIncludePaths(&LnState, pCursor);
+            if (RT_SUCCESS(rc))
+                rc = rtDwarfLine_ReadFileNames(&LnState, pCursor);
+        }
+        else
+        {
+            rc = rtDwarfLine_ReadIncludePathsV5(&LnState, pCursor);
+            if (RT_SUCCESS(rc))
+                rc = rtDwarfLine_ReadFileNamesV5(&LnState, pCursor);
+        }
+    }
 
     /*
      * Run the program....
@@ -4082,7 +4239,9 @@ static int rtDwarfLine_ExplodeAll(PRTDBGMODDWARF pThis)
            && RT_SUCCESS(rc))
         rc = rtDwarfLine_ExplodeUnit(pThis, &Cursor);
 
-    return rtDwarfCursor_Delete(&Cursor, rc);
+    rc = rtDwarfCursor_Delete(&Cursor, rc);
+    LogFlow(("rtDwarfLine_ExplodeAll: returns %Rrc\n", rc));
+    return rc;
 }
 
 
@@ -4719,26 +4878,21 @@ static DECLCALLBACK(int) rtDwarfDecode_SectOff(PRTDWARFDIE pDie, uint8_t *pbMemb
 }
 
 
-/** @callback_method_impl{FNRTDWARFATTRDECODER} */
-static DECLCALLBACK(int) rtDwarfDecode_String(PRTDWARFDIE pDie, uint8_t *pbMember, PCRTDWARFATTRDESC pDesc,
-                                              uint32_t uForm, PRTDWARFCURSOR pCursor, int64_t iImplConst)
+/** Core of the string decoder. */
+static int rtDwarfDecodeCore_String(PRTDWARFCURSOR pCursor, uint32_t uForm, const char **ppszRet)
 {
-    AssertReturn(ATTR_GET_SIZE(pDesc) == sizeof(const char *), VERR_INTERNAL_ERROR_3);
-    RT_NOREF(pDie, iImplConst);
-
-    const char *psz;
     switch (uForm)
     {
         case DW_FORM_string:
-            psz = rtDwarfCursor_GetSZ(pCursor, NULL);
+            *ppszRet = rtDwarfCursor_GetSZ(pCursor, NULL);
             break;
 
         case DW_FORM_strp:
-            psz = rtDwarfDecodeHlp_GetStrp(pCursor->pDwarfMod, pCursor, NULL);
+            *ppszRet = rtDwarfDecodeHlp_GetStrp(pCursor->pDwarfMod, pCursor, NULL);
             break;
 
         case DW_FORM_line_strp:
-            psz = rtDwarfDecodeHlp_GetLineStrp(pCursor->pDwarfMod, pCursor, NULL);
+            *ppszRet = rtDwarfDecodeHlp_GetLineStrp(pCursor->pDwarfMod, pCursor, NULL);
             break;
 
 #if 0 /** @todo */
@@ -4753,21 +4907,31 @@ static DECLCALLBACK(int) rtDwarfDecode_String(PRTDWARFDIE pDie, uint8_t *pbMembe
 #endif
 
         default:
+            *ppszRet = NULL;
             AssertMsgFailedReturn(("%#x\n", uForm), VERR_DWARF_UNEXPECTED_FORM);
     }
-
-    *(const char **)pbMember = psz;
-    Log4(("          %-20s  '%s'  [%s]\n", rtDwarfLog_AttrName(pDesc->uAttr), psz, rtDwarfLog_FormName(uForm)));
     return pCursor->rc;
 }
 
 
 /** @callback_method_impl{FNRTDWARFATTRDECODER} */
-static DECLCALLBACK(int) rtDwarfDecode_UnsignedInt(PRTDWARFDIE pDie, uint8_t *pbMember, PCRTDWARFATTRDESC pDesc,
-                                                   uint32_t uForm, PRTDWARFCURSOR pCursor, int64_t iImplConst)
+static DECLCALLBACK(int) rtDwarfDecode_String(PRTDWARFDIE pDie, uint8_t *pbMember, PCRTDWARFATTRDESC pDesc,
+                                              uint32_t uForm, PRTDWARFCURSOR pCursor, int64_t iImplConst)
 {
+    AssertReturn(ATTR_GET_SIZE(pDesc) == sizeof(const char *), VERR_INTERNAL_ERROR_3);
     RT_NOREF(pDie, iImplConst);
 
+    int rc = rtDwarfDecodeCore_String(pCursor, uForm, (const char **)pbMember);
+    if (RT_SUCCESS(rc))
+        Log4(("          %-20s  '%s'  [%s]\n",
+              rtDwarfLog_AttrName(pDesc->uAttr), *(const char **)pbMember, rtDwarfLog_FormName(uForm)));
+    return rc;
+}
+
+
+/** Core unsigned integer decoder. */
+static int rtDwarfDecodeCore_UnsignedInt(void *pvMember, size_t cbMember, uint32_t uForm, PRTDWARFCURSOR pCursor)
+{
     uint64_t u64Val;
     switch (uForm)
     {
@@ -4782,48 +4946,48 @@ static DECLCALLBACK(int) rtDwarfDecode_UnsignedInt(PRTDWARFDIE pDie, uint8_t *pb
     if (RT_FAILURE(pCursor->rc))
         return pCursor->rc;
 
-    switch (ATTR_GET_SIZE(pDesc))
+    switch (cbMember)
     {
         case 1:
-            *pbMember = (uint8_t)u64Val;
-            if (*pbMember != u64Val)
-            {
-                AssertFailed();
-                return VERR_OUT_OF_RANGE;
-            }
+            *(uint8_t *)pvMember = (uint8_t)u64Val;
+            AssertMsgReturn(*(uint8_t *)pvMember == u64Val, ("u64Val = %#RX64\n", u64Val), VERR_OUT_OF_RANGE);
             break;
 
         case 2:
-            *(uint16_t *)pbMember = (uint16_t)u64Val;
-            if (*(uint16_t *)pbMember != u64Val)
-            {
-                AssertFailed();
-                return VERR_OUT_OF_RANGE;
-            }
+            *(uint16_t *)pvMember = (uint16_t)u64Val;
+            AssertMsgReturn(*(uint16_t *)pvMember == u64Val, ("u64Val = %#RX64\n", u64Val), VERR_OUT_OF_RANGE);
             break;
 
         case 4:
-            *(uint32_t *)pbMember = (uint32_t)u64Val;
-            if (*(uint32_t *)pbMember != u64Val)
-            {
-                AssertFailed();
-                return VERR_OUT_OF_RANGE;
-            }
+            *(uint32_t *)pvMember = (uint32_t)u64Val;
+            AssertMsgReturn(*(uint32_t *)pvMember == u64Val, ("u64Val = %#RX64\n", u64Val), VERR_OUT_OF_RANGE);
             break;
 
         case 8:
-            *(uint64_t *)pbMember = (uint64_t)u64Val;
-            if (*(uint64_t *)pbMember != u64Val)
-            {
-                AssertFailed();
-                return VERR_OUT_OF_RANGE;
-            }
+            *(uint64_t *)pvMember = (uint64_t)u64Val;
             break;
 
         default:
-            AssertMsgFailedReturn(("%#x\n", ATTR_GET_SIZE(pDesc)), VERR_INTERNAL_ERROR_2);
+            AssertMsgFailedReturn(("%#x\n", cbMember), VERR_INTERNAL_ERROR_2);
     }
     return VINF_SUCCESS;
+}
+
+
+/** @callback_method_impl{FNRTDWARFATTRDECODER} */
+static DECLCALLBACK(int) rtDwarfDecode_UnsignedInt(PRTDWARFDIE pDie, uint8_t *pbMember, PCRTDWARFATTRDESC pDesc,
+                                                   uint32_t uForm, PRTDWARFCURSOR pCursor, int64_t iImplConst)
+{
+    RT_NOREF(pDie, iImplConst);
+    int rc = rtDwarfDecodeCore_UnsignedInt(pbMember, ATTR_GET_SIZE(pDesc), uForm, pCursor);
+    if (RT_SUCCESS(rc))
+        Log4(("          %-20s  %#RX64  [%s]\n", rtDwarfLog_AttrName(pDesc->uAttr),
+              ATTR_GET_SIZE(pDesc) == 1   ? *(uint8_t const *)pbMember
+              : ATTR_GET_SIZE(pDesc) == 2 ? *(uint16_t const *)pbMember
+              : ATTR_GET_SIZE(pDesc) == 4 ? *(uint32_t const *)pbMember
+              :                             *(uint64_t const *)pbMember,
+              rtDwarfLog_FormName(uForm)));
+    return rc;
 }
 
 

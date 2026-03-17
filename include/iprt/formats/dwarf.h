@@ -452,6 +452,18 @@
 /** @} */
 
 
+/** @name Line number header entry types (DWARF 5).
+ * @{ */
+#define DW_LNCT_path                UINT16_C(0x0001)
+#define DW_LNCT_directory_index     UINT16_C(0x0002)
+#define DW_LNCT_timestamp           UINT16_C(0x0003)
+#define DW_LNCT_size                UINT16_C(0x0004)
+#define DW_LNCT_MD5                 UINT16_C(0x0005)
+#define DW_LNCT_lo_user             UINT16_C(0x2000)
+#define DW_LNCT_hi_user             UINT16_C(0x3fff)
+/** @} */
+
+
 /** @name DWREG_X86_XXX - 386+ register number mappings.
  * @{  */
 #define DWREG_X86_EAX       0
