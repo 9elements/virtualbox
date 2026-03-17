@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# $Id: tdAddBasic1.py 113447 2026-03-17 15:19:02Z vadim.galitsyn@oracle.com $
+# $Id: tdAddBasic1.py 113448 2026-03-17 15:46:56Z vadim.galitsyn@oracle.com $
 
 """
 VirtualBox Validation Kit - Additions Basics #1.
@@ -37,7 +37,7 @@ terms and conditions of either the GPL or the CDDL or both.
 
 SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 """
-__version__ = "$Revision: 113447 $"
+__version__ = "$Revision: 113448 $"
 
 # Standard Python imports.
 import os;
@@ -130,7 +130,8 @@ class tdAddBasic1(vbox.TestDriver):                                         # py
 
         elif asArgs[iArg] == '--ram-adjust':
             iArg += 1;
-            if iArg >= len(asArgs): raise base.InvalidOption('The "--ram-adjust" takes amount of MB to adjust guest RAM aan argument');
+            if iArg >= len(asArgs): raise base.InvalidOption('The "--ram-adjust" takes amount ' +
+                                                             'of MB to adjust guest RAM aan argument');
             self.iOptRamAdjust = int(asArgs[iArg]);
 
         else:
