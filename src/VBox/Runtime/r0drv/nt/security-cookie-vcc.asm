@@ -1,4 +1,4 @@
-; $Id: security-cookie-vcc.asm 113304 2026-03-10 15:19:22Z knut.osmundsen@oracle.com $
+; $Id: security-cookie-vcc.asm 113454 2026-03-18 12:44:55Z knut.osmundsen@oracle.com $
 ;; @file
 ; IPRT - Stack related Visual C++ support routines, ring-0.
 ;
@@ -47,11 +47,17 @@
 ;*********************************************************************************************************************************
 ;; The default security cookie.
 ; Can be re-defined via ASDEFS.
+; @note The top 16-bit must be zero because __security_check_cookie in
+;       BufferOverflowK.lib expects them to be all 1s when xor'ed with rsp.
+;       See gh-590.  (32-bit code doesn't care about the top half.)
 %ifndef  RT_VCC_SECURITY_COOKIE_DEFAULT_LOW
  %define RT_VCC_SECURITY_COOKIE_DEFAULT_LOW     0xdeadbeef
 %endif
 %ifndef  RT_VCC_SECURITY_COOKIE_DEFAULT_HIGH
- %define RT_VCC_SECURITY_COOKIE_DEFAULT_HIGH    0x0c00ffe0
+ %define RT_VCC_SECURITY_COOKIE_DEFAULT_HIGH    0x0000c0de
+%endif
+%if RT_VCC_SECURITY_COOKIE_DEFAULT_HIGH & 0xffff0000
+ %error "The top 16-bits of RT_VCC_SECURITY_COOKIE_DEFAULT_HIGH must be zero!"
 %endif
 
 ;; The what we XOR the RDTSC output with when initializing the cookie.
@@ -71,6 +77,9 @@ BEGINDATA
 GLOBALNAME __security_cookie
         dd  RT_VCC_SECURITY_COOKIE_DEFAULT_LOW
         dd  RT_VCC_SECURITY_COOKIE_DEFAULT_HIGH
+;;
+; The complement security cookie seems only to be used in the BugCheck, in
+; order to verify the validity of __security_cookie.
 GLOBALNAME __security_cookie_complement
         dd  ~(RT_VCC_SECURITY_COOKIE_DEFAULT_LOW)  & 0xffffffff
         dd  ~(RT_VCC_SECURITY_COOKIE_DEFAULT_HIGH) & 0xffffffff
@@ -106,6 +115,13 @@ BEGINPROC __security_init_cookie
         lea     xCX, [NAME(__security_cookie) + 4 xWrtRIP]
         xor     eax, ecx
         xor     edx, esp
+
+%ifdef RT_ARCH_AMD64
+        ; Bits 63:48 must be zero, see @note above.
+        ; Note! We drop the cleared bits and does not carry them forwared in
+        ;       the __security_cookie_complement value (what's the point).
+        and     edx, 0xffff
+%endif
 
         ; Store the result.
 .store_result:
