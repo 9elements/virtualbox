@@ -1,4 +1,4 @@
-/* $Id: VBoxManageModifyVM.cpp 113443 2026-03-17 09:26:07Z alexander.eichner@oracle.com $ */
+/* $Id: VBoxManageModifyVM.cpp 113452 2026-03-18 09:22:21Z alexander.eichner@oracle.com $ */
 /** @file
  * VBoxManage - Implementation of modifyvm command.
  */
@@ -589,15 +589,15 @@ static uint32_t parsePci(const char *pszPciAddr)
     if (RT_FAILURE(vrc) || pszNext == NULL || *pszNext != ':')
         return UINT32_MAX;
 
-    vrc = RTStrToUInt8Ex(pszNext, &pszNext, 16, &aVals[0]);
+    vrc = RTStrToUInt8Ex(pszNext + 1, &pszNext, 16, &aVals[0]);
     if (RT_FAILURE(vrc) || pszNext == NULL || *pszNext != ':')
         return UINT32_MAX;
 
-    vrc = RTStrToUInt8Ex(pszNext+1, &pszNext, 16, &aVals[1]);
+    vrc = RTStrToUInt8Ex(pszNext + 1, &pszNext, 16, &aVals[1]);
     if (RT_FAILURE(vrc) || pszNext == NULL || *pszNext != '.')
         return UINT32_MAX;
 
-    vrc = RTStrToUInt8Ex(pszNext+1, &pszNext, 16, &aVals[2]);
+    vrc = RTStrToUInt8Ex(pszNext + 1, &pszNext, 16, &aVals[2]);
     if (RT_FAILURE(vrc) || pszNext == NULL)
         return UINT32_MAX;
 
