@@ -1,4 +1,4 @@
-/* $Id: UIVMActivityMonitor.h 113468 2026-03-19 13:19:30Z serkan.bayraktar@oracle.com $ */
+/* $Id: UIVMActivityMonitor.h 113469 2026-03-19 14:18:22Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVMActivityMonitor class declaration.
  */
@@ -162,6 +162,7 @@ class  SHARED_LIBRARY_STUFF UIVMActivityMonitor : public QWidget
 public:
 
     UIVMActivityMonitor(EmbedTo enmEmbedding, QWidget *pParent, UIActionPool *pActionPool, int iMaximumQueueSize);
+    ~UIVMActivityMonitor() RT_OVERRIDE;
     virtual QUuid machineId() const = 0;
     virtual QString machineName() const = 0;
     void setDataSeriesColor(int iIndex, const QColor &color);
@@ -265,7 +266,7 @@ public:
     /** Constructs information-tab passing @a pParent to the QWidget base-class constructor.
       * @param machine is machine reference. */
     UIVMActivityMonitorLocal(EmbedTo enmEmbedding, QWidget *pParent, const CMachine &machine, UIActionPool *pActionPool);
-    ~UIVMActivityMonitorLocal();
+    ~UIVMActivityMonitorLocal() RT_OVERRIDE;
     virtual QUuid machineId() const RT_OVERRIDE;
     virtual QString machineName() const RT_OVERRIDE;
 

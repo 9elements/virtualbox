@@ -1,4 +1,4 @@
-/* $Id: UIVMActivityMonitor.cpp 113468 2026-03-19 13:19:30Z serkan.bayraktar@oracle.com $ */
+/* $Id: UIVMActivityMonitor.cpp 113469 2026-03-19 14:18:22Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVMActivityMonitor class implementation.
  */
@@ -110,7 +110,7 @@ signals:
 
 public:
 
-    UIChart(QWidget *pParent, UIMetric *pMetric, UIActionPool *pActionPool, int iMaximumQueueSize);
+    UIChart(QWidget *pParent, UIActionPool *pActionPool, int iMaximumQueueSize);
     void setFontSize(int iFontSize);
     int  fontSize() const;
     const QStringList &textList() const;
@@ -140,7 +140,7 @@ public:
     void setIsAvailable(bool fIsAvailable);
 
     int topMargin() const;
-
+    void setMetric(const UIMetric &m) { m_pMetric = &m; }
 protected:
 
     virtual void resizeEvent(QResizeEvent *pEvent) RT_OVERRIDE;
@@ -175,7 +175,7 @@ private:
     void updateIndexUnderCursor(const QPoint &point);
     void updateToolTip();
 
-    UIMetric *m_pMetric;
+    const UIMetric *m_pMetric;
     QSize m_size;
     QFont m_axisFont;
     int m_iMarginLeft;
@@ -294,9 +294,9 @@ QFont UIInfoLabelContainer::labelFont() const
 *   UIChart implementation.                                                                                     *
 *********************************************************************************************************************************/
 
-UIChart::UIChart(QWidget *pParent, UIMetric *pMetric, UIActionPool *pActionPool, int iMaximumQueueSize)
+UIChart::UIChart(QWidget *pParent, UIActionPool *pActionPool, int iMaximumQueueSize)
     : QWidget(pParent)
-    , m_pMetric(pMetric)
+    , m_pMetric(nullptr)
     , m_size(QSize(50, 50))
     , m_iOverlayAlpha(80)
     , m_fPixelPerDataPoint(0.f)
@@ -733,6 +733,8 @@ QString UIChart::YAxisValueLabel(quint64 iValue) const
 {
     if (iValue == uInvalidValueSentinel)
         return QString();
+    if (!m_pMetric)
+        return QString();
     if (m_pMetric->unit().compare("%", Qt::CaseInsensitive) == 0)
         return QString::number(iValue).append("%");
     if (m_pMetric->unit().compare("kb", Qt::CaseInsensitive) == 0)
@@ -830,6 +832,8 @@ QConicalGradient UIChart::conicalGradientForDataSeries(const QRectF &rectangle, 
 
 int UIChart::maxDataSize() const
 {
+    if (!m_pMetric)
+        return 0;
     int iSize = 0;
     for (int k = 0; k < DATA_SERIES_SIZE; ++k)
     {
@@ -841,6 +845,8 @@ int UIChart::maxDataSize() const
 
 QString UIChart::toolTipText() const
 {
+    if (!m_pMetric)
+        return QString();
     if (m_iDataIndexUnderCursor < 0)
         return QString();
 
@@ -1180,6 +1186,12 @@ UIVMActivityMonitor::UIVMActivityMonitor(EmbedTo enmEmbedding, QWidget *pParent,
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &UIVMActivityMonitor::customContextMenuRequested,
             this, &UIVMActivityMonitor::sltCreateContextMenu);
+}
+
+UIVMActivityMonitor::~UIVMActivityMonitor()
+{
+    qDeleteAll(m_charts);
+    m_charts.clear();
 }
 
 void UIVMActivityMonitor::sltRetranslateUI()
@@ -1726,7 +1738,8 @@ void UIVMActivityMonitorLocal::prepareWidgets()
         m_infoLabelContainers.insert(enmType, pLabelContainer);
         pChartLayout->addWidget(pLabelContainer);
 
-        UIChart *pChart = new UIChart(this, &(m_metrics[enmType]), m_pActionPool, m_iMaximumQueueSize);
+        UIChart *pChart = new UIChart(this, m_pActionPool, m_iMaximumQueueSize);
+        //pChart->setMetric(m_metrics[enmType]);
         connect(pChart, &UIChart::sigExportMetricsToFile,
                 this, &UIVMActivityMonitor::sltExportMetricsToFile);
         m_charts.insert(enmType, pChart);
@@ -2604,7 +2617,8 @@ void UIVMActivityMonitorCloud::prepareWidgets()
         m_infoLabelContainers.insert(enmType, pLabelContainer);
         pChartLayout->addWidget(pLabelContainer);
 
-        UIChart *pChart = new UIChart(this, &(m_metrics[enmType]), m_pActionPool, m_iMaximumQueueSize);
+        UIChart *pChart = new UIChart(this, m_pActionPool, m_iMaximumQueueSize);
+        pChart->setMetric(m_metrics[enmType]);
         connect(pChart, &UIChart::sigExportMetricsToFile,
                 this, &UIVMActivityMonitor::sltExportMetricsToFile);
         m_charts.insert(enmType, pChart);
