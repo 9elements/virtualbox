@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA-cmd.cpp 113247 2026-03-04 12:12:24Z vitali.pelenjow@oracle.com $ */
+/* $Id: DevVGA-SVGA-cmd.cpp 113461 2026-03-19 10:40:53Z vitali.pelenjow@oracle.com $ */
 /** @file
  * VMware SVGA device - implementation of VMSVGA commands.
  */
@@ -1355,7 +1355,7 @@ VMSVGASCREENOBJECT *vmsvgaR3GetScreenObject(PVGASTATECC pThisCC, uint32_t idScre
 }
 
 
-int vmsvgaR3DestroyScreen(PVGASTATE pThis, PVGASTATECC pThisCC, VMSVGASCREENOBJECT *pScreen)
+int vmsvgaR3DestroyScreen(PVGASTATE pThis, PVGASTATECC pThisCC, VMSVGASCREENOBJECT *pScreen, bool fRecreating)
 {
     pScreen->fModified = true;
     pScreen->fDefined  = false;
@@ -1363,13 +1363,25 @@ int vmsvgaR3DestroyScreen(PVGASTATE pThis, PVGASTATECC pThisCC, VMSVGASCREENOBJE
     /* Notify frontend that the screen is about to be deleted. */
     vmsvgaR3ChangeMode(pThis, pThisCC);
 
+    /* Mark output targets of this screen for deletion. */
+    VMSVGAOUTPUTTARGET *pIter, *pNext;
+    RTListForEachSafe(&pScreen->listOutputTargets, pIter, pNext, VMSVGAOUTPUTTARGET, nodeOutputTarget)
+    {
+        RTListNodeRemove(&pIter->nodeOutputTarget);
+        vmsvgaR3RetireOutputTarget(pThisCC, pIter);
+    }
+
 #ifdef VBOX_WITH_VMSVGA3D
     if (RT_LIKELY(pThis->svga.f3DEnabled))
         vmsvga3dDestroyScreen(pThisCC, pScreen);
 #endif
 
-    RTMemFree(pScreen->pvScreenBitmap);
-    pScreen->pvScreenBitmap = NULL;
+    if (!fRecreating)
+    {
+        /** @todo Currently the corresponding command handlers reallocate pvScreenBitmap. */
+        RTMemFree(pScreen->pvScreenBitmap);
+        pScreen->pvScreenBitmap = NULL;
+    }
 
     return VINF_SUCCESS;
 }
@@ -1381,7 +1393,7 @@ void vmsvgaR3ResetScreens(PVGASTATE pThis, PVGASTATECC pThisCC)
     {
         VMSVGASCREENOBJECT *pScreen = vmsvgaR3GetScreenObject(pThisCC, idScreen);
         if (pScreen)
-            vmsvgaR3DestroyScreen(pThis, pThisCC, pScreen);
+            vmsvgaR3DestroyScreen(pThis, pThisCC, pScreen, false);
     }
 }
 
@@ -2532,6 +2544,10 @@ static void vmsvga3dCmdDefineGBScreenTarget(PVGASTATE pThis, PVGASTATECC pThisCC
         /** @todo Generic screen object/target interface. */
         VMSVGASCREENOBJECT *pScreen = &pSvgaR3State->aScreens[pCmd->stid];
         Assert(pScreen->idScreen == pCmd->stid);
+
+        if (pScreen->fDefined)
+            vmsvgaR3DestroyScreen(pThis, pThisCC, pScreen, true);
+
         pScreen->fDefined  = true;
         pScreen->fModified = true;
         pScreen->fuScreen  = SVGA_SCREEN_MUST_BE_SET
@@ -2551,6 +2567,7 @@ static void vmsvga3dCmdDefineGBScreenTarget(PVGASTATE pThis, PVGASTATECC pThisCC
         void *pvOldScreenBitmap = pScreen->pvScreenBitmap;
         pScreen->pvScreenBitmap = 0;
 #endif
+        RTListInit(&pScreen->listOutputTargets);
 
         if (RT_LIKELY(pThis->svga.f3DEnabled))
             vmsvga3dDefineScreen(pThis, pThisCC, pScreen);
@@ -2597,7 +2614,7 @@ static void vmsvga3dCmdDestroyGBScreenTarget(PVGASTATE pThis, PVGASTATECC pThisC
         /* Screen objects and screen targets are similar, therefore we will use the same for both. */
         /** @todo Generic screen object/target interface. */
         VMSVGASCREENOBJECT *pScreen = &pSvgaR3State->aScreens[pCmd->stid];
-        vmsvgaR3DestroyScreen(pThis, pThisCC, pScreen);
+        vmsvgaR3DestroyScreen(pThis, pThisCC, pScreen, true);
     }
 }
 
@@ -8162,6 +8179,9 @@ void vmsvgaR3CmdDefineScreen(PVGASTATE pThis, PVGASTATECC pThisCC, SVGAFifoCmdDe
 
     VMSVGASCREENOBJECT *pScreen = &pSvgaR3State->aScreens[idScreen];
     Assert(pScreen->idScreen == idScreen);
+    if (pScreen->fDefined)
+        vmsvgaR3DestroyScreen(pThis, pThisCC, pScreen, true);
+
     pScreen->cDpi      = 0; /* SVGAFifoCmdDefineScreen does not support dpi. */
 
 #ifndef PERMANENT_SCREEN_BITMAP
@@ -8173,6 +8193,7 @@ void vmsvgaR3CmdDefineScreen(PVGASTATE pThis, PVGASTATECC pThisCC, SVGAFifoCmdDe
     if (pScreen->offVRAM == VMSVGA_VRAM_OFFSET_SCREEN_TARGET)
         pScreen->offVRAM = uScreenOffset;
 #endif
+    RTListInit(&pScreen->listOutputTargets);
 
     pScreen->fDefined  = true;
     pScreen->fModified = true;
@@ -8224,7 +8245,7 @@ void vmsvgaR3CmdDestroyScreen(PVGASTATE pThis, PVGASTATECC pThisCC, SVGAFifoCmdD
 
     VMSVGASCREENOBJECT *pScreen = &pSvgaR3State->aScreens[idScreen];
     Assert(pScreen->idScreen == idScreen);
-    vmsvgaR3DestroyScreen(pThis, pThisCC, pScreen);
+    vmsvgaR3DestroyScreen(pThis, pThisCC, pScreen, true);
 }
 
 

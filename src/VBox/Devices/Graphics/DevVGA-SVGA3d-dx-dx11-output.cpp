@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA3d-dx-dx11-output.cpp 113456 2026-03-18 17:33:21Z vitali.pelenjow@oracle.com $ */
+/* $Id: DevVGA-SVGA3d-dx-dx11-output.cpp 113461 2026-03-19 10:40:53Z vitali.pelenjow@oracle.com $ */
 /** @file
  * DevSVGA - D3D11 backend graphics output utilities
  */
@@ -35,7 +35,7 @@
 # include <iprt/win/windows.h>
 #endif
 
-#include "DevVGA-SVGA3d-dx-dx11.h "
+#include "DevVGA-SVGA3d-dx-dx11.h"
 
 /* Output target transforms entire ScreenTexture and copies the result to a memory buffer.
  *

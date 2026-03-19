@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA.h 113247 2026-03-04 12:12:24Z vitali.pelenjow@oracle.com $ */
+/* $Id: DevVGA-SVGA.h 113461 2026-03-19 10:40:53Z vitali.pelenjow@oracle.com $ */
 /** @file
  * VMware SVGA device
  */
@@ -202,6 +202,7 @@ struct {
 /* u32ActionFlags */
 #define VMSVGA_ACTION_CHANGEMODE_BIT    0
 #define VMSVGA_ACTION_CHANGEMODE        RT_BIT(VMSVGA_ACTION_CHANGEMODE_BIT)
+#define VMSVGA_ACTION_OUTPUTTARGETS_BIT 1
 
 
 #ifdef DEBUG
@@ -275,6 +276,7 @@ typedef struct VMSVGAVIEWPORT
 
 #ifdef VBOX_WITH_VMSVGA3D
 typedef struct VMSVGAHWSCREEN *PVMSVGAHWSCREEN;
+typedef struct VMSVGAHWOUTPUTTARGET *PVMSVGAHWOUTPUTTARGET;
 #endif
 
 #define VMSVGA_VRAM_OFFSET_SCREEN_TARGET UINT32_C(0xFFFFFFFF)
@@ -283,6 +285,34 @@ typedef struct VMSVGAHWSCREEN *PVMSVGAHWSCREEN;
  * (pThis->svga.u32MaxWidth x pThis->svga.u32MaxHeight)
  * in order to avoid reallocation of the memory on video mode change. */
 #define PERMANENT_SCREEN_BITMAP
+
+/* Output target, i.e. guest screen image in a particular format. */
+typedef struct VMSVGAOUTPUTTARGET
+{
+    /* Maps a u64OutputTargetToken (Key) to the corresponding VMSVGAOUTPUTTARGET instance. */
+    AVLU64NODECORE          coreOutputTarget;
+
+    /* Element of VMSVGASCREENOBJECT::listOutputTargets,
+     * VMSVGAR3STATE::listOutputTargetCreating, VMSVGAR3STATE::listOutputTargetDeleting.
+     */
+    RTLISTNODE              nodeOutputTarget;
+
+    /* An output target is referenced by (Main) consumers(s). */
+    int32_t volatile        cExternalRefs;
+
+    /* The counter is incremented each time the output target is updated.
+     * If the target was never updated then the counter value is 0.
+     */
+    uint64_t volatile       u64UpdateSequenceNumber;
+
+    /* Description of the target which the consumers can query. */
+    PDMDISPLAYOUTPUTTARGETDESC desc;
+
+#ifdef VBOX_WITH_VMSVGA3D
+    /** Pointer to the HW accelerated (3D) screen data. */
+    R3PTRTYPE(PVMSVGAHWOUTPUTTARGET) pHwOutputTarget;
+#endif
+} VMSVGAOUTPUTTARGET;
 
 /**
  * Screen object state.
@@ -309,6 +339,10 @@ typedef struct VMSVGASCREENOBJECT
     bool        fDefined;
     bool        fModified;
     void       *pvScreenBitmap;
+
+    /** Active output targets (VMSVGAOUTPUTTARGET) */
+    RTLISTANCHOR listOutputTargets;
+
 #ifdef VBOX_WITH_VMSVGA3D
     /** Pointer to the HW accelerated (3D) screen data. */
     R3PTRTYPE(PVMSVGAHWSCREEN) pHwScreen;
@@ -622,6 +656,13 @@ int vmsvgaR3SaveExec(PPDMDEVINS pDevIns, PSSMHANDLE pSSM);
 DECLCALLBACK(void) vmsvgaR3PowerOn(PPDMDEVINS pDevIns);
 DECLCALLBACK(void) vmsvgaR3PowerOff(PPDMDEVINS pDevIns);
 void vmsvgaR3FifoWatchdogTimer(PPDMDEVINS pDevIns, PVGASTATE pThis, PVGASTATECC pThisCC);
+
+int vmsvgaR3GetUniqueOutputTargetToken(PVGASTATE pThis, PVGASTATECC pThisCC, uint64_t *pu64OutputTargetToken);
+int vmsvgaR3CreateOutputTargetAsync(PVGASTATE pThis, PVGASTATECC pThisCC, uint32_t idScreen, PDMDISPLAYOUTPUTTARGETFORMAT enmFormat,
+                                    uint32_t cWidth, uint32_t cHeight, uint32_t uFlags, uint64_t u64OutputTargetToken);
+int vmsvgaR3OutputTargetDesc(PVGASTATE pThis, PVGASTATECC pThisCC, uint64_t u64OutputTargetToken, PDMDISPLAYOUTPUTTARGETDESC *pDescOut);
+void vmsvgaR3RetainOutputTarget(PVGASTATE pThis, PVGASTATECC pThisCC, uint64_t u64OutputTargetToken);
+void vmsvgaR3ReleaseOutputTarget(PVGASTATE pThis, PVGASTATECC pThisCC, uint64_t u64OutputTargetToken);
 
 #ifdef IN_RING3
 VMSVGASCREENOBJECT *vmsvgaR3GetScreenObject(PVGASTATECC pThisCC, uint32_t idScreen);

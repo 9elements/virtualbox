@@ -1,4 +1,4 @@
-/* $Id: DisplayImpl.cpp 113380 2026-03-13 10:01:45Z andreas.loeffler@oracle.com $ */
+/* $Id: DisplayImpl.cpp 113461 2026-03-19 10:40:53Z vitali.pelenjow@oracle.com $ */
 /** @file
  * VirtualBox COM class implementation
  */
@@ -3267,6 +3267,33 @@ DECLCALLBACK(int) Display::i_display3DNotifyProcess(PPDMIDISPLAYCONNECTOR pInter
     return pDrv->pDisplay->i_handle3DNotifyProcess(p3DNotify);
 }
 
+void Display::i_handleOnOutputTargetCreated(uint32_t uScreenId, uint64_t u64OutputTargetToken, int rcCreated)
+{
+    RT_NOREF(uScreenId, u64OutputTargetToken, rcCreated);
+}
+
+void Display::i_handleOnOutputTargetRetired(uint32_t uScreenId, uint64_t u64OutputTargetToken)
+{
+    RT_NOREF(uScreenId, u64OutputTargetToken);
+}
+
+DECLCALLBACK(void) Display::i_displayOnOutputTargetCreated(PPDMIDISPLAYCONNECTOR pInterface,
+                                                           uint32_t uScreenId,
+                                                           uint64_t u64OutputTargetToken,
+                                                           int rcCreated)
+{
+    PDRVMAINDISPLAY pDrv = PDMIDISPLAYCONNECTOR_2_MAINDISPLAY(pInterface);
+    return pDrv->pDisplay->i_handleOnOutputTargetCreated(uScreenId, u64OutputTargetToken, rcCreated);
+}
+
+DECLCALLBACK(void) Display::i_displayOnOutputTargetRetired(PPDMIDISPLAYCONNECTOR pInterface,
+                                                           uint32_t uScreenId,
+                                                           uint64_t u64OutputTargetToken)
+{
+    PDRVMAINDISPLAY pDrv = PDMIDISPLAYCONNECTOR_2_MAINDISPLAY(pInterface);
+    return pDrv->pDisplay->i_handleOnOutputTargetRetired(uScreenId, u64OutputTargetToken);
+}
+
 HRESULT Display::notifyScaleFactorChange(ULONG aScreenId, ULONG aScaleFactorWMultiplied, ULONG aScaleFactorHMultiplied)
 {
     RT_NOREF(aScreenId, aScaleFactorWMultiplied, aScaleFactorHMultiplied);
@@ -3834,6 +3861,8 @@ DECLCALLBACK(int) Display::i_drvConstruct(PPDMDRVINS pDrvIns, PCFGMNODE pCfg, ui
     pThis->IConnector.pfnVBVAReportCursorPosition = Display::i_displayVBVAReportCursorPosition;
 #endif
     pThis->IConnector.pfn3DNotifyProcess       = Display::i_display3DNotifyProcess;
+    pThis->IConnector.pfnOnOutputTargetCreated = Display::i_displayOnOutputTargetCreated;
+    pThis->IConnector.pfnOnOutputTargetRetired = Display::i_displayOnOutputTargetRetired;
 
     /*
      * Get the IDisplayPort interface of the above driver/device.

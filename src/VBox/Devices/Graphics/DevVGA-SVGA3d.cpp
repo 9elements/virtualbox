@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA3d.cpp 113247 2026-03-04 12:12:24Z vitali.pelenjow@oracle.com $ */
+/* $Id: DevVGA-SVGA3d.cpp 113461 2026-03-19 10:40:53Z vitali.pelenjow@oracle.com $ */
 /** @file
  * DevSVGA3d - VMWare SVGA device, 3D parts - Common core code.
  */
@@ -1301,6 +1301,25 @@ void vmsvga3dProcessPendingTasks(PVGASTATE pThis, PVGASTATECC pThisCC)
 
     if (pSvgaR3State->pFuncs3D && pSvgaR3State->pFuncs3D->pfnProcessPendingTasks)
         pSvgaR3State->pFuncs3D->pfnProcessPendingTasks(pThis, pThisCC);
+}
+
+
+int vmsvga3dCreateOutputTarget(PVGASTATE pThis, PVGASTATECC pThisCC, VMSVGAOUTPUTTARGET *pOutputTarget)
+{
+    PVMSVGAR3STATE const pSvgaR3State = pThisCC->svga.pSvgaR3State;
+
+    if (pSvgaR3State->pFuncs3D && pSvgaR3State->pFuncs3D->pfnCreateOutputTarget)
+        return pSvgaR3State->pFuncs3D->pfnCreateOutputTarget(pThis, pThisCC, pOutputTarget);
+    return VERR_NOT_IMPLEMENTED;
+}
+
+
+void vmsvga3dDestroyOutputTarget(PVGASTATECC pThisCC, VMSVGAOUTPUTTARGET *pOutputTarget)
+{
+    PVMSVGAR3STATE const pSvgaR3State = pThisCC->svga.pSvgaR3State;
+
+    if (pSvgaR3State->pFuncs3D && pSvgaR3State->pFuncs3D->pfnCreateOutputTarget)
+        pSvgaR3State->pFuncs3D->pfnDestroyOutputTarget(pThisCC, pOutputTarget);
 }
 
 

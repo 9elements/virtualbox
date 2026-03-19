@@ -1,4 +1,4 @@
-/* $Id: DisplayImpl.h 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: DisplayImpl.h 113461 2026-03-19 10:40:53Z vitali.pelenjow@oracle.com $ */
 /** @file
  * VirtualBox COM class implementation
  */
@@ -164,6 +164,9 @@ public:
     void i_handleUpdateVBVAInputMapping(int32_t xOrigin, int32_t yOrigin, uint32_t cx, uint32_t cy);
     int  i_handle3DNotifyProcess(VBOX3DNOTIFY *p3DNotify);
 
+    void i_handleOnOutputTargetCreated(uint32_t uScreenId, uint64_t u64OutputTargetToken, int rcCreated);
+    void i_handleOnOutputTargetRetired(uint32_t uScreenId, uint64_t u64OutputTargetToken);
+
     int  i_saveVisibleRegion(uint32_t cRect, PRTRECT pRect);
     int  i_handleSetVisibleRegion(uint32_t cRect, PRTRECT pRect);
     int  i_handleUpdateMonitorPositions(uint32_t cPositions, PCRTPOINT paPositions);
@@ -322,6 +325,15 @@ private:
 
     static DECLCALLBACK(int)  i_display3DNotifyProcess(PPDMIDISPLAYCONNECTOR pInterface,
                                                        VBOX3DNOTIFY *p3DNotify);
+
+    static DECLCALLBACK(void) i_displayOnOutputTargetCreated(PPDMIDISPLAYCONNECTOR pInterface,
+                                                             uint32_t uScreenId,
+                                                             uint64_t u64OutputTargetToken,
+                                                             int rcCreated);
+    static DECLCALLBACK(void) i_displayOnOutputTargetRetired(PPDMIDISPLAYCONNECTOR pInterface,
+                                                             uint32_t uScreenId,
+                                                             uint64_t u64OutputTargetToken);
+
 
 #ifdef VBOX_WITH_HGSMI
     static DECLCALLBACK(int)   i_displayVBVAEnable(PPDMIDISPLAYCONNECTOR pInterface, unsigned uScreenId,
