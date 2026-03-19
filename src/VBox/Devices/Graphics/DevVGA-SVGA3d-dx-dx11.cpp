@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA3d-dx-dx11.cpp 113461 2026-03-19 10:40:53Z vitali.pelenjow@oracle.com $ */
+/* $Id: DevVGA-SVGA3d-dx-dx11.cpp 113465 2026-03-19 11:25:41Z vitali.pelenjow@oracle.com $ */
 /** @file
  * DevVMWare - VMWare SVGA device
  */
@@ -52,20 +52,6 @@
 #include "DevVGA-SVGA3d-dx-shader.h"
 
 #include "DevVGA-SVGA3d-dx-dx11.h"
-
-/* d3d11_1.h has a structure field named 'Status' but Status is defined as int on Linux host */
-#if defined(Status)
-#undef Status
-#endif
-#ifndef RT_OS_WINDOWS
-# pragma GCC diagnostic push
-# pragma GCC diagnostic ignored "-Wpedantic"
-#endif
-#include <d3d11_1.h>
-#ifndef RT_OS_WINDOWS
-# pragma GCC diagnostic pop
-#endif
-
 
 /* One ID3D11Device object is used for all VMSVGA guest contexts because the VGPU design makes resources
  * independent from rendering contexts. I.e. multiple guest contexts freely access a surface.
