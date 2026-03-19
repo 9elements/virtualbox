@@ -1,4 +1,4 @@
-/* $Id: DisplayImpl.h 113461 2026-03-19 10:40:53Z vitali.pelenjow@oracle.com $ */
+/* $Id: DisplayImpl.h 113463 2026-03-19 11:12:24Z vitali.pelenjow@oracle.com $ */
 /** @file
  * VirtualBox COM class implementation
  */
@@ -329,7 +329,7 @@ private:
     static DECLCALLBACK(void) i_displayOnOutputTargetCreated(PPDMIDISPLAYCONNECTOR pInterface,
                                                              uint32_t uScreenId,
                                                              uint64_t u64OutputTargetToken,
-                                                             int rcCreated);
+                                                             int vrcCreated);
     static DECLCALLBACK(void) i_displayOnOutputTargetRetired(PPDMIDISPLAYCONNECTOR pInterface,
                                                              uint32_t uScreenId,
                                                              uint64_t u64OutputTargetToken);

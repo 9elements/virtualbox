@@ -1,4 +1,4 @@
-/* $Id: DisplayImpl.cpp 113461 2026-03-19 10:40:53Z vitali.pelenjow@oracle.com $ */
+/* $Id: DisplayImpl.cpp 113463 2026-03-19 11:12:24Z vitali.pelenjow@oracle.com $ */
 /** @file
  * VirtualBox COM class implementation
  */
@@ -3267,9 +3267,9 @@ DECLCALLBACK(int) Display::i_display3DNotifyProcess(PPDMIDISPLAYCONNECTOR pInter
     return pDrv->pDisplay->i_handle3DNotifyProcess(p3DNotify);
 }
 
-void Display::i_handleOnOutputTargetCreated(uint32_t uScreenId, uint64_t u64OutputTargetToken, int rcCreated)
+void Display::i_handleOnOutputTargetCreated(uint32_t uScreenId, uint64_t u64OutputTargetToken, int vrcCreated)
 {
-    RT_NOREF(uScreenId, u64OutputTargetToken, rcCreated);
+    RT_NOREF(uScreenId, u64OutputTargetToken, vrcCreated);
 }
 
 void Display::i_handleOnOutputTargetRetired(uint32_t uScreenId, uint64_t u64OutputTargetToken)
@@ -3280,10 +3280,10 @@ void Display::i_handleOnOutputTargetRetired(uint32_t uScreenId, uint64_t u64Outp
 DECLCALLBACK(void) Display::i_displayOnOutputTargetCreated(PPDMIDISPLAYCONNECTOR pInterface,
                                                            uint32_t uScreenId,
                                                            uint64_t u64OutputTargetToken,
-                                                           int rcCreated)
+                                                           int vrcCreated)
 {
     PDRVMAINDISPLAY pDrv = PDMIDISPLAYCONNECTOR_2_MAINDISPLAY(pInterface);
-    return pDrv->pDisplay->i_handleOnOutputTargetCreated(uScreenId, u64OutputTargetToken, rcCreated);
+    return pDrv->pDisplay->i_handleOnOutputTargetCreated(uScreenId, u64OutputTargetToken, vrcCreated);
 }
 
 DECLCALLBACK(void) Display::i_displayOnOutputTargetRetired(PPDMIDISPLAYCONNECTOR pInterface,

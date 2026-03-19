@@ -1204,13 +1204,13 @@ typedef struct PDMIDISPLAYCONNECTOR
      * @param   pInterface            Pointer to this interface.
      * @param   uScreenId             The screen the target was created for.
      * @param   u64OutputTargetToken  Unique token previously used for creating a target.
-     * @param   rcCreated             VBox status code. If not VINF_SUCCESS then the target creation has failed.
+     * @param   vrcCreated            VBox status code. If not VINF_SUCCESS then the target creation has failed.
      * @thread  The graphics device thread: FIFO for the VMSVGA device.
      */
     DECLR3CALLBACKMEMBER(void, pfnOnOutputTargetCreated, (PPDMIDISPLAYCONNECTOR pInterface,
                                                           uint32_t uScreenId,
                                                           uint64_t u64OutputTargetToken,
-                                                          int rcCreated));
+                                                          int vrcCreated));
 
     /**
      * Notifies that the output target is deprecated and will not be updated any longer.
