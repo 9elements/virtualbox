@@ -1,4 +1,4 @@
-/* $Id: IEMAllN8veRecompBltIn.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: IEMAllN8veRecompBltIn.cpp 113458 2026-03-19 06:41:44Z bela.lubkin@oracle.com $ */
 /** @file
  * IEM - Native Recompiler, Emitters for Built-In Threaded Functions.
  */
@@ -92,6 +92,10 @@ IEM_DECL_NATIVE_HLP_DEF(void, iemNativeHlpMemCodeNewPageTlbMiss,(PVMCPUCC pVCpu)
 }
 
 
+/** @todo r=bela clang optimization of these functions produces a failing VMM. See @bugref{11078}. */
+#if RT_CLANG_PREREQ(0, 0)
+# pragma clang optimize off
+#endif
 /**
  * Used by TB code to deal with a TLB miss for a new page.
  */
@@ -107,6 +111,9 @@ IEM_DECL_NATIVE_HLP_DEF(RTGCPHYS, iemNativeHlpMemCodeNewPageTlbMissWithOff,(PVMC
     AssertMsg(ICORE(pVCpu).pbInstrBuf, ("cs:rip=%04x:%08RX64\n", pVCpu->cpum.GstCtx.cs.Sel, pVCpu->cpum.GstCtx.rip));
     return ICORE(pVCpu).pbInstrBuf ? ICORE(pVCpu).GCPhysInstrBuf : NIL_RTGCPHYS;
 }
+#if RT_CLANG_PREREQ(0, 0)
+# pragma clang optimize on
+#endif
 
 
 /*********************************************************************************************************************************
