@@ -1,4 +1,4 @@
-/* $Id: UIVMActivityMonitor.h 113439 2026-03-16 19:24:43Z serkan.bayraktar@oracle.com $ */
+/* $Id: UIVMActivityMonitor.h 113460 2026-03-19 09:13:43Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVMActivityMonitor class declaration.
  */
@@ -55,10 +55,12 @@
 #include "UIMonitorCommon.h"
 
 /* Forward declarations: */
+class QAction;
 class QGridLayout;
-class QTimer;
-class QVBoxLayout;
 class QLabel;
+class QTimer;
+class QToolButton;
+class QVBoxLayout;
 class UIActionPool;
 class UIChart;
 class UISession;
@@ -191,7 +193,9 @@ protected:
     virtual void prepareWidgets();
     void setInfoLabelWidth();
 
-    QGridLayout            *m_pContainerLayout;
+    QVBoxLayout            *m_pContainerLayout;
+    QToolButton            *m_pPauseButton;
+    QAction                *m_pPauseAction;
     QTimer                 *m_pTimer;
     quint64                 m_iTimeStep;
     QMap<Metric_Type, UIMetric> m_metrics;
@@ -226,6 +230,9 @@ protected:
         QString m_strDiskIOInfoLabelRead;
         QString m_strDiskIOInfoLabelWrittenTotal;
         QString m_strDiskIOInfoLabelReadTotal;
+        /** Misc. strings. */
+        QString m_strPauseButtonPauseToolTip;
+        QString m_strPauseButtonResumeToolTip;
     /** @} */
     int m_iMaximumLabelLength;
     int m_iMaximumQueueSize;
@@ -237,6 +244,7 @@ private slots:
     /** Reads the metric values for several sources and calls corresponding update functions. */
     void sltTimeout();
     void sltCreateContextMenu(const QPoint &point);
+    void sltPauseToggle(bool fPause);
 
 private:
 

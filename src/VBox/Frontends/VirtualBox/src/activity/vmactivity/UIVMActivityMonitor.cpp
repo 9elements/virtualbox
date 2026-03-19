@@ -1,4 +1,4 @@
-/* $Id: UIVMActivityMonitor.cpp 113446 2026-03-17 14:39:50Z serkan.bayraktar@oracle.com $ */
+/* $Id: UIVMActivityMonitor.cpp 113460 2026-03-19 09:13:43Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVMActivityMonitor class implementation.
  */
@@ -29,11 +29,12 @@
 #include <QApplication>
 #include <QColorDialog>
 #include <QDateTime>
+#include <QGridLayout>
 #include <QLabel>
 #include <QMenu>
 #include <QMouseEvent>
 #include <QPainter>
-#include <QGridLayout>
+#include <QToolButton>
 #include <QScrollArea>
 #include <QStyle>
 #include <QToolTip>
@@ -1176,6 +1177,8 @@ bool UIMetric::autoUpdateMaximum() const
 UIVMActivityMonitor::UIVMActivityMonitor(EmbedTo enmEmbedding, QWidget *pParent, UIActionPool *pActionPool, int iMaximumQueueSize)
     : QWidget(pParent)
     , m_pContainerLayout(0)
+    , m_pPauseButton(0)
+    , m_pPauseAction(0)
     , m_pTimer(0)
     , m_iTimeStep(0)
     , m_iMaximumQueueSize(iMaximumQueueSize)
@@ -1225,6 +1228,16 @@ void UIVMActivityMonitor::sltRetranslateUI()
     m_iMaximumLabelLength = qMax(m_iMaximumLabelLength, m_strDiskIOInfoLabelWrittenTotal.length());
     m_strDiskIOInfoLabelReadTotal = QApplication::translate("UIVMInformationDialog", "Total Read");
     m_iMaximumLabelLength = qMax(m_iMaximumLabelLength, m_strDiskIOInfoLabelReadTotal.length());
+
+    m_strPauseButtonPauseToolTip = QApplication::translate("UIVMInformationDialog", "Pause chart updates");
+    m_strPauseButtonResumeToolTip = QApplication::translate("UIVMInformationDialog", "Resume chart updates");
+    if (m_pPauseButton)
+    {
+        if (!m_pPauseButton->isChecked())
+            m_pPauseButton->setToolTip(m_strPauseButtonPauseToolTip);
+        else
+            m_pPauseButton->setToolTip(m_strPauseButtonResumeToolTip);
+    }
 }
 
 void UIVMActivityMonitor::prepareWidgets()
@@ -1248,12 +1261,20 @@ void UIVMActivityMonitor::prepareWidgets()
     m_pMainLayout->addWidget(pScrollArea);
 
     QWidget *pContainerWidget = new QWidget(pScrollArea);
-    m_pContainerLayout = new QGridLayout(pContainerWidget);
+    m_pContainerLayout = new QVBoxLayout(pContainerWidget);
     pContainerWidget->setLayout(m_pContainerLayout);
     m_pContainerLayout->setSpacing(10);
+    m_pPauseButton = new QToolButton(this);
+    m_pPauseAction = new QAction(this);
+    m_pPauseAction->setCheckable(true);
+    m_pPauseButton->setDefaultAction(m_pPauseAction);
+    m_pPauseButton->setIcon(QIcon(":/vm_pause_16px.png"));
+
+    m_pContainerLayout->addWidget(m_pPauseButton, 0, Qt::AlignRight);
     pContainerWidget->show();
     pScrollArea->setWidget(pContainerWidget);
     pScrollArea->setWidgetResizable(true);
+    connect(m_pPauseAction, &QAction::toggled, this, &UIVMActivityMonitor::sltPauseToggle);
 }
 
 void UIVMActivityMonitor::sltTimeout()
@@ -1292,6 +1313,23 @@ void UIVMActivityMonitor::sltCreateContextMenu(const QPoint &point)
     if (uiCommon().uiType() == UIType_RuntimeUI)
         menu.addAction(m_pActionPool->action(UIActionIndex_M_Activity_T_Preferences));
     menu.exec(mapToGlobal(point));
+}
+
+void UIVMActivityMonitor::sltPauseToggle(bool fPause)
+{
+    if (m_pPauseButton)
+    {
+        if (fPause)
+        {
+            m_pPauseButton->setIcon(QIcon(":/vm_start_16px.png"));
+            m_pPauseButton->setToolTip(m_strPauseButtonResumeToolTip);
+        }
+        else
+        {
+            m_pPauseButton->setIcon(QIcon(":/vm_pause_16px.png"));
+            m_pPauseButton->setToolTip(m_strPauseButtonPauseToolTip);
+        }
+    }
 }
 
 void UIVMActivityMonitor::resetRAMInfoLabel()
@@ -1648,7 +1686,8 @@ void UIVMActivityMonitorLocal::reset()
 void UIVMActivityMonitorLocal::prepareWidgets()
 {
     UIVMActivityMonitor::prepareWidgets();
-
+    if (!m_pContainerLayout)
+        return;
     QVector<Metric_Type> chartOrder;
     chartOrder << Metric_Type_CPU << Metric_Type_RAM <<
         Metric_Type_Network_InOut << Metric_Type_Disk_InOut <<
@@ -1659,7 +1698,6 @@ void UIVMActivityMonitorLocal::prepareWidgets()
     if (gEDataManager->VMActivityMonitorShowVMExits())
         chartOrder << Metric_Type_VM_Exits;
 #endif
-    int iRow = 0;
     foreach (Metric_Type enmType, chartOrder)
     {
         if (!m_metrics.contains(enmType))
@@ -1701,15 +1739,10 @@ void UIVMActivityMonitorLocal::prepareWidgets()
         m_charts.insert(enmType, pChart);
         pChart->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
         pChartLayout->addWidget(pChart);
-        m_pContainerLayout->addLayout(pChartLayout, iRow, 0, 1, 2);
+        m_pContainerLayout->addLayout(pChartLayout);
         pLabelContainer->setTopMargin(pChart->topMargin());
-        ++iRow;
     }
-
-    QWidget *bottomSpacerWidget = new QWidget(this);
-    bottomSpacerWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
-    bottomSpacerWidget->setVisible(true);
-    m_pContainerLayout->addWidget(bottomSpacerWidget, iRow, 0, 1, 2);
+    m_pContainerLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
 }
 
 void UIVMActivityMonitorLocal::configureCOMPerformanceCollector()
@@ -2540,11 +2573,11 @@ void UIVMActivityMonitorCloud::prepareMetrics()
 void UIVMActivityMonitorCloud::prepareWidgets()
 {
     UIVMActivityMonitor::prepareWidgets();
-
+    if (!m_pContainerLayout)
+        return;
     QVector<Metric_Type> chartOrder;
     chartOrder << Metric_Type_CPU << Metric_Type_RAM <<
         Metric_Type_Network_In << Metric_Type_Network_Out << Metric_Type_Disk_In << Metric_Type_Disk_Out;
-    int iRow = 0;
     foreach (Metric_Type enmType, chartOrder)
     {
         if (!m_metrics.contains(enmType))
@@ -2552,7 +2585,6 @@ void UIVMActivityMonitorCloud::prepareWidgets()
 
         QHBoxLayout *pChartLayout = new QHBoxLayout;
         pChartLayout->setSpacing(0);
-
 
         int iInfoLabelRowCount = 5;
         switch (enmType)
@@ -2586,20 +2618,10 @@ void UIVMActivityMonitorCloud::prepareWidgets()
         pChart->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
         pChartLayout->addWidget(pChart);
         pLabelContainer->setTopMargin(pChart->topMargin());
-        m_pContainerLayout->addLayout(pChartLayout, iRow, 0, 1, 2);
-        ++iRow;
+        m_pContainerLayout->addLayout(pChartLayout);
     }
 
-    // if (m_charts.contains(Metric_Type_Network_Out) && m_charts[Metric_Type_Network_Out])
-    //     m_charts[Metric_Type_Network_Out]->setDataSeriesColor(0, QColor(0, 0, 200, 255));
-
-    // if (m_charts.contains(Metric_Type_Disk_Out) && m_charts[Metric_Type_Disk_Out])
-    //     m_charts[Metric_Type_Disk_Out]->setDataSeriesColor(0, QColor(0, 0, 200, 255));
-
-    QWidget *bottomSpacerWidget = new QWidget(this);
-    bottomSpacerWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
-    bottomSpacerWidget->setVisible(true);
-    m_pContainerLayout->addWidget(bottomSpacerWidget, iRow, 0, 1, 2);
+    m_pContainerLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
     m_charts[Metric_Type_CPU]->setShowPieChart(false);
 }
 
