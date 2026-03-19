@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 113461 2026-03-19 10:40:53Z vitali.pelenjow@oracle.com $
+# $Id: Makefile.kmk 113467 2026-03-19 13:15:48Z vitali.pelenjow@oracle.com $
 ## @file
 # Top-level sub-makefile for the devices, drivers and services.
 #
@@ -376,6 +376,7 @@ if !defined(VBOX_ONLY_EXTPACKS) && "$(intersects $(KBUILD_TARGET_ARCH),$(VBOX_SU
 
     # mac2 clang is too old to know the -Wclass-conversion switch in the ignore pragma it seems.
     Graphics/DevVGA-SVGA3d-dx-dx11.cpp_CXXFLAGS.darwin += -Wno-error
+    Graphics/DevVGA-SVGA3d-dx-dx11-output.cpp_CXXFLAGS.darwin += -Wno-error
    endif
   endif
   VBoxDD_SOURCES       += \
