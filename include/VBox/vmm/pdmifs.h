@@ -888,7 +888,6 @@ typedef struct PDMIDISPLAYPORT
     /**
      * Increment reference counter of an output target.
      *
-     * @returns VBox status code.
      * @param   pInterface            Pointer to this interface.
      * @param   u64OutputTargetToken  Unique token previously used for creating a target.
      * @thread  Any thread.
@@ -899,7 +898,6 @@ typedef struct PDMIDISPLAYPORT
     /**
      * Decrement reference counter of an output target.
      *
-     * @returns VBox status code.
      * @param   pInterface            Pointer to this interface.
      * @param   u64OutputTargetToken  Unique token previously used for creating a target.
      * @thread  Any thread.
