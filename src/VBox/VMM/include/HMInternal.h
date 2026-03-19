@@ -1,4 +1,4 @@
-/* $Id: HMInternal.h 107963 2025-01-20 16:26:58Z knut.osmundsen@oracle.com $ */
+/* $Id: HMInternal.h 113470 2026-03-19 15:17:08Z ramshankar.venkataraman@oracle.com $ */
 /** @file
  * HM - Internal header file.
  */
@@ -350,7 +350,10 @@ typedef struct HM
     {
         /** Last recorded error code during HM ring-0 init. */
         int32_t                     rcInit;
-        uint32_t                    u32Alignment3;
+        /** Whether a host API is used for enabling VMX/SVM (set by ring-0 init,
+         *  for logging). */
+        bool                        fUsingHostEnableApi;
+        bool                        afAlignment3[3];
 
         /** Maximum ASID allowed.
          * This is mainly for the release log.  */
@@ -370,6 +373,8 @@ typedef struct HM
             /** Whether MOV DRx is always intercepted or not (set by ring-0 VMX init, for
              * logging). */
             bool                        fAlwaysInterceptMovDRx;
+            /** Padding.*/
+            bool                        afPadding[3];
 
             /** Host CR0 value (set by ring-0 VMX init, for logging). */
             uint64_t                    u64HostCr0;
@@ -1192,20 +1197,10 @@ AssertCompileMemberAlignment(HMR0PERVCPU, vmx.RestoreHost,   8);
 
 
 #ifdef IN_RING0
-extern bool             g_fHmVmxSupported;
 extern uint32_t         g_fHmHostKernelFeatures;
 extern uint32_t         g_uHmMaxAsid;
-extern bool             g_fHmVmxUsePreemptTimer;
-extern uint8_t          g_cHmVmxPreemptTimerShift;
 extern bool             g_fHmVmxSupportsVmcsEfer;
-extern uint64_t         g_uHmVmxHostCr0;
-extern uint64_t         g_uHmVmxHostCr4;
 extern uint64_t         g_uHmVmxHostMsrEfer;
-extern uint64_t         g_uHmVmxHostSmmMonitorCtl;
-extern uint64_t         g_uHmVmxHostCoreCap;
-extern uint64_t         g_uHmVmxHostMemoryCtrl;
-extern bool             g_fHmSvmSupported;
-extern uint32_t         g_uHmSvmRev;
 extern uint32_t         g_fHmSvmFeatures;
 
 extern SUPHWVIRTMSRS    g_HmMsrs;

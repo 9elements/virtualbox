@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 107182 2024-11-26 15:13:22Z knut.osmundsen@oracle.com $
+# $Id: Makefile.kmk 113470 2026-03-19 15:17:08Z ramshankar.venkataraman@oracle.com $
 ## @file
 # Sub-Makefile for the support library and the drivers/modules/kexts it uses.
 #
@@ -721,6 +721,7 @@ if   !defined(VBOX_ONLY_DOCS) \
   endif
   VBoxDrv_DEFS           += VBOX_PERMIT_MORE VBOX_PERMIT_EVEN_MORE
   #VBoxDrv_DEFS.debug      += DEBUG_DARWIN_GIP
+  VBoxDrv_DEFS.linux     := VBOX_WITH_HOST_VMX
   VBoxDrv_DEFS.darwin    := VBOX_WITH_HOST_VMX
   ifdef VBOX_WITH_RAW_MODE
    VBoxDrv_DEFS.darwin   += VBOX_WITH_RAW_MODE

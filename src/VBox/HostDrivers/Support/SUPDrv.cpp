@@ -1,4 +1,4 @@
-/* $Id: SUPDrv.cpp 106320 2024-10-15 12:08:41Z klaus.espenlaub@oracle.com $ */
+/* $Id: SUPDrv.cpp 113470 2026-03-19 15:17:08Z ramshankar.venkataraman@oracle.com $ */
 /** @file
  * VBoxDrv - The VirtualBox Support Driver - Common code.
  */
@@ -271,11 +271,9 @@ static SUPFUNC g_aFunctions[] =
     SUPEXP_STK_BACK(    5,  SUPR0ContAlloc),
     SUPEXP_STK_BACK(    2,  SUPR0ContFree),
     SUPEXP_STK_BACK(    2,  SUPR0ChangeCR4),
-    SUPEXP_STK_BACK(    1,  SUPR0EnableVTx),
+    SUPEXP_STK_BACK(    1,  SUPR0EnableHwvirt),
     SUPEXP_STK_OKAY(    1,  SUPR0FpuBegin),
     SUPEXP_STK_OKAY(    1,  SUPR0FpuEnd),
-    SUPEXP_STK_BACK(    0,  SUPR0SuspendVTxOnCpu),
-    SUPEXP_STK_BACK(    1,  SUPR0ResumeVTxOnCpu),
     SUPEXP_STK_OKAY(    1,  SUPR0GetCurrentGdtRw),
     SUPEXP_STK_OKAY(    0,  SUPR0GetKernelFeatures),
     SUPEXP_STK_BACK(    3,  SUPR0GetHwvirtMsrs),
@@ -4246,56 +4244,20 @@ SUPR0_EXPORT_SYMBOL(SUPR0ChangeCR4);
  * @returns VBox status code.
  * @retval  VINF_SUCCESS on success.
  * @retval  VERR_NOT_SUPPORTED if not supported by the native OS.
+ * @retval  VERR_NOT_AVAILABLE if supported by the native OS but not available atm.
  *
  * @param   fEnable         Whether to enable or disable.
  */
-SUPR0DECL(int) SUPR0EnableVTx(bool fEnable)
+SUPR0DECL(int) SUPR0EnableHwvirt(bool fEnable)
 {
-#ifdef RT_OS_DARWIN
-    return supdrvOSEnableVTx(fEnable);
+#if defined(RT_OS_DARWIN) || defined(RT_OS_LINUX)
+    return supdrvOSEnableHwvirt(fEnable);
 #else
     RT_NOREF1(fEnable);
     return VERR_NOT_SUPPORTED;
 #endif
 }
-SUPR0_EXPORT_SYMBOL(SUPR0EnableVTx);
-
-
-/**
- * Suspends hardware virtualization extensions using the native OS API.
- *
- * This is called prior to entering raw-mode context.
- *
- * @returns @c true if suspended, @c false if not.
- */
-SUPR0DECL(bool) SUPR0SuspendVTxOnCpu(void)
-{
-#ifdef RT_OS_DARWIN
-    return supdrvOSSuspendVTxOnCpu();
-#else
-    return false;
-#endif
-}
-SUPR0_EXPORT_SYMBOL(SUPR0SuspendVTxOnCpu);
-
-
-/**
- * Resumes hardware virtualization extensions using the native OS API.
- *
- * This is called after to entering raw-mode context.
- *
- * @param   fSuspended      The return value of SUPR0SuspendVTxOnCpu.
- */
-SUPR0DECL(void) SUPR0ResumeVTxOnCpu(bool fSuspended)
-{
-#ifdef RT_OS_DARWIN
-    supdrvOSResumeVTxOnCpu(fSuspended);
-#else
-    RT_NOREF1(fSuspended);
-    Assert(!fSuspended);
-#endif
-}
-SUPR0_EXPORT_SYMBOL(SUPR0ResumeVTxOnCpu);
+SUPR0_EXPORT_SYMBOL(SUPR0EnableHwvirt);
 
 
 SUPR0DECL(int) SUPR0GetCurrentGdtRw(RTHCUINTPTR *pGdtRw)

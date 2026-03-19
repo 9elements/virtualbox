@@ -1,4 +1,4 @@
-/* $Id: HMSVMR0.h 106320 2024-10-15 12:08:41Z klaus.espenlaub@oracle.com $ */
+/* $Id: HMSVMR0.h 113470 2026-03-19 15:17:08Z ramshankar.venkataraman@oracle.com $ */
 /** @file
  * HM SVM (AMD-V) - Internal header file.
  */
@@ -52,7 +52,7 @@ VMMR0DECL(int)          SVMR0Enter(PVMCPUCC pVCpu);
 VMMR0DECL(void)         SVMR0ThreadCtxCallback(RTTHREADCTXEVENT enmEvent, PVMCPUCC pVCpu, bool fGlobalInit);
 VMMR0DECL(int)          SVMR0AssertionCallback(PVMCPUCC pVCpu);
 VMMR0DECL(int)          SVMR0EnableCpu(PHMPHYSCPU pHostCpu, PVMCC pVM, void *pvPageCpu, RTHCPHYS HCPhysCpuPage,
-                                       bool fEnabledBySystem, PCSUPHWVIRTMSRS pHwvirtMsrs);
+                                       bool fEnabledByHost, PCSUPHWVIRTMSRS pHwvirtMsrs);
 VMMR0DECL(int)          SVMR0DisableCpu(PHMPHYSCPU pHostCpu, void *pvPageCpu, RTHCPHYS pPageCpuPhys);
 VMMR0DECL(int)          SVMR0InitVM(PVMCC pVM);
 VMMR0DECL(int)          SVMR0TermVM(PVMCC pVM);

@@ -1,4 +1,4 @@
-/* $Id: HM.cpp 110833 2025-08-28 08:33:53Z ramshankar.venkataraman@oracle.com $ */
+/* $Id: HM.cpp 113470 2026-03-19 15:17:08Z ramshankar.venkataraman@oracle.com $ */
 /** @file
  * HM - Intel/AMD VM Hardware Support Manager.
  */
@@ -436,7 +436,7 @@ VMMR3_INT_DECL(int) HMR3Init(PVM pVM)
      * hypervisors.
      *
      * On Mac OS X, this setting is ignored since the code does not handle local
-     * init when it utilizes the OS provided VT-x function, SUPR0EnableVTx().
+     * init when it utilizes the OS provided VT-x function, SUPR0EnableHwvirt().
      */
 #if defined(RT_OS_DARWIN)
     pVM->hm.s.fGlobalInit = true;
@@ -1247,8 +1247,29 @@ static int hmR3InitFinalizeR0(PVM pVM)
         rc = hmR3InitFinalizeR0Intel(pVM);
     else
         rc = hmR3InitFinalizeR0Amd(pVM);
-    LogRel((pVM->hm.s.fGlobalInit ? "HM: VT-x/AMD-V init method: Global\n"
-                                  : "HM: VT-x/AMD-V init method: Local\n"));
+
+    /*
+     * When a host API is used for enabling VT-x/AMD-v, it's always global init atm.
+     *
+     * "pVM->hm.s.fGlobalInit" is initialized in ring-3 (HMR3Init) but it's ONLY updated
+     * from ring-0 at the time of `VMMR0_DO_HM_ENABLE` which happens later than now.
+     * Therefore, the value of "pVM->hm.s.fGlobalInit" may not match its default value
+     * (e.g. Linux where the default is false). However, since we only support global init
+     * when using host APIs the fGlobalInit is predictable, report it here once per-VM
+     * rather than after `VMMR0_DO_HM_ENABLE`.
+     */
+    if (pVM->hm.s.ForR3.fUsingHostEnableApi)
+    {
+        LogRel(("HM: VT-x/AMD-V init method: Global\n"));
+        LogRel(("HM: VT-x/AMD-V enable method: Host API\n"));
+    }
+    else
+    {
+        LogRel((pVM->hm.s.fGlobalInit ? "HM: VT-x/AMD-V init method: Global\n"
+                                      : "HM: VT-x/AMD-V init method: Local\n"));
+        LogRel(("HM: VT-x/AMD-V enable method: VirtualBox\n"));
+    }
+
     RTLogRelSetBuffering(fOldBuffered);
     pVM->hm.s.fInitialized = true;
 

@@ -1,4 +1,4 @@
-/* $Id: HMR0.cpp 107963 2025-01-20 16:26:58Z knut.osmundsen@oracle.com $ */
+/* $Id: HMR0.cpp 113470 2026-03-19 15:17:08Z ramshankar.venkataraman@oracle.com $ */
 /** @file
  * Hardware Assisted Virtualization Manager (HM) - Host Context Ring-0.
  */
@@ -121,36 +121,36 @@ uint32_t                g_uHmMaxAsid;
 
 
 /** Set if VT-x (VMX) is supported by the CPU. */
-bool                    g_fHmVmxSupported = false;
+static bool             g_fHmVmxSupported;
 /** VMX: Whether we're using the preemption timer or not. */
-bool                    g_fHmVmxUsePreemptTimer;
-/** VMX: The shift mask employed by the VMX-Preemption timer. */
-uint8_t                 g_cHmVmxPreemptTimerShift;
+static bool             g_fHmVmxUsePreemptTimer;
 /** VMX: Set if swapping EFER is supported.  */
-bool                    g_fHmVmxSupportsVmcsEfer = false;
-/** VMX: Whether we're using SUPR0EnableVTx or not. */
-static bool             g_fHmVmxUsingSUPR0EnableVTx = false;
-/** VMX: Set if we've called SUPR0EnableVTx(true) and should disable it during
+bool                    g_fHmVmxSupportsVmcsEfer;
+/** VMX: The shift mask employed by the VMX-Preemption timer. */
+static uint8_t          g_cHmVmxPreemptTimerShift;
+/** Whether we're using SUPR0EnableHwvirt or not. */
+static bool             g_fHmUsingHostEnableApi;
+/** Set if we've called SUPR0EnableHwvirt(true) and should disable it during
  * module termination. */
-static bool             g_fHmVmxCalledSUPR0EnableVTx = false;
+static bool             g_fHmCalledSUPR0Hwvirt;
 /** VMX: Host CR0 value (set by ring-0 VMX init) */
-uint64_t                g_uHmVmxHostCr0;
+static uint64_t         g_uHmVmxHostCr0;
 /** VMX: Host CR4 value (set by ring-0 VMX init) */
-uint64_t                g_uHmVmxHostCr4;
+static uint64_t         g_uHmVmxHostCr4;
 /** VMX: Host EFER value (set by ring-0 VMX init) */
 uint64_t                g_uHmVmxHostMsrEfer;
 /** VMX: Host SMM monitor control (used for logging/diagnostics) */
-uint64_t                g_uHmVmxHostSmmMonitorCtl;
+static uint64_t         g_uHmVmxHostSmmMonitorCtl;
 /** VMX: Host core capabilities (set by ring-0 VMX init) */
-uint64_t                g_uHmVmxHostCoreCap;
+static uint64_t         g_uHmVmxHostCoreCap;
 /** VMX: Host memory control register (set by ring-0 VMX init) */
-uint64_t                g_uHmVmxHostMemoryCtrl;
+static uint64_t         g_uHmVmxHostMemoryCtrl;
 
 
 /** Set if AMD-V is supported by the CPU. */
-bool                    g_fHmSvmSupported = false;
+static bool             g_fHmSvmSupported;
 /** SVM revision. */
-uint32_t                g_uHmSvmRev;
+static uint32_t         g_uHmSvmRev;
 /** SVM feature bits from cpuid 0x8000000a */
 uint32_t                g_fHmSvmFeatures;
 
@@ -159,7 +159,7 @@ uint32_t                g_fHmSvmFeatures;
 SUPHWVIRTMSRS           g_HmMsrs;
 
 /** Last recorded error code during HM ring-0 init. */
-static int32_t          g_rcHmInit = VINF_SUCCESS;
+static int32_t          g_rcHmInit;
 
 /** Per CPU globals. */
 static HMPHYSCPU        g_aHmCpuInfo[RTCPUSET_MAX_CPUS];
@@ -167,7 +167,7 @@ static HMPHYSCPU        g_aHmCpuInfo[RTCPUSET_MAX_CPUS];
 /** Whether we've already initialized all CPUs.
  * @remarks We could check the EnableAllCpusOnce state, but this is
  *          simpler and hopefully easier to understand. */
-static bool             g_fHmEnabled = false;
+static bool             g_fHmEnabled;
 /** Serialize initialization in HMR0EnableAllCpus. */
 static RTONCE           g_HmEnableAllCpusOnce = RTONCE_INITIALIZER;
 
@@ -218,9 +218,9 @@ static DECLCALLBACK(void) hmR0DummyThreadCtxCallback(RTTHREADCTXEVENT enmEvent, 
 }
 
 static DECLCALLBACK(int) hmR0DummyEnableCpu(PHMPHYSCPU pHostCpu, PVMCC pVM, void *pvCpuPage, RTHCPHYS HCPhysCpuPage,
-                                            bool fEnabledBySystem, PCSUPHWVIRTMSRS pHwvirtMsrs)
+                                            bool fEnabledByHost, PCSUPHWVIRTMSRS pHwvirtMsrs)
 {
-    RT_NOREF(pHostCpu, pVM, pvCpuPage, HCPhysCpuPage, fEnabledBySystem, pHwvirtMsrs);
+    RT_NOREF(pHostCpu, pVM, pvCpuPage, HCPhysCpuPage, fEnabledByHost, pHwvirtMsrs);
     return VINF_SUCCESS;
 }
 
@@ -437,18 +437,18 @@ static int hmR0InitIntel(void)
 
     /*
      * First try use native kernel API for controlling VT-x.
-     * (This is only supported by some Mac OS X kernels atm.)
+     * (This is only supported by some Mac OS X and new Linux kernels.)
      */
     int rc;
-    g_rcHmInit = rc = SUPR0EnableVTx(true /* fEnable */);
-    g_fHmVmxUsingSUPR0EnableVTx = rc != VERR_NOT_SUPPORTED;
-    if (g_fHmVmxUsingSUPR0EnableVTx)
+    g_rcHmInit = rc = SUPR0EnableHwvirt(true /* fEnable */);
+    g_fHmUsingHostEnableApi = (rc != VERR_NOT_SUPPORTED && rc != VERR_NOT_AVAILABLE);
+    if (g_fHmUsingHostEnableApi)
     {
+        /* VERR_VMX_IN_VMX_ROOT_MODE and VERR_VMX_NO_VMX can currently only happen on Mac OS X. */
         AssertLogRelMsg(rc == VINF_SUCCESS || rc == VERR_VMX_IN_VMX_ROOT_MODE || rc == VERR_VMX_NO_VMX, ("%Rrc\n", rc));
         if (RT_SUCCESS(rc))
         {
-            g_fHmVmxSupported = true;
-            rc = SUPR0EnableVTx(false /* fEnable */);
+            rc = SUPR0EnableHwvirt(false /* fEnable */);
             AssertLogRelRC(rc);
             rc = VINF_SUCCESS;
         }
@@ -501,7 +501,7 @@ static int hmR0InitIntel(void)
          * If the host OS has not enabled VT-x for us, try enter VMX root mode
          * to really verify if VT-x is usable.
          */
-        if (!g_fHmVmxUsingSUPR0EnableVTx)
+        if (!g_fHmUsingHostEnableApi)
         {
             /*
              * We don't verify VMX root mode on all CPUs here because the verify
@@ -513,26 +513,14 @@ static int hmR0InitIntel(void)
              *
              * This is just a quick sanity check.
              */
-            rc = hmR0InitIntelVerifyVmxUsability(uVmxBasicMsr);
-            if (RT_SUCCESS(rc))
-                g_fHmVmxSupported = true;
-            else
-            {
-                g_rcHmInit = rc;
-                Assert(g_fHmVmxSupported == false);
-            }
+            g_rcHmInit = rc = hmR0InitIntelVerifyVmxUsability(uVmxBasicMsr);
         }
 
-        if (g_fHmVmxSupported)
+        if (RT_SUCCESS(rc))
         {
-            rc = VMXR0GlobalInit();
+            g_rcHmInit = rc = VMXR0GlobalInit();
             if (RT_SUCCESS(rc))
             {
-                /*
-                 * Install the VT-x methods.
-                 */
-                g_HmR0Ops = g_HmR0OpsVmx;
-
                 /*
                  * Check for the VMX-Preemption Timer and adjust for the "VMX-Preemption
                  * Timer Does Not Count Down at the Rate Specified" CPU erratum.
@@ -553,11 +541,12 @@ static int hmR0InitIntel(void)
                 g_fHmVmxSupportsVmcsEfer = (g_HmMsrs.u.vmx.EntryCtls.n.allowed1 & VMX_ENTRY_CTLS_LOAD_EFER_MSR)
                                         && (g_HmMsrs.u.vmx.ExitCtls.n.allowed1  & VMX_EXIT_CTLS_LOAD_EFER_MSR)
                                         && (g_HmMsrs.u.vmx.ExitCtls.n.allowed1  & VMX_EXIT_CTLS_SAVE_EFER_MSR);
-            }
-            else
-            {
-                g_rcHmInit = rc;
-                g_fHmVmxSupported = false;
+
+                /*
+                 * Install the VT-x methods and mark it enabled.
+                 */
+                g_HmR0Ops = g_HmR0OpsVmx;
+                g_fHmVmxSupported = true;
             }
         }
     }
@@ -596,8 +585,27 @@ static DECLCALLBACK(void) hmR0InitAmdCpu(RTCPUID idCpu, void *pvUser1, void *pvU
  */
 static int hmR0InitAmd(void)
 {
-    /* Call the global AMD-V initialization routine (should only fail in out-of-memory situations). */
-    int rc = SVMR0GlobalInit();
+    int rc;
+
+    /*
+     * First try use native kernel API for controlling VT-x.
+     * (This is supported on new Linux kernels.)
+     */
+    g_rcHmInit = rc = SUPR0EnableHwvirt(true /* fEnable */);
+    g_fHmUsingHostEnableApi = (rc != VERR_NOT_SUPPORTED && rc != VERR_NOT_AVAILABLE);
+    if (g_fHmUsingHostEnableApi)
+    {
+        AssertLogRelMsg(rc == VINF_SUCCESS, ("%Rrc\n", rc));
+        if (RT_SUCCESS(rc))
+        {
+            rc = SUPR0EnableHwvirt(false /* fEnable */);
+            AssertLogRelRC(rc);
+            rc = VINF_SUCCESS;
+        }
+    }
+    else
+        rc = VINF_SUCCESS;
+
     if (RT_SUCCESS(rc))
     {
         /*
@@ -610,19 +618,22 @@ static int hmR0InitAmd(void)
         ASMCpuId(0x8000000a, &g_uHmSvmRev, &g_uHmMaxAsid, &u32Dummy, &g_fHmSvmFeatures);
 
         /*
-         * We need to check if AMD-V has been properly initialized on all CPUs.
-         * Some BIOSes might do a poor job.
+         * If native kernel API isn't used, we need to check if AMD-V has been properly
+         * initialized on all CPUs. Some BIOSes might do a poor job.
          */
-        HMR0FIRSTRC FirstRc;
-        hmR0FirstRcInit(&FirstRc);
-        rc = RTMpOnAll(hmR0InitAmdCpu, &FirstRc, NULL);
-        AssertRC(rc);
-        if (RT_SUCCESS(rc))
-            rc = hmR0FirstRcGetStatus(&FirstRc);
+        if (!g_fHmUsingHostEnableApi)
+        {
+            HMR0FIRSTRC FirstRc;
+            hmR0FirstRcInit(&FirstRc);
+            g_rcHmInit = rc = RTMpOnAll(hmR0InitAmdCpu, &FirstRc, NULL);
+            AssertRC(rc);
+            if (RT_SUCCESS(rc))
+                g_rcHmInit = rc = hmR0FirstRcGetStatus(&FirstRc);
 #ifndef DEBUG_bird
-        AssertMsg(rc == VINF_SUCCESS || rc == VERR_SVM_IN_USE,
-                  ("hmR0InitAmdCpu failed for cpu %d with rc=%Rrc\n", hmR0FirstRcGetCpuId(&FirstRc), rc));
+            AssertMsg(rc == VINF_SUCCESS || rc == VERR_SVM_IN_USE,
+                      ("hmR0InitAmdCpu failed for cpu %d with rc=%Rrc\n", hmR0FirstRcGetCpuId(&FirstRc), rc));
 #endif
+        }
         if (RT_SUCCESS(rc))
         {
             SUPR0GetHwvirtMsrs(&g_HmMsrs, SUPVTCAPS_AMD_V, false /* fForce */);
@@ -630,13 +641,10 @@ static int hmR0InitAmd(void)
         }
         else
         {
-            g_rcHmInit = rc;
             if (rc == VERR_SVM_DISABLED || rc == VERR_SVM_IN_USE)
                 rc = VINF_SUCCESS; /* Don't fail if AMD-V is disabled or in use. */
         }
     }
-    else
-        g_rcHmInit = rc;
     return rc;
 }
 
@@ -674,6 +682,7 @@ VMMR0_INT_DECL(int) HMR0Init(void)
     g_fHmVmxSupported  = false;
     g_fHmSvmSupported  = false;
     g_uHmMaxAsid       = 0;
+    g_fHmUsingHostEnableApi = false;
 
     /*
      * Get host kernel features that HM might need to know in order
@@ -695,41 +704,42 @@ VMMR0_INT_DECL(int) HMR0Init(void)
      * Return failure only in out-of-memory situations.
      */
     uint32_t fCaps = 0;
-    int rc = SUPR0GetVTSupport(&fCaps);
+    int rc;
+    rc = g_rcHmInit = SUPR0GetVTSupport(&fCaps);
     if (RT_SUCCESS(rc))
     {
+        Assert(fCaps & (SUPVTCAPS_VT_X | SUPVTCAPS_AMD_V));
         if (fCaps & SUPVTCAPS_VT_X)
             rc = hmR0InitIntel();
         else
-        {
-            Assert(fCaps & SUPVTCAPS_AMD_V);
             rc = hmR0InitAmd();
-        }
-        if (RT_SUCCESS(rc))
+
+        if (   RT_SUCCESS(rc)
+            && !g_fHmUsingHostEnableApi)
         {
             /*
              * Register notification callbacks that we can use to disable/enable CPUs
              * when brought offline/online or suspending/resuming.
              */
-            if (!g_fHmVmxUsingSUPR0EnableVTx)
+            rc = RTMpNotificationRegister(hmR0MpEventCallback, NULL);
+            if (RT_SUCCESS(rc))
             {
-                rc = RTMpNotificationRegister(hmR0MpEventCallback, NULL);
-                if (RT_SUCCESS(rc))
-                {
-                    rc = RTPowerNotificationRegister(hmR0PowerCallback, NULL);
-                    if (RT_FAILURE(rc))
-                        RTMpNotificationDeregister(hmR0MpEventCallback, NULL);
-                }
+                rc = RTPowerNotificationRegister(hmR0PowerCallback, NULL);
                 if (RT_FAILURE(rc))
                 {
+                    RTMpNotificationDeregister(hmR0MpEventCallback, NULL);
+
                     /* There shouldn't be any per-cpu allocations at this point,
                        so just have to call SVMR0GlobalTerm and VMXR0GlobalTerm. */
                     if (fCaps & SUPVTCAPS_VT_X)
                         VMXR0GlobalTerm();
                     else
                         SVMR0GlobalTerm();
-                    g_HmR0Ops         = g_HmR0OpsDummy;
-                    g_rcHmInit     = rc;
+
+                    /* We update "g_rcHmInit" here i.e. only when notification callback registration
+                       fails as otherwise we might overwrite a previously recorded failure with success. */
+                    g_rcHmInit = rc;
+                    g_HmR0Ops  = g_HmR0OpsDummy;
                     g_fHmSvmSupported = false;
                     g_fHmVmxSupported = false;
                 }
@@ -737,10 +747,7 @@ VMMR0_INT_DECL(int) HMR0Init(void)
         }
     }
     else
-    {
-        g_rcHmInit = rc;
         rc = VINF_SUCCESS; /* We return success here because module init shall not fail if HM fails to initialize. */
-    }
     return rc;
 }
 
@@ -753,18 +760,17 @@ VMMR0_INT_DECL(int) HMR0Init(void)
 VMMR0_INT_DECL(int) HMR0Term(void)
 {
     int rc;
-    if (   g_fHmVmxSupported
-        && g_fHmVmxUsingSUPR0EnableVTx)
+    if (g_fHmUsingHostEnableApi)
     {
         /*
          * Simple if the host OS manages VT-x.
          */
         Assert(g_fHmGlobalInit);
 
-        if (g_fHmVmxCalledSUPR0EnableVTx)
+        if (g_fHmCalledSUPR0Hwvirt)
         {
-            rc = SUPR0EnableVTx(false /* fEnable */);
-            g_fHmVmxCalledSUPR0EnableVTx = false;
+            rc = SUPR0EnableHwvirt(false /* fEnable */);
+            g_fHmCalledSUPR0Hwvirt = false;
         }
         else
             rc = VINF_SUCCESS;
@@ -777,8 +783,6 @@ VMMR0_INT_DECL(int) HMR0Term(void)
     }
     else
     {
-        Assert(!g_fHmVmxSupported || !g_fHmVmxUsingSUPR0EnableVTx);
-
         /* Doesn't really matter if this fails. */
         RTMpNotificationDeregister(hmR0MpEventCallback, NULL);
         RTPowerNotificationDeregister(hmR0PowerCallback, NULL);
@@ -856,8 +860,7 @@ static int hmR0EnableCpu(PVMCC pVM, RTCPUID idCpu)
     /* Do NOT reset cTlbFlushes here, see @bugref{6255}. */
 
     int rc;
-    if (   g_fHmVmxSupported
-        && g_fHmVmxUsingSUPR0EnableVTx)
+    if (g_fHmUsingHostEnableApi)
         rc = g_HmR0Ops.pfnEnableCpu(pHostCpu, pVM, NULL /* pvCpuPage */, NIL_RTHCPHYS, true, &g_HmMsrs);
     else
     {
@@ -929,21 +932,21 @@ static DECLCALLBACK(int32_t) hmR0EnableAllCpuOnce(void *pvUser)
 #endif
 
     int rc;
-    if (   g_fHmVmxSupported
-        && g_fHmVmxUsingSUPR0EnableVTx)
+
+    if (g_fHmUsingHostEnableApi)
     {
         /*
          * Global VT-x initialization API (only darwin for now).
          */
-        rc = SUPR0EnableVTx(true /* fEnable */);
+        rc = SUPR0EnableHwvirt(true /* fEnable */);
         if (RT_SUCCESS(rc))
         {
-            g_fHmVmxCalledSUPR0EnableVTx = true;
+            g_fHmCalledSUPR0Hwvirt = true;
             /* If the host provides a VT-x init API, then we'll rely on that for global init. */
             g_fHmGlobalInit = pVM->hm.s.fGlobalInit = true;
         }
         else
-            AssertMsgFailed(("hmR0EnableAllCpuOnce/SUPR0EnableVTx: rc=%Rrc\n", rc));
+            AssertMsgFailed(("hmR0EnableAllCpuOnce/SUPR0EnableHwvirt: rc=%Rrc\n", rc));
     }
     else
     {
@@ -1051,7 +1054,7 @@ static int hmR0DisableCpu(RTCPUID idCpu)
 {
     PHMPHYSCPU pHostCpu = &g_aHmCpuInfo[idCpu];
 
-    Assert(!g_fHmVmxSupported || !g_fHmVmxUsingSUPR0EnableVTx);
+    Assert(!g_fHmUsingHostEnableApi);
     Assert(!RTThreadPreemptIsEnabled(NIL_RTTHREAD));
     Assert(idCpu == (RTCPUID)RTMpCpuIdToSetIndex(idCpu)); /** @todo fix idCpu == index assumption (rainy day) */
     Assert(idCpu < RT_ELEMENTS(g_aHmCpuInfo));
@@ -1120,7 +1123,7 @@ static DECLCALLBACK(void) hmR0DisableCpuOnSpecificCallback(RTCPUID idCpu, void *
 static DECLCALLBACK(void) hmR0MpEventCallback(RTMPEVENT enmEvent, RTCPUID idCpu, void *pvData)
 {
     NOREF(pvData);
-    Assert(!g_fHmVmxSupported || !g_fHmVmxUsingSUPR0EnableVTx);
+    Assert(!g_fHmUsingHostEnableApi);
 
     /*
      * We only care about uninitializing a CPU that is going offline. When a
@@ -1161,7 +1164,7 @@ static DECLCALLBACK(void) hmR0MpEventCallback(RTMPEVENT enmEvent, RTCPUID idCpu,
 static DECLCALLBACK(void) hmR0PowerCallback(RTPOWEREVENT enmEvent, void *pvUser)
 {
     NOREF(pvUser);
-    Assert(!g_fHmVmxSupported || !g_fHmVmxUsingSUPR0EnableVTx);
+    Assert(!g_fHmUsingHostEnableApi);
 
 #ifdef LOG_ENABLED
     if (enmEvent == RTPOWEREVENT_SUSPEND)
@@ -1295,8 +1298,9 @@ VMMR0_INT_DECL(int) HMR0InitVM(PVMCC pVM)
         pVM->hm.s.ForR3.svm.u64MsrHwcr  = g_HmMsrs.u.svm.u64MsrHwcr;
         /* If you need to tweak host MSRs for testing SVM R0 code, do it here. */
     }
-    pVM->hm.s.ForR3.rcInit      = g_rcHmInit;
-    pVM->hm.s.ForR3.uMaxAsid    = g_uHmMaxAsid;
+    pVM->hm.s.ForR3.rcInit              = g_rcHmInit;
+    pVM->hm.s.ForR3.uMaxAsid            = g_uHmMaxAsid;
+    pVM->hm.s.ForR3.fUsingHostEnableApi = g_fHmUsingHostEnableApi;
 
     /*
      * Set default maximum inner loops in ring-0 before returning to ring-3.
@@ -1428,7 +1432,7 @@ VMMR0_INT_DECL(int) HMR0SetupVM(PVMCC pVM)
     int rc;
     if (!g_fHmGlobalInit)
     {
-        Assert(!g_fHmVmxSupported || !g_fHmVmxUsingSUPR0EnableVTx);
+        Assert(!g_fHmUsingHostEnableApi);
         rc = hmR0EnableCpu(pVM, idCpu);
         if (RT_FAILURE(rc))
         {
@@ -1443,7 +1447,7 @@ VMMR0_INT_DECL(int) HMR0SetupVM(PVMCC pVM)
     /* Disable VT-x or AMD-V if local init was done before. */
     if (!g_fHmGlobalInit)
     {
-        Assert(!g_fHmVmxSupported || !g_fHmVmxUsingSUPR0EnableVTx);
+        Assert(!g_fHmUsingHostEnableApi);
         int rc2 = hmR0DisableCpu(idCpu);
         AssertRC(rc2);
     }

@@ -1,4 +1,4 @@
-/* $Id: HMVMXR0.h 106320 2024-10-15 12:08:41Z klaus.espenlaub@oracle.com $ */
+/* $Id: HMVMXR0.h 113470 2026-03-19 15:17:08Z ramshankar.venkataraman@oracle.com $ */
 /** @file
  * HM VMX (VT-x) - Internal header file.
  */
@@ -44,7 +44,7 @@ VMMR0DECL(int)          VMXR0Enter(PVMCPUCC pVCpu);
 VMMR0DECL(void)         VMXR0ThreadCtxCallback(RTTHREADCTXEVENT enmEvent, PVMCPUCC pVCpu, bool fGlobalInit);
 VMMR0DECL(int)          VMXR0AssertionCallback(PVMCPUCC pVCpu);
 VMMR0DECL(int)          VMXR0EnableCpu(PHMPHYSCPU pHostCpu, PVMCC pVM, void *pvPageCpu, RTHCPHYS pPageCpuPhys,
-                                       bool fEnabledBySystem, PCSUPHWVIRTMSRS pHwvirtMsrs);
+                                       bool fEnabledByHost, PCSUPHWVIRTMSRS pHwvirtMsrs);
 VMMR0DECL(int)          VMXR0DisableCpu(PHMPHYSCPU pHostCpu, void *pvPageCpu, RTHCPHYS pPageCpuPhys);
 VMMR0DECL(int)          VMXR0GlobalInit(void);
 VMMR0DECL(void)         VMXR0GlobalTerm(void);
