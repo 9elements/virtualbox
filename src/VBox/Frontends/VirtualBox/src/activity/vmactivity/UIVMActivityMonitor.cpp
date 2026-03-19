@@ -1,4 +1,4 @@
-/* $Id: UIVMActivityMonitor.cpp 113460 2026-03-19 09:13:43Z serkan.bayraktar@oracle.com $ */
+/* $Id: UIVMActivityMonitor.cpp 113468 2026-03-19 13:19:30Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVMActivityMonitor class implementation.
  */
@@ -153,7 +153,6 @@ protected:
 private slots:
 
     void sltCreateContextMenu(const QPoint &point);
-    void sltResetMetric();
     void sltSetShowPieChart(bool fShowPieChart);
     void sltSetUseAreaChart(bool fUseAreaChart);
     void sltRetranslateUI();
@@ -206,7 +205,6 @@ private:
     QColor m_dataSeriesColor[DATA_SERIES_SIZE];
     QString m_strXAxisLabel;
     QString m_strGAWarning;
-    QString m_strResetActionLabel;
     QString m_strPieChartToggleActionLabel;
     QString m_strAreaChartToggleActionLabel;
     QString m_strSelectChartColor0;
@@ -472,7 +470,6 @@ QSize UIChart::sizeHint() const
 void UIChart::sltRetranslateUI()
 {
     m_strGAWarning = QApplication::translate("UIVMInformationDialog", "This metric requires guest additions to work.");
-    m_strResetActionLabel = QApplication::translate("UIVMInformationDialog", "Reset");
     m_strPieChartToggleActionLabel = QApplication::translate("UIVMInformationDialog", "Show Pie Chart");
     m_strAreaChartToggleActionLabel = QApplication::translate("UIVMInformationDialog", "Draw Area Chart");
     m_strSelectChartColor0 = QApplication::translate("UIVMInformationDialog", "Change 1st Dataseries' Color");
@@ -934,8 +931,6 @@ void UIChart::sltCreateContextMenu(const QPoint &point)
     if (uiCommon().uiType() == UIType_RuntimeUI)
         menu.addAction(m_pActionPool->action(UIActionIndex_M_Activity_T_Preferences));
     menu.addSeparator();
-    QAction *pResetAction = menu.addAction(m_strResetActionLabel);
-    connect(pResetAction, &QAction::triggered, this, &UIChart::sltResetMetric);
     if (m_fIsPieChartAllowed)
     {
         QAction *pPieChartToggle = menu.addAction(m_strPieChartToggleActionLabel);
@@ -951,12 +946,6 @@ void UIChart::sltCreateContextMenu(const QPoint &point)
         connect(pAreaChartToggle, &QAction::toggled, this, &UIChart::sltSetUseAreaChart);
     }
     menu.exec(mapToGlobal(point));
-}
-
-void UIChart::sltResetMetric()
-{
-    if (m_pMetric)
-        m_pMetric->reset();
 }
 
 void UIChart::sltSetShowPieChart(bool fShowPieChart)
@@ -1176,6 +1165,7 @@ bool UIMetric::autoUpdateMaximum() const
 
 UIVMActivityMonitor::UIVMActivityMonitor(EmbedTo enmEmbedding, QWidget *pParent, UIActionPool *pActionPool, int iMaximumQueueSize)
     : QWidget(pParent)
+    , m_fPaused(false)
     , m_pContainerLayout(0)
     , m_pPauseButton(0)
     , m_pPauseAction(0)
@@ -1330,6 +1320,9 @@ void UIVMActivityMonitor::sltPauseToggle(bool fPause)
             m_pPauseButton->setToolTip(m_strPauseButtonPauseToolTip);
         }
     }
+    m_fPaused = fPause;
+    // for (UIMetric &metric : m_metrics)
+    //     metric.setPaused();
 }
 
 void UIVMActivityMonitor::resetRAMInfoLabel()
