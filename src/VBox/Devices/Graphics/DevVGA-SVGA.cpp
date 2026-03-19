@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA.cpp 113461 2026-03-19 10:40:53Z vitali.pelenjow@oracle.com $ */
+/* $Id: DevVGA-SVGA.cpp 113464 2026-03-19 11:16:44Z vitali.pelenjow@oracle.com $ */
 /** @file
  * VMware SVGA device.
  *
@@ -4677,11 +4677,13 @@ static void vmsvgaR3DestroyOutputTarget(PVGASTATECC pThisCC, VMSVGAOUTPUTTARGET 
 
     RTCritSectLeave(&pSvgaR3State->critSectOutputTargets);
 
+#ifdef VBOX_WITH_VMSVGA3D
     if (pOutputTarget->pHwOutputTarget)
     {
         vmsvga3dDestroyOutputTarget(pThisCC, pOutputTarget);
         pOutputTarget->pHwOutputTarget = NULL;
     }
+#endif
 
     RTMemFree(pOutputTarget->desc.pvOutputBuffer);
     RTMemFree(pOutputTarget);
