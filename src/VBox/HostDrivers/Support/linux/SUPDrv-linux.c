@@ -1,4 +1,4 @@
-/* $Id: SUPDrv-linux.c 113470 2026-03-19 15:17:08Z ramshankar.venkataraman@oracle.com $ */
+/* $Id: SUPDrv-linux.c 113471 2026-03-19 16:05:29Z vadim.galitsyn@oracle.com $ */
 /** @file
  * VBoxDrv - The VirtualBox Support Driver - Linux specifics.
  */
@@ -188,6 +188,12 @@ static bool                 g_fEnabledHwvirtUsingKvm;
 static int                  (*g_pfnKvmEnableVirtualization)(void);
 /** Function pointer to kvm_disable_virtualization(). */
 static void                 (*g_pfnKvmDisableVirtualization)(void);
+# if RTLNX_VER_MIN(6,19,0)
+/** Function pointer to cr4_update_irqsoff(). */
+static void                 (*g_pfnCr4UpdateIrqsoff)(unsigned long set, unsigned long clear);
+/** Function pointer to cr4_read_shadow(). */
+static unsigned long        (*g_pfnCr4ReadShadow)(void);
+# endif
 /** Pointer to the KVM hardware specific module. */
 struct module               *g_pKvmHwvirtModule;
 #endif
@@ -393,6 +399,28 @@ static int supdrvLinuxInitKvmSymbols(void)
         void *pfnDisable = __symbol_get("kvm_disable_virtualization");
         if (pfnDisable)
         {
+# if RTLNX_VER_MIN(6,19,0)
+            void *pfnCr4UpdateIrqsoff = __symbol_get("cr4_update_irqsoff");
+            void *pfnRr4ReadShadow = __symbol_get("cr4_read_shadow");
+
+            if (   pfnCr4UpdateIrqsoff
+                && pfnRr4ReadShadow)
+            {
+                g_pfnCr4UpdateIrqsoff   = pfnCr4UpdateIrqsoff;
+                g_pfnCr4ReadShadow      = pfnRr4ReadShadow;
+
+                printk(KERN_INFO "vboxdrv: Found extra KVM hardware-virtualization symbols\n");
+            }
+            else
+            {
+                printk(KERN_WARNING "vboxdrv: Failed to find extra KVM hardware-virtualization symbols\n");
+
+                if (pfnCr4UpdateIrqsoff)
+                    symbol_put_addr(pfnCr4UpdateIrqsoff);
+                if (pfnRr4ReadShadow)
+                    symbol_put_addr(pfnRr4ReadShadow);
+            }
+#endif
             /*
              * Try to obtain a reference to kvm_intel/kvm_amd module in addition to the
              * reference to the kvm module. If we fail, we will not try to use KVM for
@@ -464,6 +492,18 @@ static void supdrvLinuxTermKvmSymbols(void)
         symbol_put_addr(g_pfnKvmDisableVirtualization);
         g_pfnKvmDisableVirtualization = NULL;
     }
+# if RTLNX_VER_MIN(6,19,0)
+    if (g_pfnCr4UpdateIrqsoff)
+    {
+        symbol_put_addr(g_pfnCr4UpdateIrqsoff);
+        g_pfnCr4UpdateIrqsoff = NULL;
+    }
+    if (g_pfnCr4ReadShadow)
+    {
+        symbol_put_addr(g_pfnCr4ReadShadow);
+        g_pfnCr4ReadShadow = NULL;
+    }
+#endif
     if (g_pKvmHwvirtModule)
     {
         module_put(g_pKvmHwvirtModule);
@@ -1144,16 +1184,47 @@ SUPR0DECL(int) SUPDrvLinuxLdrDeregisterWrappedModule(PCSUPLDRWRAPPEDMODULE pWrap
 }
 EXPORT_SYMBOL(SUPDrvLinuxLdrDeregisterWrappedModule);
 
+#if RTLNX_VER_MIN(5,8,0)
+/**
+ * Wrapper function for cr4_update_irqsoff() which was
+ * exported only for KVM starting from kernel 6.19.
+ */
+static void supdrvLinux_cr4_update_irqsoff(unsigned long set, unsigned long clear)
+{
+# if RTLNX_VER_MIN(6,19,0) && defined(SUPDRV_LINUX_HAS_KVM_HWVIRT_API)
+    if (g_pfnCr4UpdateIrqsoff)
+        g_pfnCr4UpdateIrqsoff(set, clear);
+# else
+    cr4_update_irqsoff(set, clear);
+# endif
+}
+
+/**
+ * Wrapper function for supdrvLinux_cr4_read_shadow() which was
+ * exported only for KVM starting from kernel 6.19.
+ */
+static unsigned long supdrvLinux_cr4_read_shadow(void)
+{
+    unsigned long cr4 = 0;
+# if RTLNX_VER_MIN(6,19,0) && defined(SUPDRV_LINUX_HAS_KVM_HWVIRT_API)
+    if (g_pfnCr4ReadShadow)
+        cr4 = g_pfnCr4ReadShadow();
+# else
+    cr4 = cr4_read_shadow();
+# endif
+    return cr4;
+}
+#endif /* 5.8.0 */
 
 RTCCUINTREG VBOXCALL supdrvOSChangeCR4(RTCCUINTREG fOrMask, RTCCUINTREG fAndMask)
 {
 #if RTLNX_VER_MIN(5,8,0)
     unsigned long fSavedFlags;
     local_irq_save(fSavedFlags);
-    RTCCUINTREG const uOld = cr4_read_shadow();
-    cr4_update_irqsoff(fOrMask, ~fAndMask); /* Same as this function, only it is not returning the old value. */
-    AssertMsg(cr4_read_shadow() == ((uOld & fAndMask) | fOrMask),
-              ("fOrMask=%#RTreg fAndMask=%#RTreg uOld=%#RTreg; new cr4=%#llx\n", fOrMask, fAndMask, uOld, cr4_read_shadow()));
+    RTCCUINTREG const uOld = supdrvLinux_cr4_read_shadow();
+    supdrvLinux_cr4_update_irqsoff(fOrMask, ~fAndMask); /* Same as this function, only it is not returning the old value. */
+    AssertMsg(supdrvLinux_cr4_read_shadow() == ((uOld & fAndMask) | fOrMask),
+              ("fOrMask=%#RTreg fAndMask=%#RTreg uOld=%#RTreg; new cr4=%#llx\n", fOrMask, fAndMask, uOld, supdrvLinux_cr4_read_shadow()));
     local_irq_restore(fSavedFlags);
 #else
 # if RTLNX_VER_MIN(3,20,0)
