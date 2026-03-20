@@ -1,4 +1,4 @@
-/* $Id: UIVMActivityMonitor.cpp 113469 2026-03-19 14:18:22Z serkan.bayraktar@oracle.com $ */
+/* $Id: UIVMActivityMonitor.cpp 113487 2026-03-20 09:00:48Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVMActivityMonitor class implementation.
  */
@@ -968,19 +968,6 @@ void UIChart::sltSetUseAreaChart(bool fUseAreaChart)
 /*********************************************************************************************************************************
 *   UIMetric implementation.                                                                                                     *
 *********************************************************************************************************************************/
-
-UIMetric::UIMetric(const QString &strUnit, int iMaximumQueueSize)
-    : m_strUnit(strUnit)
-    , m_iMaximum(0)
-    , m_fRequiresGuestAdditions(false)
-    , m_fIsInitialized(false)
-    , m_fAutoUpdateMaximum(false)
-    , m_iMaximumQueueSize(iMaximumQueueSize)
-{
-    m_iTotal[0] = 0;
-    m_iTotal[1] = 0;
-}
-
 UIMetric::UIMetric()
     : m_iMaximum(0)
     , m_fRequiresGuestAdditions(false)
@@ -990,6 +977,16 @@ UIMetric::UIMetric()
 {
     m_iTotal[0] = 0;
     m_iTotal[1] = 0;
+}
+
+void UIMetric::setUnitString(const QString strUnitString)
+{
+    m_strUnit = strUnitString;
+}
+
+void UIMetric::setMaximumQueueSize(int iSize)
+{
+    m_iMaximumQueueSize = iSize;
 }
 
 void UIMetric::setMaximum(quint64 iMaximum)
@@ -1177,6 +1174,7 @@ UIVMActivityMonitor::UIVMActivityMonitor(EmbedTo enmEmbedding, QWidget *pParent,
     , m_pPauseAction(0)
     , m_pTimer(0)
     , m_iTimeStep(0)
+    , m_metrics(QVector<UIMetric>(Metric_Type_Max, UIMetric()))
     , m_iMaximumQueueSize(iMaximumQueueSize)
     , m_pActionPool(pActionPool)
     , m_pMainLayout(0)
@@ -1299,8 +1297,8 @@ void UIVMActivityMonitor::sltExportMetricsToFile()
     if (dataFile.open(QFile::WriteOnly | QFile::Truncate))
     {
         QTextStream stream(&dataFile);
-        for (QMap<Metric_Type, UIMetric>::const_iterator iterator =  m_metrics.begin(); iterator != m_metrics.end(); ++iterator)
-            iterator.value().toFile(stream);
+        foreach (const UIMetric &metric, m_metrics)
+            metric.toFile(stream);
         dataFile.close();
     }
 }
@@ -1538,9 +1536,11 @@ void UIVMActivityMonitorLocal::openSession()
 
 void UIVMActivityMonitorLocal::obtainDataAndUpdate()
 {
+    if (m_metrics.size() < Metric_Type_Max)
+        return;
     ++m_iTimeStep;
 
-    if (m_metrics.contains(Metric_Type_RAM) && !m_performanceCollector.isNull())
+    if (!m_performanceCollector.isNull())
     {
         quint64 iTotalRAM = 0;
         quint64 iFreeRAM = 0;
@@ -1549,7 +1549,6 @@ void UIVMActivityMonitorLocal::obtainDataAndUpdate()
     }
 
     /* Update the CPU load chart with values we get from IMachineDebugger::getCPULoad(..): */
-    if (m_metrics.contains(Metric_Type_CPU))
     {
         ULONG aPctExecuting;
         ULONG aPctHalted;
@@ -1670,9 +1669,8 @@ void UIVMActivityMonitorLocal::reset()
     if (m_pTimer)
         m_pTimer->stop();
     /* reset the metrics. this will delete their data cache: */
-    for (QMap<Metric_Type, UIMetric>::iterator iterator =  m_metrics.begin();
-         iterator != m_metrics.end(); ++iterator)
-        iterator.value().reset();
+    for (UIMetric &metric : m_metrics)
+        metric.reset();
     /* force update on the charts to draw now emptied metrics' data: */
     for (QMap<Metric_Type, UIChart*>::iterator iterator =  m_charts.begin();
          iterator != m_charts.end(); ++iterator)
@@ -1690,6 +1688,8 @@ void UIVMActivityMonitorLocal::reset()
 
 void UIVMActivityMonitorLocal::prepareWidgets()
 {
+    if (m_metrics.size() < Metric_Type_Max)
+        return;
     UIVMActivityMonitor::prepareWidgets();
     if (!m_pContainerLayout)
         return;
@@ -1705,9 +1705,6 @@ void UIVMActivityMonitorLocal::prepareWidgets()
 #endif
     foreach (Metric_Type enmType, chartOrder)
     {
-        if (!m_metrics.contains(enmType))
-            continue;
-
         QHBoxLayout *pChartLayout = new QHBoxLayout;
         pChartLayout->setSpacing(0);
 
@@ -1739,7 +1736,7 @@ void UIVMActivityMonitorLocal::prepareWidgets()
         pChartLayout->addWidget(pLabelContainer);
 
         UIChart *pChart = new UIChart(this, m_pActionPool, m_iMaximumQueueSize);
-        //pChart->setMetric(m_metrics[enmType]);
+        pChart->setMetric(m_metrics[enmType]);
         connect(pChart, &UIChart::sigExportMetricsToFile,
                 this, &UIVMActivityMonitor::sltExportMetricsToFile);
         m_charts.insert(enmType, pChart);
@@ -1756,7 +1753,8 @@ void UIVMActivityMonitorLocal::configureCOMPerformanceCollector()
     /* Only once: */
     if (m_fCOMPerformanceCollectorConfigured)
         return;
-
+    if (m_metrics.size() < Metric_Type_Max)
+        return;
     m_nameList << "Guest/RAM/Usage*";
     m_objectList = QVector<CUnknown>(m_nameList.size(), CUnknown());
 
@@ -1774,11 +1772,8 @@ void UIVMActivityMonitorLocal::configureCOMPerformanceCollector()
             {
                 if (strName.contains("RAM", Qt::CaseInsensitive) && strName.contains("Free", Qt::CaseInsensitive))
                 {
-                    if (m_metrics.contains(Metric_Type_RAM))
-                    {
-                        m_metrics[Metric_Type_RAM].setUnit(metrics[i].GetUnit());
-                        m_fCOMPerformanceCollectorConfigured = true;
-                    }
+                    m_metrics[Metric_Type_RAM].setUnit(metrics[i].GetUnit());
+                    m_fCOMPerformanceCollectorConfigured = true;
                 }
             }
         }
@@ -1787,45 +1782,46 @@ void UIVMActivityMonitorLocal::configureCOMPerformanceCollector()
 
 void UIVMActivityMonitorLocal::prepareMetrics()
 {
+    if (m_metrics.size() < Metric_Type_Max)
+        return;
     /* CPU Metric: */
-    UIMetric cpuMetric("%", m_iMaximumQueueSize);
-    cpuMetric.setDataSeriesName(0, "Guest Load");
-    cpuMetric.setDataSeriesName(1, "VMM Load");
-    m_metrics.insert(Metric_Type_CPU, cpuMetric);
+    m_metrics[Metric_Type_CPU].setUnitString("%");
+    m_metrics[Metric_Type_CPU].setMaximumQueueSize(m_iMaximumQueueSize);
+    m_metrics[Metric_Type_CPU].setDataSeriesName(0, "Guest Load");
+    m_metrics[Metric_Type_CPU].setDataSeriesName(1, "VMM Load");
 
     /* RAM Metric: */
-    UIMetric ramMetric(""/*metrics[i].GetUnit()*/, m_iMaximumQueueSize);
-    ramMetric.setDataSeriesName(0, "Free");
-    ramMetric.setDataSeriesName(1, "Used");
-    ramMetric.setRequiresGuestAdditions(true);
-    m_metrics.insert(Metric_Type_RAM, ramMetric);
-
+    m_metrics[Metric_Type_RAM].setUnitString(""/*metrics[i].GetUnit()*/);
+    m_metrics[Metric_Type_RAM].setMaximumQueueSize(m_iMaximumQueueSize);
+    m_metrics[Metric_Type_RAM].setDataSeriesName(0, "Free");
+    m_metrics[Metric_Type_RAM].setDataSeriesName(1, "Used");
+    m_metrics[Metric_Type_RAM].setRequiresGuestAdditions(true);
 
     /* Network metric: */
-    UIMetric networkMetric("B", m_iMaximumQueueSize);
-    networkMetric.setDataSeriesName(0, "Download Rate");
-    networkMetric.setDataSeriesName(1, "Upload Rate");
-    networkMetric.setAutoUpdateMaximum(true);
-    m_metrics.insert(Metric_Type_Network_InOut, networkMetric);
+    m_metrics[Metric_Type_Network_InOut].setUnitString("B");
+    m_metrics[Metric_Type_Network_InOut].setMaximumQueueSize(m_iMaximumQueueSize);
+    m_metrics[Metric_Type_Network_InOut].setDataSeriesName(0, "Download Rate");
+    m_metrics[Metric_Type_Network_InOut].setDataSeriesName(1, "Upload Rate");
+    m_metrics[Metric_Type_Network_InOut].setAutoUpdateMaximum(true);
 
     /* Disk IO metric */
-    UIMetric diskIOMetric("B", m_iMaximumQueueSize);
-    diskIOMetric.setDataSeriesName(0, "Write Rate");
-    diskIOMetric.setDataSeriesName(1, "Read Rate");
-    diskIOMetric.setAutoUpdateMaximum(true);
-    m_metrics.insert(Metric_Type_Disk_InOut, diskIOMetric);
+    m_metrics[Metric_Type_Disk_InOut].setUnitString("B");
+    m_metrics[Metric_Type_Disk_InOut].setMaximumQueueSize(m_iMaximumQueueSize);
+    m_metrics[Metric_Type_Disk_InOut].setDataSeriesName(0, "Write Rate");
+    m_metrics[Metric_Type_Disk_InOut].setDataSeriesName(1, "Read Rate");
+    m_metrics[Metric_Type_Disk_InOut].setAutoUpdateMaximum(true);
 
     /* USB Metric: */
-    UIMetric USBMetric("B", m_iMaximumQueueSize);
-    USBMetric.setDataSeriesName(0, "Receive Rate");
-    USBMetric.setDataSeriesName(1, "Transmit Rate");
-    USBMetric.setAutoUpdateMaximum(true);
-    m_metrics.insert(Metric_Type_USB_InOut, USBMetric);
+    m_metrics[Metric_Type_USB_InOut].setUnitString("B");
+    m_metrics[Metric_Type_USB_InOut].setMaximumQueueSize(m_iMaximumQueueSize);
+    m_metrics[Metric_Type_USB_InOut].setDataSeriesName(0, "Receive Rate");
+    m_metrics[Metric_Type_USB_InOut].setDataSeriesName(1, "Transmit Rate");
+    m_metrics[Metric_Type_USB_InOut].setAutoUpdateMaximum(true);
 
     /* VM exits metric */
-    UIMetric VMExitsMetric("times", m_iMaximumQueueSize);
-    VMExitsMetric.setAutoUpdateMaximum(true);
-    m_metrics.insert(Metric_Type_VM_Exits, VMExitsMetric);
+    m_metrics[Metric_Type_VM_Exits].setUnitString("times");
+    m_metrics[Metric_Type_VM_Exits].setMaximumQueueSize(m_iMaximumQueueSize);
+    m_metrics[Metric_Type_VM_Exits].setAutoUpdateMaximum(true);
 }
 
 bool UIVMActivityMonitorLocal::guestAdditionsAvailable(const char *pszMinimumVersion)
@@ -1860,17 +1856,17 @@ void UIVMActivityMonitorLocal::enableDisableGuestAdditionDependedWidgets(bool fE
     /* Configure performance monitor: */
     if (fEnable)
         configureCOMPerformanceCollector();
-    for (QMap<Metric_Type, UIMetric>::const_iterator iterator =  m_metrics.begin();
-         iterator != m_metrics.end(); ++iterator)
+    for (int i = 0; i < m_metrics.size(); ++i)
     {
-        if (!iterator.value().requiresGuestAdditions())
+        if (!m_metrics[i].requiresGuestAdditions())
             continue;
-        if (m_charts.contains(iterator.key()) && m_charts[iterator.key()])
-            m_charts[iterator.key()]->setIsAvailable(fEnable);
-        if (m_infoLabelContainers.contains(iterator.key()) && m_infoLabelContainers[iterator.key()])
+        Metric_Type enmType = static_cast<Metric_Type>(i);
+        if (m_charts.contains(enmType) && m_charts[enmType])
+            m_charts[enmType]->setIsAvailable(fEnable);
+        if (m_infoLabelContainers.contains(enmType) && m_infoLabelContainers[enmType])
         {
-            m_infoLabelContainers[iterator.key()]->setEnabled(fEnable);
-            m_infoLabelContainers[iterator.key()]->update();
+            m_infoLabelContainers[enmType]->setEnabled(fEnable);
+            m_infoLabelContainers[enmType]->update();
         }
     }
 }
@@ -2345,8 +2341,8 @@ void UIVMActivityMonitorCloud::obtainDataAndUpdate()
     {
         UIMetric metric;
         int iDataSeriesIndex = 0;
-        if (!findMetric(enmMetricType, metric, iDataSeriesIndex))
-            continue;
+        // if (!findMetric(enmMetricType, metric, iDataSeriesIndex))
+        //     continue;
         /* Be a paranoid: */
         if (iDataSeriesIndex >= DATA_SERIES_SIZE)
             continue;
@@ -2383,9 +2379,8 @@ void UIVMActivityMonitorCloud::reset()
     if (m_pTimer)
         m_pTimer->stop();
     /* reset the metrics. this will delete their data cache: */
-    for (QMap<Metric_Type, UIMetric>::iterator iterator =  m_metrics.begin();
-         iterator != m_metrics.end(); ++iterator)
-        iterator.value().reset();
+    for (UIMetric &metric : m_metrics)
+        metric.reset();
     /* force update on the charts to draw now emptied metrics' data: */
     for (QMap<Metric_Type, UIChart*>::iterator iterator =  m_charts.begin();
          iterator != m_charts.end(); ++iterator)
@@ -2517,63 +2512,62 @@ void UIVMActivityMonitorCloud::updateRAMChart(quint64 iUsedRAM, const QString &s
         m_charts[Metric_Type_RAM]->update();
 }
 
-bool UIVMActivityMonitorCloud::findMetric(KMetricType enmMetricType, UIMetric &metric, int &iDataSeriesIndex) const
-{
-    if (!m_metricTypeDict.contains(enmMetricType))
-        return false;
+// bool UIVMActivityMonitorCloud::findMetric(KMetricType enmMetricType, UIMetric &metric, int &iDataSeriesIndex) const
+// {
+//     if (!m_metricTypeDict.contains(enmMetricType))
+//         return false;
 
-    Metric_Type enmType = m_metricTypeDict[enmMetricType];
+//     Metric_Type enmType = m_metricTypeDict[enmMetricType];
 
-    if (!m_metrics.contains(enmType))
-        return false;
+//     if (!m_metrics.contains(enmType))
+//         return false;
 
-    metric = m_metrics[enmType];
-    iDataSeriesIndex = 0;
-    if (enmMetricType == KMetricType_NetworksBytesOut ||
-        enmMetricType == KMetricType_DiskBytesRead)
-        iDataSeriesIndex = 1;
-    return true;
-}
+//     metric = m_metrics[enmType];
+//     iDataSeriesIndex = 0;
+//     if (enmMetricType == KMetricType_NetworksBytesOut ||
+//         enmMetricType == KMetricType_DiskBytesRead)
+//         iDataSeriesIndex = 1;
+//     return true;
+// }
 
 void UIVMActivityMonitorCloud::prepareMetrics()
 {
+    if (m_metrics.size() < Metric_Type_Max)
+        return;
+
     /* RAM Metric: */
-    if (m_uTotalRAM != 0)
-    {
-        UIMetric ramMetric("kb", m_iMaximumQueueSize);
-        ramMetric.setDataSeriesName(0, "Used");
-        m_metrics.insert(Metric_Type_RAM, ramMetric);
-    }
+    m_metrics[Metric_Type_RAM].setUnitString("kb");
+    m_metrics[Metric_Type_RAM].setMaximumQueueSize(m_iMaximumQueueSize);
+    m_metrics[Metric_Type_RAM].setDataSeriesName(0, "Used");
 
     /* CPU Metric: */
-    UIMetric cpuMetric("%", m_iMaximumQueueSize);
-    cpuMetric.setDataSeriesName(0, "CPU Utilization");
-    m_metrics.insert(Metric_Type_CPU, cpuMetric);
+    m_metrics[Metric_Type_CPU].setUnitString("%");
+    m_metrics[Metric_Type_CPU].setMaximumQueueSize(m_iMaximumQueueSize);
+    m_metrics[Metric_Type_CPU].setDataSeriesName(0, "CPU Utilization");
 
     /* Network in metric: */
-    UIMetric networkInMetric("B", m_iMaximumQueueSize);
-    networkInMetric.setDataSeriesName(0, "Download Rate");
-    networkInMetric.setAutoUpdateMaximum(true);
-    m_metrics.insert(Metric_Type_Network_In, networkInMetric);
+    m_metrics[Metric_Type_Network_In].setUnitString("B");
+    m_metrics[Metric_Type_Network_In].setMaximumQueueSize(m_iMaximumQueueSize);
+    m_metrics[Metric_Type_Network_In].setDataSeriesName(0, "Download Rate");
+    m_metrics[Metric_Type_Network_In].setAutoUpdateMaximum(true);
 
     /* Network out metric: */
-    UIMetric networkOutMetric("B", m_iMaximumQueueSize);
-    networkOutMetric.setDataSeriesName(0, "Upload Rate");
-    networkOutMetric.setAutoUpdateMaximum(true);
-    m_metrics.insert(Metric_Type_Network_Out, networkOutMetric);
+    m_metrics[Metric_Type_Network_Out].setUnitString("B");
+    m_metrics[Metric_Type_Network_Out].setMaximumQueueSize(m_iMaximumQueueSize);
+    m_metrics[Metric_Type_Network_Out].setDataSeriesName(0, "Upload Rate");
+    m_metrics[Metric_Type_Network_Out].setAutoUpdateMaximum(true);
 
     /* Disk write metric */
-    UIMetric diskIOWrittenMetric("B", m_iMaximumQueueSize);
-    diskIOWrittenMetric.setDataSeriesName(0, "Write Rate");
-    diskIOWrittenMetric.setAutoUpdateMaximum(true);
-    m_metrics.insert(Metric_Type_Disk_In, diskIOWrittenMetric);
+    m_metrics[Metric_Type_Disk_In].setUnitString("B");
+    m_metrics[Metric_Type_Disk_In].setMaximumQueueSize(m_iMaximumQueueSize);
+    m_metrics[Metric_Type_Disk_In].setDataSeriesName(0, "Write Rate");
+    m_metrics[Metric_Type_Disk_In].setAutoUpdateMaximum(true);
 
     /* Disk read metric */
-    UIMetric diskIOReadMetric("B", m_iMaximumQueueSize);
-    diskIOReadMetric.setDataSeriesName(0, "Read Rate");
-    diskIOReadMetric.setAutoUpdateMaximum(true);
-    m_metrics.insert(Metric_Type_Disk_Out, diskIOReadMetric);
-
+    m_metrics[Metric_Type_Disk_Out].setUnitString("B");
+    m_metrics[Metric_Type_Disk_Out].setMaximumQueueSize(m_iMaximumQueueSize);
+    m_metrics[Metric_Type_Disk_Out].setDataSeriesName(0, "Read Rate");
+    m_metrics[Metric_Type_Disk_Out].setAutoUpdateMaximum(true);
 }
 
 void UIVMActivityMonitorCloud::prepareWidgets()
@@ -2586,9 +2580,6 @@ void UIVMActivityMonitorCloud::prepareWidgets()
         Metric_Type_Network_In << Metric_Type_Network_Out << Metric_Type_Disk_In << Metric_Type_Disk_Out;
     foreach (Metric_Type enmType, chartOrder)
     {
-        if (!m_metrics.contains(enmType))
-            continue;
-
         QHBoxLayout *pChartLayout = new QHBoxLayout;
         pChartLayout->setSpacing(0);
 

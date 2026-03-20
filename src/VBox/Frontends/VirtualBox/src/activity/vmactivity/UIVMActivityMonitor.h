@@ -1,4 +1,4 @@
-/* $Id: UIVMActivityMonitor.h 113469 2026-03-19 14:18:22Z serkan.bayraktar@oracle.com $ */
+/* $Id: UIVMActivityMonitor.h 113487 2026-03-20 09:00:48Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVMActivityMonitor class declaration.
  */
@@ -90,7 +90,6 @@ class UIMetric
 {
 public:
 
-    UIMetric(const QString &strUnit, int iMaximumQueueSize);
     UIMetric();
 
     void setMaximum(quint64 iMaximum);
@@ -126,6 +125,9 @@ public:
 
     void setAutoUpdateMaximum(bool fAuto);
     bool autoUpdateMaximum() const;
+
+    void setUnitString(const QString strUnitString);
+    void setMaximumQueueSize(int iSize);
 
 private:
 
@@ -200,7 +202,7 @@ protected:
     QAction                *m_pPauseAction;
     QTimer                 *m_pTimer;
     quint64                 m_iTimeStep;
-    QMap<Metric_Type, UIMetric> m_metrics;
+    QVector<UIMetric> m_metrics;
 
     /** @name The following are used during UIPerformanceCollector::QueryMetricsData(..)
       * @{ */
@@ -378,7 +380,7 @@ private:
     void resetDiskIOWrittenInfoLabel();
     void resetDiskIOReadInfoLabel();
 
-    bool findMetric(KMetricType enmMetricType, UIMetric &metric, int &iDataSeriesIndex) const;
+    // bool findMetric(KMetricType enmMetricType, UIMetric &metric, int &iDataSeriesIndex) const;
     void prepareMetrics();
 
     CCloudMachine m_comMachine;
