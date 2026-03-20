@@ -1,4 +1,4 @@
-/* $Id: NATNetworkImpl.cpp 113369 2026-03-11 22:46:08Z jack.doherty@oracle.com $ */
+/* $Id: NATNetworkImpl.cpp 113483 2026-03-20 02:22:35Z jack.doherty@oracle.com $ */
 /** @file
  * INATNetwork implementation.
  */
@@ -906,6 +906,31 @@ void NATNetwork::i_updateDomainNameServerOption(ComPtr<IHost> &host)
         LogRel(("NATNetwork: Failed to get IPv4 name servers from host with %Rhrc\n", hrc));
         return;
     }
+
+    bool fHaveIpv6NameServers = false;
+    com::SafeArray<BSTR> v6NameServers;
+    hrc = host->COMGETTER(V6NameServers)(ComSafeArrayAsOutParam(v6NameServers));
+    if (FAILED(hrc))
+        LogRel(("NATNetwork: Failed to get IPv6 name servers from host with %Rhrc\n", hrc));
+    else
+    {
+        for (size_t i = 0; i < v6NameServers.size(); i++)
+        {
+            RTNETADDRIPV6 addr6;
+            const com::Utf8Str strNameServerAddress(v6NameServers[i]);
+            vrc = RTNetStrToIPv6AddrEx(strNameServerAddress.c_str(), &addr6, NULL /* ppszNext */);
+            if (RT_FAILURE(vrc))
+            {
+                LogRel(("NATNetwork: Failed to parse IPv6 address %s with %Rrc\n",
+                        strNameServerAddress.c_str(), vrc));
+                continue;
+            }
+
+            fHaveIpv6NameServers = true;
+            break;
+        }
+    }
+
     ComPtr<IDHCPGlobalConfig> pDHCPConfig;
     hrc = m->dhcpServer->COMGETTER(GlobalConfig)(pDHCPConfig.asOutParam());
     if (FAILED(hrc))
@@ -964,8 +989,11 @@ void NATNetwork::i_updateDomainNameServerOption(ComPtr<IHost> &host)
             lstServers.append(RTCStringFmt("%RTnaipv4", addr));
         }
 
-        if (lstServers.isEmpty() && fUnmappedLoopback)
+        if (lstServers.isEmpty() && (fUnmappedLoopback || fHaveIpv6NameServers))
+        {
+            LogRel(("NATNetwork: Advertising IPv4 DNS proxy because the host only has IPv6 resolvers and/or only IPv4 loopback resolvers\n"));
             lstServers.append(RTCStringFmt("%RTnaipv4", networkid.u | RT_H2N_U32_C(3U))); /* proxy */
+        }
 
         hrc = pDHCPConfig->SetOption(DHCPOption_DomainNameServers, DHCPOptionEncoding_Normal, Bstr(RTCString::join(lstServers, " ")).raw());
         if (FAILED(hrc))

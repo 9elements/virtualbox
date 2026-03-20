@@ -289,8 +289,6 @@ static void ndp_send_ra(Slirp *slirp)
     struct mbuf *t = m_get(slirp);
     struct ip6 *rip = mtod(t, struct ip6 *);
     size_t pl_size = 0;
-    struct in6_addr addr;
-    uint32_t scope_id;
 
     rip->ip_src = (struct in6_addr)LINKLOCAL_ADDR;
     rip->ip_dst = (struct in6_addr)ALLNODES_MULTICAST;
@@ -308,7 +306,11 @@ static void ndp_send_ra(Slirp *slirp)
     ricmp->icmp6_nra.M = NDP_AdvManagedFlag;
     ricmp->icmp6_nra.O = NDP_AdvOtherConfigFlag;
     ricmp->icmp6_nra.reserved = 0;
+#ifdef VBOX
+    ricmp->icmp6_nra.lifetime = htons(slirp->fDisableIPv6RA ? 0 : NDP_AdvDefaultLifetime);
+#else
     ricmp->icmp6_nra.lifetime = htons(NDP_AdvDefaultLifetime);
+#endif
     ricmp->icmp6_nra.reach_time = htonl(NDP_AdvReachableTime);
     ricmp->icmp6_nra.retrans_time = htonl(NDP_AdvRetransTime);
     t->m_data += ICMP6_NDP_RA_MINLEN;
@@ -337,32 +339,31 @@ static void ndp_send_ra(Slirp *slirp)
     t->m_data += NDPOPT_PREFIXINFO_LEN;
     pl_size += NDPOPT_PREFIXINFO_LEN;
 
+#ifdef VBOX
+    /* VBOX: Always advertise RDNSS; use upstream IPv6 DNS servers when available, else fall back to virtual ::3. */
+    struct ndpopt *opt3 = mtod(t, struct ndpopt *);
+    opt3->ndpopt_type = NDPOPT_RDNSS;
+
+    /* Compute option length: 8-byte header + 16 bytes per address. */
+    size_t cNameservers = slirp->cIPv6RealNameservers;
+    size_t opt_len = 8 + 16 * ((cNameservers > 0 && slirp->aIPv6RealNameservers) ? cNameservers : 1);
+    opt3->ndpopt_len = (uint8_t)(opt_len / 8);
+
+    opt3->ndpopt_rdnss.reserved = 0;
+    opt3->ndpopt_rdnss.lifetime = htonl(2 * NDP_MaxRtrAdvInterval);
+
+    /* Copy one or more resolver IPv6 addresses right after the header field. */
+    uint8_t *pAddr = (uint8_t *)&opt3->ndpopt_rdnss.addr;
+    if (cNameservers > 0 && slirp->aIPv6RealNameservers)
+        memcpy(pAddr, slirp->aIPv6RealNameservers, 16 * cNameservers);
+    else
+        memcpy(pAddr, &slirp->vnameserver_addr6, 16);
+
+    t->m_data += opt_len;
+    pl_size += opt_len;
+#else
     /* Prefix information (NDP option) */
     if (get_dns6_addr(&addr, &scope_id) >= 0) {
-#ifdef VBOX
-        /* VBOX: Advertise upstream IPv6 DNS servers via RDNSS if available; fallback to virtual ::3. */
-        struct ndpopt *opt3 = mtod(t, struct ndpopt *);
-        opt3->ndpopt_type = NDPOPT_RDNSS;
-
-        /* Compute option length: 8-byte header + 16 bytes per address. */
-        size_t cNameservers = slirp->cIPv6RealNameservers;
-        size_t opt_len = 8 + 16 * ((cNameservers > 0 && slirp->aIPv6RealNameservers) ? cNameservers : 1);
-        opt3->ndpopt_len = (uint8_t)(opt_len / 8);
-
-        opt3->ndpopt_rdnss.reserved = 0;
-        opt3->ndpopt_rdnss.lifetime = htonl(2 * NDP_MaxRtrAdvInterval);
-
-        /* Copy one or more resolver IPv6 addresses right after the header field. */
-        uint8_t *pAddr = (uint8_t *)&opt3->ndpopt_rdnss.addr;
-        if (cNameservers > 0 && slirp->aIPv6RealNameservers) {
-            memcpy(pAddr, slirp->aIPv6RealNameservers, 16 * cNameservers);
-        } else {
-            memcpy(pAddr, &slirp->vnameserver_addr6, 16);
-        }
-
-        t->m_data += opt_len;
-        pl_size += opt_len;
-#else
         /* Host system does have an IPv6 DNS server, announce our proxy.  */
         struct ndpopt *opt3 = mtod(t, struct ndpopt *);
         opt3->ndpopt_type = NDPOPT_RDNSS;
@@ -372,8 +373,8 @@ static void ndp_send_ra(Slirp *slirp)
         opt3->ndpopt_rdnss.addr = slirp->vnameserver_addr6;
         t->m_data += NDPOPT_RDNSS_LEN;
         pl_size += NDPOPT_RDNSS_LEN;
-#endif
     }
+#endif
 
     rip->ip_pl = htons(pl_size);
     t->m_data -= sizeof(struct ip6) + pl_size;
@@ -512,10 +513,7 @@ static void ndp_input(struct mbuf *m, Slirp *slirp, struct ip6 *ip,
             ntohs(ip->ip_pl) >= ICMP6_NDP_RS_MINLEN) {
             /* Gratuitous NDP */
             ndp_table_add(slirp, ip->ip_src, eth->h_source);
-#ifdef VBOX
-            if (!slirp->fDisableIPv6RA)
-#endif
-                ndp_send_ra(slirp);
+            ndp_send_ra(slirp);
         }
         break;
 
