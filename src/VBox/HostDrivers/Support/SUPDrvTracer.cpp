@@ -1,4 +1,4 @@
-/* $Id: SUPDrvTracer.cpp 112971 2026-02-12 14:02:00Z alexander.eichner@oracle.com $ */
+/* $Id: SUPDrvTracer.cpp 113491 2026-03-21 22:56:10Z knut.osmundsen@oracle.com $ */
 /** @file
  * VBoxDrv - The VirtualBox Support Driver - Tracer Interface.
  */
@@ -254,8 +254,8 @@ static int supdrvVtgValidateString(const char *psz)
         { \
             if ((uintptr_t)(p) - (uintptr_t)pbImage > cbImage) \
             { \
-                SUPR0Printf("supdrvVtgValidate: " #rc " - p=%p pbImage=%p cbImage=%#zxline=%u %s\n", \
-                            p, pbImage, cbImage, #p); \
+                SUPR0Printf("supdrvVtgValidate: " #rc " - p=%p pbImage=%p cbImage=%#zx line=%u %s\n", \
+                            p, pbImage, cbImage, __LINE__, #p); \
                 return (rc); \
             } \
         } \
