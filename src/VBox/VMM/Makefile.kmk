@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 113492 2026-03-21 23:03:40Z knut.osmundsen@oracle.com $
+# $Id: Makefile.kmk 113497 2026-03-22 22:31:04Z knut.osmundsen@oracle.com $
 ## @file
 # Top-level makefile for the VMM.
 #
@@ -1035,7 +1035,6 @@ if defined(VBOX_WITH_R0_MODULES) && !defined(VBOX_ONLY_BUILD)
   	VMMR0/target-x86/PGMR0Pool-x86.cpp \
   	VMMR0/PGMR0SharedPage.cpp \
   	VMMR0/TMR0.cpp \
-  	VMMRZ/CPUMRZ.cpp \
   	VMMAll/target-x86/APICAll-x86.cpp \
   	VMMAll/CPUMAllCpuId.cpp \
   	VMMAll/CPUMAllRegs.cpp \
