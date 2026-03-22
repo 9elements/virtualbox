@@ -1,4 +1,4 @@
-/* $Id: SUPDrvTracer.cpp 113491 2026-03-21 22:56:10Z knut.osmundsen@oracle.com $ */
+/* $Id: SUPDrvTracer.cpp 113494 2026-03-22 20:38:53Z knut.osmundsen@oracle.com $ */
 /** @file
  * VBoxDrv - The VirtualBox Support Driver - Tracer Interface.
  */
@@ -1506,28 +1506,34 @@ __asm__("\
 SUPR0TracerFireProbe:                                                   \n\
 ");
 # if   defined(RT_ARCH_AMD64)
-__asm__("\
-            movq    g_pfnSupdrvProbeFireKernel(%rip), %rax              \n\
-            "
+__asm__(
+#  ifdef CONFIG_X86_KERNEL_IBT
+"        endbr64 \n"
+#  endif
+"        movq    g_pfnSupdrvProbeFireKernel(%rip), %rax \n\
+        "
 #  if defined(RT_OS_LINUX)
 #   if RTLNX_VER_MIN(4,15,10)
-            ANNOTATE_RETPOLINE_SAFE
+        ANNOTATE_RETPOLINE_SAFE
 #   endif
 #  endif
-            " \n\
-            jmp     *%rax \n\
+        " \n\
+        jmp     *%rax \n\
 ");
 # elif defined(RT_ARCH_X86)
-__asm__("\
-            movl    g_pfnSupdrvProbeFireKernel, %eax                    \n\
-            "
+__asm__(
+#  ifdef CONFIG_X86_KERNEL_IBT
+"        endbr32 \n"
+#  endif
+"        movl    g_pfnSupdrvProbeFireKernel, %eax \n\
+        "
 #  if defined(RT_OS_LINUX)
 #   if RTLNX_VER_MIN(4,15,10)
-            ANNOTATE_RETPOLINE_SAFE
+        ANNOTATE_RETPOLINE_SAFE
 #   endif
 #  endif
-            " \n\
-            jmp     *%eax \n\
+        " \n\
+        jmp     *%eax \n\
 ");
 # elif defined(RT_ARCH_ARM64)
 __asm__("\
