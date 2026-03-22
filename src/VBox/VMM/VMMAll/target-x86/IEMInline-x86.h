@@ -1,4 +1,4 @@
-/* $Id: IEMInline-x86.h 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: IEMInline-x86.h 113496 2026-03-22 22:23:27Z knut.osmundsen@oracle.com $ */
 /** @file
  * IEM - Interpreted Execution Manager - Inlined Functions, x86 target.
  */
@@ -2838,7 +2838,7 @@ DECLINLINE(void) iemFpuPrepareUsage(PVMCPUCC pVCpu) RT_NOEXCEPT
 #ifdef IN_RING3
     CPUMSetChangedFlags(pVCpu, CPUM_CHANGED_FPU_REM);
 #else
-    CPUMRZFpuStatePrepareHostCpuForUse(pVCpu);
+    CPUMR0FpuStatePrepareHostCpuForUse(pVCpu);
 #endif
     IEM_CTX_IMPORT_NORET(pVCpu, CPUMCTX_EXTRN_X87 | CPUMCTX_EXTRN_SSE_AVX | CPUMCTX_EXTRN_OTHER_XSAVE | CPUMCTX_EXTRN_XCRx);
 }
@@ -2882,7 +2882,7 @@ DECLINLINE(void) iemFpuActualizeStateForRead(PVMCPUCC pVCpu) RT_NOEXCEPT
 #ifdef IN_RING3
     NOREF(pVCpu);
 #else
-    CPUMRZFpuStateActualizeForRead(pVCpu);
+    CPUMR0FpuStateActualizeForRead(pVCpu);
 #endif
     IEM_CTX_IMPORT_NORET(pVCpu, CPUMCTX_EXTRN_X87 | CPUMCTX_EXTRN_SSE_AVX | CPUMCTX_EXTRN_OTHER_XSAVE | CPUMCTX_EXTRN_XCRx);
 }
@@ -2900,7 +2900,7 @@ DECLINLINE(void) iemFpuActualizeStateForChange(PVMCPUCC pVCpu) RT_NOEXCEPT
 #ifdef IN_RING3
     CPUMSetChangedFlags(pVCpu, CPUM_CHANGED_FPU_REM);
 #else
-    CPUMRZFpuStateActualizeForChange(pVCpu);
+    CPUMR0FpuStateActualizeForChange(pVCpu);
 #endif
     IEM_CTX_IMPORT_NORET(pVCpu, CPUMCTX_EXTRN_X87 | CPUMCTX_EXTRN_SSE_AVX | CPUMCTX_EXTRN_OTHER_XSAVE | CPUMCTX_EXTRN_XCRx);
 }
@@ -2919,7 +2919,7 @@ DECLINLINE(void) iemFpuActualizeSseStateForRead(PVMCPUCC pVCpu) RT_NOEXCEPT
 #if defined(IN_RING3) || defined(VBOX_WITH_KERNEL_USING_XMM)
     NOREF(pVCpu);
 #else
-    CPUMRZFpuStateActualizeSseForRead(pVCpu);
+    CPUMR0FpuStateActualizeSseForRead(pVCpu);
 #endif
     IEM_CTX_IMPORT_NORET(pVCpu, CPUMCTX_EXTRN_X87 | CPUMCTX_EXTRN_SSE_AVX | CPUMCTX_EXTRN_OTHER_XSAVE | CPUMCTX_EXTRN_XCRx);
 }
@@ -2938,7 +2938,7 @@ DECLINLINE(void) iemFpuActualizeSseStateForChange(PVMCPUCC pVCpu) RT_NOEXCEPT
 #if defined(IN_RING3) || defined(VBOX_WITH_KERNEL_USING_XMM)
     CPUMSetChangedFlags(pVCpu, CPUM_CHANGED_FPU_REM);
 #else
-    CPUMRZFpuStateActualizeForChange(pVCpu);
+    CPUMR0FpuStateActualizeForChange(pVCpu);
 #endif
     IEM_CTX_IMPORT_NORET(pVCpu, CPUMCTX_EXTRN_X87 | CPUMCTX_EXTRN_SSE_AVX | CPUMCTX_EXTRN_OTHER_XSAVE | CPUMCTX_EXTRN_XCRx);
 
@@ -2960,7 +2960,7 @@ DECLINLINE(void) iemFpuActualizeAvxStateForRead(PVMCPUCC pVCpu) RT_NOEXCEPT
 #ifdef IN_RING3
     NOREF(pVCpu);
 #else
-    CPUMRZFpuStateActualizeAvxForRead(pVCpu);
+    CPUMR0FpuStateActualizeAvxForRead(pVCpu);
 #endif
     IEM_CTX_IMPORT_NORET(pVCpu, CPUMCTX_EXTRN_X87 | CPUMCTX_EXTRN_SSE_AVX | CPUMCTX_EXTRN_OTHER_XSAVE | CPUMCTX_EXTRN_XCRx);
 }
@@ -2979,7 +2979,7 @@ DECLINLINE(void) iemFpuActualizeAvxStateForChange(PVMCPUCC pVCpu) RT_NOEXCEPT
 #ifdef IN_RING3
     CPUMSetChangedFlags(pVCpu, CPUM_CHANGED_FPU_REM);
 #else
-    CPUMRZFpuStateActualizeForChange(pVCpu);
+    CPUMR0FpuStateActualizeForChange(pVCpu);
 #endif
     IEM_CTX_IMPORT_NORET(pVCpu, CPUMCTX_EXTRN_X87 | CPUMCTX_EXTRN_SSE_AVX | CPUMCTX_EXTRN_OTHER_XSAVE | CPUMCTX_EXTRN_XCRx);
 

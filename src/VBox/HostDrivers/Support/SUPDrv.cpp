@@ -1,4 +1,4 @@
-/* $Id: SUPDrv.cpp 113492 2026-03-21 23:03:40Z knut.osmundsen@oracle.com $ */
+/* $Id: SUPDrv.cpp 113496 2026-03-22 22:23:27Z knut.osmundsen@oracle.com $ */
 /** @file
  * VBoxDrv - The VirtualBox Support Driver - Common code.
  */
@@ -354,6 +354,9 @@ static SUPFUNC g_aFunctions[] =
     SUPEXP_STK_BACK(    0,  SUPR0GetPagingMode),
 #if defined(RT_ARCH_X86) || defined(RT_ARCH_AMD64)
     SUPEXP_STK_OKAY(    1,  SUPR0FpuBegin),             /* not-arch-arm64 */
+    SUPEXP_STK_OKAY(    1,  SUPR0FpuEnsureCurrent),     /* not-arch-arm64 */
+    SUPEXP_STK_OKAY(    1,  SUPR0FpuLock),              /* not-arch-arm64 */
+    SUPEXP_STK_OKAY(    1,  SUPR0FpuUnlock),            /* not-arch-arm64 */
     SUPEXP_STK_OKAY(    1,  SUPR0FpuEnd),               /* not-arch-arm64 */
     SUPEXP_STK_BACK(    2,  SUPR0ChangeCR4),            /* not-arch-arm64 */
     SUPEXP_STK_BACK(    1,  SUPR0EnableHwvirt),         /* not-arch-arm64 */
