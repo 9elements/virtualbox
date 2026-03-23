@@ -1,4 +1,4 @@
-/* $Id: UINotificationMessage.cpp 113510 2026-03-23 14:57:39Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationMessage.cpp 113513 2026-03-23 15:10:46Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationMessage implementations.
  */
@@ -566,6 +566,7 @@ void UINotificationMessage::warnAboutStateChange(QWidget *pParent)
                                                              "All other changes will be lost if you close this window now."),
                   "warnAboutStateChange",
                   QString() /* help word */,
+                  NotificationType_Unknown,
                   pParent);
 }
 
@@ -630,7 +631,9 @@ void UINotificationMessage::showRuntimeError(NotificationType emnNotificationTyp
                 QApplication::translate("UIMessageCenter", "<p>The virtual machine execution ran into a non-fatal problem as "
                                                            "described below. We suggest that you take appropriate action to "
                                                            "prevent the problem from recurring.</p>") + formatted,
-                autoConfimId.data());
+                autoConfimId.data(),
+                QString() /* help word */,
+                emnNotificationType);
             break;
         }
         case NotificationType_Warning:
@@ -640,7 +643,9 @@ void UINotificationMessage::showRuntimeError(NotificationType emnNotificationTyp
                 QApplication::translate("UIMessageCenter", "<p>An error has occurred during virtual machine execution! The "
                                                            "error details are shown below. You may try to correct the error "
                                                            "and resume the virtual machine execution.</p>") + formatted,
-                autoConfimId.data());
+                autoConfimId.data(),
+                QString() /* help word */,
+                emnNotificationType);
             break;
         }
         case NotificationType_Critical:
@@ -651,7 +656,9 @@ void UINotificationMessage::showRuntimeError(NotificationType emnNotificationTyp
                                                            "The virtual machine will be powered off. Please copy the following "
                                                            "error message using the clipboard to help diagnose the "
                                                            "problem:</p>") + formatted,
-                autoConfimId.data());
+                autoConfimId.data(),
+                QString() /* help word */,
+                emnNotificationType);
             break;
         }
         default:
@@ -1432,6 +1439,7 @@ void UINotificationMessage::cannotAccessUSBSubsystem(const CMachine &comMachine,
                   UIErrorString::formatErrorInfo(res),
                   "cannotAccessUSBSubsystem",
                   QString() /* help word */,
+                  NotificationType_Unknown,
                   pParent);
 }
 
@@ -2237,7 +2245,8 @@ void UINotificationMessage::createMessage(const QString &strName,
     AssertPtrReturnVoid(pCenter);
 
     /* Redirect to notification-center: */
-    return pCenter->createMessageInt(strName,
+    return pCenter->createMessageInt(NotificationType_Unknown,
+                                     strName,
                                      strDetails,
                                      QString(),
                                      QString());
@@ -2248,6 +2257,7 @@ void UINotificationMessage::createMessage(const QString &strName,
                                           const QString &strDetails,
                                           const QString &strInternalName,
                                           const QString &strHelpKeyword /* = QString() */,
+                                          const NotificationType enmType /* = NotificationType_Unknown */,
                                           QWidget *pParent /* = 0 */)
 {
     /* Acquire notification-center, make sure it's present: */
@@ -2255,7 +2265,8 @@ void UINotificationMessage::createMessage(const QString &strName,
     AssertPtrReturnVoid(pCenter);
 
     /* Redirect to notification-center: */
-    return pCenter->createMessageInt(strName,
+    return pCenter->createMessageInt(enmType,
+                                     strName,
                                      strDetails,
                                      strInternalName,
                                      strHelpKeyword);
@@ -2283,7 +2294,8 @@ void UINotificationMessage::createBlockingMessage(const QString &strName,
     AssertPtrReturnVoid(pCenter);
 
     /* Redirect to notification-center: */
-    return pCenter->createBlockingMessageInt(strName,
+    return pCenter->createBlockingMessageInt(NotificationType_Unknown,
+                                             strName,
                                              strDetails,
                                              QString(),
                                              QString());
@@ -2294,6 +2306,7 @@ void UINotificationMessage::createBlockingMessage(const QString &strName,
                                                   const QString &strDetails,
                                                   const QString &strInternalName,
                                                   const QString &strHelpKeyword /* = QString() */,
+                                                  const NotificationType enmType /* = NotificationType_Unknown */,
                                                   QWidget *pParent /* = 0 */)
 {
     /* Acquire notification-center, make sure it's present: */
@@ -2301,7 +2314,8 @@ void UINotificationMessage::createBlockingMessage(const QString &strName,
     AssertPtrReturnVoid(pCenter);
 
     /* Redirect to notification-center: */
-    return pCenter->createBlockingMessageInt(strName,
+    return pCenter->createBlockingMessageInt(enmType,
+                                             strName,
                                              strDetails,
                                              strInternalName,
                                              strHelpKeyword);

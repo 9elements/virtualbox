@@ -1,4 +1,4 @@
-/* $Id: UINotificationCenter.h 113376 2026-03-12 13:24:42Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationCenter.h 113513 2026-03-23 15:10:46Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationCenter class declaration.
  */
@@ -72,11 +72,13 @@ signals:
     void sigOperationsAborted();
 
     /** Notifies itself to create inter-thread message.
+      * @param  strType          Brings the message type.
       * @param  strName          Brings the message name.
       * @param  strDetails       Brings the message details.
       * @param  strInternalName  Brings the message internal name.
       * @param  strHelpKeyword   Brings the message help keyword. */
-    void sigToCreateMessage(const QString &strName,
+    void sigToCreateMessage(const NotificationType enmType,
+                            const QString &strName,
                             const QString &strDetails,
                             const QString &strInternalName,
                             const QString &strHelpKeyword);
@@ -130,11 +132,13 @@ public:
     void abortOperations();
 
     /** Creates message.
+      * @param  strType          Brings the message type.
       * @param  strName          Brings the message name.
       * @param  strDetails       Brings the message details.
       * @param  strInternalName  Brings the message internal name.
       * @param  strHelpKeyword   Brings the message help keyword. */
-    void createMessageInt(const QString &strName,
+    void createMessageInt(const NotificationType enmType,
+                          const QString &strName,
                           const QString &strDetails,
                           const QString &strInternalName,
                           const QString &strHelpKeyword);
@@ -143,11 +147,13 @@ public:
     void destroyMessageInt(const QString &strInternalName);
 
     /** Creates blocking message.
+      * @param  strType          Brings the message type.
       * @param  strName          Brings the message name.
       * @param  strDetails       Brings the message details.
       * @param  strInternalName  Brings the message internal name.
       * @param  strHelpKeyword   Brings the message help keyword. */
-    void createBlockingMessageInt(const QString &strName,
+    void createBlockingMessageInt(const NotificationType enmType,
+                                  const QString &strName,
                                   const QString &strDetails,
                                   const QString &strInternalName,
                                   const QString &strHelpKeyword);
@@ -205,11 +211,13 @@ private slots:
     void sltHandleOpenTimerTimeout();
 
     /** Handles request to create message.
+      * @param  strType          Brings the message type.
       * @param  strName          Brings the message name.
       * @param  strDetails       Brings the message details.
       * @param  strInternalName  Brings the message internal name.
       * @param  strHelpKeyword   Brings the message help keyword. */
-    void sltCreateMessage(const QString &strName,
+    void sltCreateMessage(const NotificationType enmType,
+                          const QString &strName,
                           const QString &strDetails,
                           const QString &strInternalName,
                           const QString &strHelpKeyword);

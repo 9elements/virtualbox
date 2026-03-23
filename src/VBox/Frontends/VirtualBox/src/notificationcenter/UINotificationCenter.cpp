@@ -1,4 +1,4 @@
-/* $Id: UINotificationCenter.cpp 113499 2026-03-23 09:12:45Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationCenter.cpp 113513 2026-03-23 15:10:46Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationCenter class implementation.
  */
@@ -426,7 +426,8 @@ void UINotificationCenter::abortOperations()
     emit sigOperationsAborted();
 }
 
-void UINotificationCenter::createMessageInt(const QString &strName,
+void UINotificationCenter::createMessageInt(const NotificationType enmType,
+                                            const QString &strName,
                                             const QString &strDetails,
                                             const QString &strInternalName,
                                             const QString &strHelpKeyword)
@@ -436,7 +437,8 @@ void UINotificationCenter::createMessageInt(const QString &strName,
     {
         /* We have to throw a blocking signal
          * to create a message in the GUI thread: */
-        emit sigToCreateMessage(strName,
+        emit sigToCreateMessage(enmType,
+                                strName,
                                 strDetails,
                                 strInternalName,
                                 strHelpKeyword);
@@ -444,7 +446,8 @@ void UINotificationCenter::createMessageInt(const QString &strName,
     }
 
     /* In usual case we create a message directly: */
-    return sltCreateMessage(strName,
+    return sltCreateMessage(enmType,
+                            strName,
                             strDetails,
                             strInternalName,
                             strHelpKeyword);
@@ -465,7 +468,8 @@ void UINotificationCenter::destroyMessageInt(const QString &strInternalName)
     return sltDeleteMessage(strInternalName);
 }
 
-void UINotificationCenter::createBlockingMessageInt(const QString &strName,
+void UINotificationCenter::createBlockingMessageInt(const NotificationType enmType,
+                                                    const QString &strName,
                                                     const QString &strDetails,
                                                     const QString &strInternalName,
                                                     const QString &strHelpKeyword)
@@ -479,6 +483,7 @@ void UINotificationCenter::createBlockingMessageInt(const QString &strName,
                                                                          strDetails,
                                                                          strInternalName,
                                                                          strHelpKeyword);
+    pMessage->setObjType(enmType);
     showBlocking(pMessage);
     delete pMessage;
 }
@@ -695,7 +700,8 @@ void UINotificationCenter::sltHandleOpenTimerTimeout()
     m_pButtonOpen->animateClick();
 }
 
-void UINotificationCenter::sltCreateMessage(const QString &strName,
+void UINotificationCenter::sltCreateMessage(const NotificationType enmType,
+                                            const QString &strName,
                                             const QString &strDetails,
                                             const QString &strInternalName,
                                             const QString &strHelpKeyword)
@@ -710,10 +716,12 @@ void UINotificationCenter::sltCreateMessage(const QString &strName,
         return;
 
     /* Create message finally: */
-    const QUuid uId = append(new UINotificationMessage(strName,
-                                                       strDetails,
-                                                       strInternalName,
-                                                       strHelpKeyword));
+    QPointer<UINotificationMessage> pMessage = new UINotificationMessage(strName,
+                                                                         strDetails,
+                                                                         strInternalName,
+                                                                         strHelpKeyword);
+    pMessage->setObjType(enmType);
+    const QUuid uId = append(pMessage);
     if (!strInternalName.isEmpty())
         m_messages[strInternalName] = uId;
 }

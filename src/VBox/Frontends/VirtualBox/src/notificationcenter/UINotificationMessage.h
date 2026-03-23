@@ -1,4 +1,4 @@
-/* $Id: UINotificationMessage.h 113507 2026-03-23 14:24:19Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationMessage.h 113513 2026-03-23 15:10:46Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationMessage declarations.
  */
@@ -37,7 +37,6 @@
 /* GUI includes: */
 #include "UILibraryDefs.h"
 #include "UIMediumDefs.h"
-#include "UINotificationDefs.h"
 #include "UINotificationObject.h"
 
 /* Forward declarations: */
@@ -840,11 +839,13 @@ private:
       * @param  strDetails       Brings the message details.
       * @param  strInternalName  Brings the message internal name.
       * @param  strHelpKeyword   Brings the message help keyword.
+      * @param  strType          Brings the message type.
       * @param  pParent          Brings the local notification-center reference. */
     static void createMessage(const QString &strName,
                               const QString &strDetails,
                               const QString &strInternalName,
                               const QString &strHelpKeyword = QString(),
+                              const NotificationType enmType = NotificationType_Unknown,
                               QWidget *pParent = 0);
     /** Destroys message.
       * @param  strInternalName  Brings the message internal name.
@@ -864,11 +865,13 @@ private:
       * @param  strDetails       Brings the message details.
       * @param  strInternalName  Brings the message internal name.
       * @param  strHelpKeyword   Brings the message help keyword.
+      * @param  strType          Brings the message type.
       * @param  pParent          Brings the local notification-center reference. */
     static void createBlockingMessage(const QString &strName,
                                       const QString &strDetails,
                                       const QString &strInternalName,
                                       const QString &strHelpKeyword = QString(),
+                                      const NotificationType enmType = NotificationType_Unknown,
                                       QWidget *pParent = 0);
 };
 
