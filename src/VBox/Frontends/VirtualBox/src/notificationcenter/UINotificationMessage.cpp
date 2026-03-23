@@ -1,4 +1,4 @@
-/* $Id: UINotificationMessage.cpp 113513 2026-03-23 15:10:46Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationMessage.cpp 113514 2026-03-23 15:58:07Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationMessage implementations.
  */
@@ -565,7 +565,7 @@ void UINotificationMessage::warnAboutStateChange(QWidget *pParent)
                                                              "Only certain settings can be changed while a machine is running. "
                                                              "All other changes will be lost if you close this window now."),
                   "warnAboutStateChange",
-                  QString() /* help word */,
+                  QString() /* help keyword */,
                   NotificationType_Unknown,
                   pParent);
 }
@@ -632,7 +632,7 @@ void UINotificationMessage::showRuntimeError(NotificationType emnNotificationTyp
                                                            "described below. We suggest that you take appropriate action to "
                                                            "prevent the problem from recurring.</p>") + formatted,
                 autoConfimId.data(),
-                QString() /* help word */,
+                QString() /* help keyword */,
                 emnNotificationType);
             break;
         }
@@ -644,7 +644,7 @@ void UINotificationMessage::showRuntimeError(NotificationType emnNotificationTyp
                                                            "error details are shown below. You may try to correct the error "
                                                            "and resume the virtual machine execution.</p>") + formatted,
                 autoConfimId.data(),
-                QString() /* help word */,
+                QString() /* help keyword */,
                 emnNotificationType);
             break;
         }
@@ -657,7 +657,7 @@ void UINotificationMessage::showRuntimeError(NotificationType emnNotificationTyp
                                                            "error message using the clipboard to help diagnose the "
                                                            "problem:</p>") + formatted,
                 autoConfimId.data(),
-                QString() /* help word */,
+                QString() /* help keyword */,
                 emnNotificationType);
             break;
         }
@@ -1438,7 +1438,7 @@ void UINotificationMessage::cannotAccessUSBSubsystem(const CMachine &comMachine,
                   QApplication::translate("UIMessageCenter", "Failed to access the USB subsystem.") +
                   UIErrorString::formatErrorInfo(res),
                   "cannotAccessUSBSubsystem",
-                  QString() /* help word */,
+                  QString() /* help keyword */,
                   NotificationType_Unknown,
                   pParent);
 }
