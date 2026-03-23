@@ -1,4 +1,4 @@
-/* $Id: UINotificationCenter.cpp 113513 2026-03-23 15:10:46Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationCenter.cpp 113516 2026-03-23 16:20:03Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationCenter class implementation.
  */
@@ -488,7 +488,8 @@ void UINotificationCenter::createBlockingMessageInt(const NotificationType enmTy
     delete pMessage;
 }
 
-int UINotificationCenter::createBlockingQuestionInt(const QString &strName,
+int UINotificationCenter::createBlockingQuestionInt(const NotificationType enmType,
+                                                    const QString &strName,
                                                     const QString &strDetails,
                                                     const QStringList &buttonNames,
                                                     bool fOkByDefault,
@@ -508,6 +509,7 @@ int UINotificationCenter::createBlockingQuestionInt(const QString &strName,
                                                                             strOption,
                                                                             strInternalName,
                                                                             strHelpKeyword);
+    pQuestion->setObjType(enmType);
     const int iResult = showBlocking(pQuestion);
     delete pQuestion;
     return iResult;

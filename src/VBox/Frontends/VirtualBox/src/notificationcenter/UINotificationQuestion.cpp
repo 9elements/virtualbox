@@ -1,4 +1,4 @@
-/* $Id: UINotificationQuestion.cpp 113515 2026-03-23 16:05:21Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationQuestion.cpp 113516 2026-03-23 16:20:03Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationQuestion implementations.
  */
@@ -1103,7 +1103,8 @@ int UINotificationQuestion::createBlockingQuestion(const QString &strName,
     AssertPtrReturn(pCenter, 0);
 
     /* Redirect to notification-center: */
-    return pCenter->createBlockingQuestionInt(strName,
+    return pCenter->createBlockingQuestionInt(NotificationType_Unknown,
+                                              strName,
                                               strDetails,
                                               buttonNames,
                                               fOkByDefault,
@@ -1120,6 +1121,7 @@ int UINotificationQuestion::createBlockingQuestion(const QString &strName,
                                                    const QString &strOption /* = QString() */,
                                                    const QString &strInternalName /* = QString() */,
                                                    const QString &strHelpKeyword /* = QString() */,
+                                                   const NotificationType enmType /* = NotificationType_Unknown */,
                                                    QWidget *pParent /* = 0 */)
 {
     /* Acquire notification-center, make sure it's present: */
@@ -1127,7 +1129,8 @@ int UINotificationQuestion::createBlockingQuestion(const QString &strName,
     AssertPtrReturn(pCenter, 0);
 
     /* Redirect to notification-center: */
-    return pCenter->createBlockingQuestionInt(strName,
+    return pCenter->createBlockingQuestionInt(enmType,
+                                              strName,
                                               strDetails,
                                               buttonNames,
                                               fOkByDefault,

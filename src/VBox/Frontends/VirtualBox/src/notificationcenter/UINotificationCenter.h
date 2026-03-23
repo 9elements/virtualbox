@@ -1,4 +1,4 @@
-/* $Id: UINotificationCenter.h 113513 2026-03-23 15:10:46Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationCenter.h 113516 2026-03-23 16:20:03Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationCenter class declaration.
  */
@@ -159,6 +159,7 @@ public:
                                   const QString &strHelpKeyword);
 
     /** Creates blocking question.
+      * @param  strType          Brings the message type.
       * @param  strName          Brings the question name.
       * @param  strDetails       Brings the question details.
       * @param  buttonNames      Brings the list of button names.
@@ -166,7 +167,8 @@ public:
       * @param  strOption        Brings the question option.
       * @param  strInternalName  Brings the question internal name.
       * @param  strHelpKeyword   Brings the question help keyword. */
-    int createBlockingQuestionInt(const QString &strName,
+    int createBlockingQuestionInt(const NotificationType enmType,
+                                  const QString &strName,
                                   const QString &strDetails,
                                   const QStringList &buttonNames,
                                   bool fOkByDefault,

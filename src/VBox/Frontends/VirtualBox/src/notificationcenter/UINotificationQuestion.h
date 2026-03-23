@@ -1,4 +1,4 @@
-/* $Id: UINotificationQuestion.h 113515 2026-03-23 16:05:21Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationQuestion.h 113516 2026-03-23 16:20:03Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationQuestion declarations.
  */
@@ -306,6 +306,7 @@ private:
       * @param  strOption        Brings the question option.
       * @param  strInternalName  Brings the question internal name.
       * @param  strHelpKeyword   Brings the question help keyword.
+      * @param  strType          Brings the message type.
       * @param  pParent          Brings the local notification-center reference. */
     static int createBlockingQuestion(const QString &strName,
                                       const QString &strDetails,
@@ -314,6 +315,7 @@ private:
                                       const QString &strOption = QString(),
                                       const QString &strInternalName = QString(),
                                       const QString &strHelpKeyword = QString(),
+                                      const NotificationType enmType = NotificationType_Unknown,
                                       QWidget *pParent = 0);
 
     /** Holds the button names. */
