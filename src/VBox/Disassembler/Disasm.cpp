@@ -1,4 +1,4 @@
-/* $Id: Disasm.cpp 106320 2024-10-15 12:08:41Z klaus.espenlaub@oracle.com $ */
+/* $Id: Disasm.cpp 113518 2026-03-23 22:57:54Z knut.osmundsen@oracle.com $ */
 /** @file
  * VBox disassembler - Disassemble and optionally format.
  */
@@ -31,20 +31,12 @@
 *********************************************************************************************************************************/
 #define LOG_GROUP LOG_GROUP_DIS
 #include <VBox/dis.h>
-#include <iprt/errcore.h>
 #include <iprt/assert.h>
+#include <iprt/errcore.h>
+#include <iprt/param.h>
 #include <iprt/string.h>
 #include "DisasmInternal.h"
 
-
-/*********************************************************************************************************************************
-*   Defined Constants And Macros                                                                                                 *
-*********************************************************************************************************************************/
-
-
-/*********************************************************************************************************************************
-*   Internal Functions                                                                                                           *
-*********************************************************************************************************************************/
 
 /**
  * @interface_method_impl{FNDISREADBYTES, The default byte reader callber.}
@@ -59,7 +51,7 @@ static DECLCALLBACK(int) disReadBytesDefault(PDISSTATE pDis, uint8_t offInstr, u
     return VERR_DIS_NO_READ_CALLBACK;
 #else
     uint8_t const  *pbSrc        = (uint8_t const *)(uintptr_t)pDis->uInstrAddr + offInstr;
-    size_t          cbLeftOnPage = (uintptr_t)pbSrc & PAGE_OFFSET_MASK;
+    size_t  const   cbLeftOnPage = (uintptr_t)pbSrc & (uintptr_t)RT_MIN_PAGE_OFFSET_MASK; /* Minimum page size for safety. */
     uint8_t         cbToRead     = cbLeftOnPage >= cbMaxRead
                                  ? cbMaxRead
                                  : cbLeftOnPage <= cbMinRead

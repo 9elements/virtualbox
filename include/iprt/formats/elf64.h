@@ -1,4 +1,4 @@
-/* $Id: elf64.h 106320 2024-10-15 12:08:41Z klaus.espenlaub@oracle.com $ */
+/* $Id: elf64.h 113518 2026-03-23 22:57:54Z knut.osmundsen@oracle.com $ */
 /** @file
  * IPRT - ELF 64-bit header.
  */
@@ -188,11 +188,11 @@ typedef struct
 #define ELF64_ST_INFO(bind, type)   (((bind) << 4) + ((type) & 0xf))
 
 /** Relocation type. */
-#define ELF64_R_TYPE(info)          ((unsigned char)(info))
+#define ELF64_R_TYPE(info)          ((uint32_t)(info))
 /** Relocation symbol index. */
 #define ELF64_R_SYM(info)           ((info) >> 32)
 /** Make r_info given the symbol index and type.  */
-#define ELF64_R_INFO(sym, type)     (((sym) << 32) + (unsigned char)(type))
+#define ELF64_R_INFO(sym, type)     (((sym) << 32) + (uint32_t)(type))
 
 
 #endif /* !IPRT_INCLUDED_formats_elf64_h */

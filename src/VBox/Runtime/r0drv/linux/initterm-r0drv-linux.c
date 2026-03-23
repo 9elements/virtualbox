@@ -1,4 +1,4 @@
-/* $Id: initterm-r0drv-linux.c 106320 2024-10-15 12:08:41Z klaus.espenlaub@oracle.com $ */
+/* $Id: initterm-r0drv-linux.c 113518 2026-03-23 22:57:54Z knut.osmundsen@oracle.com $ */
 /** @file
  * IPRT - Initialization & Termination, R0 Driver, Linux.
  */
@@ -42,6 +42,7 @@
 #include "internal/iprt.h"
 #include <iprt/errcore.h>
 #include <iprt/assert.h>
+#include <iprt/dbg.h>
 #include "internal/initterm.h"
 
 
@@ -54,6 +55,10 @@ static struct workqueue_struct *g_prtR0LnxWorkQueue;
 #else
 static DECLARE_TASK_QUEUE(g_rtR0LnxWorkQueue);
 #endif
+
+/** Pointer to init_mm, if we have it.
+ * This is a special mm structure used to manage the kernel address space. */
+struct mm_struct *g_pLnxInitMm = NULL;
 
 
 /**
@@ -109,13 +114,32 @@ DECLHIDDEN(int) rtR0InitNative(void)
     IPRT_LINUX_SAVE_EFL_AC();
 
 #if RTLNX_VER_MIN(2,5,41)
- #if RTLNX_VER_MIN(2,6,13)
+# if RTLNX_VER_MIN(2,6,13)
     g_prtR0LnxWorkQueue = create_workqueue("iprt-VBoxWQueue");
- #else
+# else
     g_prtR0LnxWorkQueue = create_workqueue("iprt-VBoxQ");
- #endif
+# endif
     if (!g_prtR0LnxWorkQueue)
         rc = VERR_NO_MEMORY;
+#endif
+
+
+    /* Try get hold of 'init_mm' so we can protect kernel memory. */
+#if RTLNX_VER_MIN(6,10,0) /** @todo support this for older kernels (see also dbgkrnlinfo-r0drv-linux.c and fileio-r0drv-linux.c) */
+    {
+        RTDBGKRNLINFO hKrnlInfo;
+        int rc2 = RTR0DbgKrnlInfoOpen(&hKrnlInfo, 0);
+        if (RT_SUCCESS(rc2))
+        {
+            g_pLnxInitMm = (struct mm_struct *)RTR0DbgKrnlInfoGetSymbol(hKrnlInfo, NULL,  "init_mm");
+            //printk("rtR0InitNative: g_pLnxInitMm=%#lx\n", (unsigned long)g_pLnxInitMm);
+            printk("rtR0InitNative: g_pLnxInitMm=%p\n", g_pLnxInitMm);
+
+            RTR0DbgKrnlInfoRelease(hKrnlInfo);
+        }
+        else
+            printk("rtR0InitNative: RTR0DbgKrnlInfoOpen failed: %d\n", rc);
+    }
 #endif
 
     IPRT_LINUX_RESTORE_EFL_AC();

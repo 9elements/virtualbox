@@ -1,4 +1,4 @@
-/* $Id: SUPLib.cpp 113470 2026-03-19 15:17:08Z ramshankar.venkataraman@oracle.com $ */
+/* $Id: SUPLib.cpp 113518 2026-03-23 22:57:54Z knut.osmundsen@oracle.com $ */
 /** @file
  * VirtualBox Support Library - Common code.
  */
@@ -76,6 +76,7 @@
 #include <iprt/string.h>
 #include <iprt/env.h>
 #include <iprt/rand.h>
+#include <iprt/system.h>
 #include <iprt/x86.h>
 
 #include "SUPDrvIOC.h"
@@ -1123,7 +1124,7 @@ static int supPagePageAllocNoKernelFallback(size_t cPages, void **ppvPages, PSUP
     int rc = suplibOsPageAlloc(&g_supLibData, cPages, 0, ppvPages);
     if (RT_SUCCESS(rc))
     {
-        Assert(ASMMemIsZero(*ppvPages, cPages << PAGE_SHIFT));
+        Assert(ASMMemIsZero(*ppvPages, cPages << RTSystemGetPageShift()));
         if (!paPages)
             paPages = (PSUPPAGE)alloca(sizeof(paPages[0]) * cPages);
         rc = supR3PageLock(*ppvPages, cPages, paPages);
@@ -1208,13 +1209,13 @@ SUPR3DECL(int) SUPR3PageAllocEx(size_t cPages, uint32_t fFlags, void **ppvPages,
                 if (pR0Ptr)
                 {
                     *pR0Ptr = pReq->u.Out.pvR0;
-                    Assert(ASMMemIsZero(pReq->u.Out.pvR3, cPages << PAGE_SHIFT));
+                    Assert(ASMMemIsZero(pReq->u.Out.pvR3, cPages << RTSystemGetPageShift()));
 #ifdef RT_OS_DARWIN /* HACK ALERT! */
                     supR3TouchPages(pReq->u.Out.pvR3, cPages);
 #endif
                 }
                 else
-                    RT_BZERO(pReq->u.Out.pvR3, cPages << PAGE_SHIFT);
+                    RT_BZERO(pReq->u.Out.pvR3, cPages << RTSystemGetPageShift());
 
                 if (paPages)
                     for (size_t iPage = 0; iPage < cPages; iPage++)
@@ -1248,8 +1249,8 @@ SUPR3DECL(int) SUPR3PageMapKernel(void *pvR3, uint32_t off, uint32_t cb, uint32_
      */
     AssertPtrReturn(pvR3, VERR_INVALID_POINTER);
     AssertPtrReturn(pR0Ptr, VERR_INVALID_POINTER);
-    Assert(!(off & PAGE_OFFSET_MASK));
-    Assert(!(cb & PAGE_OFFSET_MASK) && cb);
+    Assert(!(off & RTSystemGetPageOffsetMask()));
+    Assert(!(cb & RTSystemGetPageOffsetMask()) && cb);
     Assert(!fFlags);
     *pR0Ptr = NIL_RTR0PTR;
 

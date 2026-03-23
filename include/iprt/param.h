@@ -59,7 +59,7 @@
 #undef PAGE_OFFSET_MASK
 
 /**
- * i386 Page size.
+ * Page size.
  */
 #if defined(RT_ARCH_SPARC64)
 # define PAGE_SIZE          8192
@@ -68,7 +68,7 @@
 #  define PAGE_SIZE         16384
 # elif defined(RT_OS_LINUX)
 #  ifdef IN_RING0
-#   if RTLNX_VER_MIN(6,9,0)
+#   ifndef CONFIG_ARM64_PAGE_SHIFT
 #    define PAGE_SIZE        (1 << CONFIG_PAGE_SHIFT)
 #   else
 #    define PAGE_SIZE        (1 << CONFIG_ARM64_PAGE_SHIFT)
@@ -88,7 +88,7 @@
 #endif
 
 /**
- * i386 Page shift.
+ * Page shift.
  * This is used to convert between size (in bytes) and page count.
  */
 #if defined(RT_ARCH_SPARC64)
@@ -98,10 +98,10 @@
 #  define PAGE_SHIFT        14
 # elif defined(RT_OS_LINUX)
 #  ifdef IN_RING0
-#   if RTLNX_VER_MIN(6,9,0)
-#    define PAGE_SHIFT       CONFIG_PAGE_SHIFT
+#   ifndef CONFIG_ARM64_PAGE_SHIFT
+#    define PAGE_SHIFT      CONFIG_PAGE_SHIFT
 #   else
-#    define PAGE_SHIFT       CONFIG_ARM64_PAGE_SHIFT
+#    define PAGE_SHIFT      CONFIG_ARM64_PAGE_SHIFT
 #   endif
 #  elif defined(IPRT_STATIC_ARM64_PAGE_SHIFT)
 #   define PAGE_SHIFT       IPRT_STATIC_ARM64_PAGE_SHIFT
@@ -118,7 +118,7 @@
 #endif
 
 /**
- * i386 Page offset mask.
+ * Page offset mask.
  *
  * @note If you do one-complement this, always insert a target type case after
  *       the operator!  Otherwise you may end up with weird results.
@@ -146,10 +146,66 @@
 #endif
 
 /**
+ * The minimum page size for the architecture.
+ */
+#if defined(RT_ARCH_ARM64) || defined(RT_ARCH_X86) || defined(RT_ARCH_AMD64)
+# define RT_MIN_PAGE_SIZE           4096
+#else
+# define RT_MIN_PAGE_SIZE           PAGE_SIZE
+#endif
+
+/**
+ * The shift count corresponding to RT_MIN_PAGE_SIZE.
+ */
+#if defined(RT_ARCH_ARM64) || defined(RT_ARCH_X86) || defined(RT_ARCH_AMD64)
+# define RT_MIN_PAGE_SHIFT          12
+#else
+# define RT_MIN_PAGE_SHIFT          PAGE_SHIFT
+#endif
+
+/**
+ * The offset mask corresponding to RT_MIN_PAGE_SIZE.
+ */
+#if defined(RT_ARCH_ARM64) || defined(RT_ARCH_X86) || defined(RT_ARCH_AMD64)
+# define RT_MIN_PAGE_OFFSET_MASK    0xfff
+#else
+# define RT_MIN_PAGE_OFFSET_MASK    PAGE_OFFSET_MASK
+#endif
+
+
+/**
+ * The maximum regular page size for the architecture (excluding huge pages).
+ */
+#if defined(RT_ARCH_ARM64)
+# define RT_MAX_PAGE_SIZE           65536
+#else
+# define RT_MAX_PAGE_SIZE           PAGE_SIZE
+#endif
+
+/**
+ * The shift count corresponding to RT_MAX_PAGE_SIZE.
+ */
+#if defined(RT_ARCH_ARM64)
+# define RT_MAX_PAGE_SHIFT          16
+#else
+# define RT_MAX_PAGE_SHIFT          PAGE_SHIFT
+#endif
+
+/**
+ * The offset mask corresponding to RT_MAX_PAGE_SIZE.
+ */
+#if defined(RT_ARCH_ARM64)
+# define RT_MAX_PAGE_OFFSET_MASK    0xffff
+#else
+# define RT_MAX_PAGE_OFFSET_MASK    PAGE_OFFSET_MASK
+#endif
+
+/**
  * Page address mask for the uintptr_t sized pointers.
  *
  * Be careful when using this since it may be a size too big!
  * @remark  Physical addresses are always masked using X86_PTE_PAE_PG_MASK!
+ * @deprecated
  */
 #define PAGE_BASE_MASK      (~(uintptr_t)PAGE_OFFSET_MASK)
 
@@ -162,6 +218,7 @@
  * @remarks Physical addresses are always masked using X86_PTE_PAE_PG_MASK!
  * @remarks This only works with POINTERS in the current context.
  *          Do NOT use on guest address or physical address!
+ * @deprecated
  */
 #define PAGE_ADDRESS(pv)    ((uintptr_t)(pv) & ~(uintptr_t)PAGE_OFFSET_MASK)
 
@@ -170,6 +227,7 @@
  *
  * @returns Page aligned address (it's an RTHCPHYS or RTGCPHYS).
  * @param   Phys    The physical address to align.
+ * @deprecated
  */
 #define PHYS_PAGE_ADDRESS(Phys) ((Phys) & X86_PTE_PAE_PG_MASK)
 

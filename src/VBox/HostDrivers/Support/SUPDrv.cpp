@@ -1,4 +1,4 @@
-/* $Id: SUPDrv.cpp 113470 2026-03-19 15:17:08Z ramshankar.venkataraman@oracle.com $ */
+/* $Id: SUPDrv.cpp 113518 2026-03-23 22:57:54Z knut.osmundsen@oracle.com $ */
 /** @file
  * VBoxDrv - The VirtualBox Support Driver - Common code.
  */
@@ -63,6 +63,7 @@
 #include <iprt/net.h>
 #include <iprt/crc.h>
 #include <iprt/string.h>
+#include <iprt/system.h>
 #include <iprt/timer.h>
 #if defined(RT_OS_DARWIN) || defined(RT_OS_SOLARIS) || defined(RT_OS_FREEBSD)
 # include <iprt/rand.h>
@@ -523,6 +524,9 @@ static SUPFUNC g_aFunctions[] =
     SUPEXP_STK_BACK(    4,  RTStrPrintfV),
     SUPEXP_STK_BACKF(   6,  RTStrPrintf2ExV),
     SUPEXP_STK_BACK(    4,  RTStrPrintf2V),
+    SUPEXP_STK_BACK(    0,  RTSystemGetPageSize),
+    SUPEXP_STK_BACK(    0,  RTSystemGetPageShift),
+    SUPEXP_STK_BACK(    0,  RTSystemGetPageOffsetMask),
     SUPEXP_STK_BACKF(   7,  RTThreadCreate),
     SUPEXP_STK_BACK(    1,  RTThreadCtxHookIsEnabled),
     SUPEXP_STK_BACKF(   4,  RTThreadCtxHookCreate),

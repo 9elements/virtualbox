@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 110706 2025-08-12 23:08:04Z knut.osmundsen@oracle.com $
+# $Id: Makefile.kmk 113518 2026-03-23 22:57:54Z knut.osmundsen@oracle.com $
 ## @file
 # Sub-Makefile for the IPRT.
 #
@@ -2883,7 +2883,7 @@ VBoxRT_DEFS                   := $(filter-out RT_NO_GIP, $(RuntimeBaseR3_DEFS)) 
 	IPRT_WITH_XAR \
 	IPRT_WITH_GHIDRA_DBG_MOD \
 	$(if-expr !defined(VBOX_WITH_ALT_HASH_CODE),IPRT_WITHOUT_SHA512T224 IPRT_WITHOUT_SHA512T256,)
-ifn1of ($(KBUILD_TARGET_ARCH), amd64 x86)
+ifndef VBOX_WITH_R0_MODULES
  VBoxRT_DEFS                  += RT_NO_GIP
 endif
 ifdef VBOX_WITH_LIBCURL
@@ -3093,6 +3093,7 @@ if1of ($(DLLS), VBoxRT)
 		$(if-expr "$(KBUILD_TARGET_ARCH)" == "x86"  ,-e "/not-x86/d",  -e "/only-x86/d") \
 		$(if-expr "$(KBUILD_TARGET_ARCH)" == "amd64",-e "/not-amd64/d",-e "/only-amd64/d") \
 		$(if-expr "$(KBUILD_TARGET_ARCH)" == "arm64",-e "/not-arm64/d",-e "/only-arm64/d") \
+		$(if-expr defined(VBOX_WITH_R0_MODULES)     ,-e "/no-gip/d",   -e "/with-gip/d") \
 		$(if-expr "$(substr $(if-expr $(KBUILD_TARGET) != 'win',$(VBOX_GCC_std), $(VBOX_VCC_std)),-2)" >= "17" \
                          && ("$(KBUILD_TARGET)" != "win" || !$(intersects RT_RELAXED_CALLBACKS_TYPES,$(DEFS))) \
 		                                            ,-e "/before-noexcept/d", -e "/after-noexcept/d") \
@@ -3176,6 +3177,7 @@ if1of ($(DLLS), VBoxRT-x86)
 		-e "/not-x86/d" \
 		-e "/only-amd64/d" \
 		-e "/only-arm64/d" \
+		$(if-expr defined(VBOX_WITH_R0_MODULES)     ,-e "/no-gip/d",   -e "/with-gip/d") \
 		$(if-expr "$(substr $(if-expr $(KBUILD_TARGET) != 'win',$(VBOX_GCC_std), $(VBOX_VCC_std)),-2)" >= "17" \
 		                                            ,-e "/before-noexcept/d", -e "/after-noexcept/d") \
 		$(VBOX_PATH_RUNTIME_SRC)/r3/win/VBoxRT-win32.def
@@ -3241,6 +3243,7 @@ if1of ($(KBUILD_TARGET).$(KBUILD_TARGET_ARCH), win.x86 win.amd64 linux.amd64 dar
 		$(if-expr "$(KBUILD_TARGET_ARCH)" == "x86"  ,-e "/not-x86/d",  -e "/only-x86/d") \
 		$(if-expr "$(KBUILD_TARGET_ARCH)" == "amd64",-e "/not-amd64/d",-e "/only-amd64/d") \
 		$(if-expr "$(KBUILD_TARGET_ARCH)" == "arm64",-e "/not-arm64/d",-e "/only-arm64/d") \
+		$(if-expr defined(VBOX_WITH_R0_MODULES)     ,-e "/no-gip/d",   -e "/with-gip/d") \
 		$(if-expr "$(KBUILD_TARGET).$(KBUILD_TARGET_ARCH)" == "darwin.arm64",, -e "/only-darwin.arm64/d") \
 		$(if-expr "$(substr $(if-expr $(KBUILD_TARGET) != 'win',$(VBOX_GCC_std), $(VBOX_VCC_std)),-2)" >= "17" \
 			,-e "/before-noexcept/d", -e "/after-noexcept/d") \

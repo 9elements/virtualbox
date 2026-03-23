@@ -1,4 +1,4 @@
-/* $Id: fileio-r0drv-darwin.cpp 106320 2024-10-15 12:08:41Z klaus.espenlaub@oracle.com $ */
+/* $Id: fileio-r0drv-darwin.cpp 113518 2026-03-23 22:57:54Z knut.osmundsen@oracle.com $ */
 /** @file
  * IPRT - File I/O, R0 Driver, Darwin.
  */
@@ -137,6 +137,7 @@ RTDECL(int) RTFileOpen(PRTFILE phFile, const char *pszFilename, uint64_t fOpen)
                 break;
             default:
                 AssertMsgFailed(("RTFileOpen received an invalid RW value, fOpen=%#x\n", fOpen));
+                RTMemFree(pThis);
                 IPRT_DARWIN_RESTORE_EFL_AC();
                 return VERR_INVALID_PARAMETER;
         }
