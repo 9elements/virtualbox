@@ -1,4 +1,4 @@
-/* $Id: UINotificationMessage.h 113505 2026-03-23 14:18:19Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationMessage.h 113507 2026-03-23 14:24:19Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationMessage declarations.
  */
@@ -37,6 +37,7 @@
 /* GUI includes: */
 #include "UILibraryDefs.h"
 #include "UIMediumDefs.h"
+#include "UINotificationDefs.h"
 #include "UINotificationObject.h"
 
 /* Forward declarations: */
@@ -86,14 +87,6 @@ class SHARED_LIBRARY_STUFF UINotificationMessage : public UINotificationSimple
     Q_OBJECT;
 
 public:
-
-    /** Possible notification types <= coped from MessageType. */
-    enum NotificationType
-    {
-        NotificationType_Warning = 1,
-        NotificationType_Error,
-        NotificationType_Critical
-    };
 
     /** Returns whether object is done. */
     virtual bool isDone() const RT_OVERRIDE RT_FINAL { return true; }
