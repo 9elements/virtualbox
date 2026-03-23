@@ -1,4 +1,4 @@
-/* $Id: UINotificationObject.cpp 113375 2026-03-12 12:32:20Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationObject.cpp 113511 2026-03-23 14:59:02Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationObject class implementation.
  */
@@ -40,7 +40,8 @@
 *********************************************************************************************************************************/
 
 UINotificationObject::UINotificationObject()
-    : m_fDismiss(false)
+    : m_enmObjType(NotificationType_Unknown)
+    , m_fDismiss(false)
 {
 }
 

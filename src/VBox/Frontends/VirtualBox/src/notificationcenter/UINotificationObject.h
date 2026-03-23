@@ -1,4 +1,4 @@
-/* $Id: UINotificationObject.h 113375 2026-03-12 12:32:20Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationObject.h 113511 2026-03-23 14:59:02Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationObject class declaration.
  */
@@ -36,6 +36,7 @@
 
 /* GUI includes: */
 #include "UILibraryDefs.h"
+#include "UINotificationDefs.h"
 
 /* COM includes: */
 #include "CProgress.h"
@@ -62,6 +63,11 @@ public:
 
     /** Constructs notification-object. */
     UINotificationObject();
+
+    /** Returns object type. */
+    NotificationType objType() const { return m_enmObjType; }
+    /** Defines object @a enmType. */
+    void setObjType(NotificationType enmType) { m_enmObjType = enmType; }
 
     /** Returns object name. */
     virtual QString name() const = 0;
@@ -91,6 +97,9 @@ public slots:
     virtual void close();
 
 private:
+
+    /** Holds the object type. */
+    NotificationType  m_enmObjType;
 
     /** Holds whether we should show message again. */
     bool  m_fDismiss;

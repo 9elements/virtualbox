@@ -1,4 +1,4 @@
-/* $Id: UINotificationObjectItem.cpp 113374 2026-03-12 11:55:48Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationObjectItem.cpp 113511 2026-03-23 14:59:02Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationObjectItem class implementation.
  */
@@ -35,7 +35,9 @@
 #include <QPaintEvent>
 #include <QProgressBar>
 #include <QPushButton>
+#include <QStyle>
 #include <QVBoxLayout>
+#include <QWindow>
 
 /* GUI includes: */
 #include "QIDialogButtonBox.h"
@@ -62,6 +64,7 @@ UINotificationObjectItem::UINotificationObjectItem(QWidget *pParent,
     , m_iDetailsWidthHint(0)
     , m_pLayoutMain(0)
     , m_pLayoutUpper(0)
+    , m_pLabelIcon(0)
     , m_pLabelName(0)
     , m_pButtonHelp(0)
     , m_pButtonClose(0)
@@ -144,6 +147,19 @@ void UINotificationObjectItem::prepareWidgets()
         m_pLayoutUpper = new QHBoxLayout;
         if (m_pLayoutUpper)
         {
+            /* Prepare icon label: */
+            if (internalObject()->objType() != NotificationType_Unknown)
+            {
+                m_pLabelIcon = new QLabel(this);
+                if (m_pLabelIcon)
+                {
+                    m_pLabelIcon->setPixmap(standardPixmap(internalObject()->objType(), this));
+                    m_pLabelIcon->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+
+                    m_pLayoutUpper->addWidget(m_pLabelIcon);
+                }
+            }
+
             /* Prepare name label: */
             m_pLabelName = new QLabel(this);
             if (m_pLabelName)
@@ -300,6 +316,42 @@ void UINotificationObjectItem::paintEvent(QPaintEvent *pPaintEvent)
         /* Draw frame: */
         painter.drawRect(effectiveRect);
     }
+}
+
+/* static */
+QPixmap UINotificationObjectItem::standardPixmap(NotificationType enmType, QWidget *pWidget)
+{
+    /* Prepare standard icon: */
+    QIcon icon;
+    switch (enmType)
+    {
+        case NotificationType_Info:
+            icon = UIIconPool::defaultIcon(UIIconPool::UIDefaultIconType_MessageBoxInformation, pWidget);
+            break;
+        case NotificationType_Question:
+            icon = UIIconPool::defaultIcon(UIIconPool::UIDefaultIconType_MessageBoxQuestion, pWidget);
+            break;
+        case NotificationType_Warning:
+            icon = UIIconPool::defaultIcon(UIIconPool::UIDefaultIconType_MessageBoxWarning, pWidget);
+            break;
+        case NotificationType_Critical:
+            icon = UIIconPool::defaultIcon(UIIconPool::UIDefaultIconType_MessageBoxCritical, pWidget);
+            break;
+        case NotificationType_GuruMeditation:
+            icon = UIIconPool::iconSet(":/meditation_32px.png");
+            break;
+        default:
+            break;
+    }
+
+    /* Return empty pixmap if nothing found: */
+    if (icon.isNull())
+        return QPixmap();
+
+    /* Return pixmap of standard size if possible: */
+    QStyle *pStyle = pWidget ? pWidget->style() : QApplication::style();
+    const int iSize = pStyle->pixelMetric(QStyle::PM_MessageBoxIconSize, 0, pWidget) / 2;
+    return icon.pixmap(iSize, iSize);
 }
 
 void UINotificationObjectItem::sltHandleHelpRequest()

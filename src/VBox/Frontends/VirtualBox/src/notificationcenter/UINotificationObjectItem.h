@@ -1,4 +1,4 @@
-/* $Id: UINotificationObjectItem.h 113358 2026-03-11 15:00:30Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationObjectItem.h 113511 2026-03-23 14:59:02Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationObjectItem class declaration.
  */
@@ -33,6 +33,9 @@
 
 /* Qt includes: */
 #include <QWidget>
+
+/* GUI includes: */
+#include "UINotificationDefs.h"
 
 /* VBox includes: */
 #include <iprt/cdefs.h> // for RT_OVERRIDE stuff
@@ -102,6 +105,9 @@ protected:
     /** Returns forget-control width-hint. */
     virtual int widthHintForgetControl() const { return 0; }
 
+    /** Generates standard pixmap for passed @a enmType using @a pWidget as hint. */
+    static QPixmap standardPixmap(NotificationType enmType, QWidget *pWidget);
+
     /** Holds the notification-object this item created for. */
     UINotificationObject *m_pObject;
 
@@ -114,6 +120,8 @@ protected:
     QVBoxLayout     *m_pLayoutMain;
     /** Holds the upper layout instance. */
     QHBoxLayout     *m_pLayoutUpper;
+    /** Holds the icon label instance. */
+    QLabel          *m_pLabelIcon;
     /** Holds the name label instance. */
     QLabel          *m_pLabelName;
     /** Holds the help button instance. */
