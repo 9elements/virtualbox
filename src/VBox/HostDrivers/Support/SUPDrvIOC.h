@@ -1,4 +1,4 @@
-/* $Id: SUPDrvIOC.h 113496 2026-03-22 22:23:27Z knut.osmundsen@oracle.com $ */
+/* $Id: SUPDrvIOC.h 113524 2026-03-23 23:38:29Z knut.osmundsen@oracle.com $ */
 /** @file
  * VirtualBox Support Driver - IOCtl definitions.
  */
@@ -231,6 +231,8 @@ typedef SUPREQHDR *PSUPREQHDR;
  *
  * @todo Pending work on next major version change:
  *          - nothing
+ * @note 0x00370000 is used by 7.2 and must be skipped.
+ * @note 0x00380000 is used by 7.1 and must be skipped.
  */
 #define SUPDRV_IOC_VERSION                              0x00360000
 
