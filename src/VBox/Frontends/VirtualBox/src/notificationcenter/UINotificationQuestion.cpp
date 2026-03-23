@@ -1,4 +1,4 @@
-/* $Id: UINotificationQuestion.cpp 113377 2026-03-12 13:25:38Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationQuestion.cpp 113501 2026-03-23 10:29:12Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationQuestion implementations.
  */
@@ -1027,6 +1027,7 @@ bool UINotificationQuestion::confirmUnattendedFilesRemoval()
         QStringList() << QString() /* cancel button text */
                       << QApplication::translate("UIMessageCenter", "Delete", "files") /* ok button text */,
         false /* ok button by default? */,
+        QString() /* option */,
         "confirmUnattendedFilesRemoval" /* internal name */);
 }
 
@@ -1057,6 +1058,7 @@ bool UINotificationQuestion::confirmInputCapture(bool &fAutoConfirmed)
         QStringList() << QString() /* cancel button text */
                       << QApplication::translate("UIMessageCenter", "Capture", "do input capture") /* ok button text */,
         false /* ok button by default? */,
+        QString() /* option */,
         "confirmInputCapture" /* internal name */);
 }
 
@@ -1075,6 +1077,7 @@ bool UINotificationQuestion::confirmGoingFullscreen(const QString &strHotKey)
         QStringList() << QString() /* cancel button text */
                       << QApplication::translate("UIMessageCenter", "Switch") /* ok button text */,
         true /* ok button by default? */,
+        QString() /* option */,
         "confirmGoingFullscreen");
 }
 
@@ -1093,6 +1096,7 @@ bool UINotificationQuestion::confirmGoingSeamless(const QString &strHotKey)
         QStringList() << QString() /* cancel button text */
                       << QApplication::translate("UIMessageCenter", "Switch") /* ok button text */,
         true /* ok button by default? */,
+        QString() /* option */,
         "confirmGoingSeamless");
 }
 
@@ -1111,6 +1115,7 @@ bool UINotificationQuestion::confirmGoingScale(const QString &strHotKey)
         QStringList() << QString() /* cancel button text */
                       << QApplication::translate("UIMessageCenter", "Switch") /* ok button text */,
         true /* ok button by default? */,
+        QString() /* option */,
         "confirmGoingScale");
 }
 
