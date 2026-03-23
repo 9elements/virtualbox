@@ -1,4 +1,4 @@
-/* $Id: CPUMR3.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: CPUMR3.cpp 113503 2026-03-23 13:48:19Z knut.osmundsen@oracle.com $ */
 /** @file
  * CPUM - CPU Monitor / Manager.
  */
@@ -448,6 +448,24 @@ VMMR3DECL(int) CPUMR3Init(PVM pVM)
     rc = cpumR3DbgInitTarget(pVM);
     if (RT_FAILURE(rc))
         return rc;
+
+    /*
+     * Statistics.
+     */
+#ifdef RT_ARCH_AMD64
+    for (VMCPUID i = 0; i < pVM->cCpus; i++)
+    {
+        PVMCPU const pVCpu = pVM->apCpusR3[i];
+        STAMR3RegisterF(pVM, &pVCpu->cpum.s.StatGuestFpuLoad, STAMTYPE_COUNTER, STAMVISIBILITY_USED, STAMUNIT_CALLS,
+                        "Number of cpumR0LoadGuestFPU calls", "/cpum/cpu%u/GuestFpuLoad", i);
+        STAMR3RegisterF(pVM, &pVCpu->cpum.s.StatGuestFpuReload, STAMTYPE_COUNTER, STAMVISIBILITY_USED, STAMUNIT_CALLS,
+                        "Number of times the host swapped out our FPU state", "/cpum/cpu%u/GuestFpuReload", i);
+# ifdef VBOX_WITH_STATISTICS
+        STAMR3RegisterF(pVM, &pVCpu->cpum.s.StatGuestFpuLoadPerf, STAMTYPE_PROFILE, STAMVISIBILITY_USED, STAMUNIT_TICKS_PER_CALL,
+                        "Profiling cpumR0LoadGuestFPU", "/cpum/cpu%u/GuestFpuLoadPerf", i);
+# endif
+    }
+#endif
 
     /*
      * Initialize the general guest CPU state.

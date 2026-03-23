@@ -1,4 +1,4 @@
-/* $Id: SUPDrv-linux.c 113112 2026-02-20 18:30:16Z klaus.espenlaub@oracle.com $ */
+/* $Id: SUPDrv-linux.c 113503 2026-03-23 13:48:19Z knut.osmundsen@oracle.com $ */
 /** @file
  * VBoxDrv - The VirtualBox Support Driver - Linux specifics.
  */
@@ -46,6 +46,7 @@
 #include "revision-generated.h"
 
 #include <iprt/assert.h>
+#include <iprt/dbg.h>
 #include <iprt/spinlock.h>
 #include <iprt/semaphore.h>
 #include <iprt/initterm.h>
@@ -182,6 +183,11 @@ static int  supdrvLinuxLdrModuleNotifyCallback(struct notifier_block *pBlock,
  * Device extention & session data association structure.
  */
 static SUPDRVDEVEXT         g_DevExt;
+
+#if RTLNX_VER_MIN(6,15,0) && (defined(RT_ARCH_AMD64) || defined(RT_ARCH_X86))
+/** Pointer to the switch_fpu_return function. */
+static __typeof__(switch_fpu_return) *g_pfnSwitchFpuReturn;
+#endif
 
 #ifdef SUPDRV_LINUX_HAS_KVM_HWVIRT_API
 /** Whether we have called kvm_enable_virtualization(). */
@@ -354,6 +360,42 @@ DECLINLINE(RTUID) vboxdrvLinuxEuid(void)
 # else
     return current->euid;
 # endif
+}
+#endif
+
+
+#if RTLNX_VER_MIN(6,15,0) && (defined(RT_ARCH_AMD64) || defined(RT_ARCH_X86))
+/**
+ * Dynamically resolves a function we need.
+ *
+ * @returns true if gotten using __symbol_get, false if via
+ *          RTR0DbgKrnlInfoGetFunction or if we failed.
+ */
+static bool supdrvLinuxFunction(const char *pszModule, const char *pszFunctionNm, PFNRT *ppfnFunction, PRTDBGKRNLINFO phKrnlInfo)
+{
+    int rc;
+    *ppfnFunction = (PFNRT)__symbol_get(pszFunctionNm);
+    if (*ppfnFunction)
+        return true;
+
+    if (*phKrnlInfo == NIL_RTDBGKRNLINFO)
+    {
+        rc = RTR0DbgKrnlInfoOpen(phKrnlInfo, 0 /*fFlags*/);
+        if (RT_FAILURE(rc))
+        {
+            printk(KERN_WARNING "vboxdrv: warning: failed to resolve %s%s%s (RTR0DbgKrnlInfoOpen failed: %d)\n",
+                   pszModule ? pszModule : "", pszModule ? "!" : "", pszFunctionNm, rc);
+            return false;
+        }
+    }
+
+    rc = RTR0DbgKrnlInfoQuerySymbol(*phKrnlInfo, pszModule, pszFunctionNm, (void **)&ppfnFunction);
+    if (RT_FAILURE(rc))
+        printk(KERN_WARNING "vboxdrv: warning: failed to resolve %s%s%s (rc=%d)\n",
+               pszModule ? pszModule : "", pszModule ? "!" : "", pszFunctionNm, rc);
+
+    /** @todo try the register_kprobe() approach. */
+    return false;
 }
 #endif
 
@@ -575,6 +617,15 @@ static int __init VBoxDrvLinuxInit(void)
                     if (rc == 0)
 #endif
                     {
+#if RTLNX_VER_MIN(6,15,0) && (defined(RT_ARCH_AMD64) || defined(RT_ARCH_X86))
+                        /*
+                         * Resolve symbols we want for FPU management.
+                         */
+                        RTDBGKRNLINFO hKrnlInfo = NIL_RTDBGKRNLINFO;
+                        supdrvLinuxFunction(NULL, "switch_fpu_return", (PFNRT *)&g_pfnSwitchFpuReturn, &hKrnlInfo);
+                        if (hKrnlInfo != NIL_RTDBGKRNLINFO)
+                            RTR0DbgKrnlInfoRelease(hKrnlInfo);
+#endif
 #if RTLNX_VER_MIN(5,0,0)
                         /*
                          * Register the module notifier.
@@ -1984,6 +2035,11 @@ SUPR0DECL(uint32_t) SUPR0GetKernelFeatures(void)
     if (ASMGetCR4() & X86_CR4_SMAP)
         fFlags |= SUPKERNELFEATURES_SMAP;
 #endif
+
+#if RTLNX_VER_MIN(6,15,0) && (defined(RT_ARCH_AMD64) || defined(RT_ARCH_X86))
+    if (!g_pfnSwitchFpuReturn)
+        fFlags |= SUPKERNELFEATURES_FPU_NO_PREEMPT;
+#endif
     return fFlags;
 }
 SUPR0_EXPORT_SYMBOL(SUPR0GetKernelFeatures);
@@ -1991,7 +2047,10 @@ SUPR0_EXPORT_SYMBOL(SUPR0GetKernelFeatures);
 
 #if defined(RT_ARCH_AMD64) || defined(RT_ARCH_X86) /* not available on arm64 */
 
-SUPR0DECL(bool) SUPR0FpuBegin(bool fCtxHook)
+# define SUPR0FPU_BEGIN_F_LNX_MAGIC_MASK    UINT32_C(0xffff0000)
+# define SUPR0FPU_BEGIN_F_LNX_MAGIC         UINT32_C(0xc0de0000)
+
+SUPR0DECL(uint32_t) SUPR0FpuBegin(bool fCtxHook)
 {
     RT_NOREF(fCtxHook);
 # if RTLNX_VER_MIN(4,19,0) /* Going back to 4.19.0 for better coverage, we
@@ -1999,8 +2058,8 @@ SUPR0DECL(bool) SUPR0FpuBegin(bool fCtxHook)
     /*
      * HACK ALERT!
      *
-     * We'd like to use the old __kernel_fpu_begin() API which was removed in
-     * early 2019, because we typically run with preemption enabled and have an
+     * We'd like to use the old __kernel_fpu_begin() API which was removed in 5.3
+     * (early 2019), because we typically run with preemption enabled and have an
      * preemption hook installed which will call kernel_fpu_end() in case we're
      * scheduled out after getting in here.  The preemption hook is almost
      * useless if we run with preemption disabled.
@@ -2015,48 +2074,142 @@ SUPR0DECL(bool) SUPR0FpuBegin(bool fCtxHook)
      *
      * See @bugref{10209#c12} and onwards for more details.
      */
+    uint32_t fBegin = SUPR0FPU_BEGIN_F_LNX_MAGIC;
     Assert(fCtxHook || !RTThreadPreemptIsEnabled(NIL_RTTHREAD));
-    kernel_fpu_begin();
+    Assert(!ASMIntAreEnabled());
 #  if RTLNX_VER_MIN(6,15,0) /* fpregs_unlock may do more than just preempt_enable, so only when necessary now. */
-    if (fCtxHook)
-#  endif
+    /* Always disable IRQs the linux way and explicitly lock the FPU state. */
+    unsigned long fSavedIrqs;
+    local_irq_save(fSavedIrqs);
+    if (fCtxHook && g_pfnSwitchFpuReturn)
     {
-#  if RTLNX_VER_MIN(6,15,0)
-        if (!irqs_disabled())
-            fpregs_unlock();
-#  else
-        preempt_enable();
-#  endif
+        if (test_thread_flag(TIF_NEED_FPU_LOAD))
+            g_pfnSwitchFpuReturn();
+        fBegin |= SUPR0FPU_BEGIN_F_CTX_HOOK | SUPR0FPU_BEGIN_F_HOST_MAY_REPLACE_STATE;
     }
-    return false; /** @todo Not sure if we have license to use any extended state, or
-                   *        if we're limited to the SSE & x87 FPU. If it's the former,
-                   *        we should return @a true and the caller can skip
-                   *        saving+restoring the host state and save some time. */
+    else
+    {
+        Assert(!fCtxHook /* No calls with fCtxHook=true when g_pfnSwitchFpuReturn is NULL. */);
+        fpregs_lock();
+        kernel_fpu_begin();
+        /** @todo consider setting SUPR0FPU_BEGIN_F_FULLY_SAVED in fBegin */
+    }
+    local_irq_restore(fSavedIrqs);
+    Assert(fCtxHook || !irq_fpu_usable());
+#  else
+    kernel_fpu_begin();
+    preempt_enable();
+#  endif
+    return fBegin;
 # else
-    return false;
+    return SUPR0FPU_BEGIN_F_LNX_MAGIC;
 # endif
 }
 SUPR0_EXPORT_SYMBOL(SUPR0FpuBegin);
 
 
-SUPR0DECL(void) SUPR0FpuEnd(bool fCtxHook)
+SUPR0DECL(bool) SUPR0FpuEnsureCurrent(uint32_t fBegin)
 {
-    RT_NOREF(fCtxHook);
+    Assert(!ASMIntAreEnabled());
+    AssertReturn(   (fBegin & (SUPR0FPU_BEGIN_F_LNX_MAGIC_MASK | SUPR0FPU_BEGIN_F_HOST_MAY_REPLACE_STATE))
+                 ==           (SUPR0FPU_BEGIN_F_LNX_MAGIC      | SUPR0FPU_BEGIN_F_HOST_MAY_REPLACE_STATE),
+                 false);
+
+#  if RTLNX_VER_MIN(6,15,0)
+    if (test_thread_flag(TIF_NEED_FPU_LOAD))
+    {
+        Assert(!(fBegin & SUPR0FPU_BEGIN_F_HOST_STATE_LOCKED));
+        AssertReturn(g_pfnSwitchFpuReturn, false);
+        g_pfnSwitchFpuReturn();
+        return true;
+    }
+#  endif
+    return false;
+}
+SUPR0_EXPORT_SYMBOL(SUPR0FpuEnsureCurrent);
+
+
+SUPR0DECL(uint32_t) SUPR0FpuLock(uint32_t fBegin)
+{
+    Assert(   (fBegin & (SUPR0FPU_BEGIN_F_LNX_MAGIC_MASK | SUPR0FPU_BEGIN_F_HOST_MAY_REPLACE_STATE))
+           ==           (SUPR0FPU_BEGIN_F_LNX_MAGIC      | SUPR0FPU_BEGIN_F_HOST_MAY_REPLACE_STATE));
+    Assert(!ASMIntAreEnabled());
+
+#  if RTLNX_VER_MIN(6,15,0)
+    if (   (fBegin & (SUPR0FPU_BEGIN_F_CTX_HOOK | SUPR0FPU_BEGIN_F_HOST_MAY_REPLACE_STATE))
+        ==           (SUPR0FPU_BEGIN_F_CTX_HOOK | SUPR0FPU_BEGIN_F_HOST_MAY_REPLACE_STATE) )
+    {
+        /* Only lock once. */
+        if (!(fBegin & SUPR0FPU_BEGIN_F_HOST_STATE_LOCKED))
+        {
+            fpregs_lock();
+            fBegin |= SUPR0FPU_BEGIN_F_HOST_STATE_LOCKED;
+        }
+
+        /* Ensure that the state is now active when we return. (Caller can call
+           SUPR0FpuEnsureCurrent before this function if interested in whether
+           it was swapped.)  */
+        if (test_thread_flag(TIF_NEED_FPU_LOAD))
+        {
+            AssertReturn(g_pfnSwitchFpuReturn, false);
+            g_pfnSwitchFpuReturn();
+        }
+    }
+#  endif
+    return fBegin;
+}
+SUPR0_EXPORT_SYMBOL(SUPR0FpuLock);
+
+
+SUPR0DECL(uint32_t) SUPR0FpuUnlock(uint32_t fBegin)
+{
+    Assert((fBegin & SUPR0FPU_BEGIN_F_LNX_MAGIC_MASK) == SUPR0FPU_BEGIN_F_LNX_MAGIC);
+    Assert(!ASMIntAreEnabled());
+
+#  if RTLNX_VER_MIN(6,15,0)
+    if (   (fBegin & (SUPR0FPU_BEGIN_F_CTX_HOOK | SUPR0FPU_BEGIN_F_HOST_MAY_REPLACE_STATE | SUPR0FPU_BEGIN_F_HOST_STATE_LOCKED))
+        ==           (SUPR0FPU_BEGIN_F_CTX_HOOK | SUPR0FPU_BEGIN_F_HOST_MAY_REPLACE_STATE | SUPR0FPU_BEGIN_F_HOST_STATE_LOCKED) )
+    {
+        fpregs_unlock();
+        fBegin &= ~SUPR0FPU_BEGIN_F_HOST_STATE_LOCKED;
+    }
+    else
+        Assert(!(fBegin & SUPR0FPU_BEGIN_F_HOST_STATE_LOCKED));
+#  endif
+    return fBegin;
+}
+SUPR0_EXPORT_SYMBOL(SUPR0FpuUnlock);
+
+
+SUPR0DECL(void) SUPR0FpuEnd(uint32_t fBegin)
+{
+    Assert((fBegin & SUPR0FPU_BEGIN_F_LNX_MAGIC_MASK) == SUPR0FPU_BEGIN_F_LNX_MAGIC);
+    RT_NOREF(fBegin);
+
 # if RTLNX_VER_MIN(4,19,0)
     /* HACK ALERT! See SUPR0FpuBegin for an explanation of this. */
     Assert(!RTThreadPreemptIsEnabled(NIL_RTTHREAD));
 #  if RTLNX_VER_MIN(6,15,0) /* fpregs_unlock may do more than just preempt_enable, so only when necessary now. */
-    if (fCtxHook)
-#  endif
+    /* When using a preemption hook, we only need to undo SUPR0FpuLock(). */
+    if (   (fBegin & (SUPR0FPU_BEGIN_F_CTX_HOOK | SUPR0FPU_BEGIN_F_HOST_MAY_REPLACE_STATE | SUPR0FPU_BEGIN_F_HOST_STATE_LOCKED))
+        ==           (SUPR0FPU_BEGIN_F_CTX_HOOK | SUPR0FPU_BEGIN_F_HOST_MAY_REPLACE_STATE | SUPR0FPU_BEGIN_F_HOST_STATE_LOCKED) )
+        fpregs_unlock();
+    else if (   (fBegin & (SUPR0FPU_BEGIN_F_CTX_HOOK | SUPR0FPU_BEGIN_F_HOST_MAY_REPLACE_STATE))
+             !=           (SUPR0FPU_BEGIN_F_CTX_HOOK | SUPR0FPU_BEGIN_F_HOST_MAY_REPLACE_STATE) )
     {
-#  if RTLNX_VER_MIN(6,15,0)
-        if (!irqs_disabled())
-            fpregs_lock();
-#  else
-        preempt_disable();
-#  endif
+        Assert(fBegin == SUPR0FPU_BEGIN_F_LNX_MAGIC);
+        /* Always disable IRQs and explicitly unlock the FPU state. */
+        unsigned long fSavedIrqs;
+        local_irq_save(fSavedIrqs);
+        fpregs_unlock();
+        kernel_fpu_end();
+        local_irq_restore(fSavedIrqs);
     }
+
+#  else
+    preempt_disable();
     kernel_fpu_end();
+#  endif
 # endif
 }
 SUPR0_EXPORT_SYMBOL(SUPR0FpuEnd);

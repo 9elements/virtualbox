@@ -2249,28 +2249,23 @@ VMMR0_INT_DECL(int)     CPUMR0ModuleTerm(void);
 VMMR0_INT_DECL(void)    CPUMR0InitPerVMData(PGVM pGVM);
 VMMR0_INT_DECL(int)     CPUMR0InitVM(PVMCC pVM);
 DECLASM(void)           CPUMR0RegisterVCpuThread(PVMCPUCC pVCpu);
+
 DECLASM(void)           CPUMR0TouchHostFpu(void);
-VMMR0_INT_DECL(int)     CPUMR0Trap07Handler(PVMCC pVM, PVMCPUCC pVCpu);
-VMMR0_INT_DECL(int)     CPUMR0LoadGuestFPU(PVMCC pVM, PVMCPUCC pVCpu);
+VMMR0_INT_DECL(int)     CPUMR0EnsureLoadedGuestFPU(PVMCC pVM, PVMCPUCC pVCpu);
 VMMR0_INT_DECL(bool)    CPUMR0FpuStateMaybeSaveGuestAndRestoreHost(PVMCPUCC pVCpu);
+VMMR0_INT_DECL(void)    CPUMR0FpuStatePrepareHostCpuForUse(PVMCPUCC pVCpu);
+VMMR0_INT_DECL(void)    CPUMR0FpuStateActualizeForRead(PVMCPUCC pVCpu);
+VMMR0_INT_DECL(void)    CPUMR0FpuStateActualizeForChange(PVMCPUCC pVCpu);
+VMMR0_INT_DECL(void)    CPUMR0FpuStateActualizeSseForRead(PVMCPUCC pVCpu);
+VMMR0_INT_DECL(void)    CPUMR0FpuStateActualizeAvxForRead(PVMCPUCC pVCpu);
+
 VMMR0_INT_DECL(int)     CPUMR0SaveHostDebugState(PVMCC pVM, PVMCPUCC pVCpu);
 VMMR0_INT_DECL(bool)    CPUMR0DebugStateMaybeSaveGuestAndRestoreHost(PVMCPUCC pVCpu, bool fDr6);
 VMMR0_INT_DECL(bool)    CPUMR0DebugStateMaybeSaveGuest(PVMCPUCC pVCpu, bool fDr6);
-
 VMMR0_INT_DECL(void)    CPUMR0LoadGuestDebugState(PVMCPUCC pVCpu, bool fDr6);
 VMMR0_INT_DECL(void)    CPUMR0LoadHyperDebugState(PVMCPUCC pVCpu, bool fDr6);
 /** @} */
 #endif /* IN_RING0 */
-
-/** @defgroup grp_cpum_rz    The CPUM raw-mode and ring-0 context API
- * @{
- */
-VMMRZ_INT_DECL(void)    CPUMRZFpuStatePrepareHostCpuForUse(PVMCPUCC pVCpu);
-VMMRZ_INT_DECL(void)    CPUMRZFpuStateActualizeForRead(PVMCPUCC pVCpu);
-VMMRZ_INT_DECL(void)    CPUMRZFpuStateActualizeForChange(PVMCPUCC pVCpu);
-VMMRZ_INT_DECL(void)    CPUMRZFpuStateActualizeSseForRead(PVMCPUCC pVCpu);
-VMMRZ_INT_DECL(void)    CPUMRZFpuStateActualizeAvxForRead(PVMCPUCC pVCpu);
-/** @} */
 
 
 #endif /* !VBOX_FOR_DTRACE_LIB */

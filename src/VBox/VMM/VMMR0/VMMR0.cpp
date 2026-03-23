@@ -1,4 +1,4 @@
-/* $Id: VMMR0.cpp 112510 2026-01-13 15:24:18Z knut.osmundsen@oracle.com $ */
+/* $Id: VMMR0.cpp 113503 2026-03-23 13:48:19Z knut.osmundsen@oracle.com $ */
 /** @file
  * VMM - Host Context Ring 0.
  */
@@ -1110,17 +1110,19 @@ VMMR0_INT_DECL(int) VMMR0ThreadCtxHookCreateForEmt(PVMCPUCC pVCpu)
     Assert(pVCpu->vmmr0.s.hCtxHook == NIL_RTTHREADCTXHOOK);
 
 #ifndef VBOX_WITH_MINIMAL_R0
-
+    int rc = VERR_NOT_SUPPORTED;
 # if 1 /* To disable this stuff change to zero. */
-    int rc = RTThreadCtxHookCreate(&pVCpu->vmmr0.s.hCtxHook, 0, vmmR0ThreadCtxCallback, pVCpu);
-    if (RT_SUCCESS(rc))
+    if (!(SUPR0GetKernelFeatures() & SUPKERNELFEATURES_FPU_NO_PREEMPT))
     {
-        pVCpu->pGVM->vmm.s.fIsUsingContextHooks = true;
-        return rc;
+        rc = RTThreadCtxHookCreate(&pVCpu->vmmr0.s.hCtxHook, 0, vmmR0ThreadCtxCallback, pVCpu);
+        if (RT_SUCCESS(rc))
+        {
+            pVCpu->pGVM->vmm.s.fIsUsingContextHooks = true;
+            return rc;
+        }
     }
 # else
     RT_NOREF(vmmR0ThreadCtxCallback);
-    int rc = VERR_NOT_SUPPORTED;
 # endif
 #endif
 

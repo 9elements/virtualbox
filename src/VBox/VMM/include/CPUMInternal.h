@@ -1,4 +1,4 @@
-/* $Id: CPUMInternal.h 112437 2026-01-13 08:57:54Z knut.osmundsen@oracle.com $ */
+/* $Id: CPUMInternal.h 113503 2026-03-23 13:48:19Z knut.osmundsen@oracle.com $ */
 /** @file
  * CPUM - Internal header file.
  */
@@ -522,6 +522,12 @@ typedef struct CPUMCPU
     /** Saved host context.  Only valid while inside RC or HM contexts.
      * Must be aligned on a 64-byte boundary. */
     CPUMHOSTCTX             Host;
+    /** Release stat: Calls to cpumR0LoadGuestFPU. */
+    STAMCOUNTER             StatGuestFpuLoad;
+    /** Release stat: Calls to SUPR0FpuEnsureCurrent. */
+    STAMCOUNTER             StatGuestFpuReload;
+    /** Profiling SUPR0FpuEnsureCurrent. */
+    STAMPROFILE             StatGuestFpuLoadPerf;
 #endif
 
     /** Use flags.
@@ -576,6 +582,21 @@ AssertCompileAdjacentMembers(CPUMCPU, Guest, GuestMsrs); /* HACK ALERT! HMR0A.as
 #endif
 /** Pointer to the CPUMCPU instance data residing in the shared VMCPU structure. */
 typedef CPUMCPU *PCPUMCPU;
+
+
+/**
+ * CPUM per-VCpu ring-0 only instance data.
+ */
+typedef struct CPUMR0PERVCPU
+{
+#if defined(VBOX_VMM_TARGET_X86) /** @todo temporary: */ || defined(VBOX_VMM_TARGET_AGNOSTIC)
+    /** The SUPR0FpuBegin return value (state). */
+    uint32_t                fFpuBegin;
+#else
+    uint32_t                uDummy;
+#endif
+} CPUMR0PERVCPU;
+
 
 #ifndef VBOX_FOR_DTRACE_LIB
 RT_C_DECLS_BEGIN

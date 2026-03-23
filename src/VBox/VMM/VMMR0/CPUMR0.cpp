@@ -1,4 +1,4 @@
-/* $Id: CPUMR0.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: CPUMR0.cpp 113503 2026-03-23 13:48:19Z knut.osmundsen@oracle.com $ */
 /** @file
  * CPUM - Host Context Ring 0, only targeting x86.
  */
@@ -413,69 +413,6 @@ VMMR0_INT_DECL(int) CPUMR0InitVM(PVMCC pVM)
 
 
 /**
- * Trap handler for device-not-available fault (\#NM).
- * Device not available, FP or (F)WAIT instruction.
- *
- * @returns VBox status code.
- * @retval VINF_SUCCESS           if the guest FPU state is loaded.
- * @retval VINF_EM_RAW_GUEST_TRAP if it is a guest trap.
- * @retval VINF_CPUM_HOST_CR0_MODIFIED if we modified the host CR0.
- *
- * @param   pVM         The cross context VM structure.
- * @param   pVCpu       The cross context virtual CPU structure.
- */
-VMMR0_INT_DECL(int) CPUMR0Trap07Handler(PVMCC pVM, PVMCPUCC pVCpu)
-{
-    Assert(pVM->cpum.s.HostFeatures.s.fFxSaveRstor);
-    Assert(ASMGetCR4() & X86_CR4_OSFXSR);
-
-    /* If the FPU state has already been loaded, then it's a guest trap. */
-    if (CPUMIsGuestFPUStateActive(pVCpu))
-    {
-        Assert(    ((pVCpu->cpum.s.Guest.cr0 & (X86_CR0_MP | X86_CR0_EM | X86_CR0_TS)) == (X86_CR0_MP | X86_CR0_TS))
-               ||  ((pVCpu->cpum.s.Guest.cr0 & (X86_CR0_MP | X86_CR0_EM | X86_CR0_TS)) == (X86_CR0_MP | X86_CR0_TS | X86_CR0_EM)));
-        return VINF_EM_RAW_GUEST_TRAP;
-    }
-
-    /*
-     * There are two basic actions:
-     *   1. Save host fpu and restore guest fpu.
-     *   2. Generate guest trap.
-     *
-     * When entering the hypervisor we'll always enable MP (for proper wait
-     * trapping) and TS (for intercepting all fpu/mmx/sse stuff). The EM flag
-     * is taken from the guest OS in order to get proper SSE handling.
-     *
-     *
-     * Actions taken depending on the guest CR0 flags:
-     *
-     *   3    2    1
-     *  TS | EM | MP | FPUInstr | WAIT :: VMM Action
-     * ------------------------------------------------------------------------
-     *   0 |  0 |  0 | Exec     | Exec :: Clear TS & MP, Save HC, Load GC.
-     *   0 |  0 |  1 | Exec     | Exec :: Clear TS, Save HC, Load GC.
-     *   0 |  1 |  0 | #NM      | Exec :: Clear TS & MP, Save HC, Load GC.
-     *   0 |  1 |  1 | #NM      | Exec :: Clear TS, Save HC, Load GC.
-     *   1 |  0 |  0 | #NM      | Exec :: Clear MP, Save HC, Load GC. (EM is already cleared.)
-     *   1 |  0 |  1 | #NM      | #NM  :: Go to guest taking trap there.
-     *   1 |  1 |  0 | #NM      | Exec :: Clear MP, Save HC, Load GC. (EM is already set.)
-     *   1 |  1 |  1 | #NM      | #NM  :: Go to guest taking trap there.
-     */
-
-    switch (pVCpu->cpum.s.Guest.cr0 & (X86_CR0_MP | X86_CR0_EM | X86_CR0_TS))
-    {
-        case X86_CR0_MP | X86_CR0_TS:
-        case X86_CR0_MP | X86_CR0_TS | X86_CR0_EM:
-            return VINF_EM_RAW_GUEST_TRAP;
-        default:
-            break;
-    }
-
-    return CPUMR0LoadGuestFPU(pVM, pVCpu);
-}
-
-
-/**
  * Saves the host-FPU/XMM state (if necessary) and (always) loads the guest-FPU
  * state into the CPU.
  *
@@ -486,18 +423,36 @@ VMMR0_INT_DECL(int) CPUMR0Trap07Handler(PVMCC pVM, PVMCPUCC pVCpu)
  * @param   pVM     The cross context VM structure.
  * @param   pVCpu   The cross context virtual CPU structure.
  */
-VMMR0_INT_DECL(int) CPUMR0LoadGuestFPU(PVMCC pVM, PVMCPUCC pVCpu)
+static int cpumR0LoadGuestFPU(PVMCC pVM, PVMCPUCC pVCpu)
 {
-    int rc;
+    STAM_PROFILE_START(&pVCpu->cpum.s.StatGuestFpuLoadPerf, x);
+    STAM_REL_COUNTER_INC(&pVCpu->cpum.s.StatGuestFpuLoad);
+
     Assert(!RTThreadPreemptIsEnabled(NIL_RTTHREAD));
     Assert(!(pVCpu->cpum.s.fUseFlags & CPUM_USED_FPU_GUEST));
 
-    /* Notify the support driver prior to loading the guest-FPU register state. */
-    SUPR0FpuBegin(VMMR0ThreadCtxHookIsEnabled(pVCpu));
-    /** @todo use return value? Currently skipping that to be on the safe side
-     *        wrt. extended state (linux). */
+    /*
+     * Prep the host FPU state as required.
+     */
+    if (!(pVCpu->cpum.s.fUseFlags & CPUM_USED_FPU_HOST))
+    {
+        Assert(pVCpu->cpumr0.s.fFpuBegin == 0);
+        pVCpu->cpumr0.s.fFpuBegin = SUPR0FpuBegin(VMMR0ThreadCtxHookIsEnabled(pVCpu));
+        /** @todo use return value? Currently skipping that to be on the safe side
+         *        wrt. extended state (linux). */
+    }
+    else
+    {
+        if (pVCpu->cpumr0.s.fFpuBegin & SUPR0FPU_BEGIN_F_HOST_MAY_REPLACE_STATE)
+            SUPR0FpuEnsureCurrent(pVCpu->cpumr0.s.fFpuBegin);
+    }
 
-    if (!pVM->cpum.s.HostFeatures.s.fLeakyFxSR)
+    /*
+     * Load the guest state, after first saving (if required) the host state.
+     * The leaky fxsave stuff make this extra fun.
+     */
+    int rc;
+    if (!pVM->cpum.s.HostFeatures.s.fLeakyFxSR) /** @todo use ring-0 version? */
     {
         Assert(!(pVCpu->cpum.s.fUseFlags & CPUM_USED_MANUAL_XMM_RESTORE));
         rc = cpumR0SaveHostRestoreGuestFPUState(&pVCpu->cpum.s);
@@ -524,7 +479,74 @@ VMMR0_INT_DECL(int) CPUMR0LoadGuestFPU(PVMCC pVM, PVMCPUCC pVCpu)
     Assert(   (pVCpu->cpum.s.fUseFlags & (CPUM_USED_FPU_GUEST | CPUM_USED_FPU_HOST | CPUM_USED_FPU_SINCE_REM))
            ==                            (CPUM_USED_FPU_GUEST | CPUM_USED_FPU_HOST | CPUM_USED_FPU_SINCE_REM));
     Assert(pVCpu->cpum.s.Guest.fUsedFpuGuest);
+
+    STAM_PROFILE_STOP(&pVCpu->cpum.s.StatGuestFpuLoadPerf, x);
     return rc;
+}
+
+
+/**
+ * SUPR0FPU_BEGIN_F_HOST_MAY_REPLACE_STATE mode: Make sure the host has our
+ * state loaded (whatever it holds).
+ *
+ * Linux may kick it out if an interrupt handler or similar wanted to use SIMD
+ * instructions for something (typically crypto or raid checksums).
+ *
+ * @note Must be called with interrupts disabled!
+ */
+DECL_FORCE_INLINE(void) cpumR0FpuEnsureHostCurrent(PVMCPUCC pVCpu)
+{
+    if (pVCpu->cpumr0.s.fFpuBegin & SUPR0FPU_BEGIN_F_HOST_MAY_REPLACE_STATE)
+    {
+        if (!SUPR0FpuEnsureCurrent(pVCpu->cpumr0.s.fFpuBegin))
+        { /* probable */ }
+        else
+        {
+            /** @todo load FPUDS & FPUCS as needed. */
+            STAM_REL_COUNTER_INC(&pVCpu->cpum.s.StatGuestFpuReload);
+        }
+    }
+}
+
+
+/**
+ *
+ * @returns VINF_SUCCESS on success, host CR0 unmodified.
+ * @returns VINF_CPUM_HOST_CR0_MODIFIED on success when the host CR0 was
+ *          modified and VT-x needs to update the value in the VMCS.
+ *
+ * @param   pVM     The cross context VM structure.
+ * @param   pVCpu   The cross context virtual CPU structure.
+ */
+VMMR0_INT_DECL(int) CPUMR0EnsureLoadedGuestFPU(PVMCC pVM, PVMCPUCC pVCpu)
+{
+    Assert(!ASMIntAreEnabled());
+    Assert(!RTThreadPreemptIsEnabled(NIL_RTTHREAD));
+
+    /*
+     * Load the FPU state if not loaded yet.
+     */
+    Assert(RT_BOOL(pVCpu->cpum.s.fUseFlags & CPUM_USED_FPU_GUEST) == pVCpu->cpum.s.Guest.fUsedFpuGuest);
+    if (!(pVCpu->cpum.s.fUseFlags & CPUM_USED_FPU_GUEST))
+        return cpumR0LoadGuestFPU(pVM, pVCpu);
+
+    /*
+     * If loaded, make sure it's current with the host OS.
+     *
+     * Linux may kick it out if an interrupt handler or similar wanted to use
+     * SIMD instructions for something (typically crypto or raid checksums).
+     */
+    cpumR0FpuEnsureHostCurrent(pVCpu);
+
+    /*
+     * Automatically unlock it, if requested.
+     */
+    /** @todo move this to post-execution action. */
+    if (   (pVCpu->cpumr0.s.fFpuBegin & (SUPR0FPU_BEGIN_F_HOST_MAY_REPLACE_STATE | SUPR0FPU_BEGIN_F_HOST_STATE_LOCKED))
+        == (SUPR0FPU_BEGIN_F_HOST_MAY_REPLACE_STATE | SUPR0FPU_BEGIN_F_HOST_STATE_LOCKED) )
+        pVCpu->cpumr0.s.fFpuBegin = SUPR0FpuUnlock(pVCpu->cpumr0.s.fFpuBegin);
+
+    return VINF_SUCCESS;
 }
 
 
@@ -537,43 +559,219 @@ VMMR0_INT_DECL(int) CPUMR0LoadGuestFPU(PVMCC pVM, PVMCPUCC pVCpu)
  */
 VMMR0_INT_DECL(bool) CPUMR0FpuStateMaybeSaveGuestAndRestoreHost(PVMCPUCC pVCpu)
 {
-    bool fSavedGuest;
     Assert(pVCpu->CTX_SUFF(pVM)->cpum.s.HostFeatures.s.fFxSaveRstor);
     Assert(ASMGetCR4() & X86_CR4_OSFXSR);
+
+    bool fSavedGuest = false;
     if (pVCpu->cpum.s.fUseFlags & (CPUM_USED_FPU_GUEST | CPUM_USED_FPU_HOST))
     {
-        fSavedGuest = RT_BOOL(pVCpu->cpum.s.fUseFlags & CPUM_USED_FPU_GUEST);
-        Assert(fSavedGuest == pVCpu->cpum.s.Guest.fUsedFpuGuest);
-        if (!(pVCpu->cpum.s.fUseFlags & CPUM_USED_MANUAL_XMM_RESTORE))
-            cpumR0SaveGuestRestoreHostFPUState(&pVCpu->cpum.s);
-        else
+        RTCCUINTREG const fIntFlags = ASMIntDisableFlags();
+
+        if (pVCpu->cpum.s.fUseFlags & (CPUM_USED_FPU_GUEST | CPUM_USED_FPU_HOST))
         {
-            /* Temporarily clear MSR_K6_EFER_FFXSR or else we'll be unable to
-               save/restore the XMM state with fxsave/fxrstor. */
-            uint64_t uHostEfer = ASMRdMsr(MSR_K6_EFER);
-            if (uHostEfer & MSR_K6_EFER_FFXSR)
+            /* Make sure the FPU stat is ours and that the host hasn't replaced it. */
+            if (   (pVCpu->cpumr0.s.fFpuBegin & SUPR0FPU_BEGIN_F_HOST_MAY_REPLACE_STATE)
+                && SUPR0FpuEnsureCurrent(pVCpu->cpumr0.s.fFpuBegin))
             {
-                RTCCUINTREG const uSavedFlags = ASMIntDisableFlags();
-                ASMWrMsr(MSR_K6_EFER, uHostEfer & ~MSR_K6_EFER_FFXSR);
-                cpumR0SaveGuestRestoreHostFPUState(&pVCpu->cpum.s);
-                ASMWrMsr(MSR_K6_EFER, uHostEfer | MSR_K6_EFER_FFXSR);
-                ASMSetFlags(uSavedFlags);
+                /** @todo load FPUDS & FPUCS as needed. */
+                STAM_REL_COUNTER_INC(&pVCpu->cpum.s.StatGuestFpuReload);
             }
-            else
+
+            /* Do the actual state swapping. */
+            fSavedGuest = RT_BOOL(pVCpu->cpum.s.fUseFlags & CPUM_USED_FPU_GUEST);
+            Assert(fSavedGuest == pVCpu->cpum.s.Guest.fUsedFpuGuest);
+            if (!(pVCpu->cpum.s.fUseFlags & CPUM_USED_MANUAL_XMM_RESTORE))
                 cpumR0SaveGuestRestoreHostFPUState(&pVCpu->cpum.s);
-            pVCpu->cpum.s.fUseFlags &= ~CPUM_USED_MANUAL_XMM_RESTORE;
+            else
+            {
+                /* Temporarily clear MSR_K6_EFER_FFXSR or else we'll be unable to
+                   save/restore the XMM state with fxsave/fxrstor. */
+                uint64_t uHostEfer = ASMRdMsr(MSR_K6_EFER);
+                if (uHostEfer & MSR_K6_EFER_FFXSR)
+                {
+                    RTCCUINTREG const uSavedFlags = ASMIntDisableFlags();
+                    ASMWrMsr(MSR_K6_EFER, uHostEfer & ~MSR_K6_EFER_FFXSR);
+                    cpumR0SaveGuestRestoreHostFPUState(&pVCpu->cpum.s);
+                    ASMWrMsr(MSR_K6_EFER, uHostEfer | MSR_K6_EFER_FFXSR);
+                    ASMSetFlags(uSavedFlags);
+                }
+                else
+                    cpumR0SaveGuestRestoreHostFPUState(&pVCpu->cpum.s);
+                pVCpu->cpum.s.fUseFlags &= ~CPUM_USED_MANUAL_XMM_RESTORE;
+            }
+
+            /* Notify the support driver after loading the host-FPU register state. */
+            SUPR0FpuEnd(pVCpu->cpumr0.s.fFpuBegin);
+            pVCpu->cpumr0.s.fFpuBegin = 0;
         }
 
-        /* Notify the support driver after loading the host-FPU register state. */
-        SUPR0FpuEnd(VMMR0ThreadCtxHookIsEnabled(pVCpu));
+        ASMSetFlags(fIntFlags);
     }
-    else
-        fSavedGuest = false;
+
+    /* State sanity checks (a bit too much state associated with this stuff, perhaps). */
+    Assert(pVCpu->cpumr0.s.fFpuBegin == 0);
     AssertMsg(!(  pVCpu->cpum.s.fUseFlags
                 & (CPUM_USED_FPU_GUEST | CPUM_USED_FPU_HOST | CPUM_USED_MANUAL_XMM_RESTORE)), ("%#x\n", pVCpu->cpum.s.fUseFlags));
     Assert(!pVCpu->cpum.s.Guest.fUsedFpuGuest);
     return fSavedGuest;
 }
+
+
+/**
+ * Prepares the host FPU/SSE/AVX stuff for IEM action.
+ *
+ * This will make sure the FPU/SSE/AVX guest state is _not_ loaded in the CPU.
+ * This will make sure the FPU/SSE/AVX host state is saved.
+ * Finally, it will make sure the FPU/SSE/AVX host features can be safely
+ * accessed.
+ *
+ * @param   pVCpu       The cross context virtual CPU structure.
+ */
+VMMRZ_INT_DECL(void)    CPUMR0FpuStatePrepareHostCpuForUse(PVMCPUCC pVCpu)
+{
+    /** @todo
+     * On linux, we'll lock the host FPU state here on 6.15+, basically
+     * disabling preemption and whatnot.  We'll unlock later when
+     * CPUMR0EnsureLoadedGuestFPU is called.  This isn't quite optimal, but
+     * the easiest solution for now...
+     */
+    RTCCUINTREG const fSavedFlags = ASMIntDisableFlags();
+    pVCpu->cpum.s.fChanged |= CPUM_CHANGED_FPU_REM;
+    switch (pVCpu->cpum.s.fUseFlags & (CPUM_USED_FPU_GUEST | CPUM_USED_FPU_HOST))
+    {
+        case 0:
+            Assert(pVCpu->cpumr0.s.fFpuBegin == 0);
+            pVCpu->cpumr0.s.fFpuBegin = SUPR0FpuBegin(VMMR0ThreadCtxHookIsEnabled(pVCpu));
+            if (pVCpu->cpumr0.s.fFpuBegin & SUPR0FPU_BEGIN_F_HOST_MAY_REPLACE_STATE)
+                pVCpu->cpumr0.s.fFpuBegin = SUPR0FpuLock(pVCpu->cpumr0.s.fFpuBegin);
+
+            if (cpumRZSaveHostFPUState(&pVCpu->cpum.s) == VINF_CPUM_HOST_CR0_MODIFIED)
+                HMR0NotifyCpumModifiedHostCr0(pVCpu);
+            Log6(("CPUMR0FpuStatePrepareHostCpuForUse: #0 - %#x\n", ASMGetCR0()));
+            break;
+
+        case CPUM_USED_FPU_HOST:
+            if (pVCpu->cpumr0.s.fFpuBegin & SUPR0FPU_BEGIN_F_HOST_MAY_REPLACE_STATE)
+            {
+                if (!(pVCpu->cpumr0.s.fFpuBegin & SUPR0FPU_BEGIN_F_HOST_STATE_LOCKED))
+                    pVCpu->cpumr0.s.fFpuBegin = SUPR0FpuLock(pVCpu->cpumr0.s.fFpuBegin);
+                else
+                    Assert(!SUPR0FpuEnsureCurrent(pVCpu->cpumr0.s.fFpuBegin));
+            }
+            Log6(("CPUMR0FpuStatePrepareHostCpuForUse: #1 - %#x\n", ASMGetCR0()));
+            break;
+
+        case CPUM_USED_FPU_GUEST | CPUM_USED_FPU_HOST:
+            if (pVCpu->cpumr0.s.fFpuBegin & SUPR0FPU_BEGIN_F_HOST_MAY_REPLACE_STATE)
+            {
+                if (!(pVCpu->cpumr0.s.fFpuBegin & SUPR0FPU_BEGIN_F_HOST_STATE_LOCKED))
+                    pVCpu->cpumr0.s.fFpuBegin = SUPR0FpuLock(pVCpu->cpumr0.s.fFpuBegin);
+                else
+                    Assert(!SUPR0FpuEnsureCurrent(pVCpu->cpumr0.s.fFpuBegin));
+            }
+            cpumRZSaveGuestFpuState(&pVCpu->cpum.s, true /*fLeaveFpuAccessible*/);
+            HMR0NotifyCpumUnloadedGuestFpuState(pVCpu);
+            Log6(("CPUMR0FpuStatePrepareHostCpuForUse: #2 - %#x\n", ASMGetCR0()));
+            break;
+
+        default:
+            AssertFailed();
+    }
+    ASMSetFlags(fSavedFlags);
+}
+
+
+/**
+ * Makes sure the FPU/SSE/AVX guest state is saved in CPUMCPU::Guest and will be
+ * reloaded before direct use.
+ *
+ * No promisses about the FPU/SSE/AVX host features are made.
+ *
+ * @param   pVCpu       The cross context virtual CPU structure.
+ */
+VMMRZ_INT_DECL(void)    CPUMR0FpuStateActualizeForChange(PVMCPUCC pVCpu)
+{
+    CPUMR0FpuStatePrepareHostCpuForUse(pVCpu);
+}
+
+
+/**
+ * Makes sure the FPU/SSE/AVX state in CPUMCPU::Guest is up to date.
+ *
+ * This will not cause CPUM_USED_FPU_GUEST to change.
+ *
+ * @param   pVCpu       The cross context virtual CPU structure.
+ */
+VMMRZ_INT_DECL(void)    CPUMR0FpuStateActualizeForRead(PVMCPUCC pVCpu)
+{
+    if (pVCpu->cpum.s.fUseFlags & CPUM_USED_FPU_GUEST)
+    {
+        RTCCUINTREG const fSavedFlags = ASMIntDisableFlags();
+        if (pVCpu->cpum.s.fUseFlags & CPUM_USED_FPU_GUEST)
+        {
+            Assert(pVCpu->cpum.s.Guest.fUsedFpuGuest);
+            cpumR0FpuEnsureHostCurrent(pVCpu);
+            cpumRZSaveGuestFpuState(&pVCpu->cpum.s, false /*fLeaveFpuAccessible*/);
+            pVCpu->cpum.s.fUseFlags |= CPUM_USED_FPU_GUEST;
+            pVCpu->cpum.s.Guest.fUsedFpuGuest = true;
+            Log7(("CPUMR0FpuStateActualizeForRead\n"));
+        }
+        ASMSetFlags(fSavedFlags);
+    }
+}
+
+
+/**
+ * Makes sure the XMM0..XMM15 and MXCSR state in CPUMCPU::Guest is up to date.
+ *
+ * This will not cause CPUM_USED_FPU_GUEST to change.
+ *
+ * @param   pVCpu       The cross context virtual CPU structure.
+ */
+VMMR0_INT_DECL(void)    CPUMR0FpuStateActualizeSseForRead(PVMCPUCC pVCpu)
+{
+#if defined(VBOX_WITH_KERNEL_USING_XMM)
+    NOREF(pVCpu);
+#else
+    if (pVCpu->cpum.s.fUseFlags & CPUM_USED_FPU_GUEST)
+    {
+        RTCCUINTREG const fSavedFlags = ASMIntDisableFlags();
+        if (pVCpu->cpum.s.fUseFlags & CPUM_USED_FPU_GUEST)
+        {
+            Assert(pVCpu->cpum.s.Guest.fUsedFpuGuest);
+            cpumR0FpuEnsureHostCurrent(pVCpu);
+            cpumRZSaveGuestSseRegisters(&pVCpu->cpum.s);
+            Log7(("CPUMR0FpuStateActualizeSseForRead\n"));
+        }
+        ASMSetFlags(fSavedFlags);
+    }
+#endif
+}
+
+
+/**
+ * Makes sure the YMM0..YMM15 and MXCSR state in CPUMCPU::Guest is up to date.
+ *
+ * This will not cause CPUM_USED_FPU_GUEST to change.
+ *
+ * @param   pVCpu       The cross context virtual CPU structure.
+ */
+VMMR0_INT_DECL(void)    CPUMR0FpuStateActualizeAvxForRead(PVMCPUCC pVCpu)
+{
+    if (pVCpu->cpum.s.fUseFlags & CPUM_USED_FPU_GUEST)
+    {
+        RTCCUINTREG const fSavedFlags = ASMIntDisableFlags();
+        if (pVCpu->cpum.s.fUseFlags & CPUM_USED_FPU_GUEST)
+        {
+            Assert(pVCpu->cpum.s.Guest.fUsedFpuGuest);
+            cpumR0FpuEnsureHostCurrent(pVCpu);
+            cpumRZSaveGuestAvxRegisters(&pVCpu->cpum.s);
+            Log7(("CPUMR0FpuStateActualizeAvxForRead\n"));
+        }
+        ASMSetFlags(fSavedFlags);
+    }
+}
+
 
 
 /**

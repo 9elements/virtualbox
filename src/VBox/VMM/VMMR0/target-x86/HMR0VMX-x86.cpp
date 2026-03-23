@@ -1,4 +1,4 @@
-/* $Id: HMR0VMX-x86.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: HMR0VMX-x86.cpp 113503 2026-03-23 13:48:19Z knut.osmundsen@oracle.com $ */
 /** @file
  * HM VMX (Intel VT-x) - Host Context Ring-0.
  */
@@ -6136,14 +6136,11 @@ static void hmR0VmxPreRunGuestCommitted(PVMCPUCC pVCpu, PVMXTRANSIENT pVmxTransi
     PHMPHYSCPU    pHostCpu     = hmR0GetCurrentCpu();
     RTCPUID const idCurrentCpu = pHostCpu->idCpu;
 
-    if (!CPUMIsGuestFPUStateActive(pVCpu))
-    {
-        STAM_PROFILE_ADV_START(&pVCpu->hm.s.StatLoadGuestFpuState, x);
-        if (CPUMR0LoadGuestFPU(pVM, pVCpu) == VINF_CPUM_HOST_CR0_MODIFIED)
-            pVCpu->hm.s.fCtxChanged |= HM_CHANGED_HOST_CONTEXT;
-        STAM_PROFILE_ADV_STOP(&pVCpu->hm.s.StatLoadGuestFpuState, x);
-        STAM_COUNTER_INC(&pVCpu->hm.s.StatLoadGuestFpu);
-    }
+    /*
+     * Ensure that the FPU state is ready to use.
+     */
+    if (CPUMR0EnsureLoadedGuestFPU(pVM, pVCpu) == VINF_CPUM_HOST_CR0_MODIFIED)
+        pVCpu->hm.s.fCtxChanged |= HM_CHANGED_HOST_CONTEXT;
 
     /*
      * Re-export the host state bits as we may've been preempted (only happens when

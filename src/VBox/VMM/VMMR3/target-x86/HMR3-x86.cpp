@@ -1,4 +1,4 @@
-/* $Id: HMR3-x86.cpp 112438 2026-01-13 09:00:11Z knut.osmundsen@oracle.com $ */
+/* $Id: HMR3-x86.cpp 113503 2026-03-23 13:48:19Z knut.osmundsen@oracle.com $ */
 /** @file
  * HM - Intel/AMD VM Hardware Support Manager.
  */
@@ -833,7 +833,6 @@ static int hmR3InitFinalizeR3(PVM pVM)
         HM_REG_PROFILE(&pHmCpu->StatExitVmentry,            "/PROF/CPU%u/HM/SwitchFromGC_2/Vmentry", "VMLAUNCH/VMRESUME on Intel or VMRUN on AMD.");
         HM_REG_PROFILE(&pHmCpu->StatImportGuestState,       "/PROF/CPU%u/HM/ImportGuestState",  "Profiling of importing guest state from hardware after VM-exit.");
         HM_REG_PROFILE(&pHmCpu->StatExportGuestState,       "/PROF/CPU%u/HM/ExportGuestState",  "Profiling of exporting guest state to hardware before VM-entry.");
-        HM_REG_PROFILE(&pHmCpu->StatLoadGuestFpuState,      "/PROF/CPU%u/HM/LoadGuestFpuState", "Profiling of CPUMR0LoadGuestFPU.");
         HM_REG_PROFILE(&pHmCpu->StatInGC,                   "/PROF/CPU%u/HM/InGC", "Profiling of execution of guest-code in hardware.");
 # ifdef HM_PROFILE_EXIT_DISPATCH
         HM_REG_STAT(&pHmCpu->StatExitDispatch, STAMTYPE_PROFILE_ADV, STAMVISIBILITY_USED, STAMUNIT_TICKS_PER_CALL,
@@ -954,7 +953,7 @@ static int hmR3InitFinalizeR3(PVM pVM)
 
         HM_REG_COUNTER(&pHmCpu->StatExportMinimal,          "/HM/CPU%u/Export/Minimal", "VM-entry exporting minimal guest-state.");
         HM_REG_COUNTER(&pHmCpu->StatExportFull,             "/HM/CPU%u/Export/Full", "VM-entry exporting the full guest-state.");
-        HM_REG_COUNTER(&pHmCpu->StatLoadGuestFpu,           "/HM/CPU%u/Export/GuestFpu", "VM-entry loading the guest-FPU state.");
+        //HM_REG_COUNTER(&pHmCpu->StatLoadGuestFpu,           "/HM/CPU%u/Export/GuestFpu", "VM-entry loading the guest-FPU state.");
         HM_REG_COUNTER(&pHmCpu->StatExportHostState,        "/HM/CPU%u/Export/HostState", "VM-entry exporting host-state.");
 
         if (fCpuSupportsVmx)
