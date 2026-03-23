@@ -1,4 +1,4 @@
-/* $Id: gvm.h 106320 2024-10-15 12:08:41Z klaus.espenlaub@oracle.com $ */
+/* $Id: gvm.h 113519 2026-03-23 23:21:05Z knut.osmundsen@oracle.com $ */
 /** @file
  * GVM - The Global VM Data.
  */
@@ -113,6 +113,15 @@ typedef struct GVMCPU
         uint8_t             padding[1024];
     } hmr0;
 
+    /** The CPUM per vcpu data. */
+    union
+    {
+#if defined(VMM_INCLUDED_SRC_include_CPUMInternal_h) && defined(IN_RING0)
+        struct CPUMR0PERVCPU s;
+#endif
+        uint8_t             padding[64];
+    } cpumr0;
+
 #ifdef VBOX_WITH_NEM_R0
     /** The NEM per vcpu data. */
     union
@@ -142,9 +151,9 @@ typedef struct GVMCPU
 
     /** Padding the structure size to page boundrary. */
 #ifdef VBOX_WITH_NEM_R0
-    uint8_t                 abPadding3[16384 - 64*2 - 256 - 1024 - 64 - 896 - 576];
+    uint8_t                 abPadding3[16384 - 64*2 - 256 - 1024 - 64 - 64 - 896 - 576];
 #else
-    uint8_t                 abPadding3[16384 - 64*2 - 256 - 1024      - 896 - 576];
+    uint8_t                 abPadding3[16384 - 64*2 - 256 - 1024 - 64      - 896 - 576];
 #endif
 } GVMCPU;
 #ifndef IN_TSTVMSTRUCT

@@ -1,4 +1,4 @@
-/* $Id: HMSVMR0.cpp 113470 2026-03-19 15:17:08Z ramshankar.venkataraman@oracle.com $ */
+/* $Id: HMSVMR0.cpp 113519 2026-03-23 23:21:05Z knut.osmundsen@oracle.com $ */
 /** @file
  * HM SVM (AMD-V) - Host Context Ring-0.
  */
@@ -4238,13 +4238,8 @@ static void hmR0SvmPreRunGuestCommitted(PVMCPUCC pVCpu, PSVMTRANSIENT pSvmTransi
 
     hmR0SvmInjectPendingEvent(pVCpu, pVmcb);
 
-    if (!CPUMIsGuestFPUStateActive(pVCpu))
-    {
-        STAM_PROFILE_ADV_START(&pVCpu->hm.s.StatLoadGuestFpuState, x);
-        CPUMR0LoadGuestFPU(pVM, pVCpu);     /* (Ignore rc, no need to set HM_CHANGED_HOST_CONTEXT for SVM.) */
-        STAM_PROFILE_ADV_STOP(&pVCpu->hm.s.StatLoadGuestFpuState, x);
-        STAM_COUNTER_INC(&pVCpu->hm.s.StatLoadGuestFpu);
-    }
+    /* Ensure that the FPU state is ready to use. */
+    CPUMR0EnsureLoadedGuestFPU(pVM, pVCpu); /* (Ignore rc, no need to set HM_CHANGED_HOST_CONTEXT for SVM.) */
 
     /* Load the state shared between host and guest (FPU, debug). */
     if (pVCpu->hm.s.fCtxChanged & HM_CHANGED_SVM_HOST_GUEST_SHARED_STATE)

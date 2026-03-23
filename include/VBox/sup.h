@@ -119,6 +119,9 @@ typedef enum SUPPAGINGMODE
 #define SUPKERNELFEATURES_SMAP                RT_BIT(1)
 /** GDT is read-only but the writable GDT can be fetched by SUPR0GetCurrentGdtRw(). */
 #define SUPKERNELFEATURES_GDT_NEED_WRITABLE   RT_BIT(2)
+/** FPU management disables preemption.
+ * @see SUPR0FpuBegin, SUPR0FpuEnd  */
+#define SUPKERNELFEATURES_FPU_NO_PREEMPT      RT_BIT(3)
 /** @} */
 
 /**
@@ -2371,25 +2374,79 @@ RT_IPRT_FORMAT_ATTR(1, 2) SUPR0Printf(const char *pszFormat, ...)
  */
 SUPR0DECL(uint32_t) SUPR0GetKernelFeatures(void);
 
+
+/** @name SUPR0FPU_BEGIN_F_XXX - SUPR0FpuBegin() return flags.
+ * @note The support driver may return additional private bits, these are just
+ *       the definitions for public consumption.
+ * @{ */
+/** Reflects the fCtxHook value in the SUPR0FpuBegin() call. */
+#define SUPR0FPU_BEGIN_F_CTX_HOOK                   RT_BIT_32(0)
+/** Set if the host FPU state is fully saved. */
+#define SUPR0FPU_BEGIN_F_FULLY_SAVED                RT_BIT_32(1)
+/** Set if the host OS may replace the FPU state while running with interrupts
+ * enabled. */
+#define SUPR0FPU_BEGIN_F_HOST_MAY_REPLACE_STATE     RT_BIT_32(2)
+/** Set if the host FPU state is locked.
+ * This if for linux.  */
+#define SUPR0FPU_BEGIN_F_HOST_STATE_LOCKED          RT_BIT_32(3)
+/** @} */
+
 /**
  * Notification from R0 VMM prior to loading the guest-FPU register state.
  *
- * @returns Whether the host-FPU register state has been saved by the host kernel.
+ * @returns SUPR0FPU_BEGIN_F_XXX
  * @param   fCtxHook    Whether thread-context hooks are enabled.
  *
  * @remarks Called with preemption disabled.
  */
-SUPR0DECL(bool) SUPR0FpuBegin(bool fCtxHook);
+SUPR0DECL(uint32_t) SUPR0FpuBegin(bool fCtxHook);
+
+/**
+ * Ensures that our FPU state is still loaded and ready to use.
+ *
+ * This must be called prior to use when SUPR0FpuBegin returns the
+ * SUPR0FPU_BEGIN_F_HOST_MAY_REPLACE_STATE flag set.
+ *
+ * @returns Indicates whether the host kernel had swapped out the state and it
+ *          required re-loading (@c true).
+ * @param   fBegin          Return values from SUPR0FpuBegin().
+ *
+ * @remarks Called with interrupts and preemption disabled.
+ */
+SUPR0DECL(bool) SUPR0FpuEnsureCurrent(uint32_t fBegin);
+
+/**
+ * Locks the host FPU state.
+ *
+ * This is only applicable when SUPR0FPU_BEGIN_F_HOST_MAY_REPLACE_STATE is set
+ * and should not be called when that flag is not set.
+ *
+ * @returns The updated @a fBegin value (sets SUPR0FPU_BEGIN_F_HOST_STATE_LOCKED
+ *          if actual locking took place, but may modify internal flags).
+ * @param   fBegin          Return values from SUPR0FpuBegin().
+ */
+SUPR0DECL(uint32_t) SUPR0FpuLock(uint32_t fBegin);
+
+/**
+ * Unlocks the host FPU state.
+ *
+ * @returns The updated @a fBegin value.
+ * @param   fBegin          Return values from SUPR0FpuBegin() and
+ *                          SUPR0FpuLock().
+ * @note    Avoid calling when SUPR0FPU_BEGIN_F_HOST_STATE_LOCKED isn't set.
+ */
+SUPR0DECL(uint32_t) SUPR0FpuUnlock(uint32_t fBegin);
 
 /**
  * Notification from R0 VMM after saving the guest-FPU register state (and
  * potentially restoring the host-FPU register state) in ring-0.
  *
- * @param   fCtxHook    Whether thread-context hooks are enabled.
+ * @param   fBegin      Return values from SUPR0FpuBegin(), SUPR0FpuLock() and
+ *                      SUPR0FpuUnlock().
  *
  * @remarks Called with preemption disabled.
  */
-SUPR0DECL(void) SUPR0FpuEnd(bool fCtxHook);
+SUPR0DECL(void) SUPR0FpuEnd(uint32_t fBegin);
 
 /** @copydoc RTLogDefaultInstanceEx
  * @remarks To allow overriding RTLogDefaultInstanceEx locally. */

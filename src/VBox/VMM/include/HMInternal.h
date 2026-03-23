@@ -1,4 +1,4 @@
-/* $Id: HMInternal.h 113470 2026-03-19 15:17:08Z ramshankar.venkataraman@oracle.com $ */
+/* $Id: HMInternal.h 113519 2026-03-23 23:21:05Z knut.osmundsen@oracle.com $ */
 /** @file
  * HM - Internal header file.
  */
@@ -875,7 +875,6 @@ typedef struct HMCPU
     STAMPROFILEADV          StatExitVmentry;
     STAMPROFILEADV          StatImportGuestState;
     STAMPROFILEADV          StatExportGuestState;
-    STAMPROFILEADV          StatLoadGuestFpuState;
     STAMPROFILEADV          StatInGC;
     STAMPROFILEADV          StatPoke;
     STAMPROFILEADV          StatSpinPoke;
@@ -990,7 +989,7 @@ typedef struct HMCPU
 
     STAMCOUNTER             StatExportMinimal;
     STAMCOUNTER             StatExportFull;
-    STAMCOUNTER             StatLoadGuestFpu;
+    //STAMCOUNTER             StatLoadGuestFpu;
     STAMCOUNTER             StatExportHostState;
 
     STAMCOUNTER             StatVmxCheckBadRmSelBase;

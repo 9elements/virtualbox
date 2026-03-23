@@ -1,4 +1,4 @@
-/* $Id: VMMR0.cpp 113518 2026-03-23 22:57:54Z knut.osmundsen@oracle.com $ */
+/* $Id: VMMR0.cpp 113519 2026-03-23 23:21:05Z knut.osmundsen@oracle.com $ */
 /** @file
  * VMM - Host Context Ring 0.
  */
@@ -1062,16 +1062,21 @@ VMMR0_INT_DECL(int) VMMR0ThreadCtxHookCreateForEmt(PVMCPUCC pVCpu)
     VMCPU_ASSERT_EMT(pVCpu);
     Assert(pVCpu->vmmr0.s.hCtxHook == NIL_RTTHREADCTXHOOK);
 
-#if 1 /* To disable this stuff change to zero. */
-    int rc = RTThreadCtxHookCreate(&pVCpu->vmmr0.s.hCtxHook, 0, vmmR0ThreadCtxCallback, pVCpu);
-    if (RT_SUCCESS(rc))
-    {
-        pVCpu->pGVM->vmm.s.fIsUsingContextHooks = true;
-        return rc;
-    }
-#else
-    RT_NOREF(vmmR0ThreadCtxCallback);
+#ifndef VBOX_WITH_MINIMAL_R0
     int rc = VERR_NOT_SUPPORTED;
+# if 1 /* To disable this stuff change to zero. */
+    if (!(SUPR0GetKernelFeatures() & SUPKERNELFEATURES_FPU_NO_PREEMPT))
+    {
+        rc = RTThreadCtxHookCreate(&pVCpu->vmmr0.s.hCtxHook, 0, vmmR0ThreadCtxCallback, pVCpu);
+        if (RT_SUCCESS(rc))
+        {
+            pVCpu->pGVM->vmm.s.fIsUsingContextHooks = true;
+            return rc;
+        }
+    }
+# else
+    RT_NOREF(vmmR0ThreadCtxCallback);
+# endif
 #endif
 
     pVCpu->vmmr0.s.hCtxHook = NIL_RTTHREADCTXHOOK;

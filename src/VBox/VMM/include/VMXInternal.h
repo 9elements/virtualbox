@@ -1,4 +1,4 @@
-/* $Id: VMXInternal.h 106320 2024-10-15 12:08:41Z klaus.espenlaub@oracle.com $ */
+/* $Id: VMXInternal.h 113519 2026-03-23 23:21:05Z knut.osmundsen@oracle.com $ */
 /** @file
  * VMX - Internal header file for the VMX code template.
  */
@@ -178,7 +178,6 @@ typedef struct VMXSTATISTICS
     STAMPROFILEADV          StatExitVmentry;
     STAMPROFILEADV          StatImportGuestState;
     STAMPROFILEADV          StatExportGuestState;
-    STAMPROFILEADV          StatLoadGuestFpuState;
     STAMPROFILEADV          StatInGC;
     STAMPROFILEADV          StatPoke;
     STAMPROFILEADV          StatSpinPoke;
@@ -292,7 +291,7 @@ typedef struct VMXSTATISTICS
 
     STAMCOUNTER             StatExportMinimal;
     STAMCOUNTER             StatExportFull;
-    STAMCOUNTER             StatLoadGuestFpu;
+    //STAMCOUNTER             StatLoadGuestFpu;
     STAMCOUNTER             StatExportHostState;
 
     STAMCOUNTER             StatVmxCheckBadRmSelBase;

@@ -1,4 +1,4 @@
-/* $Id: CPUMInternal.h 107963 2025-01-20 16:26:58Z knut.osmundsen@oracle.com $ */
+/* $Id: CPUMInternal.h 113519 2026-03-23 23:21:05Z knut.osmundsen@oracle.com $ */
 /** @file
  * CPUM - Internal header file.
  */
@@ -444,6 +444,14 @@ typedef struct CPUMCPU
     /** Guest context - misc MSRs
      * Aligned on a 64-byte boundary. */
     CPUMCTXMSRS             GuestMsrs;
+#ifdef RT_ARCH_AMD64
+    /** Release stat: Calls to cpumR0LoadGuestFPU. */
+    STAMCOUNTER             StatGuestFpuLoad;
+    /** Release stat: Calls to SUPR0FpuEnsureCurrent. */
+    STAMCOUNTER             StatGuestFpuReload;
+    /** Profiling SUPR0FpuEnsureCurrent. */
+    STAMPROFILE             StatGuestFpuLoadPerf;
+#endif
 
     /** Nested VMX: VMX-preemption timer. */
     TMTIMERHANDLE           hNestedVmxPreemptTimer;
@@ -470,7 +478,7 @@ typedef struct CPUMCPU
     bool                    fCpuIdApicFeatureVisible;
 
     /** Align the next member on a 64-byte boundary. */
-    uint8_t                 abPadding2[64 - 8 - 4*3 - 1];
+    uint8_t                 abPadding2[128 - 8*6 - 8 - 4*3 - 1];
 
     /** Saved host context.  Only valid while inside RC or HM contexts.
      * Must be aligned on a 64-byte boundary. */
@@ -490,6 +498,21 @@ AssertCompileAdjacentMembers(CPUMCPU, Guest, GuestMsrs); /* HACK ALERT! HMR0A.as
 #endif
 /** Pointer to the CPUMCPU instance data residing in the shared VMCPU structure. */
 typedef CPUMCPU *PCPUMCPU;
+
+
+/**
+ * CPUM per-VCpu ring-0 only instance data.
+ */
+typedef struct CPUMR0PERVCPU
+{
+#if !defined(VBOX_VMM_TARGET_ARMV8)
+    /** The SUPR0FpuBegin return value (state). */
+    uint32_t                fFpuBegin;
+#else
+    uint32_t                uDummy;
+#endif
+} CPUMR0PERVCPU;
+
 
 #ifndef VBOX_FOR_DTRACE_LIB
 RT_C_DECLS_BEGIN
