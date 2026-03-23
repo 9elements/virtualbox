@@ -1,4 +1,4 @@
-/* $Id: UINotificationMessage.h 113375 2026-03-12 12:32:20Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationMessage.h 113505 2026-03-23 14:18:19Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationMessage declarations.
  */
@@ -691,14 +691,14 @@ public:
         /** Notifies about inability to attach device.
           * @param  comMachine  Brings machine trying to attach device. */
         static void cannotAttachDevice(const CMachine &comMachine,
-                                       UIMediumDeviceType enmType,
+                                       UIMediumDeviceType enmDeviceType,
                                        const QString &strLocation,
                                        const StorageSlot &storageSlot,
                                        QWidget *pParent = 0);
         /** Notifies about inability to attach device.
           * @param  comMachine  Brings machine trying to attach device. */
         static bool cannotDetachDevice(const CMachine &comMachine,
-                                       UIMediumDeviceType enmType,
+                                       UIMediumDeviceType enmDeviceType,
                                        const QString &strLocation,
                                        const StorageSlot &storageSlot,
                                        QWidget *pParent = 0);

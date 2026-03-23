@@ -1,4 +1,4 @@
-/* $Id: UINotificationMessage.cpp 113377 2026-03-12 13:25:38Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationMessage.cpp 113505 2026-03-23 14:18:19Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationMessage implementations.
  */
@@ -565,7 +565,7 @@ void UINotificationMessage::warnAboutStateChange(QWidget *pParent)
                                                              "Only certain settings can be changed while a machine is running. "
                                                              "All other changes will be lost if you close this window now."),
                   "warnAboutStateChange",
-                  QString(),
+                  QString() /* help word */,
                   pParent);
 }
 
@@ -581,19 +581,19 @@ void UINotificationMessage::showRuntimeError(NotificationType emnNotificationTyp
     {
         case NotificationType_Warning:
         {
-            strSeverity = QApplication::translate("UIMessageCenter", "<nobr>Warning</nobr>", "runtime error info");
+            strSeverity = QApplication::translate("UIMessageCenter", "Warning", "runtime error info");
             autoConfimId += "warning.";
             break;
         }
         case NotificationType_Error:
         {
-            strSeverity = QApplication::translate("UIMessageCenter", "<nobr>Non-Fatal Error</nobr>", "runtime error info");
+            strSeverity = QApplication::translate("UIMessageCenter", "Non-Fatal Error", "runtime error info");
             autoConfimId += "error.";
             break;
         }
         case NotificationType_Critical:
         {
-            strSeverity = QApplication::translate("UIMessageCenter", "<nobr>Fatal Error</nobr>", "runtime error info");
+            strSeverity = QApplication::translate("UIMessageCenter", "Fatal Error", "runtime error info");
             autoConfimId += "fatal.";
             break;
         }
@@ -1431,7 +1431,7 @@ void UINotificationMessage::cannotAccessUSBSubsystem(const CMachine &comMachine,
                   QApplication::translate("UIMessageCenter", "Failed to access the USB subsystem.") +
                   UIErrorString::formatErrorInfo(res),
                   "cannotAccessUSBSubsystem",
-                  QString(),
+                  QString() /* help word */,
                   pParent);
 }
 
@@ -1865,13 +1865,13 @@ void UINotificationMessage::cannotExportMachine(const CMachine &comMachine, QWid
 
 /* static */
 void UINotificationMessage::cannotAttachDevice(const CMachine &comMachine,
-                                               UIMediumDeviceType enmType,
+                                               UIMediumDeviceType enmDeviceType,
                                                const QString &strLocation,
                                                const StorageSlot &storageSlot,
                                                QWidget *pParent /* = 0 */)
 {
     QString strMessage;
-    switch (enmType)
+    switch (enmDeviceType)
     {
         case UIMediumDeviceType_HardDisk:
         {
