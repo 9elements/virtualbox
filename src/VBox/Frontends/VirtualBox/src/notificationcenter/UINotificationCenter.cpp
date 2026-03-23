@@ -1,4 +1,4 @@
-/* $Id: UINotificationCenter.cpp 113376 2026-03-12 13:24:42Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationCenter.cpp 113499 2026-03-23 09:12:45Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationCenter class implementation.
  */
@@ -1217,9 +1217,13 @@ void UINotificationCenter::adjustGeometry()
     const int iParentWidth = pParent->width();
     const int iParentHeight = pParent->height();
 
-    /* Acquire main layout margins: */
-    int iL, iT, iR, iB;
-    m_pLayoutMain->getContentsMargins(&iL, &iT, &iR, &iB);
+    /* Update main layout margins: */
+    const int iMetric = QApplication::style()->pixelMetric(QStyle::PM_SmallIconSize) / 4;
+    const int iL = isExtendedMode() ? iMetric : qApp->style()->pixelMetric(QStyle::PM_LayoutLeftMargin);
+    const int iT = isExtendedMode() ? 0       : qApp->style()->pixelMetric(QStyle::PM_LayoutTopMargin);
+    const int iR = isExtendedMode() ? iMetric : qApp->style()->pixelMetric(QStyle::PM_LayoutRightMargin);
+    const int iB = isExtendedMode() ? iMetric : qApp->style()->pixelMetric(QStyle::PM_LayoutBottomMargin);
+    m_pLayoutMain->setContentsMargins(iL, iT, iR, iB);
     /* Acquire item layout spacing: */
     const int iSpacing = m_pLayoutItems->spacing();
 
