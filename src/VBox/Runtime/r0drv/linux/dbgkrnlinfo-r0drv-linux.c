@@ -1,4 +1,4 @@
-/* $Id: dbgkrnlinfo-r0drv-linux.c 112632 2026-01-19 10:51:49Z knut.osmundsen@oracle.com $ */
+/* $Id: dbgkrnlinfo-r0drv-linux.c 113546 2026-03-24 23:40:36Z knut.osmundsen@oracle.com $ */
 /** @file
  * IPRT - Kernel Debug Information, R0 Driver, Linux.
  */
@@ -41,6 +41,9 @@
 #ifdef IN_RING0
 # include "the-linux-kernel.h"
 # include <linux/uio.h>
+# if RTLNX_VER_MIN(2,30,0) && defined(CONFIG_KPROBES)
+#  include <linux/kprobes.h>
+# endif
 #else
 # include <iprt/stream.h>
 # define printk RTPrintf
@@ -80,7 +83,8 @@ typedef struct RTDBGKRNLINFOINT
     uint32_t            u32Magic;
     /** Reference counter.  */
     uint32_t volatile   cRefs;
-    /** The /proc/kallsyms file handle. */
+    /** The /proc/kallsyms file handle.
+     * @note This can be NIL_RTFILE. */
     RTFILE              hFile;
     /** Buffer space (the file is typically several MBs, so larger is better). */
     char                abBuf[_16K - 64];
@@ -96,8 +100,11 @@ static void rtR0DbgKrnlLinuxDtor(RTDBGKRNLINFOINT *pThis)
 {
     pThis->u32Magic = ~RTDBGKRNLINFO_MAGIC;
 
-    RTFileClose(pThis->hFile);
-    pThis->hFile = NIL_RTFILE;
+    if (pThis->hFile != NIL_RTFILE)
+    {
+        RTFileClose(pThis->hFile);
+        pThis->hFile = NIL_RTFILE;
+    }
 
     RTMemFree(pThis);
 }
@@ -126,7 +133,14 @@ RTR0DECL(int) RTR0DbgKrnlInfoOpen(PRTDBGKRNLINFO phKrnlInfo, uint32_t fFlags)
      */
     rc = RTFileOpen(&hFile, pszFilename, RTFILE_O_READ | RTFILE_O_DENY_NONE | RTFILE_O_OPEN);
     if (RT_FAILURE(rc))
+    {
+#if RTLNX_VER_MIN(2,30,0) && !defined(IN_RING3)
+        /* We can use the register_kprobe hack, so don't fail. */
+        hFile = NIL_RTFILE;
+#else
         return rc;
+#endif
+    }
 
     /*
      * Allocate a handle structure for it.
@@ -188,21 +202,24 @@ RTR0DECL(int) RTR0DbgKrnlInfoQueryMember(RTDBGKRNLINFO hKrnlInfo, const char *ps
 }
 
 
-RTR0DECL(int) RTR0DbgKrnlInfoQuerySymbol(RTDBGKRNLINFO hKrnlInfo, const char *pszModule,
-                                         const char *pszSymbol, void **ppvSymbol)
+static int
+rtR0DbgKrnlInfoLnxQuerySymbolKallsyms(RTDBGKRNLINFOINT *pThis, const char *pszModule, const char *pszSymbol, void **ppvSymbol)
 {
-    RTDBGKRNLINFOINT *pThis = hKrnlInfo;
     size_t cchSymbol;
     size_t cchModule;
     size_t cchMinLineLength;
+    size_t cchLineLengthKSymTab;
+    bool fSeenKSymtabEntry = false;
+    uintptr_t uCandidate = ~(uintptr_t)0;
     AssertPtrReturn(pThis, VERR_INVALID_HANDLE);
     AssertMsgReturn(pThis->u32Magic == RTDBGKRNLINFO_MAGIC, ("%p: u32Magic=%RX32\n", pThis, pThis->u32Magic), VERR_INVALID_HANDLE);
     AssertPtrReturn(pszSymbol, VERR_INVALID_PARAMETER);
     AssertPtrNullReturn(ppvSymbol, VERR_INVALID_PARAMETER);
-    cchSymbol        = strlen(pszSymbol);
+    cchSymbol            = strlen(pszSymbol);
     AssertPtrNullReturn(pszModule, VERR_MODULE_NOT_FOUND);
-    cchModule        = pszModule ? strlen(pszModule) : 0;
-    cchMinLineLength = ARCH_BITS / 4 + 1 + 1 + 1 + cchSymbol + (cchModule ? 2 + cchModule + 1 : 0);
+    cchModule            = pszModule ? strlen(pszModule) : 0;
+    cchMinLineLength     = ARCH_BITS / 4 + 1 + 1 + 1 + cchSymbol + (cchModule ? 2 + cchModule + 1 : 0);
+    cchLineLengthKSymTab = cchModule ? cchMinLineLength + sizeof("__ksymtab_") - 1 : ~(size_t)0 / 2;
 
     /*
      * Scan the entire file for the requested symbol.
@@ -256,8 +273,13 @@ RTR0DECL(int) RTR0DbgKrnlInfoQuerySymbol(RTDBGKRNLINFO hKrnlInfo, const char *ps
          */
         pchBuf[off] = '\0'; /* terminate the line */
         //printk("dbgkrnlinfo: %s\n",  &pchBuf[offLine]);
-        if (   off - offLine >= cchMinLineLength
-            && off - offLine <= cchMinLineLength + 8) /* parnaoia - we could do an exact match here, actually. */
+        if (   off - offLine == cchMinLineLength
+            || off - offLine == cchLineLengthKSymTab
+#if 0 /* paranoia - not needed as we match the exact lengths anyway. */
+            || (   off - offLine >= cchMinLineLength
+                && off - offLine <= cchMinLineLength + 8)
+#endif
+           )
         {
             /* Parse the address. */
             char    *psz;
@@ -265,12 +287,49 @@ RTR0DECL(int) RTR0DbgKrnlInfoQuerySymbol(RTDBGKRNLINFO hKrnlInfo, const char *ps
             int rc = RTStrToUInt64Ex(&pchBuf[offLine], &psz, 16, &uAddr);
             if (rc == VWRN_TRAILING_CHARS && RT_C_IS_SPACE(*psz))
             {
-                psz++; /* skip space */
+                char const chType = *++psz; /* skip space and get type */
 
-                /* Check that it's a public symbol (we don't return local symbols at the moment). */
-                char const chType = *psz;
-                if (   (chType == 'T' || chType == 'D' || chType == 'B' || chType == 'R' || chType == 'V' || chType == 'W')
-                    && RT_C_IS_BLANK(psz[1]))
+                /* Check for __ksymtab_ entries. */
+                if (   chType == 'r'
+                    && RT_C_IS_BLANK(psz[1])
+                    && strncmp(&psz[2], RT_STR_TUPLE("__ksymtab_")) == 0)
+                {
+                    psz += 2 + sizeof("__ksymtab_") - 1;
+
+                    /* Look for the one for the symbol. */
+                    if (   cchModule > 0
+                        && strncmp(psz, pszSymbol, cchSymbol) == 0)
+                    {
+                        psz += cchSymbol;
+                        if (RT_C_IS_SPACE(*psz) && psz[1] == '[')
+                        {
+                            psz += 2;
+                            if (strncmp(psz, pszModule, cchModule) == 0)
+                            {
+                                psz += cchModule;
+                                if (*psz == ']')
+                                {
+                                    fSeenKSymtabEntry = true;
+                                    if (uCandidate != ~(uintptr_t)0)
+                                    {
+                                        if (ppvSymbol)
+                                            *ppvSymbol = (void *)(uintptr_t)uCandidate;
+                                        return VINF_SUCCESS;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                /* Check that the symbol type is okay.  We only do lower case
+                   text symbols in modules with a matching __ksymtab_ entry. */
+                else if (   (   chType == 'T' || (chType == 't' && cchModule > 0)
+                             || chType == 'D' || chType == 'd'
+                             || chType == 'B' || chType == 'b'
+                             || chType == 'R' || chType == 'r'
+                             || chType == 'V'
+                             || chType == 'W')
+                         && RT_C_IS_BLANK(psz[1]))
                 {
                     psz += 2; /* skip type & following space */
 
@@ -296,9 +355,13 @@ RTR0DECL(int) RTR0DbgKrnlInfoQuerySymbol(RTDBGKRNLINFO hKrnlInfo, const char *ps
                                 psz += cchModule;
                                 if (*psz == ']')
                                 {
-                                    if (ppvSymbol)
-                                        *ppvSymbol = (void *)(uintptr_t)uAddr;
-                                    return VINF_SUCCESS;
+                                    if (chType == 'T' || fSeenKSymtabEntry)
+                                    {
+                                        if (ppvSymbol)
+                                            *ppvSymbol = (void *)(uintptr_t)uAddr;
+                                        return VINF_SUCCESS;
+                                    }
+                                    uCandidate = (uintptr_t)uAddr;
                                 }
                             }
                         }
@@ -315,6 +378,79 @@ RTR0DECL(int) RTR0DbgKrnlInfoQuerySymbol(RTDBGKRNLINFO hKrnlInfo, const char *ps
 
     return VERR_SYMBOL_NOT_FOUND;
 }
+
+
+RTR0DECL(int) RTR0DbgKrnlInfoQuerySymbol(RTDBGKRNLINFO hKrnlInfo, const char *pszModule,
+                                         const char *pszSymbol, void **ppvSymbol)
+{
+    RTDBGKRNLINFOINT *pThis = hKrnlInfo;
+    int rc;
+
+    /*
+     * Validate input.
+     */
+    AssertPtrReturn(pThis, VERR_INVALID_HANDLE);
+    AssertMsgReturn(pThis->u32Magic == RTDBGKRNLINFO_MAGIC, ("%p: u32Magic=%RX32\n", pThis, pThis->u32Magic), VERR_INVALID_HANDLE);
+    AssertPtrReturn(pszSymbol, VERR_INVALID_PARAMETER);
+    AssertPtrNullReturn(ppvSymbol, VERR_INVALID_PARAMETER);
+    AssertPtrNullReturn(pszModule, VERR_MODULE_NOT_FOUND);
+
+    /*
+     * Try kallsyms first if we have it handy.
+     */
+    if (pThis->hFile != NIL_RTFILE)
+    {
+        rc = rtR0DbgKrnlInfoLnxQuerySymbolKallsyms(pThis, pszModule, pszSymbol, ppvSymbol);
+        if (RT_SUCCESS(rc))
+            return rc;
+    }
+    else
+        rc = VERR_SYMBOL_NOT_FOUND;
+
+# if RTLNX_VER_MIN(2,30,0) && defined(CONFIG_KPROBES) && !defined(IN_RING3)
+    /*
+     * Try the register_kprobe trick next.  It only works on functions.
+     *
+     * Since we don't have module scoping here, we only attempt this for
+     * symbols that start with the module name.
+     */
+    if (   !pszModule
+        || strncmp(pszSymbol, pszModule, strlen(pszModule)) == 0)
+    {
+        struct kprobe KernProbe;
+        int rc2;
+
+        RT_ZERO(KernProbe);
+        KernProbe.flags       = KPROBE_FLAG_DISABLED;
+        KernProbe.symbol_name = pszSymbol;
+        rc2 = register_kprobe(&KernProbe);
+        if (rc2 == 0)
+        {
+            uint8_t const *pbAddr = (uint8_t const *)KernProbe.addr;
+            unregister_kprobe(&KernProbe);
+
+            if (RT_VALID_PTR(pbAddr)) /* paranoia */
+            {
+#  if defined(CONFIG_X86_KERNEL_IBT) && (defined(RT_ARCH_X86) || defined(RT_ARCH_AMD64))
+                /* We must include the endbr instruction that arch_adjust_kprobe_addr()
+                   skips after symbol resolving for register_kprobe(). */
+                uint32_t u32EndBr = 0;
+                __get_kernel_nofault(&u32EndBr, ((u32 *)&pbAddr[-4]), u32, l_fault);
+                if (__is_endbr(u32EndBr))
+                    pbAddr -= 4;
+l_fault:
+#  endif
+                if (ppvSymbol)
+                    *ppvSymbol = (void *)pbAddr;
+                return VINF_SUCCESS;
+            }
+        }
+    }
+# endif
+
+    return rc;
+}
+
 
 #else  /* !RTLNX_VER_MIN(6,7,0) && !defined(IN_RING3) */
 

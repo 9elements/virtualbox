@@ -1,4 +1,4 @@
-/* $Id: tstRTLinuxKallsyms.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: tstRTLinuxKallsyms.cpp 113546 2026-03-24 23:40:36Z knut.osmundsen@oracle.com $ */
 /** @file
  * IPRT Testcase - /proc/kallsyms parsing for Linux kernel modules.
  */
@@ -56,9 +56,13 @@ static void dotest(void)
     RTTESTI_CHECK_RC_RETV(RTR0DbgKrnlInfoOpen(&hKrnlInfo, 0), VINF_SUCCESS);
     static struct { const char *pszSym, *pszMod; } const s_aSyms[] =
     {
-        { "kernel_read",    NULL  },
-        { "init_mm",        NULL  },
-        { "hid_bus_type",   "hid" }, // optional
+        { "kernel_read",               NULL  },
+        { "init_mm",                   NULL  },
+        { "hid_bus_type",              "hid" },         // optional
+        { "kvm_enable_virtualization", "kvm" },         // optional
+        { "nvme_auth_hmac_name",       "nvme_auth" },   // optional
+        { "fuse_direct_io",            "fuse" },        // optional
+        { "fuse_init",                 "fuse" },        // optional
     };
     for (unsigned i = 0; i < RT_ELEMENTS(s_aSyms); i++)
     {
