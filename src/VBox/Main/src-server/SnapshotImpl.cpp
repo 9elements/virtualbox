@@ -1,4 +1,4 @@
-/* $Id: SnapshotImpl.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: SnapshotImpl.cpp 113542 2026-03-24 15:42:24Z andreas.loeffler@oracle.com $ */
 /** @file
  * COM class implementation for Snapshot and SnapshotMachine in VBoxSVC.
  */
@@ -1167,10 +1167,6 @@ HRESULT SnapshotMachine::init(SessionMachine *aSessionMachine,
     hrc = mPlatform->initCopy(this, pMachine->mPlatform);
     if (FAILED(hrc)) return hrc;
 
-    unconst(mPlatformProperties).createObject();
-    hrc = mPlatformProperties->init(mParent); /* Does not contain any "real" data, hence only init() and not initCopy(). */
-    if (FAILED(hrc)) return hrc;
-
     unconst(mFirmwareSettings).createObject();
     hrc = mFirmwareSettings->initCopy(this, pMachine->mFirmwareSettings);
     if (FAILED(hrc)) return hrc;
@@ -1319,9 +1315,6 @@ HRESULT SnapshotMachine::initFromSettings(Machine *aMachine,
     unconst(mPlatform).createObject();
     mPlatform->init(this);
     mPlatform->i_loadSettings(hardware.platformSettings); /* Needed for initializing the network adapters below (chipset type). */
-
-    unconst(mPlatformProperties).createObject();
-    mPlatformProperties->init(mParent);
 
     unconst(mFirmwareSettings).createObject();
     mFirmwareSettings->init(this);

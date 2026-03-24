@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 113432 2026-03-16 15:26:12Z alexander.eichner@oracle.com $
+# $Id: Makefile.kmk 113542 2026-03-24 15:42:24Z andreas.loeffler@oracle.com $
 ## @file
 # Makefile for the VBox Main module.
 #
@@ -637,7 +637,6 @@ if !defined(VBOX_ONLY_SDK) && !defined(VBOX_ONLY_EXTPACKS) # Note this goes on f
  	src-all/NvramStoreImpl.cpp \
  	$(if $(VBOX_WITH_MAIN_OBJECT_TRACKER),src-all/ObjectsTracker.cpp) \
  	src-all/PCIDeviceAttachmentImpl.cpp \
- 	src-all/PlatformPropertiesImpl.cpp \
  	src-all/ProgressImpl.cpp \
  	src-all/RecordingUtils.cpp \
  	src-all/SecretKeyStore.cpp \
@@ -660,6 +659,7 @@ if !defined(VBOX_ONLY_SDK) && !defined(VBOX_ONLY_EXTPACKS) # Note this goes on f
  	src-server/BandwidthControlImpl.cpp \
  	src-server/BandwidthGroupImpl.cpp \
  	src-server/FirmwareSettingsImpl.cpp \
+	src-server/PlatformPropertiesImpl.cpp \
  	src-server/RecordingSettingsImpl.cpp \
  	src-server/RecordingScreenSettingsImpl.cpp \
  	src-server/GraphicsAdapterImpl.cpp \
@@ -1193,7 +1193,6 @@ if !defined(VBOX_ONLY_SDK) && !defined(VBOX_ONLY_EXTPACKS) # Note this goes on f
  	src-all/NvramStoreImpl.cpp \
  	$(if $(VBOX_WITH_MAIN_OBJECT_TRACKER),src-all/ObjectsTracker.cpp) \
  	src-all/PCIDeviceAttachmentImpl.cpp \
- 	src-all/PlatformPropertiesImpl.cpp \
  	src-all/ProgressImpl.cpp \
  	src-all/SecretKeyStore.cpp \
  	src-all/AutoCaller.cpp \

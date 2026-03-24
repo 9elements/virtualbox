@@ -1,4 +1,4 @@
-/* $Id: VirtualBoxImpl.h 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: VirtualBoxImpl.h 113542 2026-03-24 15:42:24Z andreas.loeffler@oracle.com $ */
 /** @file
  * VirtualBox COM class implementation
  */
@@ -55,6 +55,7 @@ class SessionMachine;
 class GuestOSType;
 class Progress;
 class Host;
+class PlatformProperties;
 class SystemProperties;
 class DHCPServer;
 class PerformanceCollector;
@@ -233,6 +234,8 @@ public:
 #endif /* VBOX_WITH_CLOUD_NET */
 
     ComObjPtr<GuestOSType> i_getUnknownOSType();
+
+    const ComObjPtr<PlatformProperties> &i_getPlatformProperties(PlatformArchitecture_T enmPlatformArchitecture) const;
 
     void i_getOpenedMachines(SessionMachinesList &aMachines,
                            InternalControlList *aControls = NULL);

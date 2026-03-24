@@ -1,4 +1,4 @@
-/* $Id: PlatformPropertiesImpl.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: PlatformPropertiesImpl.cpp 113542 2026-03-24 15:42:24Z andreas.loeffler@oracle.com $ */
 /** @file
  * VirtualBox COM class implementation - Platform properties.
  */
@@ -50,7 +50,6 @@
 PlatformProperties::PlatformProperties()
     : mParent(NULL)
     , mPlatformArchitecture(PlatformArchitecture_None)
-    , mfIsHost(false)
 {
 }
 
@@ -76,31 +75,25 @@ void PlatformProperties::FinalRelease()
  *
  * @returns HRESULT
  * @param   aParent             Pointer to IVirtualBox parent object (weak).
- * @param   fIsHost             Set to \c true if this instance handles platform properties of the host,
- *                              or set to \c false for guests (default).
  */
-HRESULT PlatformProperties::init(VirtualBox *aParent, bool fIsHost /* = false */)
+HRESULT PlatformProperties::init(VirtualBox *aParent)
 {
     /* Enclose the state transition NotReady->InInit->Ready */
     AutoInitSpan autoInitSpan(this);
     AssertReturn(autoInitSpan.isOk(), E_FAIL);
 
     unconst(mParent)  = aParent;
-    unconst(mfIsHost) = fIsHost;
 
-    if (mfIsHost)
-    {
-        /* On Windows, macOS and Solaris hosts, HW virtualization use isn't exclusive
-         * by default so that VT-x or AMD-V can be shared with other
-         * hypervisors without requiring user intervention.
-         * NB: See also PlatformProperties constructor in settings.h
-         */
+    /* On Windows, macOS and Solaris hosts, HW virtualization use isn't exclusive
+     * by default so that VT-x or AMD-V can be shared with other
+     * hypervisors without requiring user intervention.
+     * NB: See also PlatformProperties constructor in settings.h
+     */
 #if defined(RT_OS_DARWIN) || defined(RT_OS_WINDOWS) || defined(RT_OS_SOLARIS)
-        mData.fExclusiveHwVirt = false; /** @todo BUGBUG Applies for MacOS on ARM as well? */
+    mData.fExclusiveHwVirt = false; /** @todo BUGBUG Applies for MacOS on ARM as well? */
 #else
-        mData.fExclusiveHwVirt = true;
+    mData.fExclusiveHwVirt = true;
 #endif
-    }
 
     /* Confirm a successful initialization */
     autoInitSpan.setSucceeded();
@@ -213,9 +206,6 @@ HRESULT PlatformProperties::setExclusiveHwVirt(BOOL aExclusiveHwVirt)
     /* Only makes sense when running in VBoxSVC, as this is a pure host setting -- ignored within clients. */
 #ifdef IN_VBOXSVC
     /* No locking required, as mfIsHost is const. */
-    if (!mfIsHost) /* Ignore setting the attribute if not host properties. */
-        return S_OK;
-
     AutoWriteLock alock(this COMMA_LOCKVAL_SRC_POS);
     mData.fExclusiveHwVirt = !!aExclusiveHwVirt;
     alock.release();
@@ -1345,5 +1335,23 @@ HRESULT PlatformProperties::getMinGuestRAM(FirmwareType_T aFirmware, ULONG *aMin
 
     *aMinMegabytes = MM_RAM_MIN_IN_MB;
     AssertMsgFailedReturn(("mPlatformArchitecture=%d aFirmware=%d\n", mPlatformArchitecture, aFirmware), E_INVALIDARG);
+}
+
+
+// public methods only for internal purposes
+/////////////////////////////////////////////////////////////////////////////
+
+HRESULT PlatformProperties::i_loadSettings(const settings::PlatformProperties &platform)
+{
+    mData.fExclusiveHwVirt = platform.fExclusiveHwVirt;
+
+    return VINF_SUCCESS;
+}
+
+HRESULT PlatformProperties::i_saveSettings(settings::PlatformProperties &platform)
+{
+    platform.fExclusiveHwVirt = mData.fExclusiveHwVirt;
+
+    return VINF_SUCCESS;
 }
 
