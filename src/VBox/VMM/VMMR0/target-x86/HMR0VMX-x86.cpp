@@ -1,4 +1,4 @@
-/* $Id: HMR0VMX-x86.cpp 113503 2026-03-23 13:48:19Z knut.osmundsen@oracle.com $ */
+/* $Id: HMR0VMX-x86.cpp 113527 2026-03-24 08:47:06Z knut.osmundsen@oracle.com $ */
 /** @file
  * HM VMX (Intel VT-x) - Host Context Ring-0.
  */
@@ -6139,7 +6139,7 @@ static void hmR0VmxPreRunGuestCommitted(PVMCPUCC pVCpu, PVMXTRANSIENT pVmxTransi
     /*
      * Ensure that the FPU state is ready to use.
      */
-    if (CPUMR0EnsureLoadedGuestFPU(pVM, pVCpu) == VINF_CPUM_HOST_CR0_MODIFIED)
+    if (CPUMR0EnsureLoadedGuestFPU(pVM, pVCpu, true /*fUnlock*/) == VINF_CPUM_HOST_CR0_MODIFIED)
         pVCpu->hm.s.fCtxChanged |= HM_CHANGED_HOST_CONTEXT;
 
     /*
