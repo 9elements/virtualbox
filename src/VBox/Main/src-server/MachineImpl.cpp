@@ -1,4 +1,4 @@
-/* $Id: MachineImpl.cpp 112523 2026-01-13 15:46:56Z knut.osmundsen@oracle.com $ */
+/* $Id: MachineImpl.cpp 113545 2026-03-24 17:35:10Z andreas.loeffler@oracle.com $ */
 /** @file
  * Implementation of IMachine in VBoxSVC.
  */
@@ -488,7 +488,6 @@ HRESULT Machine::init(VirtualBox *aParent,
 
         /* Apply platform defaults. */
         mPlatform->i_applyDefaults(aOsType);
-        i_platformPropertiesUpdate();
 
         /* Apply firmware defaults. */
         mFirmwareSettings->i_applyDefaults(aOsType);
@@ -1178,6 +1177,11 @@ HRESULT Machine::getPlatform(ComPtr<IPlatform> &aPlatform)
     aPlatform = pPlatform;
 
     return S_OK;
+}
+
+const ComObjPtr<PlatformProperties> &Machine::i_getPlatformProperties() const
+{
+    return mParent->i_getPlatformProperties(mPlatform->i_getArchitecture());
 }
 
 HRESULT Machine::getAccessible(BOOL *aAccessible)
@@ -5890,7 +5894,7 @@ HRESULT Machine::addUSBController(const com::Utf8Str &aName, USBControllerType_T
         return hrc;
 
     ULONG maxInstances;
-    hrc = mPlatformProperties->GetMaxInstancesOfUSBControllerType(enmChipsetType, aType, &maxInstances);
+    hrc = i_getPlatformProperties()->GetMaxInstancesOfUSBControllerType(enmChipsetType, aType, &maxInstances);
     if (FAILED(hrc))
         return hrc;
 
@@ -8076,14 +8080,10 @@ HRESULT Machine::initDataAndChildObjects()
     mStorageControllers.allocate();
     mUSBControllers.allocate();
 
-    /* create the platform + platform properties objects for this machine */
+    /* create the platform object for this machine */
     HRESULT hrc = unconst(mPlatform).createObject();
     ComAssertComRCRetRC(hrc);
     hrc = mPlatform->init(this);
-    ComAssertComRCRetRC(hrc);
-    hrc = unconst(mPlatformProperties).createObject();
-    ComAssertComRCRetRC(hrc);
-    hrc = mPlatformProperties->init(mParent);
     ComAssertComRCRetRC(hrc);
 
     /* initialize mOSTypeId */
@@ -8244,12 +8244,6 @@ void Machine::uninitDataAndChildObjects()
     {
         mPlatform->uninit();
         unconst(mPlatform).setNull();
-    }
-
-    if (mPlatformProperties)
-    {
-        mPlatformProperties->uninit();
-        unconst(mPlatformProperties).setNull();
     }
 
     if (mFirmwareSettings)
@@ -8775,8 +8769,6 @@ HRESULT Machine::i_loadHardware(const Guid *puuidRegistry,
         /* Platform */
         hrc = mPlatform->i_loadSettings(data.platformSettings);
         if (FAILED(hrc)) return hrc;
-
-        i_platformPropertiesUpdate();
 
         /* Firmware */
         hrc = mFirmwareSettings->i_loadSettings(data.firmwareSettings);
@@ -11785,10 +11777,7 @@ void Machine::i_rollback(bool aNotify)
         i_rollbackMedia();
 
     if (mPlatform)
-    {
         mPlatform->i_rollback();
-        i_platformPropertiesUpdate();
-    }
 
     if (mFirmwareSettings)
         mFirmwareSettings->i_rollback();
@@ -12219,7 +12208,6 @@ void Machine::i_copyFrom(Machine *aThat)
     }
 
     mPlatform->i_copyFrom(aThat->mPlatform);
-    i_platformPropertiesUpdate();
     mFirmwareSettings->i_copyFrom(aThat->mFirmwareSettings);
     mRecordingSettings->i_copyFrom(aThat->mRecordingSettings);
     mTrustedPlatformModule->i_copyFrom(aThat->mTrustedPlatformModule);
@@ -12286,7 +12274,7 @@ void Machine::i_copyFrom(Machine *aThat)
 bool Machine::i_isControllerHotplugCapable(StorageControllerType_T enmCtrlType)
 {
     BOOL aHotplugCapable = FALSE;
-    HRESULT hrc = mPlatformProperties->GetStorageControllerHotplugCapable(enmCtrlType, &aHotplugCapable);
+    HRESULT hrc = i_getPlatformProperties()->GetStorageControllerHotplugCapable(enmCtrlType, &aHotplugCapable);
     AssertComRC(hrc);
 
     return RT_BOOL(aHotplugCapable);
@@ -12487,25 +12475,6 @@ void Machine::i_unregisterMetrics(PerformanceCollector *aCollector, Machine *aMa
 
 #endif /* VBOX_WITH_RESOURCE_USAGE_API */
 
-/**
- * Updates the machine's platform properties based on the current platform architecture.
- *
- * @note    Called internally when committing, rolling back or loading settings.
- */
-void Machine::i_platformPropertiesUpdate()
-{
-    if (mPlatform)
-    {
-        /* Update architecture for platform properties. */
-        PlatformArchitecture_T platformArchitecture;
-        HRESULT hrc = mPlatform->getArchitecture(&platformArchitecture);
-        ComAssertComRC(hrc);
-        hrc = mPlatformProperties->i_setArchitecture(platformArchitecture);
-        ComAssertComRC(hrc);
-    }
-}
-
-
 ////////////////////////////////////////////////////////////////////////////////
 
 DEFINE_EMPTY_CTOR_DTOR(SessionMachine)
@@ -12611,12 +12580,8 @@ HRESULT SessionMachine::init(Machine *aMachine)
         mUSBControllers->push_back(ctl);
     }
 
-    unconst(mPlatformProperties).createObject();
-    mPlatformProperties->init(mParent);
     unconst(mPlatform).createObject();
     mPlatform->init(this, aMachine->mPlatform);
-
-    i_platformPropertiesUpdate();
 
     unconst(mFirmwareSettings).createObject();
     mFirmwareSettings->init(this, aMachine->mFirmwareSettings);

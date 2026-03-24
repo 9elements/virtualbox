@@ -1,4 +1,4 @@
-/* $Id: Settings.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: Settings.cpp 113545 2026-03-24 17:35:10Z andreas.loeffler@oracle.com $ */
 /** @file
  * Settings File Manipulation API.
  *
@@ -1707,10 +1707,31 @@ SystemProperties::SystemProperties()
 }
 
 PlatformProperties::PlatformProperties()
-    : fExclusiveHwVirt(true)
+{
+    applyDefaults();
+}
+
+/**
+ * Check if all settings have default values.
+ */
+bool PlatformProperties::areDefaultSettings() const
 {
 #if defined(RT_OS_DARWIN) || defined(RT_OS_WINDOWS) || defined(RT_OS_SOLARIS)
-    fExclusiveHwVirt = false; /** @todo BUGBUG Does this apply to MacOS on ARM as well? */
+    return fExclusiveHwVirt == false;
+#else
+    return fExclusiveHwVirt == true;
+#endif
+}
+
+/**
+ * Applies the default settings.
+ */
+void PlatformProperties::applyDefaults(void)
+{
+#if defined(RT_OS_DARWIN) || defined(RT_OS_WINDOWS) || defined(RT_OS_SOLARIS)
+    fExclusiveHwVirt = false;
+#else
+    fExclusiveHwVirt = true;
 #endif
 }
 
@@ -2560,6 +2581,20 @@ MainConfigFile::MainConfigFile(const Utf8Str *pstrFilename)
 
 void MainConfigFile::bumpSettingsVersionIfNeeded()
 {
+    if (m->sv < SettingsVersion_v1_21)
+    {
+        // VirtualBox 7.2 adds global shared folders.
+        if (!llGlobalSharedFolders.empty())
+            m->sv = SettingsVersion_v1_21;
+    }
+
+    if (m->sv < SettingsVersion_v1_20)
+    {
+    	// VirtualBox 7.1 adds platform support (i.e. for ARM).
+        if (!platformProperties.areDefaultSettings())
+            m->sv = SettingsVersion_v1_20;
+    }
+
 #ifdef VBOX_WITH_VMNET
     if (m->sv < SettingsVersion_v1_19)
     {
@@ -2590,13 +2625,6 @@ void MainConfigFile::bumpSettingsVersionIfNeeded()
         if (   !llNATNetworks.empty())
             m->sv = SettingsVersion_v1_14;
     }
-    if (m->sv < SettingsVersion_v1_21)
-    {
-        // VirtualBox 7.2 adds global shared folders.
-        if (!llGlobalSharedFolders.empty())
-            m->sv = SettingsVersion_v1_21;
-    }
-
 }
 
 

@@ -1,4 +1,4 @@
-/* $Id: PlatformPropertiesImpl.h 112523 2026-01-13 15:46:56Z knut.osmundsen@oracle.com $ */
+/* $Id: PlatformPropertiesImpl.h 113545 2026-03-24 17:35:10Z andreas.loeffler@oracle.com $ */
 /** @file
  * VirtualBox COM class implementation - Platform properties.
  */
@@ -49,12 +49,12 @@ public:
     void FinalRelease();
 
     // public initializer/uninitializer for internal purposes only
-    HRESULT init(VirtualBox *aParent, bool fIsHost = false);
+    HRESULT init(VirtualBox *aParent);
     void uninit() RT_OVERRIDE;
 
     // public internal methods
-    //HRESULT i_loadSettings(const settings::PlatformProperties &data);
-    //HRESULT i_saveSettings(settings::PlatformProperties &data);
+    HRESULT i_loadSettings(const settings::PlatformProperties &data);
+    HRESULT i_saveSettings(settings::PlatformProperties &data);
     //void i_rollback();
     //void i_commit();
     //void i_copyFrom(PlatformProperties *aThat);
@@ -130,9 +130,6 @@ private:
     VirtualBox * const     mParent;
     /** Platform architecture the properties are for. */
     PlatformArchitecture_T mPlatformArchitecture;
-    /** Flag set to \c true if this instance handles platform properties
-     *  for the host, or set to \c false for guests. */
-    bool const             mfIsHost;
     /** Configurable data. */
     struct
     {

@@ -1,4 +1,4 @@
-/* $Id: MachineImpl.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: MachineImpl.h 113545 2026-03-24 17:35:10Z andreas.loeffler@oracle.com $ */
 /** @file
  * Implementation of IMachine in VBoxSVC - Header.
  */
@@ -454,7 +454,7 @@ public:
      *
      * @returns Platform properties object.
      */
-    PlatformProperties *i_getPlatformProperties() const { return mPlatformProperties; }
+    const ComObjPtr<PlatformProperties> &i_getPlatformProperties() const;
 
     /**
      * Checks if this machine is accessible, without attempting to load the
@@ -805,8 +805,6 @@ protected:
     pm::CollectorGuest     *mCollectorGuest;
 #endif /* VBOX_WITH_RESOURCE_USAGE_API */
 
-    void i_platformPropertiesUpdate();
-
     Machine * const         mPeer;
 
     VirtualBox * const      mParent;
@@ -816,11 +814,6 @@ protected:
 
     Backupable<UserData>    mUserData;
     Backupable<HWData>      mHWData;
-
-    // const objectsf not requiring locking
-    /** The machine's platform properties.
-     *  We keep a (const) object around for performance reasons. */
-    const ComObjPtr<PlatformProperties> mPlatformProperties;
 
     /**
      * Hard disk and other media data.

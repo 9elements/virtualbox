@@ -382,6 +382,9 @@ struct PlatformProperties
 {
     PlatformProperties();
 
+    void applyDefaults();
+    bool areDefaultSettings() const;
+
     bool                    fExclusiveHwVirt;
 };
 

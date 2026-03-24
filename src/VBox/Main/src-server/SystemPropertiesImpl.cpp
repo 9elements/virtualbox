@@ -1,4 +1,4 @@
-/* $Id: SystemPropertiesImpl.cpp 113259 2026-03-04 18:32:31Z alexander.eichner@oracle.com $ */
+/* $Id: SystemPropertiesImpl.cpp 113545 2026-03-24 17:35:10Z andreas.loeffler@oracle.com $ */
 /** @file
  * VirtualBox COM class implementation
  */
@@ -147,7 +147,7 @@ HRESULT SystemProperties::init(VirtualBox *aParent)
         hrc = unconst(m_platformProperties).createObject();
         if (SUCCEEDED(hrc))
         {
-            hrc = m_platformProperties->init(mParent, true /*fIsHost*/);
+            hrc = m_platformProperties->init(mParent);
             if (SUCCEEDED(hrc))
                 hrc = m_platformProperties->i_setArchitecture(PlatformProperties::s_getHostPlatformArchitecture());
         }
@@ -1467,7 +1467,7 @@ HRESULT SystemProperties::getExecutionEnginesForVmCpuArchitecture(CPUArchitectur
 // public methods only for internal purposes
 /////////////////////////////////////////////////////////////////////////////
 
-HRESULT SystemProperties::i_loadSettings(const settings::SystemProperties &data)
+HRESULT SystemProperties::i_loadSettings(const settings::SystemProperties &data, const settings::PlatformProperties &platform)
 {
     AutoCaller autoCaller(this);
     if (FAILED(autoCaller.hrc())) return autoCaller.hrc();
@@ -1513,10 +1513,13 @@ HRESULT SystemProperties::i_loadSettings(const settings::SystemProperties &data)
     hrc = i_setDefaultFrontend(data.strDefaultFrontend);
     if (FAILED(hrc)) return hrc;
 
+    hrc = m_platformProperties->i_loadSettings(platform);
+    if (FAILED(hrc)) return hrc;
+
     return S_OK;
 }
 
-HRESULT SystemProperties::i_saveSettings(settings::SystemProperties &data)
+HRESULT SystemProperties::i_saveSettings(settings::SystemProperties &data, settings::PlatformProperties &platform)
 {
     AutoCaller autoCaller(this);
     if (FAILED(autoCaller.hrc())) return autoCaller.hrc();
@@ -1524,6 +1527,9 @@ HRESULT SystemProperties::i_saveSettings(settings::SystemProperties &data)
     AutoReadLock alock(this COMMA_LOCKVAL_SRC_POS);
 
     data = *m;
+
+    /* For exclusiveHwVirt. */
+    m_platformProperties->i_saveSettings(platform);
 
     return S_OK;
 }

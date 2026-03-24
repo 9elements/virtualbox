@@ -1,4 +1,4 @@
-/* $Id: VirtualBoxImpl.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: VirtualBoxImpl.cpp 113545 2026-03-24 17:35:10Z andreas.loeffler@oracle.com $ */
 /** @file
  * Implementation of IVirtualBox in VBoxSVC.
  */
@@ -63,6 +63,7 @@
 #include <package-generated.h>
 
 #include <algorithm>
+#include <map>
 #include <set>
 #include <vector>
 #include <memory> // for auto_ptr
@@ -329,6 +330,9 @@ struct VirtualBox::Data
 #ifdef VBOX_WITH_RESOURCE_USAGE_API
     const ComObjPtr<PerformanceCollector> pPerformanceCollector;
 #endif /* VBOX_WITH_RESOURCE_USAGE_API */
+    /** Per-platform-architecture singleton IPlatformProperties instances. */
+    std::map<PlatformArchitecture_T, const  ComObjPtr<PlatformProperties> >
+                                        mapPlatformProperties;
 
     // Each of the following lists use a particular lock handle that protects the
     // list as a whole. As opposed to version 3.1 and earlier, these lists no
@@ -634,8 +638,32 @@ HRESULT VirtualBox::init()
             hrc = m->pSystemProperties->init(this);
         ComAssertComRCThrowRC(hrc);
 
-        hrc = m->pSystemProperties->i_loadSettings(m->pMainConfigFile->systemProperties);
+        hrc = m->pSystemProperties->i_loadSettings(m->pMainConfigFile->systemProperties, m->pMainConfigFile->platformProperties);
         if (FAILED(hrc)) throw hrc;
+
+        /* Per-platform architecture properties.
+         * Note: Always handle all archs instead regardless if supported, to provide maximum compatibility. */
+        static const PlatformArchitecture_T s_aPlatformArchitectures[] =
+        {
+            PlatformArchitecture_x86,
+            PlatformArchitecture_ARM
+        };
+
+        for (size_t i = 0; i < RT_ELEMENTS(s_aPlatformArchitectures); i++)
+        {
+            ComObjPtr<PlatformProperties> platformProperties;
+            hrc = platformProperties.createObject();
+            ComAssertComRCThrowRC(hrc);
+
+            hrc = platformProperties->init(this);
+            ComAssertComRCThrowRC(hrc);
+
+            hrc = platformProperties->i_setArchitecture(s_aPlatformArchitectures[i]);
+            ComAssertComRCThrowRC(hrc);
+
+            unconst(m->mapPlatformProperties[s_aPlatformArchitectures[i]]) = platformProperties;
+        }
+
 #ifdef VBOX_WITH_MAIN_NLS
         m->pVBoxTranslator = VirtualBoxTranslator::instance();
         /* Do not throw an exception on language errors.
@@ -1085,6 +1113,18 @@ void VirtualBox::uninit()
         unconst(m->pCloudProviderManager).setNull();
     }
 
+    for (std::map<PlatformArchitecture_T, const ComObjPtr<PlatformProperties> >::iterator it = m->mapPlatformProperties.begin();
+         it != m->mapPlatformProperties.end();
+         ++it)
+    {
+        if (it->second)
+        {
+            unconst(it->second)->uninit();
+            unconst(it->second).setNull();
+        }
+    }
+    m->mapPlatformProperties.clear();
+
     if (m->pSystemProperties)
     {
         m->pSystemProperties->uninit();
@@ -1257,18 +1297,20 @@ HRESULT VirtualBox::getHost(ComPtr<IHost> &aHost)
     return S_OK;
 }
 
+const ComObjPtr<PlatformProperties> &VirtualBox::i_getPlatformProperties(PlatformArchitecture_T enmPlatformArchitecture) const
+{
+    AssertReturn(enmPlatformArchitecture != PlatformArchitecture_None, m->mapPlatformProperties.begin()->second);
+    return m->mapPlatformProperties[enmPlatformArchitecture];
+}
+
 HRESULT VirtualBox::getPlatformProperties(PlatformArchitecture_T platformArchitecture,
                                           ComPtr<IPlatformProperties> &aPlatformProperties)
 {
-    ComObjPtr<PlatformProperties> platformProperties;
-    HRESULT hrc = platformProperties.createObject();
-    AssertComRCReturn(hrc, hrc);
+    if (   platformArchitecture != PlatformArchitecture_x86
+        && platformArchitecture != PlatformArchitecture_ARM)
+        return E_INVALIDARG;
 
-    hrc = platformProperties->init(this);
-    AssertComRCReturn(hrc, hrc);
-
-    hrc = platformProperties->i_setArchitecture(platformArchitecture);
-    AssertComRCReturn(hrc, hrc);
+    const ComObjPtr<PlatformProperties> &platformProperties = i_getPlatformProperties(platformArchitecture);
 
     return platformProperties.queryInterfaceTo(aPlatformProperties.asOutParam());
 }
@@ -5371,7 +5413,7 @@ HRESULT VirtualBox::i_saveSettings()
         hrc = m->pHost->i_saveSettings(m->pMainConfigFile->host);
         if (FAILED(hrc)) throw hrc;
 
-        hrc = m->pSystemProperties->i_saveSettings(m->pMainConfigFile->systemProperties);
+        hrc = m->pSystemProperties->i_saveSettings(m->pMainConfigFile->systemProperties, m->pMainConfigFile->platformProperties);
         if (FAILED(hrc)) throw hrc;
 
         // and write out the XML, still under the lock
