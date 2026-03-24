@@ -1,4 +1,4 @@
-/* $Id: HMR0.cpp 113470 2026-03-19 15:17:08Z ramshankar.venkataraman@oracle.com $ */
+/* $Id: HMR0.cpp 113525 2026-03-24 07:33:15Z ramshankar.venkataraman@oracle.com $ */
 /** @file
  * Hardware Assisted Virtualization Manager (HM) - Host Context Ring-0.
  */
@@ -608,11 +608,9 @@ static int hmR0InitAmd(void)
 
     if (RT_SUCCESS(rc))
     {
-        /*
-         * Install the AMD-V methods.
-         */
-        g_HmR0Ops = g_HmR0OpsSvm;
-
+        /* Call the global AMD-V initialization routine (should only fail in out-of-memory situations). */
+        g_rcHmInit = rc = SVMR0GlobalInit();
+        
         /* Query AMD features. */
         uint32_t u32Dummy;
         ASMCpuId(0x8000000a, &g_uHmSvmRev, &g_uHmMaxAsid, &u32Dummy, &g_fHmSvmFeatures);
@@ -636,13 +634,19 @@ static int hmR0InitAmd(void)
         }
         if (RT_SUCCESS(rc))
         {
+            /*
+             * Install the AMD-V methods and mark it enabled.
+             */
             SUPR0GetHwvirtMsrs(&g_HmMsrs, SUPVTCAPS_AMD_V, false /* fForce */);
+            g_HmR0Ops = g_HmR0OpsSvm;
             g_fHmSvmSupported = true;
         }
         else
         {
             if (rc == VERR_SVM_DISABLED || rc == VERR_SVM_IN_USE)
                 rc = VINF_SUCCESS; /* Don't fail if AMD-V is disabled or in use. */
+            else
+                SVMR0GlobalTerm();
         }
     }
     return rc;
