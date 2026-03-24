@@ -1,4 +1,4 @@
-/* $Id: SUPDrv-linux.c 113538 2026-03-24 14:21:45Z ramshankar.venkataraman@oracle.com $ */
+/* $Id: SUPDrv-linux.c 113540 2026-03-24 14:38:46Z ramshankar.venkataraman@oracle.com $ */
 /** @file
  * VBoxDrv - The VirtualBox Support Driver - Linux specifics.
  */
@@ -413,14 +413,14 @@ static bool supdrvLinuxIsKvmVirtEnabledLikelyCalled(void)
      * the relevant bits identical in CR4 and EFER.
      */
     bool const     fIsIntel  = ASMIsIntelOrCompatibleCpu();
-    uint64_t const fVmxeMask = RT_BIT_64(13);
+    uint64_t const fVmxeMask = RT_BIT_64(13); /* CR4.VMXE bit. */
     if (   fIsIntel
         && (ASMGetCR4() & fVmxeMask))
         return true;
 
     bool const     fIsAmd    = ASMIsAmdOrCompatibleCpu();
-    uint32_t const idEfer    = 0xc0000080;
-    uint64_t const fSvmeMask = RT_BIT_64(12);
+    uint32_t const idEfer    = 0xc0000080; /* EFER MSR. */
+    uint64_t const fSvmeMask = RT_BIT_64(12); /* EFER.SVME bit. */
     if (   fIsAmd
         && (ASMRdMsr(idEfer) & fSvmeMask))
            return true;
