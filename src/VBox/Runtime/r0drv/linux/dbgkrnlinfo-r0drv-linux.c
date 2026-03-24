@@ -1,4 +1,4 @@
-/* $Id: dbgkrnlinfo-r0drv-linux.c 113546 2026-03-24 23:40:36Z knut.osmundsen@oracle.com $ */
+/* $Id: dbgkrnlinfo-r0drv-linux.c 113548 2026-03-24 23:51:13Z knut.osmundsen@oracle.com $ */
 /** @file
  * IPRT - Kernel Debug Information, R0 Driver, Linux.
  */
@@ -164,10 +164,11 @@ RTR0DECL(int) RTR0DbgKrnlInfoOpen(PRTDBGKRNLINFO phKrnlInfo, uint32_t fFlags)
 RTR0DECL(uint32_t) RTR0DbgKrnlInfoRetain(RTDBGKRNLINFO hKrnlInfo)
 {
     RTDBGKRNLINFOINT *pThis = hKrnlInfo;
+    uint32_t cRefs;
     AssertPtrReturn(pThis, UINT32_MAX);
     AssertMsgReturn(pThis->u32Magic == RTDBGKRNLINFO_MAGIC, ("%p: u32Magic=%RX32\n", pThis, pThis->u32Magic), UINT32_MAX);
 
-    uint32_t cRefs = ASMAtomicIncU32(&pThis->cRefs);
+    int32_t cRefs = ASMAtomicIncU32(&pThis->cRefs);
     Assert(cRefs && cRefs < 100000);
     return cRefs;
 }
@@ -176,12 +177,13 @@ RTR0DECL(uint32_t) RTR0DbgKrnlInfoRetain(RTDBGKRNLINFO hKrnlInfo)
 RTR0DECL(uint32_t) RTR0DbgKrnlInfoRelease(RTDBGKRNLINFO hKrnlInfo)
 {
     RTDBGKRNLINFOINT *pThis = hKrnlInfo;
+    uint32_t cRefs;
     if (pThis == NIL_RTDBGKRNLINFO)
         return 0;
     AssertPtrReturn(pThis, UINT32_MAX);
     AssertMsgReturn(pThis->u32Magic == RTDBGKRNLINFO_MAGIC, ("%p: u32Magic=%RX32\n", pThis, pThis->u32Magic), UINT32_MAX);
 
-    uint32_t cRefs = ASMAtomicDecU32(&pThis->cRefs);
+    cRefs = ASMAtomicDecU32(&pThis->cRefs);
     if (cRefs == 0)
         rtR0DbgKrnlLinuxDtor(pThis);
     return cRefs;
@@ -205,12 +207,17 @@ RTR0DECL(int) RTR0DbgKrnlInfoQueryMember(RTDBGKRNLINFO hKrnlInfo, const char *ps
 static int
 rtR0DbgKrnlInfoLnxQuerySymbolKallsyms(RTDBGKRNLINFOINT *pThis, const char *pszModule, const char *pszSymbol, void **ppvSymbol)
 {
-    size_t cchSymbol;
-    size_t cchModule;
-    size_t cchMinLineLength;
-    size_t cchLineLengthKSymTab;
-    bool fSeenKSymtabEntry = false;
-    uintptr_t uCandidate = ~(uintptr_t)0;
+    size_t       cchSymbol;
+    size_t       cchModule;
+    size_t       cchMinLineLength;
+    size_t       cchLineLengthKSymTab;
+    char * const pchBuf;
+    RTFOFF       offFile;
+    uint32_t     cbInBuf;
+    uint32_t     off;
+    bool         fSeenKSymtabEntry;
+    uintptr_t    uCandidate;
+
     AssertPtrReturn(pThis, VERR_INVALID_HANDLE);
     AssertMsgReturn(pThis->u32Magic == RTDBGKRNLINFO_MAGIC, ("%p: u32Magic=%RX32\n", pThis, pThis->u32Magic), VERR_INVALID_HANDLE);
     AssertPtrReturn(pszSymbol, VERR_INVALID_PARAMETER);
@@ -224,10 +231,12 @@ rtR0DbgKrnlInfoLnxQuerySymbolKallsyms(RTDBGKRNLINFOINT *pThis, const char *pszMo
     /*
      * Scan the entire file for the requested symbol.
      */
-    char * const pchBuf  = pThis->abBuf;
-    RTFOFF       offFile = 0;
-    uint32_t     cbInBuf = 0;
-    uint32_t     off     = 0;
+    pchBuf            = pThis->abBuf;
+    offFile           = 0;
+    cbInBuf           = 0;
+    off               = 0;
+    fSeenKSymtabEntry = false;
+    uCandidate        = ~(uintptr_t)0;
     for (;;)
     {
         /*
@@ -290,11 +299,12 @@ rtR0DbgKrnlInfoLnxQuerySymbolKallsyms(RTDBGKRNLINFOINT *pThis, const char *pszMo
                 char const chType = *++psz; /* skip space and get type */
 
                 /* Check for __ksymtab_ entries. */
+                static const char s_szKSymTabPrefix[] = "__ksymtab_";
                 if (   chType == 'r'
                     && RT_C_IS_BLANK(psz[1])
-                    && strncmp(&psz[2], RT_STR_TUPLE("__ksymtab_")) == 0)
+                    && strncmp(&psz[2], s_szKSymTabPrefix, sizeof(s_szKSymTabPrefix) - 1)) == 0)
                 {
-                    psz += 2 + sizeof("__ksymtab_") - 1;
+                    psz += 2 + sizeof(s_szKSymTabPrefix) - 1;
 
                     /* Look for the one for the symbol. */
                     if (   cchModule > 0
