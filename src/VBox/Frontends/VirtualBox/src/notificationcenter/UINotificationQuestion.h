@@ -1,4 +1,4 @@
-/* $Id: UINotificationQuestion.h 113535 2026-03-24 10:01:33Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationQuestion.h 113536 2026-03-24 12:55:20Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationQuestion declarations.
  */
@@ -132,10 +132,17 @@ public:
         static bool confirmStorageBusChangeWithOpticalRemoval(QWidget *pParent);
         /** Confirms storage bus change with excessive devices removal. */
         static bool confirmStorageBusChangeWithExcessiveRemoval(QWidget *pParent);
+
         /** Confirms canceling port forwarding dialog. */
         static bool confirmCancelingPortForwardingDialog(QWidget *pParent);
+
         /** Confirms restoring default keys. */
         static bool confirmRestoringDefaultKeys(QWidget *pParent);
+
+        /** Confirms settings discarding: */
+        static bool confirmSettingsDiscarding(QWidget *pParent);
+        /** Confirms settings reloading: */
+        static bool confirmSettingsReloading(QWidget *pParent);
     /** @} */
 
     /** @name Extension Pack Manager warnings

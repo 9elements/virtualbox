@@ -1,4 +1,4 @@
-/* $Id: UIMessageCenter.h 113535 2026-03-24 10:01:33Z sergey.dubov@oracle.com $ */
+/* $Id: UIMessageCenter.h 113536 2026-03-24 12:55:20Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMessageCenter class declaration.
  */
@@ -238,12 +238,6 @@ public:
         void cannotSetExtraData(const CMachine &machine, const QString &strKey, const QString &strValue);
         bool cannotRemountMedium(const CMachine &machine, const UIMedium &medium,
                                  bool fMount, bool fRetry, QWidget *pParent = 0) const;
-    /** @} */
-
-    /** @name Common warnings.
-      * @{ */
-        bool confirmSettingsDiscarding(QWidget *pParent = 0) const;
-        bool confirmSettingsReloading(QWidget *pParent = 0) const;
     /** @} */
 
 public slots:

@@ -1,4 +1,4 @@
-/* $Id: UINotificationQuestion.cpp 113535 2026-03-24 10:01:33Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationQuestion.cpp 113536 2026-03-24 12:55:20Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationQuestion implementations.
  */
@@ -372,6 +372,33 @@ bool UINotificationQuestion::confirmRestoringDefaultKeys(QWidget *pParent)
                                                    "<p>If you proceed your current keys will be rewritten. "
                                                    "You may not be able to boot affected VM anymore.</p>"),
         QStringList() /* no button name redefinition */,
+        false /* ok button by default? */,
+        pParent);
+}
+
+/* static */
+bool UINotificationQuestion::confirmSettingsDiscarding(QWidget *pParent)
+{
+    return createBlockingQuestion(
+        QApplication::translate("UIMessageCenter", "Disscard settings?"),
+        QApplication::translate("UIMessageCenter", "<p>The machine settings were changed.</p><p>Would you like to discard the "
+                                                   "changed settings or to keep editing them?</p>"),
+        QStringList() << QApplication::translate("UIMessageCenter", "Keep editing") /* cancel button text */
+                      << QApplication::translate("UIMessageCenter", "Discard changes") /* ok button text */,
+        false /* ok button by default? */,
+        pParent);
+}
+
+/* static */
+bool UINotificationQuestion::confirmSettingsReloading(QWidget *pParent)
+{
+    return createBlockingQuestion(
+        QApplication::translate("UIMessageCenter", "Reload settings?"),
+        QApplication::translate("UIMessageCenter", "<p>The machine settings were changed while you were editing them. You "
+                                                   "currently have unsaved setting changes.</p><p>Would you like to reload the "
+                                                   "changed settings or to keep your own changes?</p>"),
+        QStringList() << QApplication::translate("UIMessageCenter", "Keep changes") /* cancel button text */
+                      << QApplication::translate("UIMessageCenter", "Reload settings") /* ok button text */,
         false /* ok button by default? */,
         pParent);
 }

@@ -1,4 +1,4 @@
-﻿/* $Id: UIAdvancedSettingsDialog.cpp 113147 2026-02-24 15:56:22Z sergey.dubov@oracle.com $ */
+﻿/* $Id: UIAdvancedSettingsDialog.cpp 113536 2026-03-24 12:55:20Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIAdvancedSettingsDialog class implementation.
  */
@@ -62,7 +62,6 @@
 #include "UIIconPool.h"
 #include "UIImageTools.h"
 #include "UILoggingDefs.h"
-#include "UIMessageCenter.h"
 #include "UIModalWindowManager.h"
 #include "UINotificationCenter.h"
 #include "UIPopupCenter.h"
@@ -1369,7 +1368,7 @@ void UIAdvancedSettingsDialog::sltClose()
     /* Make sure there are no unsaved settings to be lost
      * or user agreed to forget them after all: */
     if (   !isSettingsChanged()
-        || msgCenter().confirmSettingsDiscarding(this))
+        || UINotificationQuestion::confirmSettingsDiscarding(this))
         tellListenerToCloseUs();
 }
 

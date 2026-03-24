@@ -1,4 +1,4 @@
-/* $Id: UIMessageCenter.cpp 113535 2026-03-24 10:01:33Z sergey.dubov@oracle.com $ */
+/* $Id: UIMessageCenter.cpp 113536 2026-03-24 12:55:20Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMessageCenter class implementation.
  */
@@ -477,43 +477,6 @@ bool UIMessageCenter::cannotRemountMedium(const CMachine &machine, const UIMediu
           strMessage.arg(medium.isHostDrive() ? medium.name() : medium.location(), CMachine(machine).GetName()),
           UIErrorString::formatErrorInfo(machine));
     return false;
-}
-
-bool UIMessageCenter::confirmSettingsDiscarding(QWidget *pParent /* = 0 */) const
-{
-    if (   warningShown("confirmSettingsDiscarding")
-        || warningShown("confirmSettingsReloading"))
-        return false;
-    setWarningShown("confirmSettingsDiscarding", true);
-
-    const bool fResult = questionBinary(pParent, MessageType_Question,
-                                        tr("<p>The machine settings were changed.</p>"
-                                           "<p>Would you like to discard the changed settings or to keep editing them?</p>"),
-                                        0 /* auto-confirm id */,
-                                        tr("Discard changes"), tr("Keep editing"));
-
-    setWarningShown("confirmSettingsDiscarding", false);
-
-    return fResult;
-}
-
-bool UIMessageCenter::confirmSettingsReloading(QWidget *pParent /* = 0 */) const
-{
-    if (   warningShown("confirmSettingsReloading")
-        || warningShown("confirmSettingsDiscarding"))
-        return false;
-    setWarningShown("confirmSettingsReloading", true);
-
-    const bool fResult = questionBinary(pParent, MessageType_Question,
-                                        tr("<p>The machine settings were changed while you were editing them. "
-                                           "You currently have unsaved setting changes.</p>"
-                                           "<p>Would you like to reload the changed settings or to keep your own changes?</p>"),
-                                        0 /* auto-confirm id */,
-                                        tr("Reload settings"), tr("Keep changes"));
-
-    setWarningShown("confirmSettingsReloading", false);
-
-    return fResult;
 }
 
 void UIMessageCenter::sltShowHelpWebDialog()
