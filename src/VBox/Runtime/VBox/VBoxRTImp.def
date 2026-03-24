@@ -1,4 +1,4 @@
-; $Id: VBoxRTImp.def 113518 2026-03-23 22:57:54Z knut.osmundsen@oracle.com $
+; $Id: VBoxRTImp.def 113549 2026-03-24 23:53:33Z knut.osmundsen@oracle.com $
 ;; @file
 ; VirtualBox Runtime DLL - Stable Interface Definition file.
 ;
@@ -1910,6 +1910,7 @@ EXPORTS
     RTSymlinkIsDangling
     RTSymlinkRead
     RTSymlinkReadA
+    RTSystemGetPageSize
     RTSystemQueryAvailableRam
     RTSystemQueryDmiString
     RTSystemQueryOSInfo
