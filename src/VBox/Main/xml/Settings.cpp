@@ -1,4 +1,4 @@
-/* $Id: Settings.cpp 113542 2026-03-24 15:42:24Z andreas.loeffler@oracle.com $ */
+/* $Id: Settings.cpp 113544 2026-03-24 16:07:08Z andreas.loeffler@oracle.com $ */
 /** @file
  * Settings File Manipulation API.
  *
@@ -2590,7 +2590,7 @@ void MainConfigFile::bumpSettingsVersionIfNeeded()
 
     if (m->sv < SettingsVersion_v1_20)
     {
-    	// VirtualBox 7.1 adds platform support (i.e. for ARM).
+        // VirtualBox 7.1 adds platform support (i.e. for ARM).
         if (!platformProperties.areDefaultSettings())
             m->sv = SettingsVersion_v1_20;
     }

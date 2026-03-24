@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 113542 2026-03-24 15:42:24Z andreas.loeffler@oracle.com $
+# $Id: Makefile.kmk 113544 2026-03-24 16:07:08Z andreas.loeffler@oracle.com $
 ## @file
 # Makefile for the VBox Main module.
 #
@@ -659,7 +659,7 @@ if !defined(VBOX_ONLY_SDK) && !defined(VBOX_ONLY_EXTPACKS) # Note this goes on f
  	src-server/BandwidthControlImpl.cpp \
  	src-server/BandwidthGroupImpl.cpp \
  	src-server/FirmwareSettingsImpl.cpp \
-	src-server/PlatformPropertiesImpl.cpp \
+ 	src-server/PlatformPropertiesImpl.cpp \
  	src-server/RecordingSettingsImpl.cpp \
  	src-server/RecordingScreenSettingsImpl.cpp \
  	src-server/GraphicsAdapterImpl.cpp \
