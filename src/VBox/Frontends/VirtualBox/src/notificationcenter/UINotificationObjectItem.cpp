@@ -1,4 +1,4 @@
-/* $Id: UINotificationObjectItem.cpp 113528 2026-03-24 08:51:46Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationObjectItem.cpp 113534 2026-03-24 09:32:50Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationObjectItem class implementation.
  */
@@ -61,7 +61,8 @@ UINotificationObjectItem::UINotificationObjectItem(QWidget *pParent,
     : QWidget(pParent)
     , m_pObject(pObject)
     , m_iMinimumWidthHint(0)
-    , m_iDetailsWidthHint(0)
+    , m_iInitialItemWidthHint(0)
+    , m_iCurrentItemWidthHint(0)
     , m_pLayoutMain(0)
     , m_pLayoutUpper(0)
     , m_pLabelIcon(0)
@@ -92,42 +93,26 @@ void UINotificationObjectItem::prepare()
     sltRetranslateUI();
 }
 
-void UINotificationObjectItem::setDetailsWidthHint(int iHint)
+void UINotificationObjectItem::setItemWidthHint(int iHint)
 {
     /* Make sure something changed: */
-    if (m_iDetailsWidthHint == iHint)
+    if (m_iCurrentItemWidthHint == iHint)
         return;
     /* Remember new value: */
-    m_iDetailsWidthHint = iHint;
+    m_iCurrentItemWidthHint = iHint;
 
-    /* Passed details width hint have to be adjusted according to margins: */
-    int iDetailsWidthHint = m_iDetailsWidthHint;
+    /* Acquire details width hint (which is item width hint minus two margins): */
+    int iDetailsWidthHint = m_iCurrentItemWidthHint;
     if (iDetailsWidthHint > 0)
     {
-        /* Acquire layout margins: */
         int iL, iT, iR, iB;
         m_pLayoutMain->getContentsMargins(&iL, &iT, &iR, &iB);
-        /* Adjust width hint: */
-        iDetailsWidthHint = iDetailsWidthHint - iL - iR;
+        iDetailsWidthHint -= (iL + iR);
     }
 
     /* Calculate effective width hint on the basis of mimumum and details hints: */
     const int iEffectiveWidthHint = qMax(m_iMinimumWidthHint, iDetailsWidthHint);
     m_pLabelDetails->setMinimumTextWidth(iEffectiveWidthHint);
-}
-
-int UINotificationObjectItem::detailsWidthHint() const
-{
-    /* Is there something cached? */
-    if (m_iDetailsWidthHint)
-        return m_iDetailsWidthHint;
-
-    /* Acquire layout margins: */
-    int iL, iT, iR, iB;
-    m_pLayoutMain->getContentsMargins(&iL, &iT, &iR, &iB);
-
-    /* Otherwise return actual details width hint adjusted for margins: */
-    return m_pLabelDetails->minimumTextWidth() + iL + iR;
 }
 
 void UINotificationObjectItem::sltRetranslateUI()
@@ -209,6 +194,11 @@ void UINotificationObjectItem::prepareWidgets()
             m_pLabelDetails->setText(m_pObject->details());
             m_pLabelDetails->setVisible(m_fToggled && !m_pLabelDetails->text().isEmpty());
             m_pLabelDetails->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Minimum);
+
+            /* Acquire initial item with hint (which is details width hint plus two margins): */
+            int iL, iT, iR, iB;
+            m_pLayoutMain->getContentsMargins(&iL, &iT, &iR, &iB);
+            m_iInitialItemWidthHint = m_pLabelDetails->minimumTextWidth() + iL + iR;
 
             m_pLayoutMain->addWidget(m_pLabelDetails);
         }

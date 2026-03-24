@@ -1,4 +1,4 @@
-/* $Id: UINotificationObjectItem.h 113511 2026-03-23 14:59:02Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationObjectItem.h 113534 2026-03-24 09:32:50Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationObjectItem class declaration.
  */
@@ -79,10 +79,10 @@ public:
     /** Prepares everything. */
     void prepare();
 
-    /** Defines details label width @a iHint. */
-    void setDetailsWidthHint(int iHint);
-    /** Returns details label width hint. */
-    int detailsWidthHint() const;
+    /** Returns initial item width hint. */
+    int initialItemWidthHint() const { return m_iInitialItemWidthHint; }
+    /** Redefines item width @a iHint. */
+    void setItemWidthHint(int iHint);
 
 protected slots:
 
@@ -113,8 +113,10 @@ protected:
 
     /** Holds the minimum width hint. */
     int  m_iMinimumWidthHint;
-    /** Holds the details width hint. */
-    int  m_iDetailsWidthHint;
+    /** Holds the initial item width hint. */
+    int  m_iInitialItemWidthHint;
+    /** Holds the current item width hint. */
+    int  m_iCurrentItemWidthHint;
 
     /** Holds the main layout instance. */
     QVBoxLayout     *m_pLayoutMain;

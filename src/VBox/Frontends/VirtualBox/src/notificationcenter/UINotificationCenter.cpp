@@ -1,4 +1,4 @@
-/* $Id: UINotificationCenter.cpp 113533 2026-03-24 09:17:45Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationCenter.cpp 113534 2026-03-24 09:32:50Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationCenter class implementation.
  */
@@ -1255,7 +1255,7 @@ void UINotificationCenter::adjustGeometry()
         /* Make sure actual width is more or equal to items width hint: */
         int iItemsWidthHint = 0;
         foreach (UINotificationObjectItem *pItem, m_items.values())
-            iItemsWidthHint = qMax(iItemsWidthHint, pItem->detailsWidthHint());
+            iItemsWidthHint = qMax(iItemsWidthHint, pItem->initialItemWidthHint());
         iItemsWidthHint += iL + iR;
         iActualWidth = qMax(iActualWidth, iItemsWidthHint);
 
@@ -1263,10 +1263,10 @@ void UINotificationCenter::adjustGeometry()
         iActualWidth = qMin(iActualWidth, iParentWidth);
     }
 
-    /* Propagate details width hint (which is actual width hint minus two margins): */
-    const int iDetailsWidthHint = iActualWidth - iL - iR;
+    /* Propagate item width hint (which is actual width hint minus two margins): */
+    const int iItemWidthHint = iActualWidth - iL - iR;
     foreach (UINotificationObjectItem *pItem, m_items.values())
-        pItem->setDetailsWidthHint(iDetailsWidthHint);
+        pItem->setItemWidthHint(iItemWidthHint);
 
     /* Gather suitable notification-center height (parent height in Simple mode): */
     int iActualHeight = iParentHeight;
