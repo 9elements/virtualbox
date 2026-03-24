@@ -1,4 +1,4 @@
-/* $Id: UINotificationCenter.cpp 113531 2026-03-24 09:09:31Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationCenter.cpp 113532 2026-03-24 09:15:48Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationCenter class implementation.
  */
@@ -1234,8 +1234,6 @@ void UINotificationCenter::adjustGeometry()
     const int iR = isExtendedMode() ? iMetric : qApp->style()->pixelMetric(QStyle::PM_LayoutRightMargin);
     const int iB = isExtendedMode() ? iMetric : qApp->style()->pixelMetric(QStyle::PM_LayoutBottomMargin);
     m_pLayoutMain->setContentsMargins(iL, iT, iR, iB);
-    /* Acquire item layout spacing: */
-    const int iSpacing = m_pLayoutItems->spacing();
 
     /* Gather suitable minumum and actual notification-center widths: */
     int iMinimumWidth = 0;
@@ -1246,6 +1244,9 @@ void UINotificationCenter::adjustGeometry()
         const int iButtonWidthHint = m_pButtonOpen->minimumSizeHint().width() + iL + iR;
         iMinimumWidth = qMax(iMinimumWidth, iButtonWidthHint);
 
+        /* Make sure actual width is no less than minimum one: */
+        iActualWidth = qMax(iActualWidth, iMinimumWidth);
+
         /* Make sure actual width is no less than sane minimum (200px): */
         iActualWidth = qMax(iActualWidth, 200);
     }
@@ -1255,11 +1256,9 @@ void UINotificationCenter::adjustGeometry()
         int iItemsWidthHint = 0;
         foreach (UINotificationObjectItem *pItem, m_items.values())
             iItemsWidthHint = qMax(iItemsWidthHint, pItem->detailsWidthHint());
+        iItemsWidthHint += iL + iR;
         iActualWidth = qMax(iActualWidth, iItemsWidthHint);
-        iActualWidth += iL + iR;
     }
-    /* Make sure actual width is no less than minimum one: */
-    iActualWidth = qMax(iActualWidth, iMinimumWidth);
 
     /* Propagate details width hint (which is actual width hint minus two margins): */
     const int iDetailsWidthHint = iActualWidth - iL - iR;
@@ -1270,6 +1269,9 @@ void UINotificationCenter::adjustGeometry()
     int iActualHeight = iParentHeight;
     if (isExtendedMode())
     {
+        /* Acquire item layout spacing: */
+        const int iSpacing = m_pLayoutItems->spacing();
+
         /* In Extended mode we're taking into account cumulative items height: */
         int iItemsHeight = 0;
         foreach (UINotificationObjectItem *pItem, m_items.values())
