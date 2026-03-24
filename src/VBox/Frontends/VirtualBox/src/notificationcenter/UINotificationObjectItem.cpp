@@ -1,4 +1,4 @@
-/* $Id: UINotificationObjectItem.cpp 113511 2026-03-23 14:59:02Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationObjectItem.cpp 113528 2026-03-24 08:51:46Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationObjectItem class implementation.
  */
@@ -215,12 +215,14 @@ void UINotificationObjectItem::prepareWidgets()
     }
 
     /* Calculate minimum width hint: */
+    if (m_pLabelIcon)
+        m_iMinimumWidthHint += m_pLabelIcon->minimumSizeHint().width() + m_pLayoutUpper->spacing();
     if (m_pLabelName)
-        m_iMinimumWidthHint = m_pLabelName->minimumSizeHint().width();
+        m_iMinimumWidthHint += m_pLabelName->minimumSizeHint().width() + m_pLayoutUpper->spacing();
     if (m_pButtonHelp)
-        m_iMinimumWidthHint += m_pLayoutUpper->spacing() + m_pButtonHelp->minimumSizeHint().width();
+        m_iMinimumWidthHint += m_pButtonHelp->minimumSizeHint().width() + m_pLayoutUpper->spacing();
     if (m_pButtonClose)
-        m_iMinimumWidthHint += m_pLayoutUpper->spacing() + m_pButtonClose->minimumSizeHint().width();
+        m_iMinimumWidthHint += m_pButtonClose->minimumSizeHint().width();
     m_iMinimumWidthHint = qMax(m_iMinimumWidthHint, widthHintForgetControl());
 }
 
