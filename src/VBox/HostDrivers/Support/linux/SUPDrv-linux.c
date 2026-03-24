@@ -1,4 +1,4 @@
-/* $Id: SUPDrv-linux.c 113519 2026-03-23 23:21:05Z knut.osmundsen@oracle.com $ */
+/* $Id: SUPDrv-linux.c 113529 2026-03-24 08:57:59Z knut.osmundsen@oracle.com $ */
 /** @file
  * VBoxDrv - The VirtualBox Support Driver - Linux specifics.
  */
@@ -2145,7 +2145,7 @@ SUPR0DECL(uint32_t) SUPR0FpuLock(uint32_t fBegin)
            it was swapped.)  */
         if (test_thread_flag(TIF_NEED_FPU_LOAD))
         {
-            AssertReturn(g_pfnSwitchFpuReturn, false);
+            AssertReturn(g_pfnSwitchFpuReturn, fBegin);
             g_pfnSwitchFpuReturn();
         }
     }
