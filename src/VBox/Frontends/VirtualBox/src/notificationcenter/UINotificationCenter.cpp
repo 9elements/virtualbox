@@ -1,4 +1,4 @@
-/* $Id: UINotificationCenter.cpp 113532 2026-03-24 09:15:48Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationCenter.cpp 113533 2026-03-24 09:17:45Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationCenter class implementation.
  */
@@ -1258,6 +1258,9 @@ void UINotificationCenter::adjustGeometry()
             iItemsWidthHint = qMax(iItemsWidthHint, pItem->detailsWidthHint());
         iItemsWidthHint += iL + iR;
         iActualWidth = qMax(iActualWidth, iItemsWidthHint);
+
+        /* Make sure actual width is no more than the parent width: */
+        iActualWidth = qMin(iActualWidth, iParentWidth);
     }
 
     /* Propagate details width hint (which is actual width hint minus two margins): */
@@ -1279,7 +1282,10 @@ void UINotificationCenter::adjustGeometry()
                 iItemsHeight += pItem->minimumSizeHint().height() + iSpacing;
         if (iItemsHeight > 0)
             iItemsHeight -= iSpacing;
-        iActualHeight = iItemsHeight + iT + iB;
+        iItemsHeight += iT + iB;
+
+        /* Make sure actual height is no more than the parent height: */
+        iActualHeight = qMin(iActualHeight, iItemsHeight);
     }
 
     /* Simple mode: */
