@@ -1,4 +1,4 @@
-/* $Id: SUPDrv-linux.c 113529 2026-03-24 08:57:59Z knut.osmundsen@oracle.com $ */
+/* $Id: SUPDrv-linux.c 113538 2026-03-24 14:21:45Z ramshankar.venkataraman@oracle.com $ */
 /** @file
  * VBoxDrv - The VirtualBox Support Driver - Linux specifics.
  */
@@ -1943,8 +1943,9 @@ int VBOXCALL supdrvOSEnableHwvirt(bool fEnable)
         g_fEnabledHwvirtUsingKvm = false;
     }
     return VINF_SUCCESS;
-#endif
+#else
     return VERR_NOT_SUPPORTED;
+#endif
 }
 
 
