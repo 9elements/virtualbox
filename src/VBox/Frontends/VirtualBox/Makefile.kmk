@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 113213 2026-03-03 07:36:58Z sergey.dubov@oracle.com $
+# $Id: Makefile.kmk 113572 2026-03-25 10:42:57Z sergey.dubov@oracle.com $
 ## @file
 # Makefile for the VirtualBox Qt GUI.
 #
@@ -787,7 +787,6 @@ UICommon_QT_MOCHDRS = \
 	src/globals/UIMainEventListener.h \
 	src/globals/UIMessageCenter.h \
 	src/globals/UIModalWindowManager.h \
-	src/globals/UIPopupCenter.h \
 	src/globals/UIProgressEventHandler.h \
 	src/globals/UIProgressObject.h \
 	src/globals/UIProgressTask.h \
@@ -838,6 +837,7 @@ UICommon_QT_MOCHDRS = \
 	src/objects/UIExecutionQueue.h \
 	src/settings/UIAdvancedSettingsDialog.h \
 	src/settings/UIAdvancedSettingsDialogSpecific.h \
+	src/settings/UIPopupCenter.h \
 	src/settings/UISettingsPage.h \
 	src/settings/UISettingsPageValidator.h \
 	src/settings/UISettingsSelector.h \
@@ -1378,7 +1378,6 @@ UICommon_SOURCES = \
 	src/globals/UIModalWindowManager.cpp \
 	src/globals/UIMousePointerShapeData.cpp \
 	src/globals/UIPathOperations.cpp \
-	src/globals/UIPopupCenter.cpp \
 	src/globals/UIProgressEventHandler.cpp \
 	src/globals/UIProgressObject.cpp \
 	src/globals/UIProgressTask.cpp \
@@ -1435,6 +1434,7 @@ UICommon_SOURCES = \
 	src/settings/UISettingsDefs.cpp \
 	src/settings/UIAdvancedSettingsDialog.cpp \
 	src/settings/UIAdvancedSettingsDialogSpecific.cpp \
+	src/settings/UIPopupCenter.cpp \
 	src/settings/UISettingsPage.cpp \
 	src/settings/UISettingsPageValidator.cpp \
 	src/settings/UISettingsSelector.cpp \

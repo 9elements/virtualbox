@@ -1,4 +1,4 @@
-﻿/* $Id: UIAdvancedSettingsDialog.cpp 113571 2026-03-25 10:07:46Z sergey.dubov@oracle.com $ */
+﻿/* $Id: UIAdvancedSettingsDialog.cpp 113572 2026-03-25 10:42:57Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIAdvancedSettingsDialog class implementation.
  */
@@ -1403,7 +1403,7 @@ void UIAdvancedSettingsDialog::sltHandleWarningPaneHovered(UISettingsPageValidat
     /* Show corresponding popup: */
     if (!m_fValid || !m_fSilent)
         m_pPopupCenter->popup(m_pScrollArea, "SettingsDialogWarning",
-                            pValidator->lastMessage());
+                              pValidator->lastMessage());
 }
 
 void UIAdvancedSettingsDialog::sltHandleWarningPaneUnhovered(UISettingsPageValidator *pValidator)

@@ -1,4 +1,4 @@
-/* $Id: UIPopupCenter.h 113571 2026-03-25 10:07:46Z sergey.dubov@oracle.com $ */
+/* $Id: UIPopupCenter.h 113572 2026-03-25 10:42:57Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIPopupCenter class declaration.
  */
@@ -25,8 +25,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-#ifndef FEQT_INCLUDED_SRC_globals_UIPopupCenter_h
-#define FEQT_INCLUDED_SRC_globals_UIPopupCenter_h
+#ifndef FEQT_INCLUDED_SRC_settings_UIPopupCenter_h
+#define FEQT_INCLUDED_SRC_settings_UIPopupCenter_h
 #ifndef RT_WITHOUT_PRAGMA_ONCE
 # pragma once
 #endif
@@ -38,18 +38,10 @@
 
 /* GUI includes: */
 #include "UILibraryDefs.h"
-#include "UIMediumDefs.h"
 
 /* Forward declaration: */
 class QWidget;
 class UIPopupStack;
-class CAudioAdapter;
-class CConsole;
-class CEmulatedUSB;
-class CMachine;
-class CNetworkAdapter;
-class CVirtualBox;
-class CVRDEServer;
 
 /** Popup-stack types. */
 enum UIPopupStackType
@@ -67,7 +59,7 @@ enum UIPopupStackOrientation
 
 /** Singleton QObject extension
   * providing GUI with various popup messages. */
-class SHARED_LIBRARY_STUFF UIPopupCenter: public QObject
+class SHARED_LIBRARY_STUFF UIPopupCenter : public QObject
 {
     Q_OBJECT;
 
@@ -195,4 +187,4 @@ private:
     QMap<QString, QPointer<UIPopupStack> >  m_stacks;
 };
 
-#endif /* !FEQT_INCLUDED_SRC_globals_UIPopupCenter_h */
+#endif /* !FEQT_INCLUDED_SRC_settings_UIPopupCenter_h */

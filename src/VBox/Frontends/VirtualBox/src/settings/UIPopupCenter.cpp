@@ -1,4 +1,4 @@
-/* $Id: UIPopupCenter.cpp 113571 2026-03-25 10:07:46Z sergey.dubov@oracle.com $ */
+/* $Id: UIPopupCenter.cpp 113572 2026-03-25 10:42:57Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIPopupCenter class implementation.
  */
@@ -30,23 +30,13 @@
 
 /* GUI includes: */
 #include "QIMessageBox.h"
-#include "UIErrorString.h"
 #include "UIExtraDataManager.h"
-#include "UIHostComboEditor.h"
 #include "UILoggingDefs.h"
 #include "UIPopupCenter.h"
 #include "UIPopupStack.h"
 
-/* COM includes: */
-#include "CAudioAdapter.h"
-#include "CConsole.h"
-#include "CEmulatedUSB.h"
-#include "CMachine.h"
-#include "CNetworkAdapter.h"
-#include "CVRDEServer.h"
-
 /* Other VBox includes: */
-#include <VBox/sup.h>
+#include <iprt/assert.h>
 
 
 UIPopupCenter::UIPopupCenter(QObject *pParent)
