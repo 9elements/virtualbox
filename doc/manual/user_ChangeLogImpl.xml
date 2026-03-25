@@ -85,6 +85,11 @@ Rules for adding a changelog entry to make them look more uniform:
           github-merge-author: lachlanharrisdev</para>
       </listitem>
 
+      <listitem>
+        <para>Graphics: Fixed guest cursor shape changes for newer Linux guest kernels
+          (github:gh-464)</para>
+      </listitem>
+
     </itemizedlist>
   </sect1>
 
