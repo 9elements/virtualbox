@@ -1,4 +1,4 @@
-/* $Id: UIPopupCenter.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: UIPopupCenter.cpp 113571 2026-03-25 10:07:46Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIPopupCenter class implementation.
  */
@@ -49,53 +49,12 @@
 #include <VBox/sup.h>
 
 
-/* static */
-UIPopupCenter* UIPopupCenter::s_pInstance = 0;
-UIPopupCenter* UIPopupCenter::instance() { return s_pInstance; }
-
-/* static */
-void UIPopupCenter::create()
+UIPopupCenter::UIPopupCenter(QObject *pParent)
+    : QObject(pParent)
 {
-    /* Make sure instance is NOT created yet: */
-    if (s_pInstance)
-        return;
-
-    /* Create instance: */
-    new UIPopupCenter;
-    /* Prepare instance: */
-    s_pInstance->prepare();
-}
-
-/* static */
-void UIPopupCenter::destroy()
-{
-    /* Make sure instance is NOT destroyed yet: */
-    if (!s_pInstance)
-        return;
-
-    /* Cleanup instance: */
-    s_pInstance->cleanup();
-    /* Destroy instance: */
-    delete s_pInstance;
-}
-
-UIPopupCenter::UIPopupCenter()
-{
-    /* Assign instance: */
-    s_pInstance = this;
 }
 
 UIPopupCenter::~UIPopupCenter()
-{
-    /* Unassign instance: */
-    s_pInstance = 0;
-}
-
-void UIPopupCenter::prepare()
-{
-}
-
-void UIPopupCenter::cleanup()
 {
     /* Make sure all the popup-stack types destroyed: */
     foreach (const QString &strTypeID, m_stackTypes.keys())

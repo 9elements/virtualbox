@@ -1,4 +1,4 @@
-/* $Id: UIPopupCenter.h 113262 2026-03-04 20:12:57Z sergey.dubov@oracle.com $ */
+/* $Id: UIPopupCenter.h 113571 2026-03-25 10:07:46Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIPopupCenter class declaration.
  */
@@ -78,10 +78,10 @@ signals:
 
 public:
 
-    /** Creates popup-center singleton. */
-    static void create();
-    /** Destroys message-center singleton. */
-    static void destroy();
+    /** Constructs popup-center passing @a pParent to the base-class. */
+    UIPopupCenter(QObject *pParent);
+    /** Destructs popup-center. */
+    virtual ~UIPopupCenter() RT_OVERRIDE RT_FINAL;
 
     /** Shows popup-stack for @a pParent. */
     void showPopupStack(QWidget *pParent);
@@ -163,16 +163,6 @@ private slots:
 
 private:
 
-    /** Constructs popup-center. */
-    UIPopupCenter();
-    /** Destructs popup-center. */
-    ~UIPopupCenter();
-
-    /** Prepares all. */
-    void prepare();
-    /** Cleanups all. */
-    void cleanup();
-
     /** Shows popup-pane.
       * @param  pParent                   Brings the popup-pane parent.
       * @param  strID                     Brings the popup-pane ID.
@@ -203,16 +193,6 @@ private:
     QMap<QString, UIPopupStackOrientation>  m_stackOrientations;
     /** Holds the popup-stacks on per stack ID basis. */
     QMap<QString, QPointer<UIPopupStack> >  m_stacks;
-
-    /** Holds the singleton message-center instance. */
-    static UIPopupCenter *s_pInstance;
-    /** Returns the singleton message-center instance. */
-    static UIPopupCenter *instance();
-    /** Allows for shortcut access. */
-    friend UIPopupCenter &popupCenter();
 };
-
-/** Singleton Popup Center 'official' name. */
-inline UIPopupCenter &popupCenter() { return *UIPopupCenter::instance(); }
 
 #endif /* !FEQT_INCLUDED_SRC_globals_UIPopupCenter_h */

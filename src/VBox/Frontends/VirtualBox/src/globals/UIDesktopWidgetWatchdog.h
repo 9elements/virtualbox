@@ -1,4 +1,4 @@
-/* $Id: UIDesktopWidgetWatchdog.h 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: UIDesktopWidgetWatchdog.h 113571 2026-03-25 10:07:46Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIDesktopWidgetWatchdog class declaration.
  */
@@ -66,7 +66,7 @@ class SHARED_LIBRARY_STUFF UIDesktopWidgetWatchdog : public QObject
     /** Constructs desktop-widget watchdog. */
     UIDesktopWidgetWatchdog();
     /** Destructs desktop-widget watchdog. */
-    virtual ~UIDesktopWidgetWatchdog() /* override final */;
+    virtual ~UIDesktopWidgetWatchdog() RT_OVERRIDE RT_FINAL;
 
 signals:
 

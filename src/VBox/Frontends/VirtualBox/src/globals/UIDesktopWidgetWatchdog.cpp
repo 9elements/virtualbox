@@ -1,4 +1,4 @@
-/* $Id: UIDesktopWidgetWatchdog.cpp 113262 2026-03-04 20:12:57Z sergey.dubov@oracle.com $ */
+/* $Id: UIDesktopWidgetWatchdog.cpp 113571 2026-03-25 10:07:46Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIDesktopWidgetWatchdog class implementation.
  */
@@ -271,7 +271,7 @@ void UIDesktopWidgetWatchdog::create()
 
     /* Create/prepare instance: */
     new UIDesktopWidgetWatchdog;
-    AssertReturnVoid(s_pInstance);
+    AssertPtrReturnVoid(s_pInstance);
     s_pInstance->prepare();
 }
 
@@ -279,7 +279,7 @@ void UIDesktopWidgetWatchdog::create()
 void UIDesktopWidgetWatchdog::destroy()
 {
     /* Make sure instance is created: */
-    AssertReturnVoid(s_pInstance);
+    AssertPtrReturnVoid(s_pInstance);
 
     /* Cleanup/destroy instance: */
     s_pInstance->cleanup();
@@ -292,13 +292,11 @@ UIDesktopWidgetWatchdog::UIDesktopWidgetWatchdog()
     : m_enmSynthTestPolicy(DesktopWatchdogPolicy_SynthTest_Both)
 #endif
 {
-    /* Initialize instance: */
     s_pInstance = this;
 }
 
 UIDesktopWidgetWatchdog::~UIDesktopWidgetWatchdog()
 {
-    /* Deinitialize instance: */
     s_pInstance = 0;
 }
 

@@ -1,4 +1,4 @@
-/* $Id: UICommon.cpp 113062 2026-02-17 12:37:07Z sergey.dubov@oracle.com $ */
+/* $Id: UICommon.cpp 113571 2026-03-25 10:07:46Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UICommon class implementation.
  */
@@ -59,7 +59,6 @@
 #include "UIMessageCenter.h"
 #include "UIModalWindowManager.h"
 #include "UINotificationMessage.h"
-#include "UIPopupCenter.h"
 #include "UIShortcutPool.h"
 #include "UIThreadPool.h"
 #include "UITranslator.h"
@@ -220,8 +219,6 @@ void UICommon::prepare()
 
     /* Create message-center: */
     UIMessageCenter::create();
-    /* Create popup-center: */
-    UIPopupCenter::create();
 
     /* Prepare general icon-pool: */
     UIIconPoolGeneral::create();
@@ -776,8 +773,6 @@ void UICommon::cleanup()
     /* Cleanup general icon-pool: */
     UIIconPoolGeneral::destroy();
 
-    /* Destroy popup-center: */
-    UIPopupCenter::destroy();
     /* Destroy message-center: */
     UIMessageCenter::destroy();
 

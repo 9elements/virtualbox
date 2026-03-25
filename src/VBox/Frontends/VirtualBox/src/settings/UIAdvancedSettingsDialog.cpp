@@ -1,4 +1,4 @@
-﻿/* $Id: UIAdvancedSettingsDialog.cpp 113536 2026-03-24 12:55:20Z sergey.dubov@oracle.com $ */
+﻿/* $Id: UIAdvancedSettingsDialog.cpp 113571 2026-03-25 10:07:46Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIAdvancedSettingsDialog class implementation.
  */
@@ -829,6 +829,7 @@ UIAdvancedSettingsDialog::UIAdvancedSettingsDialog(QWidget *pParent,
     , m_pScrollViewport(0)
     , m_pButtonBox(0)
     , m_pNotificationCenter(0)
+    , m_pPopupCenter(0)
 {
     prepare();
 }
@@ -1401,7 +1402,7 @@ void UIAdvancedSettingsDialog::sltHandleWarningPaneHovered(UISettingsPageValidat
 
     /* Show corresponding popup: */
     if (!m_fValid || !m_fSilent)
-        popupCenter().popup(m_pScrollArea, "SettingsDialogWarning",
+        m_pPopupCenter->popup(m_pScrollArea, "SettingsDialogWarning",
                             pValidator->lastMessage());
 }
 
@@ -1410,7 +1411,7 @@ void UIAdvancedSettingsDialog::sltHandleWarningPaneUnhovered(UISettingsPageValid
     LogRelFlow(("Settings Dialog: Warning-icon unhovered: %s.\n", pValidator->internalName().toUtf8().constData()));
 
     /* Recall corresponding popup: */
-    popupCenter().recall(m_pScrollArea, "SettingsDialogWarning");
+    m_pPopupCenter->recall(m_pScrollArea, "SettingsDialogWarning");
 }
 
 void UIAdvancedSettingsDialog::sltHandleExperienceModeCheckBoxChanged()
@@ -1511,6 +1512,9 @@ void UIAdvancedSettingsDialog::prepare()
         setProperty("notification_center", QVariant::fromValue(target));
     }
 
+    /* Prepare local popup-center: */
+    m_pPopupCenter = new UIPopupCenter(this);
+
     /* Create timer to update disabled widgets look&feel: */
     m_pTimerDisabledLookAndFeel = new QTimer(this);
     if (m_pTimerDisabledLookAndFeel)
@@ -1590,7 +1594,7 @@ void UIAdvancedSettingsDialog::prepareScrollArea()
     if (m_pScrollArea)
     {
         /* Configure popup-stack: */
-        popupCenter().setPopupStackOrientation(m_pScrollArea, UIPopupStackOrientation_Bottom);
+        m_pPopupCenter->setPopupStackOrientation(m_pScrollArea, UIPopupStackOrientation_Bottom);
 
         m_pScrollArea->setWidgetResizable(true);
         m_pScrollArea->setFrameShape(QFrame::NoFrame);
@@ -1674,7 +1678,7 @@ void UIAdvancedSettingsDialog::cleanup()
     m_pSerializeProcess = 0;
 
     /* Recall popup-pane if any: */
-    popupCenter().recall(m_pScrollArea, "SettingsDialogWarning");
+    m_pPopupCenter->recall(m_pScrollArea, "SettingsDialogWarning");
 
     /* Delete selector early! */
     delete m_pSelector;
