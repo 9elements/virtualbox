@@ -1,4 +1,4 @@
-/* $Id: UICommon.cpp 113576 2026-03-25 12:24:09Z sergey.dubov@oracle.com $ */
+/* $Id: UICommon.cpp 113577 2026-03-25 12:45:24Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UICommon class implementation.
  */
@@ -207,6 +207,12 @@ void UICommon::prepare()
     /* Determine OS release early: */
     m_enmMacOSVersion = determineOsRelease();
 #endif
+#ifdef VBOX_WS_NIX
+    /* Check whether we have compositing manager running: */
+    m_fCompositingManagerRunning = NativeWindowSubsystem::isCompositingManagerRunning();
+    /* Acquire current Window Manager type: */
+    m_enmWindowManagerType = NativeWindowSubsystem::windowManagerType();
+#endif /* VBOX_WS_NIX */
 
     /* Create converter: */
     UIConverter::create();
@@ -274,14 +280,6 @@ void UICommon::prepare()
     /* process command line */
 
     UIVisualStateType visualStateType = UIVisualStateType_Invalid;
-
-#ifdef VBOX_WS_NIX
-    /* Check whether we have compositing manager running: */
-    m_fCompositingManagerRunning = NativeWindowSubsystem::isCompositingManagerRunning();
-
-    /* Acquire current Window Manager type: */
-    m_enmWindowManagerType = NativeWindowSubsystem::windowManagerType();
-#endif /* VBOX_WS_NIX */
 
 #ifdef VBOX_WITH_DEBUGGER_GUI
 # ifdef VBOX_WITH_DEBUGGER_GUI_MENU
