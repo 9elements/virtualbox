@@ -1,4 +1,4 @@
-/* $Id: DevVGASavedState.h 112580 2026-01-14 20:06:50Z vitali.pelenjow@oracle.com $ */
+/* $Id: DevVGASavedState.h 113569 2026-03-25 09:19:55Z andreas.loeffler@oracle.com $ */
 /** @file
  * DevVGA - Saved state versions.
  *
@@ -56,7 +56,9 @@
         } \
     } while (0)
 
-#define VGA_SAVEDSTATE_VERSION                   31
+#define VGA_SAVEDSTATE_VERSION                   33
+#define VGA_SAVEDSTATE_VERSION_VMSVGA_HOST_CMDS  33 /* Host commands. See @bugref{11042}. */
+#define VGA_SAVEDSTATE_VERSION_VMSVGA_CURSOR_MOB 32 /* Cursor MOB support. See @bugref{11042}. */
 #define VGA_SAVEDSTATE_VERSION_VMSVGA_COTABLES   31 /* COTable content. See @bugref{11021}. */
 #define VGA_SAVEDSTATE_VERSION_VHWA_REMOVED      30 /* 2D video acceleration (VHWA) removed. See @bugref{10756}. */
 #define VGA_SAVEDSTATE_VERSION_VMSVGA_VIDEO      29 /* Video decoding and processing (new COTables). */

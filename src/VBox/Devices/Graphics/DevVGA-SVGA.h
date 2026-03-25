@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA.h 113248 2026-03-04 12:43:56Z vitali.pelenjow@oracle.com $ */
+/* $Id: DevVGA-SVGA.h 113569 2026-03-25 09:19:55Z andreas.loeffler@oracle.com $ */
 /** @file
  * VMware SVGA device
  */
@@ -183,6 +183,21 @@ struct {
 /** For validating Y and height values.
  * The code assumes it's at least an order of magnitude less than UINT32_MAX. */
 #define VMSVGA_MAX_Y                    _1M
+
+/** Maximum cursor dimensions (X/Y) in pixels.
+ * @note This is a VBox limit that we've set ourselves. Do not know what the
+ *       original device implementation reports.  The main objective is (/was)
+ *       to prevent interger overflows when multiplying the dimensions and to
+ *       check the input data sizes.  Since 7.2.8, this is an inclusive limit,
+ *       prior to that it was exclusive.
+ * @todo Check what the other guys return for SVGA_REG_CURSOR_MAX_DIMENSION. */
+#define VMSVGA_CURSOR_MAX_DIMENSION     2048
+/** Maximum cursor byte size.
+ * @note We have to ASSUME color cursors here with 32-bit AND and XOR masks.
+ *       This means twice the size of an alpha cursor.
+ * @todo Check what the other guys returns for SVGA_REG_CURSOR_MAX_BYTE_SIZE.
+ * @todo Does this include the header? */
+#define VMSVGA_CURSOR_MAX_BYTES         (VMSVGA_CURSOR_MAX_DIMENSION * VMSVGA_CURSOR_MAX_DIMENSION * sizeof(uint32_t) * 2)
 
 /* u32ActionFlags */
 #define VMSVGA_ACTION_CHANGEMODE_BIT    0
@@ -470,6 +485,7 @@ typedef struct VMSVGAState
     STAMCOUNTER                 StatRegDevCapWr;
     STAMCOUNTER                 StatRegCmdPrependLowWr;
     STAMCOUNTER                 StatRegCmdPrependHighWr;
+    STAMCOUNTER                 StatRegCursorMobIdWr;
 
     STAMCOUNTER                 StatRegBitsPerPixelRd;
     STAMCOUNTER                 StatRegBlueMaskRd;
