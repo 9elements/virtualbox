@@ -1,4 +1,4 @@
-/* $Id: UIVMActivityMonitorContainer.h 113262 2026-03-04 20:12:57Z sergey.dubov@oracle.com $ */
+/* $Id: UIVMActivityMonitorContainer.h 113573 2026-03-25 11:27:22Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVMActivityMonitorPanel class declaration.
  */
@@ -114,6 +114,10 @@ private:
     void loadSettings();
     void saveSettings();
     void setExportActionEnabled(bool fEnabled);
+    int findTabByMachineId(const QUuid &machineId);
+    int visibleTabCount() const;
+    bool makeTabVisibleIfExists(const QUuid &uMachineId);
+    void controlTabBarVisibility();
 
     UIVMActivityMonitorPaneContainer *m_pPaneContainer;
     QTabWidget *m_pTabWidget;

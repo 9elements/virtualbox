@@ -1,4 +1,4 @@
-/* $Id: UIVMActivityMonitorContainer.cpp 113541 2026-03-24 15:05:33Z serkan.bayraktar@oracle.com $ */
+/* $Id: UIVMActivityMonitorContainer.cpp 113573 2026-03-25 11:27:22Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVMLogViewer class implementation.
  */
@@ -36,6 +36,7 @@
 #include <QPlainTextEdit>
 #include <QPushButton>
 #include <QStyle>
+#include <QTabBar>
 #include <QTabWidget>
 
 /* GUI includes: */
@@ -206,13 +207,12 @@ void UIVMActivityMonitorContainer::removeTabs(const QVector<QUuid> &machineIdsTo
             continue;
         if (machineIdsToRemove.contains(pMonitor->machineId()))
         {
-            //pMonitor->isMachineRunning();
             /* If the VM is running just hide the tab hosting the activity monitor: */
-            // if (pMonitor->isMachineRunning())
-            // {
-            //     m_pTabWidget->setTabVisible(i, false);
-            // }
-            // else
+            if (pMonitor->isMachineRunning())
+            {
+                m_pTabWidget->setTabVisible(i, false);
+            }
+            else
             {
                 removeList << pMonitor;
                 m_pTabWidget->removeTab(i);
@@ -220,6 +220,7 @@ void UIVMActivityMonitorContainer::removeTabs(const QVector<QUuid> &machineIdsTo
         }
     }
     qDeleteAll(removeList.begin(), removeList.end());
+    controlTabBarVisibility();
 }
 
 void UIVMActivityMonitorContainer::prepare()
@@ -229,7 +230,7 @@ void UIVMActivityMonitorContainer::prepare()
 
     m_pTabWidget = new QTabWidget(this);
     m_pTabWidget->setTabPosition(QTabWidget::East);
-    m_pTabWidget->setTabBarAutoHide(true);
+    //m_pTabWidget->setTabBarAutoHide(true);
 
     m_pPaneContainer = new UIVMActivityMonitorPaneContainer(this);
     m_pPaneContainer->hide();
@@ -323,24 +324,47 @@ void UIVMActivityMonitorContainer::sltExportToFile()
         pActivityMonitor->sltExportMetricsToFile();
 }
 
+bool UIVMActivityMonitorContainer::makeTabVisibleIfExists(const QUuid &uMachineId)
+{
+    if (machineIds().contains(uMachineId))
+    {
+        int iTabIndex = findTabByMachineId(uMachineId);
+        if (iTabIndex != -1)
+        {
+            m_pTabWidget->setTabVisible(iTabIndex, true);
+            m_pTabWidget->setCurrentIndex(iTabIndex);
+            return true;
+        }
+    }
+    return false;
+}
+
 void UIVMActivityMonitorContainer::addLocalMachine(const CMachine &comMachine)
 {
     AssertReturnVoid(m_pTabWidget);
-    if (!comMachine.isOk())
+    if (!comMachine.isOk() || comMachine.isNull())
         return;
-    UIVMActivityMonitorLocal *pActivityMonitor = new UIVMActivityMonitorLocal(m_enmEmbedding, this, comMachine, m_pActionPool);
-    if (m_pPaneContainer)
+    if (!makeTabVisibleIfExists(comMachine.GetId()))
     {
-        pActivityMonitor->setDataSeriesColor(0, m_pPaneContainer->dataSeriesColor(0));
-        pActivityMonitor->setDataSeriesColor(1, m_pPaneContainer->dataSeriesColor(1));
+
+        UIVMActivityMonitorLocal *pActivityMonitor = new UIVMActivityMonitorLocal(m_enmEmbedding, this, comMachine, m_pActionPool);
+        if (m_pPaneContainer)
+        {
+            pActivityMonitor->setDataSeriesColor(0, m_pPaneContainer->dataSeriesColor(0));
+            pActivityMonitor->setDataSeriesColor(1, m_pPaneContainer->dataSeriesColor(1));
+        }
+        int iNewTabIndex = m_pTabWidget->addTab(pActivityMonitor, comMachine.GetName());
+        m_pTabWidget->setCurrentIndex(iNewTabIndex);
     }
-    m_pTabWidget->addTab(pActivityMonitor, comMachine.GetName());
+    controlTabBarVisibility();
 }
 
 void UIVMActivityMonitorContainer::addCloudMachine(const CCloudMachine &comMachine)
 {
     AssertReturnVoid(m_pTabWidget);
     if (!comMachine.isOk())
+        return;
+    if (makeTabVisibleIfExists(comMachine.GetId()))
         return;
     UIVMActivityMonitorCloud *pActivityMonitor = new UIVMActivityMonitorCloud(m_enmEmbedding, this, comMachine, m_pActionPool);
     if (m_pPaneContainer)
@@ -349,6 +373,7 @@ void UIVMActivityMonitorContainer::addCloudMachine(const CCloudMachine &comMachi
         pActivityMonitor->setDataSeriesColor(1, m_pPaneContainer->dataSeriesColor(1));
     }
     m_pTabWidget->addTab(pActivityMonitor, comMachine.GetName());
+    controlTabBarVisibility();
 }
 
 void UIVMActivityMonitorContainer::sltTogglePreferencesPane(bool fChecked)
@@ -368,4 +393,41 @@ QVector<QUuid> UIVMActivityMonitorContainer::machineIds() const
         ids << pMonitor->machineId();
     }
     return ids;
+}
+
+int UIVMActivityMonitorContainer::findTabByMachineId(const QUuid &machineId)
+{
+    AssertReturn(m_pTabWidget, -1);
+    for (int i = 0; i < m_pTabWidget->count(); ++i)
+    {
+        UIVMActivityMonitor *pMonitor = qobject_cast<UIVMActivityMonitor*>(m_pTabWidget->widget(i));
+        if (!pMonitor)
+            continue;
+        if (pMonitor->machineId() == machineId)
+            return i;
+    }
+    return -1;
+}
+
+int UIVMActivityMonitorContainer::visibleTabCount() const
+{
+    AssertReturn(m_pTabWidget, -1);
+    int iCount = 0;
+    for (int i = 0; i < m_pTabWidget->count(); ++i)
+    {
+        if (m_pTabWidget->isTabVisible(i))
+            ++iCount;
+    }
+    return iCount;
+}
+
+void UIVMActivityMonitorContainer::controlTabBarVisibility()
+{
+    AssertReturnVoid(m_pTabWidget);
+    AssertReturnVoid(m_pTabWidget->tabBar());
+    int iVisibleTabCount = visibleTabCount();
+    if (iVisibleTabCount == 1)
+        m_pTabWidget->tabBar()->setVisible(false);
+    else if (iVisibleTabCount > 1)
+        m_pTabWidget->tabBar()->setVisible(true);
 }

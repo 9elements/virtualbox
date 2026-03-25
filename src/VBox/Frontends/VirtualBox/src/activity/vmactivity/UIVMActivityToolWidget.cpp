@@ -1,4 +1,4 @@
-/* $Id: UIVMActivityToolWidget.cpp 113058 2026-02-17 10:55:13Z sergey.dubov@oracle.com $ */
+/* $Id: UIVMActivityToolWidget.cpp 113573 2026-03-25 11:27:22Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVMActivityToolWidget class implementation.
  */
@@ -114,8 +114,7 @@ void UIVMActivityToolWidget::setMachines(const QList<UIVirtualMachineItem*> &mac
             continue;
         QUuid id = pMachine->id();
         unselectedMachines.removeAll(id);
-        if (!currentlyShownMachineIds.contains(id))
-            newSelections << pMachine;
+        newSelections << pMachine;
     }
 
     m_pMonitorContainer->removeTabs(unselectedMachines);
