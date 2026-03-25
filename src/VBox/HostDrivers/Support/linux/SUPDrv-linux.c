@@ -1,4 +1,4 @@
-/* $Id: SUPDrv-linux.c 113527 2026-03-24 08:47:06Z knut.osmundsen@oracle.com $ */
+/* $Id: SUPDrv-linux.c 113554 2026-03-25 00:38:10Z knut.osmundsen@oracle.com $ */
 /** @file
  * VBoxDrv - The VirtualBox Support Driver - Linux specifics.
  */
@@ -415,14 +415,14 @@ static bool supdrvLinuxIsKvmVirtEnabledLikelyCalled(void)
      * the relevant bits identical in CR4 and EFER.
      */
     bool const     fIsIntel  = ASMIsIntelOrCompatibleCpu();
-    uint64_t const fVmxeMask = RT_BIT_64(13);
+    uint64_t const fVmxeMask = RT_BIT_64(13); /* CR4.VMXE bit. */
     if (   fIsIntel
         && (ASMGetCR4() & fVmxeMask))
         return true;
 
     bool const     fIsAmd    = ASMIsAmdOrCompatibleCpu();
-    uint32_t const idEfer    = 0xc0000080;
-    uint64_t const fSvmeMask = RT_BIT_64(12);
+    uint32_t const idEfer    = 0xc0000080; /* EFER MSR. */
+    uint64_t const fSvmeMask = RT_BIT_64(12); /* EFER.SVME bit. */
     if (   fIsAmd
         && (ASMRdMsr(idEfer) & fSvmeMask))
            return true;
@@ -509,14 +509,27 @@ static int supdrvLinuxInitKvmSymbols(void)
                             unregister_kprobe(&KernProbe);
                             return VINF_SUCCESS;
                         }
+                        else
+                            printk(KERN_WARNING "vboxdrv: Failed to find or obtain reference for the KVM module\n");
                     }
+                    else
+                        printk(KERN_WARNING "vboxdrv: Cannot determine KVM module name for this CPU architecture\n");
                 }
+                else
+                    printk(KERN_WARNING "vboxdrv: The address of the found 'find_module' symbol isn't valid\n");
                 unregister_kprobe(&KernProbe);
             }
+            else
+                printk(KERN_WARNING "vboxdrv: Failed to register kprobe for 'find_module', rc=%d\n", rc);
             symbol_put_addr(pfnDisable);
         }
+        else
+            printk(KERN_WARNING "vboxdrv: Failed to find 'kvm_disable_virtualization'\n");
         symbol_put_addr(pfnEnable);
     }
+    else
+        printk(KERN_WARNING "vboxdrv: Failed to find 'kvm_enable_virtualization'\n");
+
     return VERR_NOT_FOUND;
 }
 
@@ -1947,8 +1960,9 @@ int VBOXCALL supdrvOSEnableHwvirt(bool fEnable)
         g_fEnabledHwvirtUsingKvm = false;
     }
     return VINF_SUCCESS;
-#endif
+#else
     return VERR_NOT_SUPPORTED;
+#endif
 }
 
 
