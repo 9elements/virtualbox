@@ -1,4 +1,4 @@
-/* $Id: fileio-r0drv-linux.c 113518 2026-03-23 22:57:54Z knut.osmundsen@oracle.com $ */
+/* $Id: fileio-r0drv-linux.c 113561 2026-03-25 01:28:09Z knut.osmundsen@oracle.com $ */
 /** @file
  * IPRT - File I/O, R0 Driver, Linux.
  */
@@ -59,7 +59,7 @@
 #include "internal/magics.h"
 
 
-#if RTLNX_VER_MIN(6,10,0)  /** @todo support this for older kernels (see also dbgkrnlinfo-r0drv-linux.c and fileio-r0drv-linux.c) */
+#if RTLNX_VER_MIN(3,16,0)  /** @todo support this for older kernels (see also dbgkrnlinfo-r0drv-linux.c and fileio-r0drv-linux.c) */
 
 
 /*********************************************************************************************************************************
@@ -144,7 +144,11 @@ RTDECL(int) RTFileOpen(PRTFILE phFile, const char *pszFilename, uint64_t fOpen)
     /*
      * Lookup the parent directory entry.
      */
+# if RTLNX_VER_MIN(2,6,28)
     rc = kern_path(pszFilename, 0, &Path);
+# else
+#  error "port me"
+# endif
     if (!rc)
     {
         /*
@@ -152,8 +156,14 @@ RTDECL(int) RTFileOpen(PRTFILE phFile, const char *pszFilename, uint64_t fOpen)
          */
 # if RTLNX_VER_MIN(6,10,0)
         struct file *pFile = kernel_file_open(&Path, fOpenMode, current_cred());
-# else
+# elif RTLNX_VER_MIN(6,5,0)
         struct file *pFile = kernel_file_open(&Path, fOpenMode, d_inode(Path.dentry), current_cred());
+# elif RTLNX_VER_MIN(4,19,0)
+        struct file *pFile = open_with_fake_path(&Path, fOpenMode, d_inode(Path.dentry), current_cred());
+# elif RTLNX_VER_MIN(3,6,0)
+        struct file *pFile = dentry_open(&Path, fOpenMode, current_cred());
+# else
+#  error "port me"
 # endif
         path_put(&Path);
         if (!IS_ERR(pFile))
@@ -217,7 +227,7 @@ RTDECL(int) RTFileReadAt(RTFILE hFile, RTFOFF off, void *pvBuf, size_t cbToRead,
      * With Linux 5.10 they got rid of this DS_KERNEL stuff, and 'read' was
      * no longer able to handle kernel buffers.  kernel_read() started check
      * that only 'read_iter' was implemented and would fail if missing but
-     * also if 'read' was implemented (claining complicated semantics).
+     * also if 'read' was implemented (claiming complicated semantics).
      */
 # if RTLNX_VER_MIN(5,10,0)
     if (pFile->f_op->read_iter)
@@ -227,7 +237,11 @@ RTDECL(int) RTFileReadAt(RTFILE hFile, RTFOFF off, void *pvBuf, size_t cbToRead,
 
         KVec.iov_base = pvBuf;
         KVec.iov_len  = RT_MIN(cbToRead, (size_t)MAX_RW_COUNT);
+#  if defined(ITER_DEST)
         iov_iter_kvec(&IovIter, ITER_DEST, &KVec, 1, KVec.iov_len);
+#  else
+        iov_iter_kvec(&IovIter, READ, &KVec, 1, KVec.iov_len);
+#  endif
 
 #  if RTLNX_VER_MIN(4,13,0)
         cbRead = vfs_iter_read(pFile, &IovIter, &offNative, 0 /*fFlags*/);
@@ -235,8 +249,10 @@ RTDECL(int) RTFileReadAt(RTFILE hFile, RTFOFF off, void *pvBuf, size_t cbToRead,
         cbRead = vfs_iter_read(pFile, &IovIter, &offNative);
 #  endif
 
+# elif RTLNX_VER_MIN(4,14,0)
+        cbRead = kernel_read(pThis->pFile, (char *)pvBuf, cbToRead, &offNative);
 # elif RTLNX_VER_MIN(2,6,31)
-        cbRead = kernel_read(pThis->pFile, &offNative, (char *)pvBuf, cbToRead);
+        cbRead = kernel_read(pThis->pFile, offNative, (char *)pvBuf, cbToRead);
 # else
         cbRead = kernel_read(pThis->pFile, (unsigned long)offNative, (char *)pvBuf, cbToRead);
 # endif
@@ -267,9 +283,13 @@ RTDECL(int) RTFileReadAt(RTFILE hFile, RTFOFF off, void *pvBuf, size_t cbToRead,
             rc = VERR_ACCESS_DENIED;
         else
         {
+#  if RTLNX_VER_MIN(5,18,0) /** @todo any better solution for 5.10-5.17.999? */
             rc = rw_verify_area(READ, pFile, &offNative, cbToRead);
             if (!rc)
                 rc = RTErrConvertFromErrno(-rc);
+#  else
+            rc = VINF_SUCCESS;
+#  endif
         }
         if (RT_SUCCESS(rc))
         {

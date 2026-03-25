@@ -1,4 +1,4 @@
-/* $Id: initterm-r0drv-linux.c 113560 2026-03-25 01:17:19Z knut.osmundsen@oracle.com $ */
+/* $Id: initterm-r0drv-linux.c 113561 2026-03-25 01:28:09Z knut.osmundsen@oracle.com $ */
 /** @file
  * IPRT - Initialization & Termination, R0 Driver, Linux.
  */
@@ -133,13 +133,12 @@ DECLHIDDEN(int) rtR0InitNative(void)
      *      - 'init_mm' so we can protect kernel memory (esp on arm64).
      *      - __flush_tlb_all is restricted since 6.19 (x86 & amd64).
      */
-#if RTLNX_VER_MIN(6,10,0) /** @todo support this for older kernels (see also dbgkrnlinfo-r0drv-linux.c and fileio-r0drv-linux.c) */
+#if RTLNX_VER_MIN(3,16,0) /** @todo support this for older kernels (see also dbgkrnlinfo-r0drv-linux.c and fileio-r0drv-linux.c) */
     {
         RTDBGKRNLINFO hKrnlInfo;
         int rc2 = RTR0DbgKrnlInfoOpen(&hKrnlInfo, 0);
         if (RT_SUCCESS(rc2))
         {
-            g_pLnxInitMm = (struct mm_struct *)RTR0DbgKrnlInfoGetSymbol(hKrnlInfo, NULL,  "init_mm");
             //printk("rtR0InitNative: g_pLnxInitMm=%#lx\n", (unsigned long)g_pLnxInitMm);
             printk(KERN_INFO "rtR0InitNative: g_pLnxInitMm=%p\n", g_pLnxInitMm);
 # if RTLNX_VER_MIN(6,19,0) && (defined(RT_ARCH_AMD64) || defined(RT_ARCH_X86))

@@ -1,4 +1,4 @@
-/* $Id: dbgkrnlinfo-r0drv-linux.c 113559 2026-03-25 01:02:24Z knut.osmundsen@oracle.com $ */
+/* $Id: dbgkrnlinfo-r0drv-linux.c 113561 2026-03-25 01:28:09Z knut.osmundsen@oracle.com $ */
 /** @file
  * IPRT - Kernel Debug Information, R0 Driver, Linux.
  */
@@ -40,6 +40,7 @@
 *********************************************************************************************************************************/
 #ifdef IN_RING0
 # include "the-linux-kernel.h"
+# include <linux/uio.h>
 # if RTLNX_VER_MIN(2,30,0) && defined(CONFIG_KPROBES)
 #  include <linux/kprobes.h>
 # endif
@@ -67,7 +68,7 @@
 #include <iprt/string.h>
 #include "internal/magics.h"
 
-#if RTLNX_VER_MIN(6,10,0) || defined(IN_RING3) /** @todo support this for older kernels (see also initterm-r0drv-linux.c and fileio-r0drv-linux.c) */
+#if RTLNX_VER_MIN(3,16,0) || defined(IN_RING3) /** @todo support this for older kernels (see also initterm-r0drv-linux.c and fileio-r0drv-linux.c) */
 
 
 /*********************************************************************************************************************************
