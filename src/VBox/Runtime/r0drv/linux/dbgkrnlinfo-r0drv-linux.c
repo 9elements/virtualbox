@@ -1,4 +1,4 @@
-/* $Id: dbgkrnlinfo-r0drv-linux.c 113551 2026-03-25 00:24:26Z knut.osmundsen@oracle.com $ */
+/* $Id: dbgkrnlinfo-r0drv-linux.c 113552 2026-03-25 00:25:39Z knut.osmundsen@oracle.com $ */
 /** @file
  * IPRT - Kernel Debug Information, R0 Driver, Linux.
  */
@@ -211,7 +211,7 @@ rtR0DbgKrnlInfoLnxQuerySymbolKallsyms(RTDBGKRNLINFOINT *pThis, const char *pszMo
     size_t       cchModule;
     size_t       cchMinLineLength;
     size_t       cchLineLengthKSymTab;
-    char * const pchBuf;
+    char *       pchBuf;
     RTFOFF       offFile;
     uint32_t     cbInBuf;
     uint32_t     off;
@@ -302,7 +302,7 @@ rtR0DbgKrnlInfoLnxQuerySymbolKallsyms(RTDBGKRNLINFOINT *pThis, const char *pszMo
                 static const char s_szKSymTabPrefix[] = "__ksymtab_";
                 if (   chType == 'r'
                     && RT_C_IS_BLANK(psz[1])
-                    && strncmp(&psz[2], s_szKSymTabPrefix, sizeof(s_szKSymTabPrefix) - 1)) == 0)
+                    && strncmp(&psz[2], s_szKSymTabPrefix, sizeof(s_szKSymTabPrefix) - 1) == 0)
                 {
                     psz += 2 + sizeof(s_szKSymTabPrefix) - 1;
 
