@@ -1,4 +1,4 @@
-/* $Id: fileio-r0drv-linux.c 112597 2026-01-15 09:41:07Z knut.osmundsen@oracle.com $ */
+/* $Id: fileio-r0drv-linux.c 113562 2026-03-25 01:29:23Z knut.osmundsen@oracle.com $ */
 /** @file
  * IPRT - File I/O, R0 Driver, Linux.
  */
@@ -59,7 +59,7 @@
 #include "internal/magics.h"
 
 
-#if RTLNX_VER_MIN(5,0,0)  /** @todo support this for older kernels (see also dbgkrnlinfo-r0drv-linux.c and fileio-r0drv-linux.c) */
+#if RTLNX_VER_MIN(3,16,0)  /** @todo support this for older kernels (see also dbgkrnlinfo-r0drv-linux.c and fileio-r0drv-linux.c) */
 
 
 /*********************************************************************************************************************************
@@ -144,7 +144,11 @@ RTDECL(int) RTFileOpen(PRTFILE phFile, const char *pszFilename, uint64_t fOpen)
     /*
      * Lookup the parent directory entry.
      */
+# if RTLNX_VER_MIN(2,6,28)
     rc = kern_path(pszFilename, 0, &Path);
+# else
+#  error "port me"
+# endif
     if (!rc)
     {
         /*
@@ -156,6 +160,8 @@ RTDECL(int) RTFileOpen(PRTFILE phFile, const char *pszFilename, uint64_t fOpen)
         struct file *pFile = kernel_file_open(&Path, fOpenMode, d_inode(Path.dentry), current_cred());
 # elif RTLNX_VER_MIN(4,19,0)
         struct file *pFile = open_with_fake_path(&Path, fOpenMode, d_inode(Path.dentry), current_cred());
+# elif RTLNX_VER_MIN(3,6,0)
+        struct file *pFile = dentry_open(&Path, fOpenMode, current_cred());
 # else
 #  error "port me"
 # endif
@@ -246,7 +252,7 @@ RTDECL(int) RTFileReadAt(RTFILE hFile, RTFOFF off, void *pvBuf, size_t cbToRead,
 # elif RTLNX_VER_MIN(4,14,0)
         cbRead = kernel_read(pThis->pFile, (char *)pvBuf, cbToRead, &offNative);
 # elif RTLNX_VER_MIN(2,6,31)
-        cbRead = kernel_read(pThis->pFile, &offNative, (char *)pvBuf, cbToRead);
+        cbRead = kernel_read(pThis->pFile, offNative, (char *)pvBuf, cbToRead);
 # else
         cbRead = kernel_read(pThis->pFile, (unsigned long)offNative, (char *)pvBuf, cbToRead);
 # endif
