@@ -1,4 +1,4 @@
-/* $Id: UICommon.cpp 113571 2026-03-25 10:07:46Z sergey.dubov@oracle.com $ */
+/* $Id: UICommon.cpp 113574 2026-03-25 12:16:05Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UICommon class implementation.
  */
@@ -214,19 +214,17 @@ void UICommon::prepare()
     /* Create converter: */
     UIConverter::create();
 
-    /* Create desktop-widget watchdog: */
+    /* Create desktop-widget watchdog, after converter: */
     UIDesktopWidgetWatchdog::create();
 
     /* Create message-center: */
     UIMessageCenter::create();
 
-    /* Prepare general icon-pool: */
-    UIIconPoolGeneral::create();
-
-    /* Load translation based on the current locale: */
+    /* Load translation based on the current locale,
+     * after converter and message-center created: */
     UITranslator::loadLanguage();
 
-    /* Init COM: */
+    /* Init COM, after message-center created: */
     UIGlobalSession::create();
     if (!gpGlobalSession->prepare())
         return;
@@ -240,6 +238,9 @@ void UICommon::prepare()
 
     /* Create extra-data manager right after COM init: */
     UIExtraDataManager::create();
+
+    /* Prepare general icon-pool, after extra-data manager: */
+    UIIconPoolGeneral::create();
 
     /* Prepare thread-pool instances: */
     m_pThreadPool = new UIThreadPool(3 /* worker count */, 5000 /* worker timeout */);
