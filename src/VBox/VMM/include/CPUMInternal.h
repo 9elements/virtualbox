@@ -1,4 +1,4 @@
-/* $Id: CPUMInternal.h 113529 2026-03-24 08:57:59Z knut.osmundsen@oracle.com $ */
+/* $Id: CPUMInternal.h 113550 2026-03-25 00:05:50Z knut.osmundsen@oracle.com $ */
 /** @file
  * CPUM - Internal header file.
  */
@@ -444,7 +444,7 @@ typedef struct CPUMCPU
     /** Guest context - misc MSRs
      * Aligned on a 64-byte boundary. */
     CPUMCTXMSRS             GuestMsrs;
-#ifdef RT_ARCH_AMD64
+/*#ifdef RT_ARCH_AMD64*/
     /** Release stat: Calls to cpumR0LoadGuestFPU. */
     STAMCOUNTER             StatGuestFpuLoad;
     /** Release stat: Calls to SUPR0FpuEnsureCurrent. */
@@ -463,7 +463,7 @@ typedef struct CPUMCPU
     STAMCOUNTER             StatPrepHostFpu2NoLock;
     /** Profiling SUPR0FpuEnsureCurrent. */
     STAMPROFILE             StatGuestFpuLoadPerf;
-#endif
+/*#endif*/
 
     /** Nested VMX: VMX-preemption timer. */
     TMTIMERHANDLE           hNestedVmxPreemptTimer;
