@@ -1,4 +1,4 @@
-# $Id: Makefile 113522 2026-03-23 23:34:40Z knut.osmundsen@oracle.com $
+# $Id: Makefile 113560 2026-03-25 01:17:19Z knut.osmundsen@oracle.com $
 ## @file
 # Makefile for the VirtualBox Linux Host Driver.
 #
@@ -83,6 +83,7 @@ VBOXMOD_OBJS += \
 	r0drv/linux/time-r0drv-linux.o \
 	r0drv/linux/timer-r0drv-linux.o \
 	r0drv/generic/semspinmutex-r0drv-generic.o \
+	r0drv/RTR0DbgKrnlInfoGetFunction.o \
 	r0drv/RTR0DbgKrnlInfoGetSymbol.o \
 	common/alloc/alloc.o \
 	common/checksum/crc32.o \
