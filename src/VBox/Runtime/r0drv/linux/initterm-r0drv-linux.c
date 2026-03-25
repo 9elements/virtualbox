@@ -1,4 +1,4 @@
-/* $Id: initterm-r0drv-linux.c 113562 2026-03-25 01:29:23Z knut.osmundsen@oracle.com $ */
+/* $Id: initterm-r0drv-linux.c 113563 2026-03-25 01:31:58Z knut.osmundsen@oracle.com $ */
 /** @file
  * IPRT - Initialization & Termination, R0 Driver, Linux.
  */
@@ -139,6 +139,7 @@ DECLHIDDEN(int) rtR0InitNative(void)
         int rc2 = RTR0DbgKrnlInfoOpen(&hKrnlInfo, 0);
         if (RT_SUCCESS(rc2))
         {
+            g_pLnxInitMm = (struct mm_struct *)RTR0DbgKrnlInfoGetSymbol(hKrnlInfo, NULL,  "init_mm");
             //printk("rtR0InitNative: g_pLnxInitMm=%#lx\n", (unsigned long)g_pLnxInitMm);
             printk(KERN_INFO "rtR0InitNative: g_pLnxInitMm=%p\n", g_pLnxInitMm);
 # if RTLNX_VER_MIN(6,19,0) && (defined(RT_ARCH_AMD64) || defined(RT_ARCH_X86))
