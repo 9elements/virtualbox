@@ -1,4 +1,4 @@
-/* $Id: UIVMActivityMonitor.cpp 113582 2026-03-26 10:27:20Z serkan.bayraktar@oracle.com $ */
+/* $Id: UIVMActivityMonitor.cpp 113587 2026-03-26 11:20:22Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVMActivityMonitor class implementation.
  */
@@ -1773,7 +1773,7 @@ void UIVMActivityMonitorLocal::prepareWidgets()
         pChartLayout->addWidget(pLabelContainer);
         m_charts[enmType] = new UIChart(this, m_pActionPool, m_iMaximumQueueSize);
         m_charts[enmType]->setMetric(m_metrics[enmType]);
-        if (enmType == Metric_Type_CPU)
+        if (enmType == Metric_Type_CPU || enmType == Metric_Type_RAM)
         {
             m_charts[enmType]->setIsPieChartAllowed(true);
             m_charts[enmType]->setIsAreaChartAllowed(true);
@@ -1972,18 +1972,19 @@ void UIVMActivityMonitorLocal::updateRAMGraphsAndMetric(quint64 iTotalRAM, quint
 {
     UIMetric &RAMMetric = m_metrics[Metric_Type_RAM];
     RAMMetric.setMaximum(iTotalRAM);
-    RAMMetric.addData(0, iTotalRAM - iFreeRAM);
+    RAMMetric.addData(1, iTotalRAM - iFreeRAM);
+    RAMMetric.addData(0, iFreeRAM);
     if (!m_fPaused)
     {
         if (m_infoLabelContainers.contains(Metric_Type_RAM) && m_infoLabelContainers[Metric_Type_RAM])
         {
             m_infoLabelContainers[Metric_Type_RAM]->setTitle(m_strRAMInfoLabelTitle);
             m_infoLabelContainers[Metric_Type_RAM]->setRowText(1, m_strRAMInfoLabelTotal,
-                                                               UITranslator::formatSize(_1K * iTotalRAM, g_iDecimalCount), dataColor(Metric_Type_RAM, 1));
+                                                               UITranslator::formatSize(_1K * iTotalRAM, g_iDecimalCount), dataColor(Metric_Type_RAM, 0));
             m_infoLabelContainers[Metric_Type_RAM]->setRowText(2, m_strRAMInfoLabelFree,
-                                                               UITranslator::formatSize(_1K * (iFreeRAM), g_iDecimalCount), dataColor(Metric_Type_RAM, 1));
+                                                               UITranslator::formatSize(_1K * (iFreeRAM), g_iDecimalCount), dataColor(Metric_Type_RAM, 0));
             m_infoLabelContainers[Metric_Type_RAM]->setRowText(3, m_strRAMInfoLabelUsed,
-                                                               UITranslator::formatSize(_1K * (iTotalRAM - iFreeRAM), g_iDecimalCount), dataColor(Metric_Type_RAM, 0));
+                                                               UITranslator::formatSize(_1K * (iTotalRAM - iFreeRAM), g_iDecimalCount), dataColor(Metric_Type_RAM, 1));
         }
         if (m_charts[Metric_Type_RAM])
             m_charts[Metric_Type_RAM]->update();
