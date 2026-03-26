@@ -1,4 +1,4 @@
-/* $Id: UIVMActivityMonitor.cpp 113587 2026-03-26 11:20:22Z serkan.bayraktar@oracle.com $ */
+/* $Id: UIVMActivityMonitor.cpp 113598 2026-03-26 18:31:27Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVMActivityMonitor class implementation.
  */
@@ -141,6 +141,9 @@ public:
 
     int topMargin() const;
     void setMetric(const UIMetric &m) { m_pMetric = &m; }
+
+    void setPauseMode(bool fPaused);
+
 protected:
 
     virtual void resizeEvent(QResizeEvent *pEvent) RT_OVERRIDE;
@@ -215,6 +218,7 @@ private:
     int m_iMaximumQueueSize;
     QLabel *m_pMouseOverLabel;
     UIActionPool *m_pActionPool;
+    bool m_fPausedMode;
 };
 
 
@@ -312,6 +316,7 @@ UIChart::UIChart(QWidget *pParent, UIActionPool *pActionPool, int iMaximumQueueS
     , m_iMaximumQueueSize(iMaximumQueueSize)
     , m_pMouseOverLabel(0)
     , m_pActionPool(pActionPool)
+    , m_fPausedMode(false)
 {
     QPalette tempPal = palette();
     tempPal.setColor(QPalette::Window, tempPal.color(QPalette::Window).lighter(g_iBackgroundTint));
@@ -455,6 +460,14 @@ void UIChart::setIsAvailable(bool fIsAvailable)
 int UIChart::topMargin() const
 {
     return m_iMarginTop;
+}
+
+void UIChart::setPauseMode(bool fPaused)
+{
+    if (m_fPausedMode == fPaused)
+        return;
+    m_fPausedMode = fPaused;
+    update();
 }
 
 QSize UIChart::minimumSizeHint() const
@@ -626,8 +639,14 @@ void UIChart::paintEvent(QPaintEvent *pEvent)
             painter.setPen(QPen(gradient, fPenWidth));
         }
         const QQueue<quint64> *data = m_pMetric->data(k);
+        QColor dataSeriesColor = m_dataSeriesColor[k];
+        if (m_fPausedMode)
+        {
+            dataSeriesColor.setHsv(m_dataSeriesColor[k].hue(), m_dataSeriesColor[k].saturation() * 0.7, m_dataSeriesColor[k].value() * 0.8);
+            dataSeriesColor.setAlphaF(m_dataSeriesColor[k].alphaF() * 0.6);
+        }
         if (!m_fUseGradientLineColor)
-            painter.setPen(QPen(m_dataSeriesColor[k], fPenWidth));
+                painter.setPen(QPen(dataSeriesColor, fPenWidth));
         if (m_fUseAreaChart && m_fIsAreaChartAllowed)
         {
             QVector<QPointF> points;
@@ -667,7 +686,7 @@ void UIChart::paintEvent(QPaintEvent *pEvent)
             }
             painter.setOpacity(0.6);
             painter.setPen(Qt::NoPen);
-            painter.setBrush(m_dataSeriesColor[k]);
+            painter.setBrush(dataSeriesColor);
             painter.drawPolygon(points, Qt::WindingFill);
             painter.setOpacity(1.0);
         }
@@ -688,7 +707,7 @@ void UIChart::paintEvent(QPaintEvent *pEvent)
                 painter.drawLine(bar);
             }
             /* Draw a point at each data point: */
-            painter.setPen(QPen(m_dataSeriesColor[k], fPointSize));
+            painter.setPen(QPen(dataSeriesColor, fPointSize));
             for (int i = 0; i < data->size(); ++i)
             {
                 if (data->at(i) == uInvalidValueSentinel)
@@ -725,7 +744,7 @@ void UIChart::paintEvent(QPaintEvent *pEvent)
         painter.drawText(width() - (m_iRightMarginCharWidth - 1) * QFontMetricsF(m_axisFont).averageCharWidth(), iTextY, strValue);
     }
 
-    if (iMaximum != 0 && m_fIsPieChartAllowed && m_fShowPieChart)
+    if (iMaximum != 0 && m_fIsPieChartAllowed && m_fShowPieChart && !m_fPausedMode)
         drawCombinedPieCharts(painter, iMaximum);
 }
 
@@ -1350,6 +1369,9 @@ void UIVMActivityMonitor::sltPauseToggle(bool fPause)
                 m_charts[i]->setMetric(sourceMetricVector->at(i));
         }
     }
+    for (UIChart *pChart: m_charts)
+        if (pChart)
+            pChart->setPauseMode(m_fPaused);
 }
 
 void UIVMActivityMonitor::resetRAMInfoLabel()
@@ -2681,8 +2703,6 @@ void UIVMActivityMonitorCloud::prepareWidgets()
     }
 
     m_pContainerLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
-    if (m_charts[Metric_Type_CPU])
-        m_charts[Metric_Type_CPU]->setShowPieChart(false);
 }
 
 void UIVMActivityMonitorCloud::resetCPUInfoLabel()
