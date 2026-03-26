@@ -1,4 +1,4 @@
-/* $Id: UIVMActivityMonitorContainer.h 113573 2026-03-25 11:27:22Z serkan.bayraktar@oracle.com $ */
+/* $Id: UIVMActivityMonitorContainer.h 113581 2026-03-26 09:01:36Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVMActivityMonitorPanel class declaration.
  */
@@ -107,6 +107,7 @@ private slots:
     void sltDataSeriesColorChanged(int iIndex, const QColor &color);
     void sltExportToFile();
     void sltTogglePreferencesPane(bool fChecked);
+    void sltLocalMachineShutDown(QUuid uMachineId);
 
 private:
 

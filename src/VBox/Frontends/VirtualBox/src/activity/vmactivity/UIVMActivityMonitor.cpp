@@ -1,4 +1,4 @@
-/* $Id: UIVMActivityMonitor.cpp 113541 2026-03-24 15:05:33Z serkan.bayraktar@oracle.com $ */
+/* $Id: UIVMActivityMonitor.cpp 113581 2026-03-26 09:01:36Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVMActivityMonitor class implementation.
  */
@@ -1462,6 +1462,16 @@ bool UIVMActivityMonitorLocal::isMachineRunning() const
     return m_comMachine.GetState() == KMachineState_Running;
 }
 
+bool UIVMActivityMonitorLocal::isMachinePaused() const
+{
+    return m_comMachine.GetState() == KMachineState_Paused;
+}
+
+int UIVMActivityMonitorLocal::machineState() const
+{
+    return static_cast<int>(m_comMachine.GetState());
+}
+
 void UIVMActivityMonitorLocal::sltRetranslateUI()
 {
     UIVMActivityMonitor::sltRetranslateUI();
@@ -1634,6 +1644,7 @@ void UIVMActivityMonitorLocal::sltMachineStateChange(const QUuid &uId)
         case KMachineState_PoweredOff:
         {
             reset();
+            emit sigMachineShutDown(machineId());
             break;
         }
         default:
@@ -2371,6 +2382,16 @@ QString UIVMActivityMonitorCloud::machineName() const
 bool UIVMActivityMonitorCloud::isMachineRunning() const
 {
     return m_comMachine.GetState() == KCloudMachineState_Running;
+}
+
+bool UIVMActivityMonitorCloud::isMachinePaused() const
+{
+    return false;
+}
+
+int UIVMActivityMonitorCloud::machineState() const
+{
+    return static_cast<int>(m_comMachine.GetState());
 }
 
 void UIVMActivityMonitorCloud::sltRetranslateUI()

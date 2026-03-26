@@ -1,4 +1,4 @@
-/* $Id: UIVMActivityMonitorContainer.cpp 113573 2026-03-25 11:27:22Z serkan.bayraktar@oracle.com $ */
+/* $Id: UIVMActivityMonitorContainer.cpp 113581 2026-03-26 09:01:36Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVMLogViewer class implementation.
  */
@@ -208,7 +208,7 @@ void UIVMActivityMonitorContainer::removeTabs(const QVector<QUuid> &machineIdsTo
         if (machineIdsToRemove.contains(pMonitor->machineId()))
         {
             /* If the VM is running just hide the tab hosting the activity monitor: */
-            if (pMonitor->isMachineRunning())
+            if (pMonitor->isMachineRunning() || pMonitor->isMachinePaused())
             {
                 m_pTabWidget->setTabVisible(i, false);
             }
@@ -348,6 +348,7 @@ void UIVMActivityMonitorContainer::addLocalMachine(const CMachine &comMachine)
     {
 
         UIVMActivityMonitorLocal *pActivityMonitor = new UIVMActivityMonitorLocal(m_enmEmbedding, this, comMachine, m_pActionPool);
+        connect(pActivityMonitor, &UIVMActivityMonitorLocal::sigMachineShutDown, this, &UIVMActivityMonitorContainer::sltLocalMachineShutDown);
         if (m_pPaneContainer)
         {
             pActivityMonitor->setDataSeriesColor(0, m_pPaneContainer->dataSeriesColor(0));
@@ -380,6 +381,19 @@ void UIVMActivityMonitorContainer::sltTogglePreferencesPane(bool fChecked)
 {
     AssertReturnVoid(m_pPaneContainer);
     m_pPaneContainer->setVisible(fChecked);
+}
+
+void UIVMActivityMonitorContainer::sltLocalMachineShutDown(QUuid uMachineId)
+{
+    AssertReturnVoid(m_pTabWidget);
+    int iTabIndex = findTabByMachineId(uMachineId);
+    if (iTabIndex < 0 || iTabIndex >= m_pTabWidget->count())
+        return;
+    UIVMActivityMonitor *pMonitor = qobject_cast<UIVMActivityMonitor*>(m_pTabWidget->widget(iTabIndex));
+    if (!pMonitor)
+        return;
+    m_pTabWidget->removeTab(iTabIndex);
+    delete pMonitor;
 }
 
 QVector<QUuid> UIVMActivityMonitorContainer::machineIds() const
