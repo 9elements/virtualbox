@@ -1,4 +1,4 @@
-/* $Id: VirtioCore.cpp 112501 2026-01-13 14:30:58Z aleksey.ilyushin@oracle.com $ */
+/* $Id: VirtioCore.cpp 113592 2026-03-26 13:07:27Z aleksey.ilyushin@oracle.com $ */
 
 /** @file
  * VirtioCore - Virtio Core (PCI, feature & config mgt, queue mgt & proxy, notification mgt)
@@ -1455,7 +1455,7 @@ static void virtioCoreVirtqNotified(PPDMDEVINS pDevIns, PVIRTIOCORE pVirtio, uin
         virtioCoreVirtqAvailCnt(pDevIns, pVirtio, pVirtq)));
 
     /* Inform client */
-    if (pVirtq->uEnable && pVirtq->GCPhysVirtqDesc)
+    if ((pVirtq->uEnable || pVirtio->fLegacyDriver) && pVirtq->GCPhysVirtqDesc)
         pVirtioCC->pfnVirtqNotified(pDevIns, pVirtio, uVirtq);
     else
         LogFunc(("Guest driver attempted to notify disabled queue (%u)\n", uVirtq));

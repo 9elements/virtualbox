@@ -1,4 +1,4 @@
-/* $Id: DevVirtioNet.cpp 112501 2026-01-13 14:30:58Z aleksey.ilyushin@oracle.com $ */
+/* $Id: DevVirtioNet.cpp 113592 2026-03-26 13:07:27Z aleksey.ilyushin@oracle.com $ */
 /** @file
  * VBox storage devices - Virtio NET Driver
  *
@@ -1037,7 +1037,13 @@ static int virtioNetR3DevCfgAccess(PVIRTIONET pThis, uint32_t uOffsetOfAccess, v
     AssertReturn(pv && cb <= sizeof(uint32_t), fWrite ? VINF_SUCCESS : VINF_IOM_MMIO_UNUSED_00);
 
     if (VIRTIO_DEV_CONFIG_SUBMATCH_MEMBER( uMacAddress,      VIRTIONET_CONFIG_T, uOffsetOfAccess))
-        VIRTIO_DEV_CONFIG_ACCESS_READONLY( uMacAddress,      VIRTIONET_CONFIG_T, uOffsetOfAccess, &pThis->virtioNetConfig);
+    {
+        /* Legacy drivers use write access to 'mac', see section 5.1.4.3 "Legacy Interface: Device configuration layout" */
+        if (pThis->Virtio.fLegacyDriver)
+            VIRTIO_DEV_CONFIG_ACCESS(          uMacAddress,  VIRTIONET_CONFIG_T, uOffsetOfAccess, &pThis->virtioNetConfig);
+        else
+            VIRTIO_DEV_CONFIG_ACCESS_READONLY( uMacAddress,  VIRTIONET_CONFIG_T, uOffsetOfAccess, &pThis->virtioNetConfig);
+    }
 #if FEATURE_OFFERED(STATUS)
     else
     if (VIRTIO_DEV_CONFIG_SUBMATCH_MEMBER( uStatus,          VIRTIONET_CONFIG_T, uOffsetOfAccess))
