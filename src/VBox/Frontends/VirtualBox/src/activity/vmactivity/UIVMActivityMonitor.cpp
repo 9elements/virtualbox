@@ -1,4 +1,4 @@
-/* $Id: UIVMActivityMonitor.cpp 113581 2026-03-26 09:01:36Z serkan.bayraktar@oracle.com $ */
+/* $Id: UIVMActivityMonitor.cpp 113582 2026-03-26 10:27:20Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVMActivityMonitor class implementation.
  */
@@ -1426,12 +1426,6 @@ UIVMActivityMonitorLocal::UIVMActivityMonitorLocal(EmbedTo enmEmbedding, QWidget
     connect(&uiCommon(), &UICommon::sigAskToDetachCOM, this, &UIVMActivityMonitorLocal::sltClearCOMData);
     connect(&translationEventListener(), &UITranslationEventListener::sigRetranslateUI, this, &UIVMActivityMonitorLocal::sltRetranslateUI);
     setMachine(machine);
-    /* Configure charts: */
-    if (m_charts.size() < Metric_Type_Max && m_charts[Metric_Type_CPU])
-    {
-        m_charts[Metric_Type_CPU]->setIsPieChartAllowed(true);
-        m_charts[Metric_Type_CPU]->setIsAreaChartAllowed(true);
-    }
 }
 
 void UIVMActivityMonitorLocal::start()
@@ -1700,7 +1694,6 @@ void UIVMActivityMonitorLocal::clearCOMObjectsExceptMachine()
     if (!m_comSession.isNull())
         m_comSession.UnlockMachine();
     detachCOMResource(m_comSession);
-    detachCOMResource(m_comConsole);
     detachCOMResource(m_performanceCollector);
     detachCOMResource(m_comConsole);
 }
@@ -1780,6 +1773,11 @@ void UIVMActivityMonitorLocal::prepareWidgets()
         pChartLayout->addWidget(pLabelContainer);
         m_charts[enmType] = new UIChart(this, m_pActionPool, m_iMaximumQueueSize);
         m_charts[enmType]->setMetric(m_metrics[enmType]);
+        if (enmType == Metric_Type_CPU)
+        {
+            m_charts[enmType]->setIsPieChartAllowed(true);
+            m_charts[enmType]->setIsAreaChartAllowed(true);
+        }
         connect(m_charts[enmType], &UIChart::sigExportMetricsToFile,
                 this, &UIVMActivityMonitor::sltExportMetricsToFile);
         m_charts[enmType]->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
@@ -2053,7 +2051,7 @@ void UIVMActivityMonitorLocal::updateUSBChart(quint64 uReceiveTotal, quint64 uTr
     USBMetric.addData(1, uTransmitRate);
     if (!m_fPaused)
     {
-        if (m_infoLabelContainers.contains(Metric_Type_Network_InOut) && m_infoLabelContainers[Metric_Type_Network_InOut])
+        if (m_infoLabelContainers.contains(Metric_Type_USB_InOut) && m_infoLabelContainers[Metric_Type_USB_InOut])
         {
             m_infoLabelContainers[Metric_Type_USB_InOut]->setTitle(m_strUSBInfoLabelTitle);
             m_infoLabelContainers[Metric_Type_USB_InOut]->setRowText(1, m_strUSBInfoLabelReceived,
