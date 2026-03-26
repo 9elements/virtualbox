@@ -1,4 +1,4 @@
-/* $Id: dbgkrnlinfo-r0drv-linux.c 113567 2026-03-25 08:09:18Z knut.osmundsen@oracle.com $ */
+/* $Id: dbgkrnlinfo-r0drv-linux.c 113604 2026-03-26 23:38:33Z knut.osmundsen@oracle.com $ */
 /** @file
  * IPRT - Kernel Debug Information, R0 Driver, Linux.
  */
@@ -68,7 +68,21 @@
 #include <iprt/string.h>
 #include "internal/magics.h"
 
+
+/*********************************************************************************************************************************
+*   Defined Constants And Macros                                                                                                 *
+*********************************************************************************************************************************/
 #if RTLNX_VER_MIN(3,16,0) || defined(IN_RING3) /** @todo support this for older kernels (see also initterm-r0drv-linux.c and fileio-r0drv-linux.c) */
+# define IPRT_LNX_CAN_USE_PROC_KALLSYMS
+#endif
+
+#if RTLNX_VER_MIN(2,30,0) && defined(CONFIG_KPROBES) && defined(IN_RING0)
+# define IPRT_LNX_CAN_USE_KPROBES
+#endif
+
+#if defined(IPRT_LNX_CAN_USE_PROC_KALLSYMS) || defined(IPRT_LNX_CAN_USE_KPROBES)
+# define IPRT_LNX_HAVE_IMPLEMENTATION
+#endif
 
 
 /*********************************************************************************************************************************
@@ -91,6 +105,23 @@ typedef struct RTDBGKRNLINFOINT
 } RTDBGKRNLINFOINT;
 
 
+/*********************************************************************************************************************************
+*   Global Variables                                                                                                             *
+*********************************************************************************************************************************/
+#ifdef IPRT_LNX_CAN_USE_KPROBES
+/** Pointer to kallsyms_lookup_name if in kprobes mode and available.
+ * @note Added in Linux 2.6.4. */
+static __typeof__(kallsyms_lookup_name) *g_pfnKallsymsLookupName = NULL;
+/** Only try resolve g_pfnKallsymsLookupName once. */
+static bool g_fTriedResolvingKallsymsLookupName = false;
+#endif
+#ifdef IN_RING3
+/** This is for the testcase. */
+extern const char *g_pszTestKallsyms;
+#endif
+
+
+#ifdef IPRT_LNX_HAVE_IMPLEMENTATION
 /**
  * Destructor.
  *
@@ -100,133 +131,36 @@ static void rtR0DbgKrnlLinuxDtor(RTDBGKRNLINFOINT *pThis)
 {
     pThis->u32Magic = ~RTDBGKRNLINFO_MAGIC;
 
+# ifdef IPRT_LNX_CAN_USE_PROC_KALLSYMS
     if (pThis->hFile != NIL_RTFILE)
     {
         RTFileClose(pThis->hFile);
         pThis->hFile = NIL_RTFILE;
     }
+# endif
 
     RTMemFree(pThis);
 }
-
-#ifdef IN_RING3
-extern const char *g_pszTestKallsyms;
 #endif
 
-RTR0DECL(int) RTR0DbgKrnlInfoOpen(PRTDBGKRNLINFO phKrnlInfo, uint32_t fFlags)
-{
-#ifdef IN_RING3
-    const char * const pszFilename = g_pszTestKallsyms ? g_pszTestKallsyms : "/proc/kallsyms";
-#else
-    const char * const pszFilename = "/proc/kallsyms";
-#endif
-    struct RTDBGKRNLINFOINT *pThis;
-    RTFILE hFile;
-    int rc;
 
-    AssertPtrReturn(phKrnlInfo, VERR_INVALID_POINTER);
-    *phKrnlInfo = NIL_RTDBGKRNLINFO;
-    AssertReturn(!fFlags, VERR_INVALID_PARAMETER);
-
-    /*
-     * Try open the kernel symbol file.
-     */
-    rc = RTFileOpen(&hFile, pszFilename, RTFILE_O_READ | RTFILE_O_DENY_NONE | RTFILE_O_OPEN);
-    if (RT_FAILURE(rc))
-    {
-#if RTLNX_VER_MIN(2,30,0) && !defined(IN_RING3)
-        /* We can use the register_kprobe hack, so don't fail. */
-        hFile = NIL_RTFILE;
-#else
-        return rc;
-#endif
-    }
-
-    /*
-     * Allocate a handle structure for it.
-     */
-    pThis = RTMemAllocZ(sizeof(*pThis));
-    if (pThis)
-    {
-        pThis->u32Magic = RTDBGKRNLINFO_MAGIC;
-        pThis->cRefs    = 1;
-        pThis->hFile    = hFile;
-
-        *phKrnlInfo = pThis;
-        return VINF_SUCCESS;
-    }
-
-    RTFileClose(hFile);
-    return VERR_NO_MEMORY;
-}
-
-
-RTR0DECL(uint32_t) RTR0DbgKrnlInfoRetain(RTDBGKRNLINFO hKrnlInfo)
-{
-    RTDBGKRNLINFOINT *pThis = hKrnlInfo;
-    uint32_t cRefs;
-    AssertPtrReturn(pThis, UINT32_MAX);
-    AssertMsgReturn(pThis->u32Magic == RTDBGKRNLINFO_MAGIC, ("%p: u32Magic=%RX32\n", pThis, pThis->u32Magic), UINT32_MAX);
-
-    cRefs = ASMAtomicIncU32(&pThis->cRefs);
-    Assert(cRefs && cRefs < 100000);
-    return cRefs;
-}
-
-
-RTR0DECL(uint32_t) RTR0DbgKrnlInfoRelease(RTDBGKRNLINFO hKrnlInfo)
-{
-    RTDBGKRNLINFOINT *pThis = hKrnlInfo;
-    uint32_t cRefs;
-    if (pThis == NIL_RTDBGKRNLINFO)
-        return 0;
-    AssertPtrReturn(pThis, UINT32_MAX);
-    AssertMsgReturn(pThis->u32Magic == RTDBGKRNLINFO_MAGIC, ("%p: u32Magic=%RX32\n", pThis, pThis->u32Magic), UINT32_MAX);
-
-    cRefs = ASMAtomicDecU32(&pThis->cRefs);
-    if (cRefs == 0)
-        rtR0DbgKrnlLinuxDtor(pThis);
-    return cRefs;
-}
-
-
-RTR0DECL(int) RTR0DbgKrnlInfoQueryMember(RTDBGKRNLINFO hKrnlInfo, const char *pszModule, const char *pszStructure,
-                                         const char *pszMember, size_t *poffMember)
-{
-    RTDBGKRNLINFOINT *pThis = hKrnlInfo;
-    AssertPtrReturn(pThis, VERR_INVALID_HANDLE);
-    AssertMsgReturn(pThis->u32Magic == RTDBGKRNLINFO_MAGIC, ("%p: u32Magic=%RX32\n", pThis, pThis->u32Magic), VERR_INVALID_HANDLE);
-    AssertPtrReturn(pszMember, VERR_INVALID_POINTER);
-    AssertPtrReturn(pszModule, VERR_INVALID_POINTER);
-    AssertPtrReturn(pszStructure, VERR_INVALID_POINTER);
-    AssertPtrReturn(poffMember, VERR_INVALID_POINTER);
-    return VERR_NOT_FOUND;
-}
-
-
+#ifdef IPRT_LNX_CAN_USE_PROC_KALLSYMS
+/**
+ * Worker for resolving a symbol using the kallsyms file.
+ */
 static int
 rtR0DbgKrnlInfoLnxQuerySymbolKallsyms(RTDBGKRNLINFOINT *pThis, const char *pszModule, const char *pszSymbol, void **ppvSymbol)
 {
-    size_t       cchSymbol;
-    size_t       cchModule;
-    size_t       cchMinLineLength;
-    size_t       cchLineLengthKSymTab;
+    size_t const cchSymbol            = strlen(pszSymbol);
+    size_t const cchModule            = pszModule ? strlen(pszModule) : 0;
+    size_t const cchMinLineLength     = ARCH_BITS / 4 + 1 + 1 + 1 + cchSymbol + (cchModule ? 2 + cchModule + 1 : 0);
+    size_t const cchLineLengthKSymTab = cchModule ? cchMinLineLength + sizeof("__ksymtab_") - 1 : ~(size_t)0 / 2;
     char *       pchBuf;
     RTFOFF       offFile;
     uint32_t     cbInBuf;
     uint32_t     off;
     bool         fSeenKSymtabEntry;
     uintptr_t    uCandidate;
-
-    AssertPtrReturn(pThis, VERR_INVALID_HANDLE);
-    AssertMsgReturn(pThis->u32Magic == RTDBGKRNLINFO_MAGIC, ("%p: u32Magic=%RX32\n", pThis, pThis->u32Magic), VERR_INVALID_HANDLE);
-    AssertPtrReturn(pszSymbol, VERR_INVALID_PARAMETER);
-    AssertPtrNullReturn(ppvSymbol, VERR_INVALID_PARAMETER);
-    cchSymbol            = strlen(pszSymbol);
-    AssertPtrNullReturn(pszModule, VERR_MODULE_NOT_FOUND);
-    cchModule            = pszModule ? strlen(pszModule) : 0;
-    cchMinLineLength     = ARCH_BITS / 4 + 1 + 1 + 1 + cchSymbol + (cchModule ? 2 + cchModule + 1 : 0);
-    cchLineLengthKSymTab = cchModule ? cchMinLineLength + sizeof("__ksymtab_") - 1 : ~(size_t)0 / 2;
 
     /*
      * Scan the entire file for the requested symbol.
@@ -322,8 +256,7 @@ rtR0DbgKrnlInfoLnxQuerySymbolKallsyms(RTDBGKRNLINFOINT *pThis, const char *pszMo
                                     fSeenKSymtabEntry = true;
                                     if (uCandidate != ~(uintptr_t)0)
                                     {
-                                        if (ppvSymbol)
-                                            *ppvSymbol = (void *)(uintptr_t)uCandidate;
+                                        *ppvSymbol = (void *)(uintptr_t)uCandidate;
                                         return VINF_SUCCESS;
                                     }
                                 }
@@ -351,8 +284,7 @@ rtR0DbgKrnlInfoLnxQuerySymbolKallsyms(RTDBGKRNLINFOINT *pThis, const char *pszMo
                         /* If we're matching a kernel symbol and have reached the end of the line now, we're good. */
                         if (!cchModule && *psz == '\0')
                         {
-                            if (ppvSymbol)
-                                *ppvSymbol = (void *)(uintptr_t)uAddr;
+                            *ppvSymbol = (void *)(uintptr_t)uAddr;
                             return VINF_SUCCESS;
                         }
 
@@ -367,8 +299,7 @@ rtR0DbgKrnlInfoLnxQuerySymbolKallsyms(RTDBGKRNLINFOINT *pThis, const char *pszMo
                                 {
                                     if (chType == 'T' || fSeenKSymtabEntry)
                                     {
-                                        if (ppvSymbol)
-                                            *ppvSymbol = (void *)(uintptr_t)uAddr;
+                                        *ppvSymbol = (void *)(uintptr_t)uAddr;
                                         return VINF_SUCCESS;
                                     }
                                     uCandidate = (uintptr_t)uAddr;
@@ -388,13 +319,212 @@ rtR0DbgKrnlInfoLnxQuerySymbolKallsyms(RTDBGKRNLINFOINT *pThis, const char *pszMo
 
     return VERR_SYMBOL_NOT_FOUND;
 }
+#endif /* IPRT_LNX_CAN_USE_PROC_KALLSYMS */
+
+
+#ifdef IPRT_LNX_CAN_USE_KPROBES
+/**
+ * Worker for using register_kprobe to lookup a function symbol.
+ */
+static int rtR0DbgKrnlInfoLnxQuerySymbolKprobe(const char *pszSymbol, void **ppvSymbol)
+{
+    struct kprobe KernProbe;
+    int rc;
+
+    RT_ZERO(KernProbe);
+    KernProbe.flags       = KPROBE_FLAG_DISABLED;
+    KernProbe.symbol_name = pszSymbol;
+    rc = register_kprobe(&KernProbe);
+    if (rc == 0)
+    {
+        uint8_t const *pbAddr = (uint8_t const *)KernProbe.addr;
+        unregister_kprobe(&KernProbe);
+
+        if (RT_VALID_PTR(pbAddr)) /* paranoia */
+        {
+# if defined(CONFIG_X86_KERNEL_IBT) && (defined(RT_ARCH_X86) || defined(RT_ARCH_AMD64))
+            /* We must include the endbr instruction that arch_adjust_kprobe_addr()
+               skips after symbol resolving for register_kprobe(). */
+            uint32_t u32EndBr = 0;
+            __get_kernel_nofault(&u32EndBr, ((u32 *)&pbAddr[-4]), u32, l_fault);
+#  if RTLNX_VER_MIN(6,15,0)
+            if (__is_endbr(u32EndBr))
+#  else
+            if (is_endbr(u32EndBr))
+#  endif
+                pbAddr -= 4;
+l_fault:
+# endif
+            if (ppvSymbol)
+                *ppvSymbol = (void *)pbAddr;
+            return VINF_SUCCESS;
+        }
+    }
+
+    return VERR_SYMBOL_NOT_FOUND;
+}
+#endif
+
+
+RTR0DECL(int) RTR0DbgKrnlInfoOpen(PRTDBGKRNLINFO phKrnlInfo, uint32_t fFlags)
+{
+#ifdef IPRT_LNX_HAVE_IMPLEMENTATION
+    struct RTDBGKRNLINFOINT *pThis;
+# ifdef IPRT_LNX_CAN_USE_PROC_KALLSYMS
+    int rc;
+# endif
+#endif
+
+    /*
+     * Validate input.
+     */
+    AssertPtrReturn(phKrnlInfo, VERR_INVALID_POINTER);
+    *phKrnlInfo = NIL_RTDBGKRNLINFO;
+    AssertReturn(!fFlags, VERR_INVALID_FLAGS);
+
+#ifdef IPRT_LNX_HAVE_IMPLEMENTATION
+    /*
+     * Create the instance first, as that'll let us check that the /proc/kallsyms
+     * file works correctly.
+     */
+    pThis = (struct RTDBGKRNLINFOINT *)RTMemAllocZ(sizeof(*pThis));
+    if (!pThis)
+        return VERR_NO_MEMORY;
+
+    pThis->u32Magic = RTDBGKRNLINFO_MAGIC;
+    pThis->cRefs    = 1;
+    pThis->hFile    = NIL_RTFILE;
+
+# ifdef IPRT_LNX_CAN_USE_PROC_KALLSYMS
+    /*
+     * Try open the kernel symbol file first, as it allow us to check the symbol and stuff.
+     */
+    rc = RTFileOpen(&pThis->hFile,
+#  ifdef IN_RING3
+                    g_pszTestKallsyms ? g_pszTestKallsyms : "/proc/kallsyms",
+#  else
+                    "/proc/kallsyms",
+#  endif
+                    RTFILE_O_READ | RTFILE_O_DENY_NONE | RTFILE_O_OPEN);
+    if (RT_SUCCESS(rc))
+    {
+        /* Look up the address of a known symbol. */
+#  ifndef IN_RING3
+        uintptr_t const uExpected = (uintptr_t)get_user_pages;
+#  endif
+        void           *pvActual  = NULL;
+        rc = rtR0DbgKrnlInfoLnxQuerySymbolKallsyms(pThis, NULL, "get_user_pages", &pvActual);
+        if (   RT_SUCCESS(rc)
+#  ifndef IN_RING3
+            && (uintptr_t)pvActual == uExpected
+#  endif
+           )
+        {
+            *phKrnlInfo = pThis;
+            return VINF_SUCCESS;
+        }
+#  ifndef IN_RING3
+        /* Complain and close up. */
+        if (RT_SUCCESS(rc))
+        {
+            intptr_t offDelta = (intptr_t)pvActual - (intptr_t)uExpected;
+            printk("RTR0DbgKrnlInfoOpen: /proc/kallsym method failed. get_user_pages address off by %c%#lx\n",
+                   offDelta < 0 ? '-' : '+', offDelta < 0 ? (unsigned long)-offDelta : (unsigned long)offDelta);
+        }
+        else
+#  endif
+            printk("RTR0DbgKrnlInfoOpen: /proc/kallsym method failed - get_user_pages not found (rc=%d)\n", rc);
+        RTFileClose(pThis->hFile);
+        pThis->hFile = NIL_RTFILE;
+        rc = VERR_DBG_FILE_MISMATCH;
+    }
+# endif /* IPRT_LNX_CAN_USE_PROC_KALLSYMS */
+
+# ifdef IPRT_LNX_CAN_USE_KPROBES
+    /*
+     * Then try use kprobes, preferably via kallsyms_lookup_name.
+     */
+    if (!g_pfnKallsymsLookupName && !g_fTriedResolvingKallsymsLookupName)
+    {
+        void *pvLookupFunction = NULL;
+        if (RT_SUCCESS(rtR0DbgKrnlInfoLnxQuerySymbolKprobe("kallsyms_lookup_name", &pvLookupFunction)))
+            g_pfnKallsymsLookupName = (__typeof__(g_pfnKallsymsLookupName))(uintptr_t)pvLookupFunction;
+        g_fTriedResolvingKallsymsLookupName = true;
+    }
+    *phKrnlInfo = pThis;
+    return VINF_SUCCESS;
+
+# else
+    /* Ditch the instance and return failure. */
+    pThis->u32Magic = 0;
+    RTMemFree(pThis);
+    return rc;
+# endif /* !IPRT_LNX_CAN_USE_KPROBES */
+
+#else  /* !IPRT_LNX_HAVE_IMPLEMENTATION */
+    return VERR_NOT_IMPLEMENTED;
+#endif /* !IPRT_LNX_HAVE_IMPLEMENTATION */
+}
+
+
+RTR0DECL(uint32_t) RTR0DbgKrnlInfoRetain(RTDBGKRNLINFO hKrnlInfo)
+{
+#ifdef IPRT_LNX_HAVE_IMPLEMENTATION
+    RTDBGKRNLINFOINT *pThis = hKrnlInfo;
+    uint32_t cRefs;
+    AssertPtrReturn(pThis, UINT32_MAX);
+    AssertMsgReturn(pThis->u32Magic == RTDBGKRNLINFO_MAGIC, ("%p: u32Magic=%RX32\n", pThis, pThis->u32Magic), UINT32_MAX);
+
+    cRefs = ASMAtomicIncU32(&pThis->cRefs);
+    Assert(cRefs && cRefs < 100000);
+    return cRefs;
+#else
+    RT_NOREF(hKrnlInfo);
+    return UINT32_MAX;
+#endif
+}
+
+
+RTR0DECL(uint32_t) RTR0DbgKrnlInfoRelease(RTDBGKRNLINFO hKrnlInfo)
+{
+#ifdef IPRT_LNX_HAVE_IMPLEMENTATION
+    RTDBGKRNLINFOINT *pThis = hKrnlInfo;
+    uint32_t cRefs;
+    if (pThis == NIL_RTDBGKRNLINFO)
+        return 0;
+    AssertPtrReturn(pThis, UINT32_MAX);
+    AssertMsgReturn(pThis->u32Magic == RTDBGKRNLINFO_MAGIC, ("%p: u32Magic=%RX32\n", pThis, pThis->u32Magic), UINT32_MAX);
+
+    cRefs = ASMAtomicDecU32(&pThis->cRefs);
+    if (cRefs == 0)
+        rtR0DbgKrnlLinuxDtor(pThis);
+    return cRefs;
+#else
+    RT_NOREF(hKrnlInfo);
+    return UINT32_MAX;
+#endif
+}
+
+
+RTR0DECL(int) RTR0DbgKrnlInfoQueryMember(RTDBGKRNLINFO hKrnlInfo, const char *pszModule, const char *pszStructure,
+                                         const char *pszMember, size_t *poffMember)
+{
+    RTDBGKRNLINFOINT *pThis = hKrnlInfo;
+    AssertPtrReturn(pThis, VERR_INVALID_HANDLE);
+    AssertMsgReturn(pThis->u32Magic == RTDBGKRNLINFO_MAGIC, ("%p: u32Magic=%RX32\n", pThis, pThis->u32Magic), VERR_INVALID_HANDLE);
+    AssertPtrReturn(pszMember, VERR_INVALID_POINTER);
+    AssertPtrReturn(pszModule, VERR_INVALID_POINTER);
+    AssertPtrReturn(pszStructure, VERR_INVALID_POINTER);
+    AssertPtrReturn(poffMember, VERR_INVALID_POINTER);
+    return VERR_NOT_FOUND;
+}
 
 
 RTR0DECL(int) RTR0DbgKrnlInfoQuerySymbol(RTDBGKRNLINFO hKrnlInfo, const char *pszModule,
                                          const char *pszSymbol, void **ppvSymbol)
 {
     RTDBGKRNLINFOINT *pThis = hKrnlInfo;
-    int rc;
+    void *pvTmpSymbol = NULL;
 
     /*
      * Validate input.
@@ -402,100 +532,54 @@ RTR0DECL(int) RTR0DbgKrnlInfoQuerySymbol(RTDBGKRNLINFO hKrnlInfo, const char *ps
     AssertPtrReturn(pThis, VERR_INVALID_HANDLE);
     AssertMsgReturn(pThis->u32Magic == RTDBGKRNLINFO_MAGIC, ("%p: u32Magic=%RX32\n", pThis, pThis->u32Magic), VERR_INVALID_HANDLE);
     AssertPtrReturn(pszSymbol, VERR_INVALID_PARAMETER);
-    AssertPtrNullReturn(ppvSymbol, VERR_INVALID_PARAMETER);
     AssertPtrNullReturn(pszModule, VERR_MODULE_NOT_FOUND);
+    AssertPtrNullReturn(ppvSymbol, VERR_INVALID_PARAMETER);
 
+    if (!ppvSymbol)
+        ppvSymbol = &pvTmpSymbol;
+    *ppvSymbol = NULL;
+
+#ifdef IPRT_LNX_CAN_USE_PROC_KALLSYMS
     /*
-     * Try kallsyms first if we have it handy.
+     * Try kallsyms first if we have it.
      */
     if (pThis->hFile != NIL_RTFILE)
     {
-        rc = rtR0DbgKrnlInfoLnxQuerySymbolKallsyms(pThis, pszModule, pszSymbol, ppvSymbol);
+        int rc = rtR0DbgKrnlInfoLnxQuerySymbolKallsyms(pThis, pszModule, pszSymbol, ppvSymbol);
         if (RT_SUCCESS(rc))
             return rc;
     }
-    else
-        rc = VERR_SYMBOL_NOT_FOUND;
+#endif
 
-# if RTLNX_VER_MIN(2,30,0) && defined(CONFIG_KPROBES) && !defined(IN_RING3)
+#ifdef IPRT_LNX_CAN_USE_KPROBES
     /*
-     * Try the register_kprobe trick next.  It only works on functions.
+     * Try using the lookup function next, either directly or indirectly
+     * via register_kprobe.
      *
-     * Since we don't have module scoping here, we only attempt this for
-     * symbols that start with the module name.
+     * The "module:function" format has been supported since 2.6.4 when
+     * the lookup function was added.  Use the kallsyms read buffer
+     * for temporary storage.
      */
-    if (   !pszModule
-        || strncmp(pszSymbol, pszModule, strlen(pszModule)) == 0)
+    if (pszModule)
     {
-        struct kprobe KernProbe;
-        int rc2;
-
-        RT_ZERO(KernProbe);
-        KernProbe.flags       = KPROBE_FLAG_DISABLED;
-        KernProbe.symbol_name = pszSymbol;
-        rc2 = register_kprobe(&KernProbe);
-        if (rc2 == 0)
-        {
-            uint8_t const *pbAddr = (uint8_t const *)KernProbe.addr;
-            unregister_kprobe(&KernProbe);
-
-            if (RT_VALID_PTR(pbAddr)) /* paranoia */
-            {
-#  if defined(CONFIG_X86_KERNEL_IBT) && (defined(RT_ARCH_X86) || defined(RT_ARCH_AMD64))
-                /* We must include the endbr instruction that arch_adjust_kprobe_addr()
-                   skips after symbol resolving for register_kprobe(). */
-                uint32_t u32EndBr = 0;
-                __get_kernel_nofault(&u32EndBr, ((u32 *)&pbAddr[-4]), u32, l_fault);
-#   if RTLNX_VER_MIN(6,15,0)
-                if (__is_endbr(u32EndBr))
-#   else
-                if (is_endbr(u32EndBr))
-#   endif
-                    pbAddr -= 4;
-l_fault:
-#  endif
-                if (ppvSymbol)
-                    *ppvSymbol = (void *)pbAddr;
-                return VINF_SUCCESS;
-            }
-        }
+        size_t const cchModule = strlen(pszModule);
+        size_t const cchSymbol = strlen(pszSymbol);
+        if (cchModule + 1 + cchSymbol >= sizeof(pThis->abBuf))
+            return VERR_SYMBOL_NOT_FOUND;
+        memcpy(pThis->abBuf, pszModule, cchModule);
+        pThis->abBuf[cchModule] = ':';
+        memcpy(&pThis->abBuf[cchModule + 1], pszSymbol, cchSymbol);
+        pThis->abBuf[cchModule + 1 + cchSymbol] = '\0';
+        pszSymbol = (char *)&pThis->abBuf[0];
     }
-# endif
 
-    return rc;
+    if (!g_pfnKallsymsLookupName)
+        return rtR0DbgKrnlInfoLnxQuerySymbolKprobe(pszSymbol, ppvSymbol);
+
+    if ((*ppvSymbol = (void *)g_pfnKallsymsLookupName(pszSymbol)) != NULL)
+        return VINF_SUCCESS;
+#endif
+
+    return VERR_SYMBOL_NOT_FOUND;
 }
-
-
-#else  /* !RTLNX_VER_MIN(6,7,0) && !defined(IN_RING3) */
-
-/*
- * Stubs to prevent linking issues with RTR0DbgKrnlInfoGetSymbol and such.
- */
-
-RTR0DECL(int) RTR0DbgKrnlInfoOpen(PRTDBGKRNLINFO phKrnlInfo, uint32_t fFlags)
-{
-    RT_NOREF(phKrnlInfo, fFlags);
-    return VERR_NOT_IMPLEMENTED;
-}
-
-RTR0DECL(uint32_t) RTR0DbgKrnlInfoRetain(RTDBGKRNLINFO hKrnlInfo)
-{
-    RT_NOREF(hKrnlInfo);
-    return UINT32_MAX;
-}
-
-RTR0DECL(uint32_t) RTR0DbgKrnlInfoRelease(RTDBGKRNLINFO hKrnlInfo)
-{
-    RT_NOREF(hKrnlInfo);
-    return UINT32_MAX;
-}
-
-RTR0DECL(int) RTR0DbgKrnlInfoQuerySymbol(RTDBGKRNLINFO hKrnlInfo, const char *pszModule,
-                                         const char *pszSymbol, void **ppvSymbol)
-{
-    RT_NOREF(hKrnlInfo, pszModule, pszSymbol, ppvSymbol);
-    return VERR_NOT_IMPLEMENTED;
-}
-
-#endif /* !RTLNX_VER_MIN(6,7,0) && !defined(IN_RING3) */
 

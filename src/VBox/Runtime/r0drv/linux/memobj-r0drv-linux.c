@@ -1,4 +1,4 @@
-/* $Id: memobj-r0drv-linux.c 113555 2026-03-25 00:39:10Z knut.osmundsen@oracle.com $ */
+/* $Id: memobj-r0drv-linux.c 113604 2026-03-26 23:38:33Z knut.osmundsen@oracle.com $ */
 /** @file
  * IPRT - Ring-0 Memory Objects, Linux.
  */
@@ -95,6 +95,7 @@
  * It would be possible to remove IPRT_USE_ALLOC_VM_AREA_FOR_EXEC and use
  * this path execlusively for 3.2+ but no time to test it really works on every
  * supported kernel, so better play safe for now.
+ * @note Adjust init_mm resolving in rtR0InitNative() if changing version here.
  */
 #if RTLNX_VER_MIN(5,10,0) || defined(DOXYGEN_RUNNING)
 # define IPRT_USE_APPLY_TO_PAGE_RANGE_FOR_EXEC
