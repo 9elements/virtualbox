@@ -1,4 +1,4 @@
-/* $Id: initterm-r0drv-linux.c 113547 2026-03-24 23:42:47Z knut.osmundsen@oracle.com $ */
+/* $Id: initterm-r0drv-linux.c 113603 2026-03-26 23:37:08Z knut.osmundsen@oracle.com $ */
 /** @file
  * IPRT - Initialization & Termination, R0 Driver, Linux.
  */
@@ -130,10 +130,15 @@ DECLHIDDEN(int) rtR0InitNative(void)
 
     /*
      * There are some unexported symbols we want, try get them:
-     *      - 'init_mm' so we can protect kernel memory (esp on arm64).
+     *
+     *      - 'init_mm' so we can protect kernel memory (esp on arm64) in
+     *         memobj-r0drv-linux.c (IPRT_USE_APPLY_TO_PAGE_RANGE_FOR_EXEC).
+     *         Which means it's needed for 5.10.  The symbol was exported
+     *         before 2.6.25.
+     *
      *      - __flush_tlb_all is restricted since 6.19 (x86 & amd64).
      */
-#if RTLNX_VER_MIN(3,16,0) /** @todo support this for older kernels (see also dbgkrnlinfo-r0drv-linux.c and fileio-r0drv-linux.c) */
+#if RTLNX_VER_MIN(5,10,0) /* (this works back to 2.30 in theory) */
     {
         RTDBGKRNLINFO hKrnlInfo;
         int rc2 = RTR0DbgKrnlInfoOpen(&hKrnlInfo, 0);
@@ -149,7 +154,7 @@ DECLHIDDEN(int) rtR0InitNative(void)
             RTR0DbgKrnlInfoRelease(hKrnlInfo);
         }
         else
-            printk(KERN_WARNING "rtR0InitNative: RTR0DbgKrnlInfoOpen failed: %d\n", rc);
+            printk(KERN_WARNING "rtR0InitNative: RTR0DbgKrnlInfoOpen failed: %d\n", rc2);
 
 # if RTLNX_VER_MIN(6,19,0) && (defined(RT_ARCH_AMD64) || defined(RT_ARCH_X86))
         if (!RT_VALID_PTR(g_pfnLinuxFlushTlbAll))
