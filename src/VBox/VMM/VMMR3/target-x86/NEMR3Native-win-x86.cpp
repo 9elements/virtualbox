@@ -1,4 +1,4 @@
-/* $Id: NEMR3Native-win-x86.cpp 113613 2026-03-27 10:13:48Z ramshankar.venkataraman@oracle.com $ */
+/* $Id: NEMR3Native-win-x86.cpp 113614 2026-03-27 10:17:36Z ramshankar.venkataraman@oracle.com $ */
 /** @file
  * NEM - Native execution manager, native ring-3 Windows backend.
  *
@@ -5103,21 +5103,9 @@ static VBOXSTRICTRC nemR3WinHandleExit(PVMCC pVM, PVMCPUCC pVCpu, WHV_RUN_VP_EXI
 
         case WHvRunVpExitReasonUnsupportedFeature:
         case WHvRunVpExitReasonInvalidVpRegisterValue:
-        {
-            WHV_REGISTER_VALUE ActReg;
-            RT_ZERO(ActReg);
-            static const WHV_REGISTER_NAME enmActReg = WHvRegisterInternalActivityState;
-            HRESULT const hrc = WHvGetVirtualProcessorRegisters(pVM->nem.s.hPartition, pVCpu->idCpu, &enmActReg, 1, &ActReg);
-            AssertLogRelMsgReturn(SUCCEEDED(hrc),
-                                  ("%u: Failed to get WHvRegisterInternalActivityState. hrc=%Rhrc (Last=%#x/%u)\n",
-                                   pVCpu->idCpu, hrc, RTNtLastStatusValue(), RTNtLastErrorValue()), VERR_NEM_IPE_8);
-
             LogRel(("Unimplemented exit:\n%.*Rhxd\n", (int)sizeof(*pExit), pExit));
-            LogRel(("Activity Reg: %#RX64\n", ActReg.Reg64));
-            //AssertLogRelMsgFailedReturn(("Unexpected exit on CPU #%u: %#x\n%.32Rhxd\n",
-            //                             pVCpu->idCpu, pExit->ExitReason, pExit), VERR_NEM_IPE_3);
-            return VINF_EM_DBG_STOP;
-        }
+            AssertLogRelMsgFailedReturn(("Unexpected exit on CPU #%u: %#x\n%.32Rhxd\n",
+                                         pVCpu->idCpu, pExit->ExitReason, pExit), VERR_NEM_IPE_3);
 
         case WHvRunVpExitReasonX64ApicInitSipiTrap:
             STAM_REL_COUNTER_INC(&pVCpu->nem.s.StatExitApicSipiInitTrap);
