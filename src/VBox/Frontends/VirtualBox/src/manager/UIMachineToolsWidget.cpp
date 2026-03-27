@@ -1,4 +1,4 @@
-/* $Id: UIMachineToolsWidget.cpp 112716 2026-01-27 15:40:24Z sergey.dubov@oracle.com $ */
+/* $Id: UIMachineToolsWidget.cpp 113620 2026-03-27 11:34:26Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMachineToolsWidget class implementation.
  */
@@ -596,14 +596,14 @@ void UIMachineToolsWidget::recacheCurrentMachineItemInformation(bool fDontRaiseE
         /* For accessible items: */
         if (isItemAccessible(pItem))
         {
-            /* If Error-pane is chosen currently => switch to Details: */
+            /* If Error-pane is chosen currently => switch to appropriate tool: */
             if (toolPane()->currentTool() == UIToolType_Error)
-                switchToolTo(UIToolType_Details);
+                switchToolTo(menuToolType());
         }
         /* Otherwise if we were not asked separately to calm down: */
         else if (!fDontRaiseErrorPane)
         {
-            /* Make sure Error pane raised: */
+            /* Make sure Error pane raised, but no tool really switched: */
             if (toolPane()->currentTool() != UIToolType_Error)
                 toolPane()->openTool(UIToolType_Error);
 
