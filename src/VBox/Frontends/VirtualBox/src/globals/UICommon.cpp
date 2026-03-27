@@ -1,4 +1,4 @@
-/* $Id: UICommon.cpp 113623 2026-03-27 12:55:38Z sergey.dubov@oracle.com $ */
+/* $Id: UICommon.cpp 113634 2026-03-27 15:03:46Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UICommon class implementation.
  */
@@ -58,7 +58,7 @@
 #include "UIMediumEnumerator.h"
 #include "UIMessageCenter.h"
 #include "UIModalWindowManager.h"
-#include "UINotificationMessage.h"
+#include "UINotificationCenter.h"
 #include "UIShortcutPool.h"
 #include "UIThreadPool.h"
 #include "UITranslator.h"
@@ -223,6 +223,9 @@ void UICommon::prepare()
     /* Create message-center: */
     UIMessageCenter::create();
 
+    /* Create temporary notification-center: */
+    UINotificationCenter::createTemporary();
+
     /* Load translation based on the current locale,
      * after converter and message-center created: */
     UITranslator::loadLanguage();
@@ -292,6 +295,9 @@ void UICommon::prepare()
     m_iOriginalFontPixelSize = qApp->font().pixelSize();
     m_iOriginalFontPointSize = qApp->font().pointSize();
     sltHandleFontScaleFactorChanged(gEDataManager->fontScaleFactor());
+
+    /* Destroy temporary notification-center: */
+    UINotificationCenter::destroy();
 }
 
 void UICommon::cleanup()

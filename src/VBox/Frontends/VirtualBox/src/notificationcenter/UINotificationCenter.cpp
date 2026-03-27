@@ -1,4 +1,4 @@
-/* $Id: UINotificationCenter.cpp 113633 2026-03-27 15:00:22Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationCenter.cpp 113634 2026-03-27 15:03:46Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationCenter class implementation.
  */
@@ -49,6 +49,7 @@
 #include "UINotificationObjectItem.h"
 #include "UINotificationModel.h"
 #include "UITranslationEventListener.h"
+#include "VBoxAboutDlg.h"
 
 /* Other VBox includes: */
 #include "iprt/assert.h"
@@ -134,7 +135,20 @@ bool UINotificationScrollArea::eventFilter(QObject *pWatched, QEvent *pEvent)
 *********************************************************************************************************************************/
 
 /* static */
+QWidget *UINotificationCenter::s_pFallbackParent = 0;
+
+/* static */
 UINotificationCenter *UINotificationCenter::s_pInstance = 0;
+
+/* static */
+void UINotificationCenter::createTemporary()
+{
+    AssertReturnVoid(!s_pFallbackParent);
+    s_pFallbackParent = new VBoxAboutDlg;
+
+    AssertReturnVoid(!s_pInstance);
+    s_pInstance = new UINotificationCenter(s_pFallbackParent);
+}
 
 /* static */
 void UINotificationCenter::create(QWidget *pParent /* = 0 */)
@@ -149,6 +163,8 @@ void UINotificationCenter::destroy()
     AssertPtrReturnVoid(s_pInstance);
     delete s_pInstance;
     s_pInstance = 0;
+    delete s_pFallbackParent;
+    s_pFallbackParent = 0;
 }
 
 /* static */

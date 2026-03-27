@@ -1,4 +1,4 @@
-/* $Id: UINotificationCenter.h 113516 2026-03-23 16:20:03Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationCenter.h 113634 2026-03-27 15:03:46Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationCenter class declaration.
  */
@@ -88,6 +88,8 @@ signals:
 
 public:
 
+    /** Creates notification-center together with fallback parent. */
+    static void createTemporary();
     /** Creates notification-center for passed @a pParent. */
     static void create(QWidget *pParent = 0);
     /** Destroys notification-center. */
@@ -281,6 +283,8 @@ private:
     /** Creates item with @a uId specified. */
     void createItem(const QUuid &uId);
 
+    /** Holds the fallback parent singleton instance. */
+    static QWidget              *s_pFallbackParent;
     /** Holds the notification-center singleton instance. */
     static UINotificationCenter *s_pInstance;
 
