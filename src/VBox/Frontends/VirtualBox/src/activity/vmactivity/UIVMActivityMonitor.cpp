@@ -1,4 +1,4 @@
-/* $Id: UIVMActivityMonitor.cpp 113598 2026-03-26 18:31:27Z serkan.bayraktar@oracle.com $ */
+/* $Id: UIVMActivityMonitor.cpp 113624 2026-03-27 13:20:03Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVMActivityMonitor class implementation.
  */
@@ -212,6 +212,7 @@ private:
     QString m_strAreaChartToggleActionLabel;
     QString m_strSelectChartColor0;
     QString m_strSelectChartColor1;
+    QString m_strPausedText;
     bool    m_fDrawCurenValueIndicators;
     /** The width of the right margin in characters. */
     int m_iRightMarginCharWidth;
@@ -483,6 +484,7 @@ QSize UIChart::sizeHint() const
 void UIChart::sltRetranslateUI()
 {
     m_strGAWarning = QApplication::translate("UIVMInformationDialog", "This metric requires guest additions to work.");
+    m_strPausedText = QApplication::translate("UIVMInformationDialog", "Paused");
     m_strPieChartToggleActionLabel = QApplication::translate("UIVMInformationDialog", "Show Pie Chart");
     m_strAreaChartToggleActionLabel = QApplication::translate("UIVMInformationDialog", "Draw Area Chart");
     m_strSelectChartColor0 = QApplication::translate("UIVMInformationDialog", "Change 1st Dataseries' Color");
@@ -746,6 +748,16 @@ void UIChart::paintEvent(QPaintEvent *pEvent)
 
     if (iMaximum != 0 && m_fIsPieChartAllowed && m_fShowPieChart && !m_fPausedMode)
         drawCombinedPieCharts(painter, iMaximum);
+    /* Overlay an indicator text on top when chart is paused: */
+    if (m_fPausedMode)
+    {
+        QPoint point = m_lineChartRect.topLeft();
+        QFont font = m_axisFont;
+        font.setPixelSize(1.5 * m_axisFont.pixelSize());
+        point.setY(font.pixelSize() + point.y());
+        painter.setFont(font);
+        painter.drawText(point, m_strPausedText);
+    }
 }
 
 QString UIChart::YAxisValueLabel(quint64 iValue) const
