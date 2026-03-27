@@ -1,4 +1,4 @@
-/* $Id: UIExtraDataManager.cpp 113597 2026-03-26 16:19:13Z sergey.dubov@oracle.com $ */
+/* $Id: UIExtraDataManager.cpp 113623 2026-03-27 12:55:38Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIExtraDataManager class implementation.
  */
@@ -253,6 +253,7 @@ void UIExtraDataManager::create()
 {
     AssertReturnVoid(!s_pInstance);
     new UIExtraDataManager;
+    AssertPtrReturnVoid(s_pInstance);
     s_pInstance->prepare();
 }
 
@@ -262,16 +263,12 @@ void UIExtraDataManager::destroy()
     AssertPtrReturnVoid(s_pInstance);
     s_pInstance->cleanup();
     delete s_pInstance;
+    AssertReturnVoid(!s_pInstance);
 }
 
 /* static */
 UIExtraDataManager *UIExtraDataManager::instance()
 {
-    /* This is the fallback behavior, we need the lazy-init here
-     * only to make sure gEDataManager is never NULL. */
-    AssertPtr(s_pInstance);
-    if (!s_pInstance)
-        create();
     return s_pInstance;
 }
 

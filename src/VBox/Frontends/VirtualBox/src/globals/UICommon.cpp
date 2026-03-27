@@ -1,4 +1,4 @@
-/* $Id: UICommon.cpp 113580 2026-03-25 16:05:23Z sergey.dubov@oracle.com $ */
+/* $Id: UICommon.cpp 113623 2026-03-27 12:55:38Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UICommon class implementation.
  */
@@ -234,13 +234,13 @@ void UICommon::prepare()
     connect(gpGlobalSession, &UIGlobalSession::sigVBoxSVCAvailabilityChange,
             this, &UICommon::sltHandleVBoxSVCAvailabilityChange);
 
+    /* Create extra-data manager right after COM init: */
+    UIExtraDataManager::create();
+
 #ifdef VBOX_WS_WIN
     /* As we're using gpConverter & hostOperatingSystem(), we'll need everything to be created first: */
     m_enmWindowsVersion = gpConverter->fromInternalString<WindowsRelease>(hostOperatingSystem());
 #endif
-
-    /* Create extra-data manager right after COM init: */
-    UIExtraDataManager::create();
 
     /* Prepare general icon-pool, after extra-data manager: */
     UIIconPoolGeneral::create();
