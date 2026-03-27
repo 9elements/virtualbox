@@ -1,4 +1,4 @@
-/* $Id: UINotificationCenter.cpp 113632 2026-03-27 14:58:15Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationCenter.cpp 113633 2026-03-27 15:00:22Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationCenter class implementation.
  */
@@ -549,6 +549,12 @@ bool UINotificationCenter::eventFilter(QObject *pObject, QEvent *pEvent)
         /* Handle required event types: */
         switch (pEvent->type())
         {
+            case QEvent::Close:
+            {
+                if (!m_uId.isNull())
+                    revoke(m_uId);
+                break;
+            }
             case QEvent::Resize:
             {
                 /* When parent being resized we want
