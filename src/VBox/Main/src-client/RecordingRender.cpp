@@ -1,4 +1,4 @@
-/* $Id: RecordingRender.cpp 113625 2026-03-27 13:46:36Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingRender.cpp 113626 2026-03-27 14:07:51Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording rendering implementation.
  *
@@ -12,7 +12,6 @@
  * A pure software fallback is provided if probing selected backends fail.
  */
 
-/*
 /*
  * Copyright (C) 2026 Oracle and/or its affiliates.
  *
