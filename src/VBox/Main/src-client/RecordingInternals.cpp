@@ -1,4 +1,4 @@
-/* $Id: RecordingInternals.cpp 113384 2026-03-13 11:37:56Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingInternals.cpp 113625 2026-03-27 13:46:36Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording internals code.
  */
@@ -234,243 +234,6 @@ void RecordingVideoFrameClear(PRECORDINGVIDEOFRAME pFrame)
     recordingVideoFrameClear(pFrame);
 }
 
-/**
- * Simple blitting function for raw image data, inlined version.
- *
- * @returns VBox status code.
- * @param   pu8Dst              Destination buffer.
- * @param   cbDst               Size (in bytes) of \a pu8Dst.
- * @param   uDstX               X destination (in pixel) within destination frame.
- * @param   uDstY               Y destination (in pixel) within destination frame.
- * @param   uDstBytesPerLine    Bytes per line in destination buffer.
- * @param   uDstBPP             BPP of destination buffer.
- * @param   enmDstFmt           Pixel format of source data. Must match \a pFrame.
- * @param   pu8Src              Source data to blit. Must be in the same pixel format as \a pFrame.
- * @param   cbSrc               Size (in bytes) of \a pu8Src.
- * @param   uSrcX               X start (in pixel) within source data.
- * @param   uSrcY               Y start (in pixel) within source data.
- * @param   uSrcWidth           Width (in pixel) to blit from source data.
- * @param   uSrcHeight          Height (in pixel) to blit from data.
- * @param   uSrcBytesPerLine    Bytes per line in source data.
- * @param   uSrcBPP             BPP of source data. Must match \a pFrame.
- * @param   enmSrcFmt           Pixel format of source data. Must match \a pFrame.
- */
-DECLINLINE(int) recordingVideoBlitRaw(uint8_t *pu8Dst, size_t cbDst, uint32_t uDstX, uint32_t uDstY,
-                                      uint32_t uDstBytesPerLine, uint8_t uDstBPP, RECORDINGPIXELFMT enmDstFmt,
-                                      const uint8_t *pu8Src, size_t cbSrc, uint32_t uSrcX, uint32_t uSrcY, uint32_t uSrcWidth, uint32_t uSrcHeight,
-                                      uint32_t uSrcBytesPerLine, uint8_t uSrcBPP, RECORDINGPIXELFMT enmSrcFmt)
-{
-    RT_NOREF(enmDstFmt, enmSrcFmt);
-
-    uint8_t const uDstBytesPerPixel = uDstBPP / 8;
-    uint8_t const uSrcBytesPerPixel = uSrcBPP / 8;
-
-    size_t offSrc = RT_MIN(uSrcY * uSrcBytesPerLine + uSrcX * uSrcBytesPerPixel, cbSrc);
-    size_t offDst = RT_MIN(uDstY * uDstBytesPerLine + uDstX * uDstBytesPerPixel, cbDst);
-
-    for (uint32_t y = 0; y < uSrcHeight; y++)
-    {
-        size_t const cbToCopy = RT_MIN(cbDst - offDst,
-                                       RT_MIN(uSrcWidth * uSrcBytesPerPixel, cbSrc - offSrc));
-        if (!cbToCopy)
-            break;
-        memcpy(pu8Dst + offDst, (const uint8_t *)pu8Src + offSrc, cbToCopy);
-        offDst = RT_MIN(offDst + uDstBytesPerLine, cbDst);
-        Assert(offDst <= cbDst);
-        offSrc = RT_MIN(offSrc + uSrcBytesPerLine, cbSrc);
-        Assert(offSrc <= cbSrc);
-    }
-
-    return VINF_SUCCESS;
-}
-
-/**
- * Simple blitting function for raw image data.
- *
- * @returns VBox status code.
- * @param   pu8Dst              Destination buffer.
- * @param   cbDst               Size (in bytes) of \a pu8Dst.
- * @param   uDstX               X destination (in pixel) within destination frame.
- * @param   uDstY               Y destination (in pixel) within destination frame.
- * @param   uDstBytesPerLine    Bytes per line in destination buffer.
- * @param   uDstBPP             BPP of destination buffer.
- * @param   enmDstFmt           Pixel format of source data. Must match \a pFrame.
- * @param   pu8Src              Source data to blit. Must be in the same pixel format as \a pFrame.
- * @param   cbSrc               Size (in bytes) of \a pu8Src.
- * @param   uSrcX               X start (in pixel) within source data.
- * @param   uSrcY               Y start (in pixel) within source data.
- * @param   uSrcWidth           Width (in pixel) to blit from source data.
- * @param   uSrcHeight          Height (in pixel) to blit from data.
- * @param   uSrcBytesPerLine    Bytes per line in source data.
- * @param   uSrcBPP             BPP of source data. Must match \a pFrame.
- * @param   enmSrcFmt           Pixel format of source data. Must match \a pFrame.
- */
-int RecordingVideoBlitRaw(uint8_t *pu8Dst, size_t cbDst, uint32_t uDstX, uint32_t uDstY,
-                          uint32_t uDstBytesPerLine, uint8_t uDstBPP, RECORDINGPIXELFMT enmDstFmt,
-                          const uint8_t *pu8Src, size_t cbSrc, uint32_t uSrcX, uint32_t uSrcY, uint32_t uSrcWidth, uint32_t uSrcHeight,
-                          uint32_t uSrcBytesPerLine, uint8_t uSrcBPP, RECORDINGPIXELFMT enmSrcFmt)
-{
-    return recordingVideoBlitRaw(pu8Dst, cbDst, uDstX, uDstY, uDstBytesPerLine,uDstBPP, enmDstFmt,
-                                 pu8Src, cbSrc, uSrcX, uSrcY, uSrcWidth, uSrcHeight,uSrcBytesPerLine, uSrcBPP, enmSrcFmt);
-}
-
-/**
- * Simple blitting function for raw image data with alpha channel, inlined version.
- *
- * @param   pFrame              Destination frame.
- * @param   uDstX               X destination (in pixel) within destination frame.
- * @param   uDstY               Y destination (in pixel) within destination frame.
- * @param   pu8Src              Source data to blit. Must be in the same pixel format as \a pFrame.
- * @param   cbSrc               Size (in bytes) of \a pu8Src.
- * @param   uSrcX               X start (in pixel) within source data.
- * @param   uSrcY               Y start (in pixel) within source data.
- * @param   uSrcWidth           Width (in pixel) to blit from source data.
- * @param   uSrcHeight          Height (in pixel) to blit from data.
- * @param   uSrcBytesPerLine    Bytes per line in source data.
- * @param   uSrcBPP             BPP of source data. Must match \a pFrame.
- * @param   enmFmt              Pixel format of source data. Must match \a pFrame.
- *                              Only supports RECORDINGPIXELFMT_BRGA32 for now.
- */
-DECLINLINE(void) recordingVideoFrameBlitRawAlpha(PRECORDINGVIDEOFRAME pFrame, uint32_t uDstX, uint32_t uDstY,
-                                                 const uint8_t *pu8Src, size_t cbSrc, uint32_t uSrcX, uint32_t uSrcY, uint32_t uSrcWidth, uint32_t uSrcHeight,
-                                                 uint32_t uSrcBytesPerLine, uint8_t uSrcBPP, RECORDINGPIXELFMT enmFmt)
-{
-    RT_NOREF(enmFmt);
-    Assert(enmFmt == RECORDINGPIXELFMT_BRGA32);
-    Assert(pFrame->Info.enmPixelFmt == enmFmt);
-    Assert(pFrame->Info.uBPP % 8 == 0);
-
-    if (   !pFrame->pau8Buf
-        || !pu8Src
-        || !uSrcWidth
-        || !uSrcHeight)
-        return;
-
-    if (   uDstX >= pFrame->Info.uWidth
-        || uDstY >= pFrame->Info.uHeight)
-        return;
-
-    uint32_t const cbBytesPerPixel = 4;
-    uint32_t const cRows = RT_MIN(uSrcHeight, pFrame->Info.uHeight - uDstY);
-    uint32_t const cCols = RT_MIN(uSrcWidth,  pFrame->Info.uWidth  - uDstX);
-
-    if (uSrcBPP != 32)
-        return;
-
-    for (uint32_t y = 0; y < cRows; y++)
-    {
-        size_t const offSrcRow = (size_t)(uSrcY + y) * uSrcBytesPerLine + (size_t)uSrcX * cbBytesPerPixel;
-        size_t const offDstRow = (size_t)(uDstY + y) * pFrame->Info.uBytesPerLine + (size_t)uDstX * cbBytesPerPixel;
-        if (   offSrcRow + (size_t)cCols * cbBytesPerPixel > cbSrc
-            || offDstRow + (size_t)cCols * cbBytesPerPixel > pFrame->cbBuf)
-            break;
-
-        const uint8_t *puSrcRow = pu8Src + offSrcRow;
-              uint8_t *puDstRow = pFrame->pau8Buf + offDstRow;
-
-        for (uint32_t x = 0; x < cCols; x++)
-        {
-            uint8_t const *pu8SrcBlend = puSrcRow + cbBytesPerPixel * x;
-            uint8_t       *pu8DstBlend = puDstRow + cbBytesPerPixel * x;
-
-            if (pu8SrcBlend[3])
-            {
-                uint8_t const u8SrcAlpha    = pu8SrcBlend[3];
-                uint8_t const u8SrcAlphaInv = 255 - u8SrcAlpha;
-                pu8DstBlend[2] = (unsigned char)((u8SrcAlpha * pu8SrcBlend[2] + u8SrcAlphaInv * pu8DstBlend[2]) >> 8); /* R */
-                pu8DstBlend[1] = (unsigned char)((u8SrcAlpha * pu8SrcBlend[1] + u8SrcAlphaInv * pu8DstBlend[1]) >> 8); /* G */
-                pu8DstBlend[0] = (unsigned char)((u8SrcAlpha * pu8SrcBlend[0] + u8SrcAlphaInv * pu8DstBlend[0]) >> 8); /* B */
-                pu8DstBlend[3] = 0xff;                                                                                 /* A */
-            }
-        }
-    }
-
-#if 0
-    RecordingUtilsDbgDumpImageData(pu8Src, cbSrc, NULL /* pszPath */, "cursor-src", uSrcX, uSrcY, uSrcWidth, uSrcHeight, uSrcBytesPerLine, 32);
-    RecordingUtilsDbgDumpVideoFrameEx(pFrame, NULL /* pszPath */, "cursor-dst");
-#endif
-
-    return;
-}
-
-/**
- * Simple blitting function for raw image data.
- *
- * @returns VBox status code.
- * @param   pDstFrame           Destination frame.
- * @param   uDstX               X destination (in pixel) within destination frame.
- * @param   uDstY               Y destination (in pixel) within destination frame.
- * @param   pu8Src              Source data to blit. Must be in the same pixel format as \a pFrame.
- * @param   cbSrc               Size (in bytes) of \a pu8Src.
- * @param   uSrcX               X start (in pixel) within source data.
- * @param   uSrcY               Y start (in pixel) within source data.
- * @param   uSrcWidth           Width (in pixel) to blit from source data.
- * @param   uSrcHeight          Height (in pixel) to blit from data.
- * @param   uSrcBytesPerLine    Bytes per line in source data.
- * @param   uSrcBPP             BPP of source data. Must match \a pFrame.
- * @param   enmFmt              Pixel format of source data. Must match \a pFrame.
- */
-int RecordingVideoFrameBlitRaw(PRECORDINGVIDEOFRAME pDstFrame, uint32_t uDstX, uint32_t uDstY,
-                               const uint8_t *pu8Src, size_t cbSrc, uint32_t uSrcX, uint32_t uSrcY, uint32_t uSrcWidth, uint32_t uSrcHeight,
-                               uint32_t uSrcBytesPerLine, uint8_t uSrcBPP, RECORDINGPIXELFMT enmFmt)
-{
-    return recordingVideoBlitRaw(/* Destination */
-                                pDstFrame->pau8Buf, pDstFrame->cbBuf, uDstX, uDstY,
-                                pDstFrame->Info.uBytesPerLine, pDstFrame->Info.uBPP, pDstFrame->Info.enmPixelFmt,
-                                /* Source */
-                                pu8Src, cbSrc, uSrcX, uSrcY, uSrcWidth, uSrcHeight, uSrcBytesPerLine, uSrcBPP, enmFmt);
-}
-
-/**
- * Simple blitting function for raw image data with alpha channel.
- *
- * @param   pDstFrame           Destination frame.
- * @param   uDstX               X destination (in pixel) within destination frame.
- * @param   uDstY               Y destination (in pixel) within destination frame.
- * @param   pu8Src              Source data to blit. Must be in the same pixel format as \a pFrame.
- * @param   cbSrc               Size (in bytes) of \a pu8Src.
- * @param   uSrcX               X start (in pixel) within source data.
- * @param   uSrcY               Y start (in pixel) within source data.
- * @param   uSrcWidth           Width (in pixel) to blit from source data.
- * @param   uSrcHeight          Height (in pixel) to blit from data.
- * @param   uSrcBytesPerLine    Bytes per line in source data.
- * @param   uSrcBPP             BPP of source data. Must match \a pFrame.
- * @param   enmFmt              Pixel format of source data. Must match \a pFrame.
- */
-void RecordingVideoFrameBlitRawAlpha(PRECORDINGVIDEOFRAME pDstFrame, uint32_t uDstX, uint32_t uDstY,
-                                     const uint8_t *pu8Src, size_t cbSrc, uint32_t uSrcX, uint32_t uSrcY, uint32_t uSrcWidth, uint32_t uSrcHeight,
-                                     uint32_t uSrcBytesPerLine, uint8_t uSrcBPP, RECORDINGPIXELFMT enmFmt)
-{
-    recordingVideoFrameBlitRawAlpha(pDstFrame, uDstX, uDstY,
-                                    pu8Src, cbSrc, uSrcX, uSrcY, uSrcWidth, uSrcHeight, uSrcBytesPerLine, uSrcBPP, enmFmt);
-}
-
-/**
- * Simple blitting function for video frames.
- *
- * @returns VBox status code.
- * @param   pDstFrame           Destination frame.
- * @param   uDstX               X destination (in pixel) within destination frame.
- * @param   uDstY               Y destination (in pixel) within destination frame.
- * @param   pSrcFrame           Source frame.
- * @param   uSrcX               X start (in pixel) within source frame.
- * @param   uSrcY               Y start (in pixel) within source frame.
- * @param   uSrcWidth           Width (in pixel) to blit from source frame.
- * @param   uSrcHeight          Height (in pixel) to blit from frame.
- *
- * @note    Does NOT check for limits, so use with care!
- */
-int RecordingVideoFrameBlitFrame(PRECORDINGVIDEOFRAME pDstFrame, uint32_t uDstX, uint32_t uDstY,
-                                 PRECORDINGVIDEOFRAME pSrcFrame, uint32_t uSrcX, uint32_t uSrcY, uint32_t uSrcWidth, uint32_t uSrcHeight)
-{
-    return recordingVideoBlitRaw(/* Dest */
-                                 pDstFrame->pau8Buf, pDstFrame->cbBuf, uDstX, uDstY,
-                                 pDstFrame->Info.uBytesPerLine, pDstFrame->Info.uBPP, pDstFrame->Info.enmPixelFmt,
-                                 /* Source */
-                                 pSrcFrame->pau8Buf, pSrcFrame->cbBuf, uSrcX, uSrcY, uSrcWidth, uSrcHeight,
-                                 pSrcFrame->Info.uBytesPerLine, pSrcFrame->Info.uBPP, pSrcFrame->Info.enmPixelFmt);
-}
-
 #ifdef VBOX_WITH_AUDIO_RECORDING
 /**
  * Destroys a recording audio frame.
@@ -539,9 +302,6 @@ void RecordingFrameDestroy(PRECORDINGFRAME pFrame)
             /* Nothing to do here. */
             break;
     }
-
-    RTMemFree(pFrame);
-    pFrame = NULL;
 }
 
 /**
@@ -1009,7 +769,7 @@ PRECORDINGFRAME RecordingFramePoolAcquireWrite(PRECORDINGFRAMEPOOL pPool)
     /* ignore rc */ RecordingCircBufAcquireWrite(&pPool->CircBuf, pPool->cbFrame, &pv, &cbAcq);
     Assert(!cbAcq || cbAcq == pPool->cbFrame);
     if (!cbAcq)
-        LogRelMax(256, ("Recording: Warning: Frame pool %s full, skipping\n", RecordingUtilsRecordingFrameTypeToStr(pPool->enmType)));
+        LogRelMax(256, ("Recording: Warning: Frame pool %s full, skipping\n", RecordingUtilsFrameTypeToStr(pPool->enmType)));
     return (PRECORDINGFRAME)pv;
 }
 

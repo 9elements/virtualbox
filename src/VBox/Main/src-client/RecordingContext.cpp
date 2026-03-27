@@ -1,4 +1,4 @@
-/* $Id: RecordingContext.cpp 113388 2026-03-13 14:24:11Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingContext.cpp 113625 2026-03-27 13:46:36Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording context code.
  */
@@ -215,9 +215,11 @@ int RecordingCursorState::CreateOrUpdate(bool fAlpha, uint32_t xHot, uint32_t yH
         vrc = VINF_SUCCESS;
     }
 
-    if (RT_SUCCESS(vrc))
-        vrc = RecordingVideoFrameBlitRaw(&m_Shape, 0, 0, &pu8Shape[offShape], cbShape - offShape, 0, 0, uWidth, uHeight, uWidth * 4 /* BPP */, uBPP,
-                                         m_Shape.Info.enmPixelFmt);
+// BUGBUG
+    RT_NOREF(pu8Shape);
+    // if (RT_SUCCESS(vrc))
+    //     vrc = RecordingVideoFrameBlitRaw(&m_Shape, 0, 0, &pu8Shape[offShape], cbShape - offShape, 0, 0, uWidth, uHeight, uWidth * 4 /* BPP */, uBPP,
+    //                                      m_Shape.Info.enmPixelFmt);
 #if 0
     RecordingUtilsDbgDumpVideoFrameEx(&m_Shape, "/tmp/recording", "cursor-update");
 #endif
@@ -665,13 +667,13 @@ DECLCALLBACK(int) RecordingContextImpl::threadMain(RTTHREAD hThreadSelf, void *p
         RTMSINTERVAL msTimeout = pThis->m_schedulingHintMs;
 
 #ifdef VBOX_WITH_AUDIO_RECORDING
-        if (recordingCodecIsInitialized(&pThis->m_CodecAudio))
+        if (RecordingCodecIsInitialized(&pThis->m_CodecAudio))
         {
             PRECORDINGFRAMEPOOL pPoolAudio = &pThis->m_aPoolsCommonRaw[RECORDINGFRAME_TYPE_AUDIO];
             if (RecordingFramePoolReadable(pPoolAudio, 0 /* Context reader */))
             {
                 uint64_t const   msNowPts          = pThis->m_pParent->GetCurrentPTS();
-                RTMSINTERVAL const msAudioDeadline = recordingCodecGetDeadlineMs(&pThis->m_CodecAudio, msNowPts);
+                RTMSINTERVAL const msAudioDeadline = RecordingCodecGetDeadlineMs(&pThis->m_CodecAudio, msNowPts);
                 if (msAudioDeadline < msTimeout)
                     msTimeout = msAudioDeadline;
             }
@@ -805,7 +807,7 @@ int RecordingContextImpl::processCommonData(RTMSINTERVAL msTimeout)
         {
             case RECORDINGFRAME_TYPE_AUDIO:
             {
-                vrc = recordingCodecEncode(&m_CodecAudio, pFrame, pFrame->msTimestamp, NULL /* pvUser */);
+                vrc = RecordingCodecEncode(&m_CodecAudio, pFrame, pFrame->msTimestamp, NULL /* pvUser */);
                 if (RT_SUCCESS(vrc))
                 {
                     STAM_COUNTER_INC(&m_STAM.cCommonFramesEncoded);
@@ -877,7 +879,7 @@ int RecordingContextImpl::writeCommonData(PRECORDINGCODEC pCodec, const void *pv
     LogFlowFunc(("pCodec=%p, cbData=%zu, msTimestamp=%zu, uFlags=%#x\n",
                  pCodec, cbData, msTimestamp, uFlags));
 
-    RECORDINGFRAME_TYPE const enmType = pCodec->Parms.enmType == RECORDINGCODECTYPE_AUDIO
+    RECORDINGFRAME_TYPE const enmType = pCodec->Parms.Common.enmType == RECORDINGCODECTYPE_AUDIO
                                       ? RECORDINGFRAME_TYPE_AUDIO : RECORDINGFRAME_TYPE_INVALID;
     AssertReturn(enmType != RECORDINGFRAME_TYPE_INVALID, VERR_NOT_SUPPORTED);
 
@@ -1006,9 +1008,13 @@ int RecordingContextImpl::initAudio(const ComPtr<IRecordingScreenSettings> &Scre
     Callbacks.pvUser       = this;
     Callbacks.pfnWriteData = RecordingContextImpl::audioCodecWriteDataCallback;
 
-    int vrc = recordingCodecCreateAudio(&m_CodecAudio, enmCodec);
+    RECORDINGCODECCREATEPARMS Parms;
+    Parms.enmType         = RECORDINGCODECTYPE_AUDIO;
+    Parms.u.enmAudioCodec = enmCodec;
+
+    int vrc = RecordingCodecCreate(&m_CodecAudio, &Parms);
     if (RT_SUCCESS(vrc))
-        vrc = recordingCodecInit(&m_CodecAudio, &Callbacks, ScreenSettings);
+        vrc = RecordingCodecInit(&m_CodecAudio, &Callbacks, ScreenSettings);
 
     if (RT_SUCCESS(vrc))
     {
@@ -1060,12 +1066,12 @@ int RecordingContextImpl::initAudio(const ComPtr<IRecordingScreenSettings> &Scre
  */
 int RecordingContextImpl::uninitAudio(void)
 {
-    if (!recordingCodecIsInitialized(&m_CodecAudio))
+    if (!RecordingCodecIsInitialized(&m_CodecAudio))
         return VINF_SUCCESS;
 
-    int vrc = recordingCodecFinalize(&m_CodecAudio);
+    int vrc = RecordingCodecFinalize(&m_CodecAudio);
     if (RT_SUCCESS(vrc))
-        vrc = recordingCodecDestroy(&m_CodecAudio);
+        vrc = RecordingCodecDestroy(&m_CodecAudio);
 
     return vrc;
 }
@@ -1795,8 +1801,8 @@ bool RecordingContext::NeedsUpdate(uint32_t uScreen, uint64_t msTimestamp)
     if (m->m_enmState == RECORDINGSTS_STARTED)
     {
 #ifdef VBOX_WITH_AUDIO_RECORDING
-        if (   recordingCodecIsInitialized(&m->m_CodecAudio)
-            && recordingCodecGetWritable  (&m->m_CodecAudio, msTimestamp) > 0)
+        if (   RecordingCodecIsInitialized(&m->m_CodecAudio)
+            && RecordingCodecGetWritable  (&m->m_CodecAudio, msTimestamp) > 0)
         {
             fNeedsUpdate = true;
         }

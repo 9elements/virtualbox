@@ -1,4 +1,4 @@
-/* $Id: RecordingStream.h 113381 2026-03-13 10:11:44Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingStream.h 113625 2026-03-27 13:46:36Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording stream code header.
  */
@@ -52,6 +52,7 @@
 #include "LoggingNew.h"
 
 #include "RecordingInternals.h"
+#include "RecordingRender.h"
 
 class Console;
 class WebMWriter;
@@ -71,7 +72,8 @@ protected:
 
 public:
 
-    RecordingStream(RecordingContext *pCtx, uint32_t uScreen, const ComPtr<IRecordingScreenSettings> &ScreenSettings, PRECORDINGFRAMEPOOL paPoolsCommonEnc);
+    RecordingStream(RecordingContext *pCtx, uint32_t uScreen, const ComPtr<IRecordingScreenSettings> &ScreenSettings,
+                    PRECORDINGFRAMEPOOL paPoolsCommonEnc);
 
     virtual ~RecordingStream(void);
 
@@ -115,7 +117,8 @@ protected:
     int open(const ComPtr<IRecordingScreenSettings> &ScreenSettings);
     int close(void);
 
-    int initCommon(RecordingContext *pCtx, uint32_t uScreen, const ComPtr<IRecordingScreenSettings> &ScreenSettings, PRECORDINGFRAMEPOOL paPoolsCommonEnc);
+    int initCommon(RecordingContext *pCtx, uint32_t uScreen, const ComPtr<IRecordingScreenSettings> &ScreenSettings,
+                   PRECORDINGFRAMEPOOL paPoolsCommonEnc);
     int uninitCommon(void);
 
     int uninitVideo(void);
@@ -277,6 +280,10 @@ protected:
 #endif /* VBOX_WITH_STATISTICS */
     /** Video codec instance data to use. */
     RECORDINGCODEC      m_CodecVideo;
+    /** Renderer used for this stream's video codec. */
+    RECORDINGRENDERER   m_Renderer;
+    /** Stream-owned scratch frame used when renderer prepares codec-specific input format. */
+    RECORDINGVIDEOFRAME m_CodecInputFrame;
     /** Screen settings to use. */
     ComPtr<IRecordingScreenSettings>
                         m_Settings;

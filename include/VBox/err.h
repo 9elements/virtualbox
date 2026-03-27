@@ -3242,6 +3242,12 @@
  *  Can happen if e.g. a frame is not visible or does
  *  not need to be encoded for whatever reason. */
 #define VWRN_RECORDING_ENCODING_SKIPPED             (6908)
+/** The recording backend is not supported. */
+#define VERR_RECORDING_BACKEND_NOT_SUPPORTED        (-6909)
+/** Initialization of a recording backend has failed. */
+#define VERR_RECORDING_BACKEND_INIT_FAILED          (-6910)
+/** An recording backend error has occurred. */
+#define VERR_RECORDING_BACKEND_ERROR                (-6911)
 /** @} */
 
 /** @name Shared Clipboard Status Codes

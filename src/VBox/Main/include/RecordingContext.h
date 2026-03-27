@@ -1,4 +1,4 @@
-/* $Id: RecordingContext.h 113380 2026-03-13 10:01:45Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingContext.h 113625 2026-03-27 13:46:36Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording code header. Used by VBoxSVC + VBoxC.
  *
@@ -88,6 +88,8 @@ enum RECORDINGPIXELFMT
     RECORDINGPIXELFMT_UNKNOWN    = 0,
     /** BRGA 32. */
     RECORDINGPIXELFMT_BRGA32     = 1,
+    /** Planar YUV 4:2:0 (I420 / YUVI420). */
+    RECORDINGPIXELFMT_YUVI420    = 2,
     /** The usual 32-bit hack. */
     RECORDINGPIXELFMT_32BIT_HACK = 0x7fffffff
 };

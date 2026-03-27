@@ -1,4 +1,4 @@
-/* $Id: RecordingUtils.h 113380 2026-03-13 10:01:45Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingUtils.h 113625 2026-03-27 13:46:36Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording utility header.
  */
@@ -33,17 +33,15 @@
 
 #ifndef IN_VBOXSVC /* Code only used in VBoxC. */
 #include "RecordingInternals.h"
+#include "RecordingRender.h"
 
-void RecordingUtilsConvBGRA32ToYUVI420(uint8_t *paDst, uint32_t uDstWidth, uint32_t uDstHeight,
-                                       uint8_t *paSrc, uint32_t uSrcWidth, uint32_t uSrcHeight);
-void RecordingUtilsConvBGRA32ToYUVI420Ex(uint8_t *paDst, uint32_t dx, uint32_t dy, uint32_t uDstWidth, uint32_t uDstHeight,
-                                         uint8_t *paSrc, uint32_t sx, uint32_t sy, uint32_t uSrcWidth, uint32_t uSrcHeight, uint32_t uSrcStride, uint8_t uBPP);
-int RecordingUtilsCoordsCropCenter(PRECORDINGCODECPARMS pCodecParms, int32_t *sx, int32_t *sy, int32_t *sw, int32_t *sh, int32_t *dx, int32_t *dy);
-const char *RecordingUtilsRecordingFrameTypeToStr(RECORDINGFRAME_TYPE enmType);
+const char *RecordingUtilsFrameTypeToStr(RECORDINGFRAME_TYPE enmType);
+const char *RecordingUtilsRenderBackendToStr(RECORDINGRENDERBACKEND enmBackend);
 #endif
 
 const char *RecordingUtilsAudioCodecToStr(RecordingAudioCodec_T enmCodec);
 const char *RecordingUtilsVideoCodecToStr(RecordingVideoCodec_T enmCodec);
+const char *RecordingUtilsVideoScalingModeToStr(RecordingVideoScalingMode_T enmMode);
 
 size_t RecordingUtilsCalcCapacityFromLatency(RTMSINTERVAL msLatencyBudget, size_t msPerFrame, size_t cMin, size_t cMax);
 size_t RecordingUtilsCalcCapacityFromFpsAndLatency(size_t uFPS, RTMSINTERVAL msLatencyBudget, size_t uMinFPS, size_t uMaxFPS);

@@ -1,4 +1,4 @@
-/* $Id: tstRecording.cpp 113381 2026-03-13 10:11:44Z andreas.loeffler@oracle.com $ */
+/* $Id: tstRecording.cpp 113625 2026-03-27 13:46:36Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording testcases.
  */
@@ -31,26 +31,115 @@
 *********************************************************************************************************************************/
 #include <iprt/test.h>
 #include <iprt/rand.h>
+#include <iprt/dir.h>
+#include <iprt/file.h>
+#include <iprt/formats/bmp.h>
+#include <iprt/log.h>
+#include <iprt/message.h>
 
 #include <VBox/err.h>
+#include <VBox/log.h>
 
 #include "RecordingInternals.h"
+#include "RecordingRender.h"
 #include "RecordingUtils.h"
 
+#include <string.h>
 
+/** The release logger. */
+static PRTLOGGER    g_pRelLogger;
+
+#ifdef TESTCASE
+int RecordingRenderSWFrameResizeCropCenter(RECORDINGVIDEOFRAME const *pDstFrame,
+                                           RECORDINGVIDEOFRAME const *pSrcFrame,
+                                           PRTRECT pDstRect, PRTRECT pSrcRect);
+#endif
+
+
+static void tstRecordingRenderCropCenter(RTTEST hTest)
+{
+    RTTestSub(hTest, "Renderer: crop/center geometry");
+
+#ifdef TESTCASE
+    RECORDINGVIDEOFRAME SrcFrame;
+    RECORDINGVIDEOFRAME DstFrame;
+    RT_ZERO(SrcFrame);
+    RT_ZERO(DstFrame);
+
+# define TEST_CROP_CENTER(aSrcW, aSrcH, aDstW, aDstH, \
+                          aExpSrcL, aExpSrcT, aExpSrcR, aExpSrcB, \
+                          aExpDstL, aExpDstT, aExpDstR, aExpDstB, aExpRc) \
+    do { \
+        SrcFrame.Info.uWidth  = (aSrcW); \
+        SrcFrame.Info.uHeight = (aSrcH); \
+        DstFrame.Info.uWidth  = (aDstW); \
+        DstFrame.Info.uHeight = (aDstH); \
+        RTRECT SrcRect; \
+        RTRECT DstRect; \
+        int const rc2 = RecordingRenderSWFrameResizeCropCenter(&DstFrame, &SrcFrame, &DstRect, &SrcRect); \
+        RTTEST_CHECK_RC(hTest, rc2, (aExpRc)); \
+        RTTEST_CHECK_MSG(hTest, SrcRect.xLeft   == (aExpSrcL), (hTest, "SrcRect.xLeft: expected %RI32 got %RI32\n", (int32_t)(aExpSrcL), SrcRect.xLeft)); \
+        RTTEST_CHECK_MSG(hTest, SrcRect.yTop    == (aExpSrcT), (hTest, "SrcRect.yTop: expected %RI32 got %RI32\n", (int32_t)(aExpSrcT), SrcRect.yTop)); \
+        RTTEST_CHECK_MSG(hTest, SrcRect.xRight  == (aExpSrcR), (hTest, "SrcRect.xRight: expected %RI32 got %RI32\n", (int32_t)(aExpSrcR), SrcRect.xRight)); \
+        RTTEST_CHECK_MSG(hTest, SrcRect.yBottom == (aExpSrcB), (hTest, "SrcRect.yBottom: expected %RI32 got %RI32\n", (int32_t)(aExpSrcB), SrcRect.yBottom)); \
+        RTTEST_CHECK_MSG(hTest, DstRect.xLeft   == (aExpDstL), (hTest, "DstRect.xLeft: expected %RI32 got %RI32\n", (int32_t)(aExpDstL), DstRect.xLeft)); \
+        RTTEST_CHECK_MSG(hTest, DstRect.yTop    == (aExpDstT), (hTest, "DstRect.yTop: expected %RI32 got %RI32\n", (int32_t)(aExpDstT), DstRect.yTop)); \
+        RTTEST_CHECK_MSG(hTest, DstRect.xRight  == (aExpDstR), (hTest, "DstRect.xRight: expected %RI32 got %RI32\n", (int32_t)(aExpDstR), DstRect.xRight)); \
+        RTTEST_CHECK_MSG(hTest, DstRect.yBottom == (aExpDstB), (hTest, "DstRect.yBottom: expected %RI32 got %RI32\n", (int32_t)(aExpDstB), DstRect.yBottom)); \
+    } while (0)
+
+    /* Same size -> full-frame copy at origin. */
+    TEST_CROP_CENTER(1024, 768, 1024, 768,
+                     0, 0, 1024, 768,
+                     0, 0, 1024, 768, VINF_SUCCESS);
+
+    /* Source larger than destination -> centered crop source. */
+    TEST_CROP_CENTER(2048, 1536, 1024, 768,
+                     512, 384, 1536, 1152,
+                     0, 0, 1024, 768, VINF_SUCCESS);
+
+    /* Source smaller than destination -> centered source in destination. */
+    TEST_CROP_CENTER(1024, 768, 2048, 1536,
+                     0, 0, 1024, 768,
+                     512, 384, 1536, 1152, VINF_SUCCESS);
+
+    /* Mixed axes: crop horizontally, center vertically. */
+    TEST_CROP_CENTER(1200, 600, 800, 800,
+                     200, 0, 1000, 600,
+                     0, 100, 800, 700, VINF_SUCCESS);
+
+    /* Mixed axes: center horizontally, crop vertically. */
+    TEST_CROP_CENTER(800, 800, 1200, 600,
+                     0, 100, 800, 700,
+                     200, 0, 1000, 600, VINF_SUCCESS);
+
+    /* Empty source -> nothing to encode. */
+    TEST_CROP_CENTER(0, 768, 1200, 600,
+                     0, 0, 0, 0,
+                     0, 0, 0, 0, VWRN_RECORDING_ENCODING_SKIPPED);
+
+# undef TEST_CROP_CENTER
+#else
+    RT_NOREF(hTest);
+#endif
+}
+
+
+#if 0
 /** Tests centering / cropped centering of coordinates. */
 static void testCenteredCrop(RTTEST hTest)
 {
     RTTestSub(hTest, "testCenteredCrop");
 
-    RECORDINGCODECPARMS Parms;
+    RECORDINGRENDERPARAMS Parms;
 
     #define INIT_CROP(/* Framebuffer width / height */   a_fw, a_fh, \
                       /* Video (codec) width / height */ a_vw, a_vh) \
-        Parms.u.Video.uWidth  = a_vw; \
-        Parms.u.Video.uHeight = a_vh; \
-        Parms.u.Video.Scaling.u.Crop.m_iOriginX = int32_t(Parms.u.Video.uWidth  - a_fw) / 2; \
-        Parms.u.Video.Scaling.u.Crop.m_iOriginY = int32_t(Parms.u.Video.uHeight - a_fh) / 2;
+        Parms.uDstWidth      = a_vw; \
+        Parms.uDstHeight     = a_vh; \
+        Parms.enmScalingMode = RecordingVideoScalingMode_None; \
+        Parms.iOriginX       = int32_t(Parms.uDstWidth  - a_fw) / 2; \
+        Parms.iOriginY       = int32_t(Parms.uDstHeight - a_fh) / 2;
 
     #define TEST_CROP(/* Source In  */ a_in_sx, a_in_sy, a_in_sw, a_in_sh, \
                       /* Dest In    */ a_in_dx, a_in_dy, \
@@ -59,7 +148,7 @@ static void testCenteredCrop(RTTEST hTest)
         { \
             int32_t sx = a_in_sx; int32_t sy = a_in_sy; int32_t sw = a_in_sw; int32_t sh = a_in_sh; \
             int32_t dx = a_in_dx; int32_t dy = a_in_dy; \
-            RTTEST_CHECK_RC (hTest, RecordingUtilsCoordsCropCenter(&Parms, &sx, &sy, &sw, &sh, &dx, &dy), out_rc); \
+            RTTEST_CHECK_RC (hTest, RecordingRenderSWFrameResizeCropCenter(&Parms, &sx, &sy, &sw, &sh, &dx, &dy), out_rc); \
             RTTEST_CHECK_MSG(hTest, sx  == a_out_sx, (hTest, "Expected a_out_sx == %RI16, but got %RI16\n", a_out_sx, sx)); \
             RTTEST_CHECK_MSG(hTest, sy  == a_out_sy, (hTest, "Expected a_out_sy == %RI16, but got %RI16\n", a_out_sy, sy)); \
             RTTEST_CHECK_MSG(hTest, sw  == a_out_sw, (hTest, "Expected a_out_sw == %RI16, but got %RI16\n", a_out_sw, sw)); \
@@ -143,6 +232,7 @@ static void testCenteredCrop(RTTEST hTest)
 #undef INIT_CROP
 #undef TEST_CROP
 }
+#endif
 
 static void tstRecCircBufSingleUse(RTTEST hTest)
 {
@@ -479,25 +569,260 @@ static void tstRecCircBufRecFrames(RTTEST hTest)
     }
 }
 
+static void tstRecordingRenderer(RTTEST hTest)
+{
+    RTTestSub(hTest, "Renderer");
+
+    RECORDINGRENDERER Renderer;
+    RT_ZERO(Renderer);
+
+    int rc = RecordingRenderInit(&Renderer, RECORDINGRENDERBACKEND_AUTO);
+    RTTESTI_CHECK_RC_RETV(rc, VINF_SUCCESS);
+
+    /*
+     * Create test pattern frame.
+     */
+    RECORDINGSURFACEINFO SurfaceInfo;
+    RT_ZERO(SurfaceInfo);
+    SurfaceInfo.uWidth        = 640;
+    SurfaceInfo.uHeight       = 480;
+    SurfaceInfo.uBPP          = 32;
+    SurfaceInfo.enmPixelFmt   = RECORDINGPIXELFMT_BRGA32;
+    SurfaceInfo.uBytesPerLine = SurfaceInfo.uWidth * 4;
+
+    RECORDINGRENDERPARAMS Parms;
+    RT_ZERO(Parms);
+    Parms.Info = SurfaceInfo;
+
+    rc = RecordingRenderSetParms(&Renderer, &Parms);
+    RTTESTI_CHECK_RC_RETV(rc, VINF_SUCCESS);
+
+    rc = RecordingRenderScreenChange(&Renderer, &SurfaceInfo);
+    RTTESTI_CHECK_RC_RETV(rc, VINF_SUCCESS);
+
+    RECORDINGFRAME FrameVideo;
+    RT_ZERO(FrameVideo);
+    FrameVideo.enmType = RECORDINGFRAME_TYPE_VIDEO;
+    rc = RecordingVideoFrameInit(&FrameVideo.u.Video, RECORDINGVIDEOFRAME_F_VISIBLE,
+                                 SurfaceInfo.uWidth, SurfaceInfo.uHeight,
+                                 0 /* uPosX */, 0 /* uPosY */,
+                                 SurfaceInfo.uBPP, SurfaceInfo.enmPixelFmt);
+    RTTESTI_CHECK_RC_RETV(rc, VINF_SUCCESS);
+
+    for (uint32_t y = 0; y < SurfaceInfo.uHeight; y++)
+    {
+        for (uint32_t x = 0; x < SurfaceInfo.uWidth; x++)
+        {
+            uint8_t *pu8Pixel = &FrameVideo.u.Video.pau8Buf[(size_t)y * FrameVideo.u.Video.Info.uBytesPerLine + (size_t)x * 4];
+
+            uint8_t const uX = (uint8_t)((x * 255U) / (SurfaceInfo.uWidth  - 1));
+            uint8_t const uY = (uint8_t)((y * 255U) / (SurfaceInfo.uHeight - 1));
+
+            /* Gradient background to detect axis swaps. */
+            pu8Pixel[0] = (uint8_t)(0x20 + (uX >> 1));
+            pu8Pixel[1] = (uint8_t)(0x20 + (uY >> 1));
+            pu8Pixel[2] = (uint8_t)(0x20 + ((uX ^ uY) >> 2));
+            pu8Pixel[3] = 0xff;
+
+            /* White center cross. */
+            if (   x == SurfaceInfo.uWidth / 2
+                || y == SurfaceInfo.uHeight / 2)
+            {
+                pu8Pixel[0] = 0xff;
+                pu8Pixel[1] = 0xff;
+                pu8Pixel[2] = 0xff;
+            }
+
+            /* Blue 1:1 square marker to catch ratio errors. */
+            uint32_t const uSquare = RT_MIN(SurfaceInfo.uWidth, SurfaceInfo.uHeight);
+            uint32_t const uSqX0   = (SurfaceInfo.uWidth  - uSquare) / 2;
+            uint32_t const uSqY0   = (SurfaceInfo.uHeight - uSquare) / 2;
+            uint32_t const uSqX1   = uSqX0 + uSquare - 1;
+            uint32_t const uSqY1   = uSqY0 + uSquare - 1;
+            if (   (x >= uSqX0 && x <= uSqX1 && (y == uSqY0 || y == uSqY1))
+                || (y >= uSqY0 && y <= uSqY1 && (x == uSqX0 || x == uSqX1)))
+            {
+                pu8Pixel[0] = 0xff;
+                pu8Pixel[1] = 0x40;
+                pu8Pixel[2] = 0x40;
+            }
+
+            /* Red border to ensure full frame area is handled. */
+            if (   x == 0
+                || y == 0
+                || x == SurfaceInfo.uWidth  - 1
+                || y == SurfaceInfo.uHeight - 1)
+            {
+                pu8Pixel[0] = 0x00;
+                pu8Pixel[1] = 0x00;
+                pu8Pixel[2] = 0xff;
+            }
+        }
+    }
+
+    /*
+     * Create test cursor frame.
+     */
+    RECORDINGFRAME FrameCursorShape;
+    RT_ZERO(FrameCursorShape);
+    FrameCursorShape.enmType = RECORDINGFRAME_TYPE_CURSOR_SHAPE;
+    rc = RecordingVideoFrameInit(&FrameCursorShape.u.CursorShape, RECORDINGVIDEOFRAME_F_VISIBLE,
+                                 12 /* uWidth */, 10 /* uHeight */,
+                                 0 /* uPosX */, 0 /* uPosY */,
+                                 32 /* uBPP */, RECORDINGPIXELFMT_BRGA32);
+    RTTESTI_CHECK_RC_RETV(rc, VINF_SUCCESS);
+
+    for (uint32_t y = 0; y < FrameCursorShape.u.CursorShape.Info.uHeight; y++)
+    {
+        for (uint32_t x = 0; x < FrameCursorShape.u.CursorShape.Info.uWidth; x++)
+        {
+            uint8_t *pu8Pixel = &FrameCursorShape.u.CursorShape.pau8Buf[(size_t)y * FrameCursorShape.u.CursorShape.Info.uBytesPerLine + (size_t)x * 4];
+
+            /* Transparent background. */
+            pu8Pixel[0] = 0x00;
+            pu8Pixel[1] = 0x00;
+            pu8Pixel[2] = 0x00;
+            pu8Pixel[3] = 0x00;
+
+            /* White plus sign. */
+            if (x == 5 || y == 4)
+            {
+                pu8Pixel[0] = 0xff;
+                pu8Pixel[1] = 0xff;
+                pu8Pixel[2] = 0xff;
+                pu8Pixel[3] = 0xff;
+            }
+        }
+    }
+
+    RECORDINGFRAME FrameCursorPos;
+    RT_ZERO(FrameCursorPos);
+    FrameCursorPos.enmType        = RECORDINGFRAME_TYPE_CURSOR_POS;
+    FrameCursorPos.u.Cursor.Pos.x = 128;
+    FrameCursorPos.u.Cursor.Pos.y = 128;
+
+    /*
+     * Render original size test frame.
+     */
+    RTTESTI_CHECK_RC_RETV(RecordingRenderComposeBegin(&Renderer), VINF_SUCCESS);
+    RTTESTI_CHECK_RC_RETV(RecordingRenderComposeAddFrame(&Renderer, &FrameVideo), VINF_SUCCESS);
+    RTTESTI_CHECK_RC_RETV(RecordingRenderComposeAddFrame(&Renderer, &FrameCursorShape), VINF_SUCCESS);
+    RTTESTI_CHECK_RC_RETV(RecordingRenderComposeAddFrame(&Renderer, &FrameCursorPos), VINF_SUCCESS);
+    RTTESTI_CHECK_RC_RETV(RecordingRenderComposeEnd(&Renderer), VINF_SUCCESS);
+    RTTESTI_CHECK_RC_RETV(RecordingRenderPerform(&Renderer), VINF_SUCCESS);
+
+    /*
+     * Cropping / Scaling tests.
+     */
+    FrameCursorPos.u.Cursor.Pos.x = 28;
+    FrameCursorPos.u.Cursor.Pos.y = 18;
+
+    RECORDINGRENDERPARAMS RenderParms;
+    RT_ZERO(RenderParms);
+
+    RenderParms.enmScalingMode = RecordingVideoScalingMode_None;
+
+    /*
+     * Test cropping.
+     */
+    RenderParms.Info.uWidth    = 320;
+    RenderParms.Info.uHeight   = 200;
+    RTTESTI_CHECK_RC_RETV(RecordingRenderSetParms(&Renderer, &RenderParms), VINF_SUCCESS);
+
+    RTTESTI_CHECK_RC_RETV(RecordingRenderComposeBegin(&Renderer), VINF_SUCCESS);
+    RTTESTI_CHECK_RC_RETV(RecordingRenderComposeAddFrame(&Renderer, &FrameVideo), VINF_SUCCESS);
+    RTTESTI_CHECK_RC_RETV(RecordingRenderComposeAddFrame(&Renderer, &FrameCursorPos), VINF_SUCCESS);
+    RTTESTI_CHECK_RC_RETV(RecordingRenderComposeEnd(&Renderer), VINF_SUCCESS);
+    RTTESTI_CHECK_RC_RETV(RecordingRenderPerform(&Renderer), VINF_SUCCESS);
+
+    /*
+     * Test centering.
+     */
+    RT_ZERO(RenderParms);
+    RenderParms.Info.uWidth    = 1024;
+    RenderParms.Info.uHeight   = 768;
+    RenderParms.enmScalingMode = RecordingVideoScalingMode_None;
+    RTTESTI_CHECK_RC_RETV(RecordingRenderSetParms(&Renderer, &RenderParms), VINF_SUCCESS);
+
+    RTTESTI_CHECK_RC_RETV(RecordingRenderComposeBegin(&Renderer), VINF_SUCCESS);
+    RTTESTI_CHECK_RC_RETV(RecordingRenderComposeAddFrame(&Renderer, &FrameVideo), VINF_SUCCESS);
+    RTTESTI_CHECK_RC_RETV(RecordingRenderComposeAddFrame(&Renderer, &FrameCursorPos), VINF_SUCCESS);
+    RTTESTI_CHECK_RC_RETV(RecordingRenderComposeEnd(&Renderer), VINF_SUCCESS);
+    RTTESTI_CHECK_RC_RETV(RecordingRenderPerform(&Renderer), VINF_SUCCESS);
+
+    /*
+     * Test nearest-neighbor scaling.
+     */
+    RenderParms.Info.uWidth    = 320;
+    RenderParms.Info.uHeight   = 200;
+    RenderParms.enmScalingMode = RecordingVideoScalingMode_NearestNeighbor;
+    RTTESTI_CHECK_RC_RETV(RecordingRenderSetParms(&Renderer, &RenderParms), VINF_SUCCESS);
+    RTTESTI_CHECK_RC_RETV(RecordingRenderComposeBegin(&Renderer), VINF_SUCCESS);
+    RTTESTI_CHECK_RC_RETV(RecordingRenderComposeEnd(&Renderer), VINF_SUCCESS);
+    RTTESTI_CHECK_RC(RecordingRenderPerform(&Renderer), VINF_SUCCESS);
+
+    /*
+     * Test nearest-neighbor fractional scaling.
+     */
+    RenderParms.Info.uWidth    = 123;
+    RenderParms.Info.uHeight   = 456;
+    RenderParms.enmScalingMode = RecordingVideoScalingMode_NearestNeighbor;
+    RTTESTI_CHECK_RC_RETV(RecordingRenderSetParms(&Renderer, &RenderParms), VINF_SUCCESS);
+    RTTESTI_CHECK_RC_RETV(RecordingRenderComposeBegin(&Renderer), VINF_SUCCESS);
+    RTTESTI_CHECK_RC_RETV(RecordingRenderComposeEnd(&Renderer), VINF_SUCCESS);
+    RTTESTI_CHECK_RC(RecordingRenderPerform(&Renderer), VINF_SUCCESS);
+
+    /* Query last rendered frame (+ dump it). */
+    RECORDINGFRAME Frame;
+    RTTESTI_CHECK_RC_RETV(RecordingRenderQueryFrame(&Renderer, &Frame.u.Video), VINF_SUCCESS);
+#ifdef VBOX_RECORDING_DEBUG_DUMP_FRAMES
+    RecordingDbgDumpVideoFrame(&Frame.u.Video, "tstRecordingRenderQueryFrame", 0 /* Timestamp */);
+#endif
+    RecordingFrameDestroy(&Frame);
+
+    RecordingVideoFrameDestroy(&FrameCursorShape.u.CursorShape);
+    RecordingVideoFrameDestroy(&FrameVideo.u.Video);
+    RecordingRenderDestroy(&Renderer);
+}
+
 int main()
 {
     RTTEST     hTest;
     RTEXITCODE rcExit = RTTestInitAndCreate("tstRecording", &hTest);
-    if (rcExit == RTEXITCODE_SUCCESS)
+    if (rcExit != RTEXITCODE_SUCCESS)
+        return rcExit;
+
+    /*
+     * Configure release logging to go to stdout.
+     */
+    RTUINT fFlags = RTLOGFLAGS_PREFIX_THREAD | RTLOGFLAGS_PREFIX_TIME_PROG;
+#if defined(RT_OS_WINDOWS) || defined(RT_OS_OS2)
+    fFlags |= RTLOGFLAGS_USECRLF;
+#endif
+    static const char * const s_apszLogGroups[] = VBOX_LOGGROUP_NAMES;
+    int rc = RTLogCreate(&g_pRelLogger, fFlags, "all.e.l", "TST_CLIPBOARD_HTTPSERVER_RELEASE_LOG",
+                     RT_ELEMENTS(s_apszLogGroups), s_apszLogGroups, RTLOGDEST_STDOUT, NULL /*"vkat-release.log"*/);
+    if (RT_SUCCESS(rc))
     {
-        RTTestBanner(hTest);
-
-        testCenteredCrop(hTest);
-
-        tstRecCircBufSingleUse(hTest);
-        tstRecCircBufUnderflow(hTest);
-        tstRecCircBufMultiFanoutAndReclaim(hTest);
-        tstRecCircBufOverflowSlowReader(hTest);
-        tstRecCircBufOverflowResolvedByRemovingSlow(hTest);
-        tstRecCircBufRecFrames(hTest);
-
-        rcExit = RTTestSummaryAndDestroy(hTest);
+        RTLogSetDefaultInstance(g_pRelLogger);
+        rc = RTLogGroupSettings(g_pRelLogger, "recording.e.l.l2.l3");
+        if (RT_FAILURE(rc))
+            RTMsgError("Setting debug logging failed: %Rrc\n", rc);
     }
-    return rcExit;
+    else
+        RTMsgWarning("Failed to create release logger: %Rrc", rc);
+
+    RTTestBanner(hTest);
+
+    tstRecCircBufSingleUse(hTest);
+    tstRecCircBufUnderflow(hTest);
+    tstRecCircBufMultiFanoutAndReclaim(hTest);
+    tstRecCircBufOverflowSlowReader(hTest);
+    tstRecCircBufOverflowResolvedByRemovingSlow(hTest);
+    tstRecCircBufRecFrames(hTest);
+    tstRecordingRenderCropCenter(hTest);
+    tstRecordingRenderer(hTest);
+
+    return RTTestSummaryAndDestroy(hTest);
 }
 

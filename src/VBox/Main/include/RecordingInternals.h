@@ -1,4 +1,4 @@
-/* $Id: RecordingInternals.h 113380 2026-03-13 10:01:45Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingInternals.h 113625 2026-03-27 13:46:36Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording internals header.
  */
@@ -67,6 +67,10 @@
 #define VBOX_RECORDING_VORBIS_HZ_MAX             48000   /**< Maximum sample rate (in Hz) Vorbis can handle. */
 #define VBOX_RECORDING_VORBIS_FRAME_MS_DEFAULT   20      /**< Default Vorbis frame size (in ms). */
 
+#ifdef DEBUG_andy
+# define VBOX_WITH_RECORDING_STATS
+#endif
+
 #ifdef DEBUG_DISABLED
  /* Enable the following to get some recording statistics in the log. */
  #define VBOX_WITH_RECORDING_STATS
@@ -86,6 +90,8 @@ typedef RECORDINGCODEC *PRECORDINGCODEC;
 
 struct RECORDINGFRAME;
 typedef RECORDINGFRAME *PRECORDINGFRAME;
+
+struct RECORDINGCODECPARMS;
 
 
 /*********************************************************************************************************************************
@@ -120,7 +126,7 @@ typedef struct RECORDINGPOS
     uint32_t x;
     uint32_t y;
 } RECORDINGPOS;
-/** Pointer to a RECORDINGRECT. */
+/** Pointer to a position information. */
 typedef RECORDINGPOS *PRECORDINGPOS;
 
 /** No flags set. */
@@ -153,44 +159,19 @@ typedef struct RECORDINGVIDEOFRAME
 typedef RECORDINGVIDEOFRAME *PRECORDINGVIDEOFRAME;
 
 /**
- * Enumeration for supported scaling methods.
+ * Resize parameters.
  */
-enum RECORDINGSCALINGMETHOD
+typedef struct RECORDINGRENDERRESIZEPARMS
 {
-    /** No scaling applied.
-     *  Bigger frame buffers will be cropped (centered),
-     *  smaller frame buffers will be centered. */
-    RECORDINGSCALINGMETHOD_NONE       = 0,
-    /** The usual 32-bit hack. */
-    RECORDINGSCALINGMETHOD_32BIT_HACK = 0x7fffffff
-};
-
-/**
- * Structure for keeping recording scaling information.
- */
-typedef struct RECORDINGSCALINGINFO
-{
-    /** The scaling method to use. */
-    RECORDINGSCALINGMETHOD enmMethod;
-    /** Union based on \a enmMethod. */
-    union
-    {
-        /** Cropping information. */
-        struct
-        {
-            /** X origin.
-             *  If negative, the frame buffer will be cropped with centering applied,
-             *  if positive, the frame buffer will be centered. */
-            int32_t m_iOriginX;
-            /** Y origin. *
-             * If negative, the frame buffer will be cropped with centering applied,
-             * if positive, the frame buffer will be centered. */
-            int32_t m_iOriginY;
-        } Crop;
-    } u;
-} RECORDINGSCALINGINFO;
-/** Pointer to a recording scaling information. */
-typedef RECORDINGSCALINGINFO *PRECORDINGSCALINGINFO;
+    /** Resize operation mode. */
+    RecordingVideoScalingMode_T enmMode;
+    /** Source rect. */
+    RTRECT                      srcRect;
+    /** Destination rect. */
+    RTRECT                      dstRect;
+} RECORDINGRENDERRESIZEPARMS;
+/** Pointer to resize parameters. */
+typedef RECORDINGRENDERRESIZEPARMS *PRECORDINGRENDERRESIZEPARMS;
 
 /**
  * Enumeration for specifying a (generic) codec type.
@@ -227,6 +208,13 @@ typedef struct RECORDINGCODECOPS
     DECLCALLBACKMEMBER(int, pfnDestroy,      (PRECORDINGCODEC pCodec));
 
     /**
+     * Resets a codec.
+     *
+     * @param   pCodec              Codec instance to reset.
+     */
+    DECLCALLBACKMEMBER(int, pfnReset,        (PRECORDINGCODEC pCodec));
+
+    /**
      * Parses an options string to configure advanced / hidden / experimental features of a recording stream.
      * Unknown values will be skipped. Optional.
      *
@@ -235,17 +223,6 @@ typedef struct RECORDINGCODECOPS
      * @param   strOptions          Options string to parse.
      */
     DECLCALLBACKMEMBER(int, pfnParseOptions,  (PRECORDINGCODEC pCodec, const com::Utf8Str &strOptions));
-
-    /**
-     * Feeds the codec encoder with data needed to compose a full frame.
-     *
-     * @returns VBox status code.
-     * @param   pCodec              Codec instance to use.
-     * @param   pFrame              Pointer to frame data to use for composing. Optional and can be NULL.
-     * @param   msTimestamp         Timestamp (PTS) of frame to encode.
-     * @param   pvUser              User data pointer. Optional and can be NULL.
-     */
-    DECLCALLBACKMEMBER(int, pfnCompose,      (PRECORDINGCODEC pCodec, const PRECORDINGFRAME pFrame, uint64_t msTimestamp, void *pvUser));
 
     /**
      * Triggers encoding the currently built frame.
@@ -306,10 +283,7 @@ typedef struct RECORDINGCODECCALLBACKS
     void                   *pvUser;
 } RECORDINGCODECCALLBACKS, *PRECORDINGCODECCALLBACKS;
 
-/**
- * Structure for keeping generic codec parameters.
- */
-typedef struct RECORDINGCODECPARMS
+typedef struct RECORDINGCODECCREATEPARMS
 {
     /** The generic codec type. */
     RECORDINGCODECTYPE          enmType;
@@ -320,7 +294,17 @@ typedef struct RECORDINGCODECPARMS
         RecordingVideoCodec_T   enmVideoCodec;
         /** The container's audio codec to use. */
         RecordingAudioCodec_T   enmAudioCodec;
-    };
+    } u;
+} RECORDINGCODECCREATEPARMS;
+/** Pointer to codec creation parameters. */
+typedef RECORDINGCODECCREATEPARMS *PRECORDINGCODECCREATEPARMS;
+
+/**
+ * Structure for keeping generic codec parameters.
+ */
+typedef struct RECORDINGCODECPARMS
+{
+    RECORDINGCODECCREATEPARMS    Common;
     union
     {
         struct
@@ -334,8 +318,6 @@ typedef struct RECORDINGCODECPARMS
             /** Minimal delay (in ms) between two video frames.
              *  This value is based on the configured FPS rate. */
             uint32_t             uDelayMs;
-            /** Scaling information. */
-            RECORDINGSCALINGINFO Scaling;
         } Video;
         struct
         {
@@ -355,7 +337,22 @@ typedef struct RECORDINGCODECPARMS
     uint32_t                    cbFrame;
     /** The frame size in samples per frame (based on \a msFrame). */
     uint32_t                    csFrame;
-} RECORDINGCODECPARMS, *PRECORDINGCODECPARMS;
+} RECORDINGCODECPARMS;
+/** Pointer to codec parameters. */
+typedef RECORDINGCODECPARMS *PRECORDINGCODECPARMS;
+
+/**
+ * Read-only codec configuration exposed to callers.
+ */
+typedef struct RECORDINGCODECCFG
+{
+    /** Expected input pixel format for the encoder path. */
+    RECORDINGPIXELFMT enmPixelFmt;
+} RECORDINGCODECCFG;
+/** Pointer to codec configuration. */
+typedef RECORDINGCODECCFG *PRECORDINGCODECCFG;
+/** Pointer to const codec configuration. */
+typedef RECORDINGCODECCFG const *PCRECORDINGCODECCFG;
 
 #ifdef VBOX_WITH_LIBVPX
 /**
@@ -376,25 +373,6 @@ typedef struct RECORDINGCODECVPX
      *  The more time the encoder is allowed to spend encoding, the better the encoded
      *  result, in exchange for higher CPU usage and time spent encoding. */
     unsigned int        uEncoderDeadline;
-    /** Front buffer which is going to be encoded.
-     *  Matches Main's framebuffer pixel format for faster / easier conversion.
-     *  Not necessarily the same size as the encoder buffer. In such a case a scaling / cropping
-     *  operation has to be performed first. */
-    RECORDINGVIDEOFRAME Front;
-    /** Back buffer which holds the framebuffer data before we blit anything to it.
-     *  Needed for mouse cursor handling, if the mouse cursor is not actually part of the framebuffer data.
-     *  Always matches the front buffer (\a Front) in terms of size. */
-    RECORDINGVIDEOFRAME Back;
-    /** The current cursor shape to use.
-     *  Set to NULL if not used (yet). */
-    PRECORDINGVIDEOFRAME pCursorShape;
-    /** Old cursor position since last cursor position message. */
-    RECORDINGPOS        PosCursorOld;
-    /** Flag indicating that the cached YUV image needs to be rebuilt from the composed frame. */
-    bool                fRawImageDirty;
-    /** Frame buffer holding the most recent composed image (front or back buffer). */
-    PRECORDINGVIDEOFRAME pFrameComposite;
-
 } RECORDINGCODECVPX;
 /** Pointer to a VPX encoder state. */
 typedef RECORDINGCODECVPX *PRECORDINGCODECVPX;
@@ -443,6 +421,8 @@ typedef struct RECORDINGCODEC
     RECORDINGCODECCALLBACKS     Callbacks;
     /** Generic codec parameters. */
     RECORDINGCODECPARMS         Parms;
+    /** Public codec configuration. */
+    RECORDINGCODECCFG           Cfg;
     /** Generic codec parameters. */
     RECORDINGCODECSTATE         State;
     /** Crtitical section. */
@@ -704,10 +684,6 @@ uint64_t RecordingFrameAcquire(PRECORDINGFRAME pFrame);
 uint64_t RecordingFrameRelease(PRECORDINGFRAME pFrame);
 PRECORDINGVIDEOFRAME RecordingVideoFrameDup(PRECORDINGVIDEOFRAME pFrame);
 void RecordingVideoFrameClear(PRECORDINGVIDEOFRAME pFrame);
-void RecordingVideoFrameBlitRawAlpha(PRECORDINGVIDEOFRAME pDstFrame, uint32_t uDstX, uint32_t uDstY, const uint8_t *pu8Src, size_t cbSrc, uint32_t uSrcX, uint32_t uSrcY, uint32_t uSrcWidth, uint32_t uSrcHeight, uint32_t uSrcBytesPerLine, uint8_t uSrcBPP, RECORDINGPIXELFMT enmFmt);
-int RecordingVideoBlitRaw(uint8_t *pu8Dst, size_t cbDst, uint32_t uDstX, uint32_t uDstY, uint32_t uDstBytesPerLine, uint8_t uDstBPP, RECORDINGPIXELFMT enmDstFmt, const uint8_t *pu8Src, size_t cbSrc, uint32_t uSrcX, uint32_t uSrcY, uint32_t uSrcWidth, uint32_t uSrcHeight, uint32_t uSrcBytesPerLine, uint8_t uSrcBPP, RECORDINGPIXELFMT enmSrcFmt);
-int RecordingVideoFrameBlitRaw(PRECORDINGVIDEOFRAME pDstFrame, uint32_t uDstX, uint32_t uDstY, const uint8_t *pu8Src, size_t cbSrc, uint32_t uSrcX, uint32_t uSrcY, uint32_t uSrcWidth, uint32_t uSrcHeight, uint32_t uSrcBytesPerLine, uint8_t uSrcBPP, RECORDINGPIXELFMT enmFmt);
-int RecordingVideoFrameBlitFrame(PRECORDINGVIDEOFRAME pDstFrame, uint32_t uDstX, uint32_t uDstY, PRECORDINGVIDEOFRAME pSrcFrame, uint32_t uSrcX, uint32_t uSrcY, uint32_t uSrcWidth, uint32_t uSrcHeight);
 
 #ifdef VBOX_WITH_AUDIO_RECORDING
 void RecordingAudioFrameFree(PRECORDINGAUDIOFRAME pFrame);
@@ -716,15 +692,14 @@ void RecordingAudioFrameFree(PRECORDINGAUDIOFRAME pFrame);
 void RecordingFrameDestroy(PRECORDINGFRAME pFrame);
 void RecordingFrameFree(PRECORDINGFRAME pFrame);
 
-int recordingCodecCreateAudio(PRECORDINGCODEC pCodec, RecordingAudioCodec_T enmAudioCodec);
-int recordingCodecCreateVideo(PRECORDINGCODEC pCodec, RecordingVideoCodec_T enmVideoCodec);
-int recordingCodecInit(const PRECORDINGCODEC pCodec, const PRECORDINGCODECCALLBACKS pCallbacks, const ComPtr<IRecordingScreenSettings> &ScreenSettings);
-int recordingCodecDestroy(PRECORDINGCODEC pCodec);
-int recordingCodecCompose(PRECORDINGCODEC pCodec, const PRECORDINGFRAME pFrame, uint64_t msTimestamp, void *pvUser);
-int recordingCodecEncode(PRECORDINGCODEC pCodec, const PRECORDINGFRAME pFrame, uint64_t msTimestamp, void *pvUser);
-int recordingCodecScreenChange(PRECORDINGCODEC pCodec, PRECORDINGSURFACEINFO pInfo);
-int recordingCodecFinalize(PRECORDINGCODEC pCodec);
-bool recordingCodecIsInitialized(const PRECORDINGCODEC pCodec);
-uint32_t recordingCodecGetWritable(const PRECORDINGCODEC pCodec, uint64_t msTimestamp);
-RTMSINTERVAL recordingCodecGetDeadlineMs(const PRECORDINGCODEC pCodec, uint64_t msTimestamp);
+int RecordingCodecCreate(PRECORDINGCODEC pCodec, PRECORDINGCODECCREATEPARMS pParms);
+int RecordingCodecInit(const PRECORDINGCODEC pCodec, const PRECORDINGCODECCALLBACKS pCallbacks, const ComPtr<IRecordingScreenSettings> &ScreenSettings);
+int RecordingCodecDestroy(PRECORDINGCODEC pCodec);
+PCRECORDINGCODECCFG RecordingCodecGetConfig(const PRECORDINGCODEC pCodec);
+int RecordingCodecEncode(PRECORDINGCODEC pCodec, const PRECORDINGFRAME pFrame, uint64_t msTimestamp, void *pvUser);
+int RecordingCodecScreenChange(PRECORDINGCODEC pCodec, PRECORDINGSURFACEINFO pInfo);
+int RecordingCodecFinalize(PRECORDINGCODEC pCodec);
+bool RecordingCodecIsInitialized(const PRECORDINGCODEC pCodec);
+uint32_t RecordingCodecGetWritable(const PRECORDINGCODEC pCodec, uint64_t msTimestamp);
+RTMSINTERVAL RecordingCodecGetDeadlineMs(const PRECORDINGCODEC pCodec, uint64_t msTimestamp);
 #endif /* !MAIN_INCLUDED_RecordingInternals_h */

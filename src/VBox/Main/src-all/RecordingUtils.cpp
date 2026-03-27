@@ -1,4 +1,4 @@
-/* $Id: RecordingUtils.cpp 113383 2026-03-13 10:31:37Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingUtils.cpp 113625 2026-03-27 13:46:36Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording utility code.
  */
@@ -149,229 +149,12 @@ inline bool RecordingUtilsColorConvWriteRGB24(unsigned aWidth, unsigned aHeight,
 }
 
 /**
- * Converts an entire RGB BGRA32 buffer to a YUV I420 buffer.
- *
- * @param   paDst               Pointer to destination buffer.
- * @param   uDstWidth           Width (X, in pixel) of destination buffer.
- * @param   uDstHeight          Height (Y, in pixel) of destination buffer.
- * @param   paSrc               Pointer to source buffer.
- * @param   uSrcWidth           Width (X, in pixel) of source buffer.
- * @param   uSrcHeight          Height (Y, in pixel) of source buffer.
- */
-void RecordingUtilsConvBGRA32ToYUVI420(uint8_t *paDst, uint32_t uDstWidth, uint32_t uDstHeight,
-                                       uint8_t *paSrc, uint32_t uSrcWidth, uint32_t uSrcHeight)
-{
-    RT_NOREF(uDstWidth, uDstHeight);
-
-    size_t const image_size = uSrcWidth * uSrcHeight;
-    size_t upos = image_size;
-    size_t vpos = upos + upos / 4;
-    size_t i = 0;
-
-#define CALC_Y(r, g, b) \
-    ((66 * r + 129 * g + 25 * b) >> 8) + 16
-#define CALC_U(r, g, b) \
-    ((-38 * r + -74 * g + 112 * b) >> 8) + 128
-#define CALC_V(r, g, b) \
-    ((112 * r + -94 * g + -18 * b) >> 8) + 128
-
-    for (size_t y = 0; y < uSrcHeight; y++)
-    {
-        if ((y % 2) == 0)
-        {
-            for (size_t x = 0; x < uSrcWidth; x += 2)
-            {
-                uint8_t b = paSrc[4 * i];
-                uint8_t g = paSrc[4 * i + 1];
-                uint8_t r = paSrc[4 * i + 2];
-
-                paDst[i++]    = CALC_Y(r, g, b);
-                paDst[upos++] = CALC_U(r, g, b);
-                paDst[vpos++] = CALC_V(r, g, b);
-
-                b = paSrc[4 * i];
-                g = paSrc[4 * i + 1];
-                r = paSrc[4 * i + 2];
-
-                paDst[i++] = CALC_Y(r, g, b);
-            }
-        }
-        else
-        {
-            for (size_t x = 0; x < uSrcWidth; x++)
-            {
-                uint8_t const b = paSrc[4 * i];
-                uint8_t const g = paSrc[4 * i + 1];
-                uint8_t const r = paSrc[4 * i + 2];
-
-                paDst[i++] = CALC_Y(r, g, b);
-            }
-        }
-    }
-
-#undef CALC_Y
-#undef CALC_U
-#undef CALC_V
-}
-
-/**
- * Converts a part of a RGB BGRA32 buffer to a YUV I420 buffer.
- *
- * @param   paDst               Pointer to destination buffer.
- * @param   uDstX               X destination position (in pixel).
- * @param   uDstY               Y destination position (in pixel).
- * @param   uDstWidth           Width (X, in pixel) of destination buffer.
- * @param   uDstHeight          Height (Y, in pixel) of destination buffer.
- * @param   paSrc               Pointer to source buffer.
- * @param   uSrcX               X source position (in pixel).
- * @param   uSrcY               Y source position (in pixel).
- * @param   uSrcWidth           Width (X, in pixel) of source buffer.
- * @param   uSrcHeight          Height (Y, in pixel) of source buffer.
- * @param   uSrcStride          Stride (in bytes) of source buffer.
- * @param   uSrcBPP             Bits per pixel of source buffer.
- */
-void RecordingUtilsConvBGRA32ToYUVI420Ex(uint8_t *paDst, uint32_t uDstX, uint32_t uDstY, uint32_t uDstWidth, uint32_t uDstHeight,
-                                         uint8_t *paSrc, uint32_t uSrcX, uint32_t uSrcY, uint32_t uSrcWidth, uint32_t uSrcHeight,
-                                         uint32_t uSrcStride, uint8_t uSrcBPP)
-{
-    Assert(uDstX < uDstWidth);
-    Assert(uDstX + uSrcWidth <= uDstWidth);
-    Assert(uDstY < uDstHeight);
-    Assert(uDstY + uSrcHeight <= uDstHeight);
-    Assert(uSrcBPP % 8 == 0);
-
-    RT_NOREF(uSrcHeight, uDstHeight);
-
-#define CALC_Y(r, g, b) \
-    (66 * r + 129 * g + 25 * b) >> 8
-#define CALC_U(r, g, b) \
-    ((-38 * r + -74 * g + 112 * b) >> 8) + 128
-#define CALC_V(r, g, b) \
-    ((112 * r + -94 * g + -18 * b) >> 8) + 128
-
-    uint32_t uDstXCur = uDstX;
-
-    const unsigned uSrcBytesPerPixel = uSrcBPP / 8;
-
-    size_t offSrc = (uSrcY * uSrcStride) + (uSrcX * uSrcBytesPerPixel);
-
-    for (size_t y = 0; y < uSrcHeight; y++)
-    {
-        for (size_t x = 0; x < uSrcWidth; x++)
-        {
-            size_t const offBGR = offSrc + (x * uSrcBytesPerPixel);
-
-            uint8_t const b = paSrc[offBGR];
-            uint8_t const g = paSrc[offBGR + 1];
-            uint8_t const r = paSrc[offBGR + 2];
-
-            size_t const offY  = uDstY * uDstWidth + uDstXCur;
-            size_t const offUV = (uDstY / 2) * (uDstWidth / 2) + (uDstXCur / 2) + uDstWidth * uDstHeight;
-
-            paDst[offY]                               = CALC_Y(r, g, b);
-            paDst[offUV]                              = CALC_U(r, g, b);
-            paDst[offUV + uDstWidth * uDstHeight / 4] = CALC_V(r, g, b);
-
-            uDstXCur++;
-        }
-
-        offSrc += uSrcStride;
-
-        uDstXCur = uDstX;
-        uDstY++;
-    }
-
-#undef CALC_Y
-#undef CALC_U
-#undef CALC_V
-}
-
-/**
- * Crops (centers) or centers coordinates of a given source.
- *
- * @returns VBox status code.
- * @retval  VWRN_RECORDING_ENCODING_SKIPPED if the source is not visible.
- * @param   pCodecParms         Video codec parameters to use for cropping / centering.
- * @param   sx                  Input / output: X location (in pixel) of the source.
- * @param   sy                  Input / output: Y location (in pixel) of the source.
- * @param   sw                  Input / output: Width (in pixel) of the source.
- * @param   sh                  Input / output: Height (in pixel) of the source.
- * @param   dx                  Input / output: X location (in pixel) of the destination.
- * @param   dy                  Input / output: Y location (in pixel) of the destination.
- *
- * @note    Used when no other scaling algorithm is being selected / available. See testcase.
- */
-int RecordingUtilsCoordsCropCenter(PRECORDINGCODECPARMS pCodecParms,
-                                   int32_t *sx, int32_t *sy, int32_t *sw, int32_t *sh, int32_t *dx, int32_t *dy)
-{
-    int vrc = VINF_SUCCESS;
-
-    Log3Func(("Original: sx=%RI32 sy=%RI32 sw=%RI32 sh=%RI32 dx=%RI32 dy=%RI32\n",
-              *sx, *sy, *sw, *sh, *dx, *dy));
-
-    /*
-     * Do centered cropping or centering.
-     */
-
-    int32_t const uOriginX = (int32_t)pCodecParms->u.Video.Scaling.u.Crop.m_iOriginX;
-    int32_t const uOriginY = (int32_t)pCodecParms->u.Video.Scaling.u.Crop.m_iOriginY;
-
-    /* Apply cropping / centering values. */
-    *dx += uOriginX;
-    *dy += uOriginY;
-
-    if (*dx < 0)
-    {
-        *dx  = 0;
-        *sx += RT_ABS(uOriginX);
-        *sw -= RT_ABS(uOriginX);
-    }
-
-    if (*dy < 0)
-    {
-        *dy  = 0;
-        *sy += RT_ABS(uOriginY);
-        *sh -= RT_ABS(uOriginY);
-    }
-
-    Log3Func(("Crop0: sx=%RI32 sy=%RI32 sw=%RI32 sh=%RI32 dx=%RI32 dy=%RI32\n",
-              *sx, *sy, *sw, *sh, *dx, *dy));
-
-    if (*sw > (int32_t)pCodecParms->u.Video.uWidth)
-        *sw = (int32_t)pCodecParms->u.Video.uWidth;
-
-    if (*sh > (int32_t)pCodecParms->u.Video.uHeight)
-        *sh = (int32_t)pCodecParms->u.Video.uHeight;
-
-    if (*dx + *sw >= (int32_t)pCodecParms->u.Video.uWidth)
-        *sw = (int32_t)pCodecParms->u.Video.uWidth - *dx;
-
-    if (*dy + *sh >= (int32_t)pCodecParms->u.Video.uHeight)
-        *sh = (int32_t)pCodecParms->u.Video.uHeight - *dy;
-
-    if (   *dx + *sw < 1
-        || *dy + *sh < 1
-        || *dx > (int32_t)pCodecParms->u.Video.uWidth
-        || *dy > (int32_t)pCodecParms->u.Video.uHeight
-        || *sw < 1
-        || *sh < 1)
-    {
-        vrc = VWRN_RECORDING_ENCODING_SKIPPED; /* Not visible, skip encoding. */
-    }
-
-    Log3Func(("Crop1: sx=%RI32 sy=%RI32 sw=%RI32 sh=%RI32 dx=%RI32 dy=%RI32 -> vrc=%Rrc\n",
-              *sx, *sy, *sw, *sh, *dx, *dy, vrc));
-
-    return vrc;
-}
-
-/**
  * Translates a recording frame type to a string.
  *
  * @returns Recording frame type as a string.
  * @param   enmType             The frame type to translate.
  */
-const char *RecordingUtilsRecordingFrameTypeToStr(RECORDINGFRAME_TYPE enmType)
+const char *RecordingUtilsFrameTypeToStr(RECORDINGFRAME_TYPE enmType)
 {
     switch (enmType)
     {
@@ -384,6 +167,25 @@ const char *RecordingUtilsRecordingFrameTypeToStr(RECORDINGFRAME_TYPE enmType)
         default: break;
     }
     AssertFailedReturn("Unknown");
+}
+
+/**
+ * Translates a recording render backend enum value to a readable string.
+ *
+ * @returns Recording backend as a string.
+ * @param   enmBackend          Render backend to convert to a string.
+ */
+const char *RecordingUtilsRenderBackendToStr(RECORDINGRENDERBACKEND enmBackend)
+{
+    switch (enmBackend)
+    {
+        case RECORDINGRENDERBACKEND_AUTO:     return "auto";
+        case RECORDINGRENDERBACKEND_SOFTWARE: return "software";
+        case RECORDINGRENDERBACKEND_SDL:      return "sdl";
+        default:                              break;
+    }
+
+    AssertFailedReturn("<invalid>");
 }
 
 /**
@@ -613,7 +415,7 @@ int RecordingDbgDumpVideoFrame(const PRECORDINGVIDEOFRAME pFrame, const char *ps
 void RecordingDbgLogFrame(PRECORDINGFRAME pFrame)
 {
     Log3(("id=%RU16, type=%s (%#x), ts=%RU64", pFrame->idStream,
-          RecordingUtilsRecordingFrameTypeToStr(pFrame->enmType), pFrame->enmType, pFrame->msTimestamp));
+          RecordingUtilsFrameTypeToStr(pFrame->enmType), pFrame->enmType, pFrame->msTimestamp));
     switch (pFrame->enmType)
     {
         case RECORDINGFRAME_TYPE_VIDEO:
@@ -733,6 +535,29 @@ const char *RecordingUtilsVideoCodecToStr(RecordingVideoCodec_T enmCodec)
         case RecordingVideoCodec_AV1:   return "AV1";
         case RecordingVideoCodec_Other: return "other";
         default:                        break;
+    }
+
+    AssertFailedReturn("<invalid>");
+}
+
+/**
+ * Converts a video scaling mode to a string.
+ *
+ * @returns Recording video scaling mode as a string.
+ * @param   enmMode             Video scaling mode to convert.
+ *
+ * @note    Warning! Do not change these values unless you know what you're doing.
+ *                   Those values are being used for serializing the settings.
+ */
+const char *RecordingUtilsVideoScalingModeToStr(RecordingVideoScalingMode_T enmMode)
+{
+    switch (enmMode)
+    {
+        case RecordingVideoScalingMode_None:            return "none";
+        case RecordingVideoScalingMode_NearestNeighbor: return "nearest neighbor";
+        case RecordingVideoScalingMode_Bilinear:        return "bilinear";
+        case RecordingVideoScalingMode_Bicubic:         return "bicubic";
+        default:                                        break;
     }
 
     AssertFailedReturn("<invalid>");
