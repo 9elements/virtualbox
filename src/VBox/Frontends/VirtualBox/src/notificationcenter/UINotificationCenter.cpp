@@ -1,4 +1,4 @@
-/* $Id: UINotificationCenter.cpp 113534 2026-03-24 09:32:50Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationCenter.cpp 113622 2026-03-27 12:51:08Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationCenter class implementation.
  */
@@ -185,6 +185,8 @@ bool UINotificationCenter::isMessageSuppressed(const QString &strInternalName)
         return false;
 
     /* Acquire and check suppressed message names: */
+    if (!gEDataManager)
+        return false;
     const QStringList suppressedMessages = gEDataManager->suppressedMessages();
     return    suppressedMessages.contains(strInternalName)
            || suppressedMessages.contains("all");
@@ -600,7 +602,7 @@ void UINotificationCenter::paintEvent(QPaintEvent *pEvent)
 void UINotificationCenter::sltHandleAlignmentChange()
 {
     /* Update alignment: */
-    m_enmAlignment = gEDataManager->notificationCenterAlignment();
+    m_enmAlignment = gEDataManager ? gEDataManager->notificationCenterAlignment() : Qt::AlignTop;
 
     /* Re-insert to layout: */
     m_pLayoutMain->removeItem(m_pLayoutButtons);
@@ -613,6 +615,8 @@ void UINotificationCenter::sltHandleAlignmentChange()
 
 void UINotificationCenter::sltIssueOrderChange()
 {
+    if (!gEDataManager)
+        return;
     const Qt::SortOrder enmSortOrder = m_pButtonToggleSorting->isChecked()
                                      ? Qt::AscendingOrder
                                      : Qt::DescendingOrder;
@@ -622,7 +626,7 @@ void UINotificationCenter::sltIssueOrderChange()
 void UINotificationCenter::sltHandleOrderChange()
 {
     /* Save new order: */
-    m_enmOrder = gEDataManager->notificationCenterOrder();
+    m_enmOrder = gEDataManager ? gEDataManager->notificationCenterOrder() : Qt::DescendingOrder;
 
     /* Cleanup items first: */
     cleanupItems();
@@ -648,6 +652,8 @@ void UINotificationCenter::sltHandleOpenButtonToggled(bool fToggled)
 #ifdef VBOX_NOTIFICATION_CENTER_WITH_KEEP_BUTTON
 void UINotificationCenter::sltHandleKeepButtonToggled(bool fToggled)
 {
+    if (!gEDataManager)
+        return;
     gEDataManager->setKeepSuccessfullNotificationProgresses(fToggled);
 }
 #endif /* VBOX_NOTIFICATION_CENTER_WITH_KEEP_BUTTON */
@@ -671,7 +677,7 @@ void UINotificationCenter::sltHandleOpenButtonContextMenuRequested(const QPoint 
 
     /* Execute menu, check if any (single) action is clicked: */
     QAction *pAction = menu.exec(m_pButtonOpen->mapToGlobal(QPoint(m_pButtonOpen->width(), 0)));
-    if (pAction)
+    if (pAction && gEDataManager)
     {
         const Qt::Alignment enmAlignment = m_enmAlignment == Qt::AlignTop
                                          ? Qt::AlignBottom
@@ -821,14 +827,16 @@ void UINotificationCenter::prepare()
     prepareOpenTimer();
 
     /* Prepare alignment: */
-    m_enmAlignment = gEDataManager->notificationCenterAlignment();
-    connect(gEDataManager, &UIExtraDataManager::sigNotificationCenterAlignmentChange,
-            this, &UINotificationCenter::sltHandleAlignmentChange);
+    m_enmAlignment = gEDataManager ? gEDataManager->notificationCenterAlignment() : Qt::AlignTop;
+    if (gEDataManager)
+        connect(gEDataManager, &UIExtraDataManager::sigNotificationCenterAlignmentChange,
+                this, &UINotificationCenter::sltHandleAlignmentChange);
     sltHandleAlignmentChange();
     /* Prepare order: */
-    m_enmOrder = gEDataManager->notificationCenterOrder();
-    connect(gEDataManager, &UIExtraDataManager::sigNotificationCenterOrderChange,
-            this, &UINotificationCenter::sltHandleOrderChange);
+    m_enmOrder = gEDataManager ? gEDataManager->notificationCenterOrder() : Qt::DescendingOrder;
+    if (gEDataManager)
+        connect(gEDataManager, &UIExtraDataManager::sigNotificationCenterOrderChange,
+                this, &UINotificationCenter::sltHandleOrderChange);
     sltHandleOrderChange();
 
     /* Prepare inter-thread handling: */
@@ -841,8 +849,9 @@ void UINotificationCenter::prepare()
 
     /* Apply language settings: */
     sltRetranslateUI();
-    connect(&translationEventListener(), &UITranslationEventListener::sigRetranslateUI,
-            this, &UINotificationCenter::sltRetranslateUI);
+    if (UITranslationEventListener::instance())
+        connect(&translationEventListener(), &UITranslationEventListener::sigRetranslateUI,
+                this, &UINotificationCenter::sltRetranslateUI);
 }
 
 void UINotificationCenter::prepareModel()
@@ -929,7 +938,9 @@ void UINotificationCenter::prepareWidgets()
             {
                 m_pButtonToggleSorting->setIcon(UIIconPool::iconSet(":/notification_center_sort_16px.png"));
                 m_pButtonToggleSorting->setCheckable(true);
-                m_pButtonToggleSorting->setChecked(gEDataManager->notificationCenterOrder() == Qt::AscendingOrder);
+                m_pButtonToggleSorting->setChecked(  gEDataManager
+                                                   ? gEDataManager->notificationCenterOrder() == Qt::AscendingOrder
+                                                   : false);
                 connect(m_pButtonToggleSorting, &QIToolButton::toggled, this, &UINotificationCenter::sltIssueOrderChange);
                 m_pLayoutButtons->addWidget(m_pButtonToggleSorting);
             }
@@ -941,7 +952,9 @@ void UINotificationCenter::prepareWidgets()
             {
                 m_pButtonKeepFinished->setIcon(UIIconPool::iconSet(":/notification_center_hold_progress_16px.png"));
                 m_pButtonKeepFinished->setCheckable(true);
-                m_pButtonKeepFinished->setChecked(gEDataManager->keepSuccessfullNotificationProgresses());
+                m_pButtonKeepFinished->setChecked(  gEDataManager
+                                                  ? gEDataManager->keepSuccessfullNotificationProgresses()
+                                                  : false);
                 connect(m_pButtonKeepFinished, &QIToolButton::toggled, this, &UINotificationCenter::sltHandleKeepButtonToggled);
                 m_pLayoutButtons->addWidget(m_pButtonKeepFinished);
             }
