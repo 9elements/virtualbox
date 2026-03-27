@@ -1,4 +1,4 @@
-/* $Id: dbgkrnlinfo-r0drv-linux.c 113605 2026-03-26 23:39:36Z knut.osmundsen@oracle.com $ */
+/* $Id: dbgkrnlinfo-r0drv-linux.c 113609 2026-03-27 08:01:33Z knut.osmundsen@oracle.com $ */
 /** @file
  * IPRT - Kernel Debug Information, R0 Driver, Linux.
  */
@@ -43,6 +43,7 @@
 # include <linux/uio.h>
 # if RTLNX_VER_MIN(2,30,0) && defined(CONFIG_KPROBES)
 #  include <linux/kprobes.h>
+#  include <linux/kallsyms.h>
 # endif
 #else
 # include <iprt/stream.h>
