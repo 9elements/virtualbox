@@ -1,4 +1,4 @@
-/* $Id: VBoxAboutDlg.h 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: VBoxAboutDlg.h 113628 2026-03-27 14:36:27Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - VBoxAboutDlg class declaration.
  */
@@ -52,7 +52,7 @@ public:
 
     /** Constructs dialog passing @a pParent to the base-class.
       * @param  strVersion  Brings the version number of VirtualBox. */
-    VBoxAboutDlg(QWidget *pParent, const QString &strVersion);
+    VBoxAboutDlg(QWidget *pParent = 0, const QString &strVersion = QString());
 
 protected:
 

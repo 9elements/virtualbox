@@ -1,4 +1,4 @@
-/* $Id: VBoxAboutDlg.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: VBoxAboutDlg.cpp 113628 2026-03-27 14:36:27Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - VBoxAboutDlg class implementation.
  */
@@ -27,17 +27,14 @@
 
 /* Qt includes: */
 #include <QGuiApplication>
-#include <QEvent>
 #include <QLabel>
 #include <QPainter>
-#include <QPushButton>
 #include <QVBoxLayout>
-#include <QWindow>
 
 /* GUI includes: */
 #include "QIDialogButtonBox.h"
-#include "UIIconPool.h"
 #include "UIDesktopWidgetWatchdog.h"
+#include "UIIconPool.h"
 #include "UITranslationEventListener.h"
 #include "UIVersion.h"
 #include "VBoxAboutDlg.h"
@@ -47,7 +44,7 @@
 #include <VBox/version.h> /* VBOX_VENDOR */
 
 
-VBoxAboutDlg::VBoxAboutDlg(QWidget *pParent, const QString &strVersion)
+VBoxAboutDlg::VBoxAboutDlg(QWidget *pParent /* = 0 */, const QString &strVersion /* = QString() */)
 #ifdef VBOX_WS_MAC
     // No need for About dialog parent on macOS.
     // First of all, non of other native apps (Safari, App Store, iTunes) centers About dialog according the app itself, they do
@@ -87,7 +84,11 @@ void VBoxAboutDlg::showEvent(QShowEvent *pEvent)
         geo.moveCenter(gpDesktop->screenGeometry(m_pPseudoParent).center());
 #else
         /* Center according to parent widget: */
-        geo.moveCenter(parentWidget()->geometry().center());
+        if (parentWidget())
+            geo.moveCenter(parentWidget()->geometry().center());
+        /* Center according to parent screen: */
+        else
+            geo.moveCenter(gpDesktop->screenGeometry(m_pPseudoParent).center());
 #endif
         setGeometry(geo);
     }
@@ -131,8 +132,9 @@ void VBoxAboutDlg::sltRetranslateUI()
 
 void VBoxAboutDlg::prepare()
 {
-    /* Delete dialog on close: */
-    setAttribute(Qt::WA_DeleteOnClose);
+    /* If we have some parent - delete dialog on close: */
+    if (m_pPseudoParent || parentWidget())
+        setAttribute(Qt::WA_DeleteOnClose);
     /* Do not count that window as important for application,
      * it will NOT be taken into account when other top-level windows will be closed: */
     setAttribute(Qt::WA_QuitOnClose, false);
@@ -159,7 +161,7 @@ void VBoxAboutDlg::prepare()
     const QIcon icon = UIIconPool::iconSet(strPath);
     m_size = QSize(640, 480);
     QWidget *pParent = m_pPseudoParent ? m_pPseudoParent : parentWidget();
-    const qreal fDevicePixelRatio = pParent ? pParent->windowHandle()->devicePixelRatio() : 1;
+    const qreal fDevicePixelRatio = gpDesktop->devicePixelRatio(pParent);
     m_pixmap = icon.pixmap(m_size, fDevicePixelRatio);
 
     /* Prepare main-layout: */
