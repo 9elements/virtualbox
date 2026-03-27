@@ -1,4 +1,4 @@
-/* $Id: UIVersion.h 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: UIVersion.h 113630 2026-03-27 14:49:46Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVersion class declaration.
  */
@@ -109,6 +109,9 @@ class SHARED_LIBRARY_STUFF UIVersionInfo
 {
 public:
 
+    /** Never construct version info. */
+    UIVersionInfo() = delete;
+
     /** Returns Qt runtime version string. */
     static QString qtRTVersionString();
     /** Returns Qt runtime version. */
@@ -140,9 +143,6 @@ public:
     static QString brandingGetKey(QString strKey);
 
 private:
-
-    /** Constructs version info: */
-    UIVersionInfo();
 
     /** Holds the VBox branding config file path. */
     static QString  s_strBrandingConfigFilePath;
