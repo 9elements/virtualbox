@@ -1,4 +1,4 @@
-/* $Id: UIMessageCenter.cpp 113585 2026-03-26 11:01:52Z sergey.dubov@oracle.com $ */
+/* $Id: UIMessageCenter.cpp 113612 2026-03-27 09:48:15Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMessageCenter class implementation.
  */
@@ -81,8 +81,6 @@ void UIMessageCenter::destroy()
         return;
     }
 
-    /* Cleanup instance: */
-    s_pInstance->cleanup();
     /* Destroy instance: */
     delete s_pInstance;
 }
@@ -90,10 +88,10 @@ void UIMessageCenter::destroy()
 int UIMessageCenter::message(QWidget *pParent, MessageType enmType,
                              const QString &strMessage,
                              const QString &strDetails,
-                             const char *pcszAutoConfirmId /* = 0*/,
-                             int iButton1 /* = 0*/,
-                             int iButton2 /* = 0*/,
-                             int iButton3 /* = 0*/,
+                             const char *pcszAutoConfirmId /* = 0 */,
+                             int iButton1 /* = 0 */,
+                             int iButton2 /* = 0 */,
+                             int iButton3 /* = 0 */,
                              const QString &strButtonText1 /* = QString() */,
                              const QString &strButtonText2 /* = QString() */,
                              const QString &strButtonText3 /* = QString() */,
@@ -125,7 +123,7 @@ int UIMessageCenter::message(QWidget *pParent, MessageType enmType,
 void UIMessageCenter::error(QWidget *pParent, MessageType enmType,
                            const QString &strMessage,
                            const QString &strDetails,
-                           const char *pcszAutoConfirmId /* = 0*/,
+                           const char *pcszAutoConfirmId /* = 0 */,
                            const QString &strHelpKeyword /* = QString() */) const
 {
     message(pParent, enmType, strMessage, strDetails, pcszAutoConfirmId,
@@ -136,10 +134,10 @@ void UIMessageCenter::error(QWidget *pParent, MessageType enmType,
 bool UIMessageCenter::errorWithQuestion(QWidget *pParent, MessageType enmType,
                                         const QString &strMessage,
                                         const QString &strDetails,
-                                        const char *pcszAutoConfirmId /* = 0*/,
-                                        const QString &strOkButtonText /* = QString()*/,
-                                        const QString &strCancelButtonText /* = QString()*/,
-                                        const QString &strHelpKeyword /* = QString()*/) const
+                                        const char *pcszAutoConfirmId /* = 0 */,
+                                        const QString &strOkButtonText /* = QString() */,
+                                        const QString &strCancelButtonText /* = QString() */,
+                                        const QString &strHelpKeyword /* = QString() */) const
 {
     return (message(pParent, enmType, strMessage, strDetails, pcszAutoConfirmId,
                     AlertButton_Ok | AlertButtonOption_Default,
@@ -154,21 +152,21 @@ bool UIMessageCenter::errorWithQuestion(QWidget *pParent, MessageType enmType,
 
 void UIMessageCenter::alert(QWidget *pParent, MessageType enmType,
                            const QString &strMessage,
-                           const char *pcszAutoConfirmId /* = 0*/,
-                           const QString &strHelpKeyword /* = QString()*/) const
+                           const char *pcszAutoConfirmId /* = 0 */,
+                           const QString &strHelpKeyword /* = QString() */) const
 {
     error(pParent, enmType, strMessage, QString(), pcszAutoConfirmId, strHelpKeyword);
 }
 
 int UIMessageCenter::question(QWidget *pParent, MessageType enmType,
                               const QString &strMessage,
-                              const char *pcszAutoConfirmId/* = 0*/,
-                              int iButton1 /* = 0*/,
-                              int iButton2 /* = 0*/,
-                              int iButton3 /* = 0*/,
-                              const QString &strButtonText1 /* = QString()*/,
-                              const QString &strButtonText2 /* = QString()*/,
-                              const QString &strButtonText3 /* = QString()*/) const
+                              const char *pcszAutoConfirmId/* = 0 */,
+                              int iButton1 /* = 0 */,
+                              int iButton2 /* = 0 */,
+                              int iButton3 /* = 0 */,
+                              const QString &strButtonText1 /* = QString() */,
+                              const QString &strButtonText2 /* = QString() */,
+                              const QString &strButtonText3 /* = QString() */) const
 {
     return message(pParent, enmType, strMessage, QString(), pcszAutoConfirmId,
                    iButton1, iButton2, iButton3, strButtonText1, strButtonText2, strButtonText3);
@@ -176,10 +174,10 @@ int UIMessageCenter::question(QWidget *pParent, MessageType enmType,
 
 bool UIMessageCenter::questionBinary(QWidget *pParent, MessageType enmType,
                                      const QString &strMessage,
-                                     const char *pcszAutoConfirmId /* = 0*/,
-                                     const QString &strOkButtonText /* = QString()*/,
-                                     const QString &strCancelButtonText /* = QString()*/,
-                                     bool fDefaultFocusForOk /* = true*/) const
+                                     const char *pcszAutoConfirmId /* = 0 */,
+                                     const QString &strOkButtonText /* = QString() */,
+                                     const QString &strCancelButtonText /* = QString() */,
+                                     bool fDefaultFocusForOk /* = true */) const
 {
     return fDefaultFocusForOk ?
            ((question(pParent, enmType, strMessage, pcszAutoConfirmId,
@@ -202,8 +200,8 @@ bool UIMessageCenter::questionBinary(QWidget *pParent, MessageType enmType,
 
 bool UIMessageCenter::showModalProgressDialog(CProgress &progress,
                                               const QString &strTitle,
-                                              const QString &strImage /* = "" */,
-                                              QWidget *pParent /* = 0*/,
+                                              const QString &strImage,
+                                              QWidget *pParent /* = 0 */,
                                               int cMinDuration /* = 2000 */)
 {
     /* Prepare result: */
@@ -216,7 +214,9 @@ bool UIMessageCenter::showModalProgressDialog(CProgress &progress,
     QPixmap pixmap;
     if (!strImage.isEmpty())
     {
-        const qreal fDevicePixelRatio = pDlgParent && pDlgParent->windowHandle() ? pDlgParent->windowHandle()->devicePixelRatio() : 1;
+        const qreal fDevicePixelRatio = pDlgParent && pDlgParent->windowHandle()
+                                      ? pDlgParent->windowHandle()->devicePixelRatio()
+                                      : 1;
         pixmap = UIIconPool::iconSet(strImage).pixmap(QSize(90, 90), fDevicePixelRatio);
     }
 
@@ -317,7 +317,9 @@ void UIMessageCenter::cannotStartRuntime() const
     alert(0, MessageType_Error, strError.arg(strTable.arg(strUsage)));
 }
 
-bool UIMessageCenter::cannotRestoreSnapshot(const CMachine &machine, const QString &strSnapshotName, const QString &strMachineName) const
+bool UIMessageCenter::cannotRestoreSnapshot(const CMachine &machine,
+                                            const QString &strSnapshotName,
+                                            const QString &strMachineName) const
 {
     error(0, MessageType_Error,
           tr("Failed to restore the snapshot <b>%1</b> of the virtual machine <b>%2</b>.")
@@ -326,7 +328,9 @@ bool UIMessageCenter::cannotRestoreSnapshot(const CMachine &machine, const QStri
     return false;
 }
 
-bool UIMessageCenter::cannotRestoreSnapshot(const CProgress &progress, const QString &strSnapshotName, const QString &strMachineName) const
+bool UIMessageCenter::cannotRestoreSnapshot(const CProgress &progress,
+                                            const QString &strSnapshotName,
+                                            const QString &strMachineName) const
 {
     error(0, MessageType_Error,
           tr("Failed to restore the snapshot <b>%1</b> of the virtual machine <b>%2</b>.")
@@ -396,7 +400,7 @@ void UIMessageCenter::cannotOpenSession(const CProgress &comProgress, const QStr
 }
 
 bool UIMessageCenter::cannotRemountMedium(const CMachine &machine, const UIMedium &medium, bool fMount,
-                                          bool fRetry, QWidget *pParent /* = 0*/) const
+                                          bool fRetry, QWidget *pParent /* = 0 */) const
 {
     /* Compose the message: */
     QString strMessage;
@@ -406,13 +410,15 @@ bool UIMessageCenter::cannotRemountMedium(const CMachine &machine, const UIMediu
         {
             if (fMount)
             {
-                strMessage = tr("<p>Unable to insert the virtual optical disk <nobr><b>%1</b></nobr> into the machine <b>%2</b>.</p>");
+                strMessage = tr("<p>Unable to insert the virtual optical disk "
+                                "<nobr><b>%1</b></nobr> into the machine <b>%2</b>.</p>");
                 if (fRetry)
                     strMessage += tr("<p>Would you like to try to force insertion of this disk?</p>");
             }
             else
             {
-                strMessage = tr("<p>Unable to eject the virtual optical disk <nobr><b>%1</b></nobr> from the machine <b>%2</b>.</p>");
+                strMessage = tr("<p>Unable to eject the virtual optical disk "
+                                "<nobr><b>%1</b></nobr> from the machine <b>%2</b>.</p>");
                 if (fRetry)
                     strMessage += tr("<p>Would you like to try to force ejection of this disk?</p>");
             }
@@ -422,13 +428,15 @@ bool UIMessageCenter::cannotRemountMedium(const CMachine &machine, const UIMediu
         {
             if (fMount)
             {
-                strMessage = tr("<p>Unable to insert the virtual floppy disk <nobr><b>%1</b></nobr> into the machine <b>%2</b>.</p>");
+                strMessage = tr("<p>Unable to insert the virtual floppy disk "
+                                "<nobr><b>%1</b></nobr> into the machine <b>%2</b>.</p>");
                 if (fRetry)
                     strMessage += tr("<p>Would you like to try to force insertion of this disk?</p>");
             }
             else
             {
-                strMessage = tr("<p>Unable to eject the virtual floppy disk <nobr><b>%1</b></nobr> from the machine <b>%2</b>.</p>");
+                strMessage = tr("<p>Unable to eject the virtual floppy disk "
+                                "<nobr><b>%1</b></nobr> from the machine <b>%2</b>.</p>");
                 if (fRetry)
                     strMessage += tr("<p>Would you like to try to force ejection of this disk?</p>");
             }
@@ -440,7 +448,8 @@ bool UIMessageCenter::cannotRemountMedium(const CMachine &machine, const UIMediu
     /* Show the messsage: */
     if (fRetry)
         return errorWithQuestion(pParent, MessageType_Question,
-                                 strMessage.arg(medium.isHostDrive() ? medium.name() : medium.location(), CMachine(machine).GetName()),
+                                 strMessage.arg(medium.isHostDrive() ? medium.name() : medium.location(),
+                                                CMachine(machine).GetName()),
                                  UIErrorString::formatErrorInfo(machine),
                                  0 /* Auto Confirm ID */,
                                  tr("Force Unmount"));
@@ -472,7 +481,8 @@ void UIMessageCenter::sltShowOracle()
 
 void UIMessageCenter::sltShowOnlineDocumentation()
 {
-    QString strUrl = QString("https://docs.oracle.com/en/virtualization/virtualbox/%1.%2/user/index.html").arg(VBOX_VERSION_MAJOR).arg(VBOX_VERSION_MINOR);
+    QString strUrl = QString("https://docs.oracle.com/en/virtualization/virtualbox/%1.%2/user/index.html")
+                             .arg(VBOX_VERSION_MAJOR).arg(VBOX_VERSION_MINOR);
     uiCommon().openURL(strUrl);
 }
 
@@ -494,11 +504,18 @@ void UIMessageCenter::sltResetSuppressedMessages()
     gEDataManager->setSuppressedMessages(QStringList());
 }
 
-void UIMessageCenter::sltShowMessageBox(QWidget *pParent, MessageType enmType,
-                                        const QString &strMessage, const QString &strDetails,
-                                        int iButton1, int iButton2, int iButton3,
-                                        const QString &strButtonText1, const QString &strButtonText2, const QString &strButtonText3,
-                                        const QString &strAutoConfirmId, const QString &strHelpKeyword) const
+void UIMessageCenter::sltShowMessageBox(QWidget *pParent,
+                                        MessageType enmType,
+                                        const QString &strMessage,
+                                        const QString &strDetails,
+                                        int iButton1,
+                                        int iButton2,
+                                        int iButton3,
+                                        const QString &strButtonText1,
+                                        const QString &strButtonText2,
+                                        const QString &strButtonText3,
+                                        const QString &strAutoConfirmId,
+                                        const QString &strHelpKeyword) const
 {
     /* Now we can show a message-box directly: */
     showMessageBox(pParent, enmType,
@@ -530,23 +547,30 @@ void UIMessageCenter::prepare()
 
     /* Translations for Main.
      * Please make sure they corresponds to the strings coming from Main one-by-one symbol! */
-    tr("Could not load the Host USB Proxy Service (VERR_FILE_NOT_FOUND). The service might not be installed on the host computer");
-    tr("VirtualBox is not currently allowed to access USB devices.  You can change this by adding your user to the 'vboxusers' group.  Please see the user guide for a more detailed explanation");
-    tr("VirtualBox is not currently allowed to access USB devices.  You can change this by allowing your user to access the 'usbfs' folder and files.  Please see the user guide for a more detailed explanation");
+    tr("Could not load the Host USB Proxy Service (VERR_FILE_NOT_FOUND). "
+       "The service might not be installed on the host computer");
+    tr("VirtualBox is not currently allowed to access USB devices.  "
+       "You can change this by adding your user to the 'vboxusers' group.  "
+       "Please see the user guide for a more detailed explanation");
+    tr("VirtualBox is not currently allowed to access USB devices.  "
+       "You can change this by allowing your user to access the 'usbfs' folder and files.  "
+       "Please see the user guide for a more detailed explanation");
     tr("The USB Proxy Service has not yet been ported to this host");
     tr("Could not load the Host USB Proxy service");
 }
 
-void UIMessageCenter::cleanup()
-{
-     /* Nothing for now... */
-}
-
-int UIMessageCenter::showMessageBox(QWidget *pParent, MessageType enmType,
-                                    const QString &strMessage, const QString &strDetails,
-                                    int iButton1, int iButton2, int iButton3,
-                                    const QString &strButtonText1, const QString &strButtonText2, const QString &strButtonText3,
-                                    const QString &strAutoConfirmId, const QString &strHelpKeyword) const
+int UIMessageCenter::showMessageBox(QWidget *pParent,
+                                    MessageType enmType,
+                                    const QString &strMessage,
+                                    const QString &strDetails,
+                                    int iButton1,
+                                    int iButton2,
+                                    int iButton3,
+                                    const QString &strButtonText1,
+                                    const QString &strButtonText2,
+                                    const QString &strButtonText3,
+                                    const QString &strAutoConfirmId,
+                                    const QString &strHelpKeyword) const
 {
     /* Choose the 'default' button: */
     if (iButton1 == 0 && iButton2 == 0 && iButton3 == 0)
@@ -581,10 +605,6 @@ int UIMessageCenter::showMessageBox(QWidget *pParent, MessageType enmType,
     switch (enmType)
     {
         default:
-        case MessageType_Info:
-            title = tr("VirtualBox - Information", "msg box title");
-            icon = AlertIconType_Information;
-            break;
         case MessageType_Question:
             title = tr("VirtualBox - Question", "msg box title");
             icon = AlertIconType_Question;
@@ -600,10 +620,6 @@ int UIMessageCenter::showMessageBox(QWidget *pParent, MessageType enmType,
         case MessageType_Critical:
             title = tr("VirtualBox - Critical Error", "msg box title");
             icon = AlertIconType_Critical;
-            break;
-        case MessageType_GuruMeditation:
-            title = "VirtualBox - Guru Meditation"; /* don't translate this */
-            icon = AlertIconType_GuruMeditation;
             break;
     }
 

@@ -1,4 +1,4 @@
-/* $Id: QIMessageBox.h 113262 2026-03-04 20:12:57Z sergey.dubov@oracle.com $ */
+/* $Id: QIMessageBox.h 113612 2026-03-27 09:48:15Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Qt extensions: QIMessageBox class declaration.
  */
@@ -78,12 +78,10 @@ enum AlertOption
 /** Icon types. */
 enum AlertIconType
 {
-    AlertIconType_NoIcon         = QMessageBox::NoIcon,
-    AlertIconType_Information    = QMessageBox::Information,
-    AlertIconType_Warning        = QMessageBox::Warning,
-    AlertIconType_Critical       = QMessageBox::Critical,
-    AlertIconType_Question       = QMessageBox::Question,
-    AlertIconType_GuruMeditation
+    AlertIconType_NoIcon   = QMessageBox::NoIcon,
+    AlertIconType_Warning  = QMessageBox::Warning,
+    AlertIconType_Critical = QMessageBox::Critical,
+    AlertIconType_Question = QMessageBox::Question
 };
 
 /** QIDialog extension representing GUI alerts. */

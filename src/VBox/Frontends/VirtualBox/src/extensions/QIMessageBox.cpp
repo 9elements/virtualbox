@@ -1,4 +1,4 @@
-/* $Id: QIMessageBox.cpp 113058 2026-02-17 10:55:13Z sergey.dubov@oracle.com $ */
+/* $Id: QIMessageBox.cpp 113612 2026-03-27 09:48:15Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Qt extensions: QIMessageBox class implementation.
  */
@@ -381,12 +381,17 @@ QPixmap QIMessageBox::standardPixmap(AlertIconType iconType, QWidget *pWidget /*
     QIcon icon;
     switch (iconType)
     {
-        case AlertIconType_Information:    icon = UIIconPool::defaultIcon(UIIconPool::UIDefaultIconType_MessageBoxInformation, pWidget); break;
-        case AlertIconType_Warning:        icon = UIIconPool::defaultIcon(UIIconPool::UIDefaultIconType_MessageBoxWarning, pWidget); break;
-        case AlertIconType_Critical:       icon = UIIconPool::defaultIcon(UIIconPool::UIDefaultIconType_MessageBoxCritical, pWidget); break;
-        case AlertIconType_Question:       icon = UIIconPool::defaultIcon(UIIconPool::UIDefaultIconType_MessageBoxQuestion, pWidget); break;
-        case AlertIconType_GuruMeditation: icon = UIIconPool::iconSet(":/meditation_32px.png"); break;
-        default: break;
+        case AlertIconType_Warning:
+            icon = UIIconPool::defaultIcon(UIIconPool::UIDefaultIconType_MessageBoxWarning, pWidget);
+            break;
+        case AlertIconType_Critical:
+            icon = UIIconPool::defaultIcon(UIIconPool::UIDefaultIconType_MessageBoxCritical, pWidget);
+            break;
+        case AlertIconType_Question:
+            icon = UIIconPool::defaultIcon(UIIconPool::UIDefaultIconType_MessageBoxQuestion, pWidget);
+            break;
+        default:
+            break;
     }
     /* Return empty pixmap if nothing found: */
     if (icon.isNull())

@@ -1,4 +1,4 @@
-/* $Id: UIMessageCenter.h 113585 2026-03-26 11:01:52Z sergey.dubov@oracle.com $ */
+/* $Id: UIMessageCenter.h 113612 2026-03-27 09:48:15Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMessageCenter class declaration.
  */
@@ -46,12 +46,10 @@ class UIMedium;
 /** Possible message types. */
 enum MessageType
 {
-    MessageType_Info = 1,
-    MessageType_Question,
+    MessageType_Question = 1,
     MessageType_Warning,
     MessageType_Error,
-    MessageType_Critical,
-    MessageType_GuruMeditation
+    MessageType_Critical
 };
 Q_DECLARE_METATYPE(MessageType);
 
@@ -197,7 +195,7 @@ public:
       * @param  pParent       Brings the parent.
       * @param  cMinDuration  Brings the minimum diration to show this dialog after expiring it. */
     bool showModalProgressDialog(CProgress &comProgress, const QString &strTitle,
-                                 const QString &strImage = "", QWidget *pParent = 0,
+                                 const QString &strImage, QWidget *pParent = 0,
                                  int cMinDuration = 2000);
 
     /** @name Startup warnings.
@@ -274,8 +272,6 @@ private:
 
     /** Prepares all. */
     void prepare();
-    /** Cleanups all. */
-    void cleanup();
 
     /** Shows message-box.
       * @param  pParent           Brings the message-box parent.
