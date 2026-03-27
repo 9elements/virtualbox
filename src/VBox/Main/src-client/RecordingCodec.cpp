@@ -1,4 +1,4 @@
-/* $Id: RecordingCodec.cpp 113625 2026-03-27 13:46:36Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingCodec.cpp 113636 2026-03-27 15:49:15Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording codec wrapper.
  */
@@ -116,6 +116,7 @@ DECLINLINE(void) recordingCodecUnlock(PRECORDINGCODEC pCodec)
 *********************************************************************************************************************************/
 
 #ifdef VBOX_WITH_LIBVPX
+# if 0 /* Unused */
 /**
  * Clears (zeros) the VPX planes.
  */
@@ -127,6 +128,7 @@ DECLINLINE(void) recordingCodecVPXClearPlanes(PRECORDINGCODEC pCodec)
     memset(pCodec->Video.VPX.RawImage.planes[VPX_PLANE_U], 128, cbUVPlane);
     memset(pCodec->Video.VPX.RawImage.planes[VPX_PLANE_V], 128, cbUVPlane);
 }
+# endif
 
 /**
  * Checks whether the VPX encoder is allowed to emit a frame at this timestamp.

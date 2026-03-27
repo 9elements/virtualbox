@@ -1,4 +1,4 @@
-/* $Id: RecordingRender.cpp 113626 2026-03-27 14:07:51Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingRender.cpp 113636 2026-03-27 15:49:15Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording rendering implementation.
  *
@@ -63,6 +63,7 @@ typedef struct RECORDINGRENDERSW
 {
 } RECORDINGRENDERSW;
 
+#if 0 /* Unused */
 /**
  * Wraps a software RECORDINGVIDEOFRAME into a generic renderer texture.
  *
@@ -79,6 +80,7 @@ DECLINLINE(void) recRenderSWFrm2Tex(PRECORDINGRENDERTEXTURE pTexture, PRECORDING
     pTexture->pvBackend = pFrame;
     pTexture->pInfo     = &pFrame->Info;
 }
+#endif
 
 /**
  * Resolves generic renderer texture reference to a software RECORDINGVIDEOFRAME.
@@ -108,6 +110,7 @@ DECLINLINE(RECORDINGVIDEOFRAME const *) recRenderSWTex2FrmC(PCRECORDINGRENDERTEX
     return (RECORDINGVIDEOFRAME const *)pTexture->pvBackend;
 }
 
+#if 0 /* Unused */
 /**
  * Nearest-neighbor resize helper for BGRA32 source frames.
  *
@@ -196,6 +199,7 @@ DECLINLINE(int) recRenderSWFrameResizeNNeighbor(RECORDINGVIDEOFRAME const *pSrcF
 
     return VINF_SUCCESS;
 }
+#endif
 
 /**
  * Renderer-local crop/center calculation independent from codec internals.
