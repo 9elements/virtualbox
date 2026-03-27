@@ -1,4 +1,4 @@
-/* $Id: VBoxAboutDlg.cpp 113628 2026-03-27 14:36:27Z sergey.dubov@oracle.com $ */
+/* $Id: VBoxAboutDlg.cpp 113629 2026-03-27 14:38:08Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - VBoxAboutDlg class implementation.
  */
@@ -169,8 +169,9 @@ void VBoxAboutDlg::prepare()
 
     /* Translate: */
     sltRetranslateUI();
-    connect(&translationEventListener(), &UITranslationEventListener::sigRetranslateUI,
-        this, &VBoxAboutDlg::sltRetranslateUI);
+    if (UITranslationEventListener::instance())
+        connect(&translationEventListener(), &UITranslationEventListener::sigRetranslateUI,
+            this, &VBoxAboutDlg::sltRetranslateUI);
 }
 
 void VBoxAboutDlg::prepareMainLayout()

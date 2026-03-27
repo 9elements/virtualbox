@@ -1,4 +1,4 @@
-/* $Id: QIRichTextLabel.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: QIRichTextLabel.cpp 113629 2026-03-27 14:38:08Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Qt extensions: QIRichTextLabel class implementation.
  */
@@ -100,8 +100,9 @@ QIRichTextLabel::QIRichTextLabel(QWidget *pParent)
 
     /* Apply language settings: */
     sltRetranslateUI();
-    connect(&translationEventListener(), &UITranslationEventListener::sigRetranslateUI,
-        this, &QIRichTextLabel::sltRetranslateUI);
+    if (UITranslationEventListener::instance())
+        connect(&translationEventListener(), &UITranslationEventListener::sigRetranslateUI,
+            this, &QIRichTextLabel::sltRetranslateUI);
 }
 
 QString QIRichTextLabel::text() const

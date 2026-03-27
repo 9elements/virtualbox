@@ -1,4 +1,4 @@
-/* $Id: QIDialogButtonBox.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: QIDialogButtonBox.cpp 113629 2026-03-27 14:38:08Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Qt extensions: QIDialogButtonBox class implementation.
  */
@@ -44,17 +44,19 @@ QIDialogButtonBox::QIDialogButtonBox(QWidget *pParent /* = 0 */)
     : QDialogButtonBox(pParent)
     , m_fDoNotPickDefaultButton(false)
 {
-    connect(&translationEventListener(), &UITranslationEventListener::sigRetranslateUI,
-            this, &QIDialogButtonBox::sltRetranslateUI);
+    if (UITranslationEventListener::instance())
+        connect(&translationEventListener(), &UITranslationEventListener::sigRetranslateUI,
+                this, &QIDialogButtonBox::sltRetranslateUI);
 }
 
 QIDialogButtonBox::QIDialogButtonBox(Qt::Orientation enmOrientation, QWidget *pParent /* = 0 */)
     : QDialogButtonBox(pParent)
     , m_fDoNotPickDefaultButton(false)
 {
-    connect(&translationEventListener(), &UITranslationEventListener::sigRetranslateUI,
-            this, &QIDialogButtonBox::sltRetranslateUI);
     setOrientation(enmOrientation);
+    if (UITranslationEventListener::instance())
+        connect(&translationEventListener(), &UITranslationEventListener::sigRetranslateUI,
+                this, &QIDialogButtonBox::sltRetranslateUI);
 }
 
 QIDialogButtonBox::QIDialogButtonBox(StandardButtons enmButtonTypes, Qt::Orientation enmOrientation, QWidget *pParent)
@@ -64,8 +66,9 @@ QIDialogButtonBox::QIDialogButtonBox(StandardButtons enmButtonTypes, Qt::Orienta
     setOrientation(enmOrientation);
     setStandardButtons(enmButtonTypes);
     sltRetranslateUI();
-    connect(&translationEventListener(), &UITranslationEventListener::sigRetranslateUI,
-            this, &QIDialogButtonBox::sltRetranslateUI);
+    if (UITranslationEventListener::instance())
+        connect(&translationEventListener(), &UITranslationEventListener::sigRetranslateUI,
+                this, &QIDialogButtonBox::sltRetranslateUI);
 }
 
 QPushButton *QIDialogButtonBox::button(StandardButton enmButtonType) const
