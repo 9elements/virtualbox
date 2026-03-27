@@ -1,4 +1,4 @@
-/* $Id: RecordingRender.h 113625 2026-03-27 13:46:36Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingRender.h 113627 2026-03-27 14:19:32Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording rendering backend abstraction.
  */
@@ -25,8 +25,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-#ifndef MAIN_INCLUDED_src_client_RecordingRender_h
-#define MAIN_INCLUDED_src_client_RecordingRender_h
+#ifndef MAIN_INCLUDED_RecordingRender_h
+#define MAIN_INCLUDED_RecordingRender_h
 #ifndef RT_WITHOUT_PRAGMA_ONCE
 # pragma once
 #endif
@@ -347,4 +347,4 @@ int RecordingRenderSWFrameResizeCropCenter(RECORDINGVIDEOFRAME const *pDstFrame,
                                            PRTRECT pDstRect, PRTRECT pSrcRect);
 #endif
 
-#endif /* !MAIN_INCLUDED_src_client_RecordingRender_h */
+#endif /* !MAIN_INCLUDED_RecordingRender_h */

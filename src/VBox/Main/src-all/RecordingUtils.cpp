@@ -1,4 +1,4 @@
-/* $Id: RecordingUtils.cpp 113625 2026-03-27 13:46:36Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingUtils.cpp 113627 2026-03-27 14:19:32Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording utility code.
  */
@@ -42,7 +42,7 @@
 #include <iprt/formats/bmp.h>
 #endif
 
-#include <VBox/err.h>
+#include <iprt/errcore.h>
 #define LOG_GROUP LOG_GROUP_RECORDING
 #include <VBox/log.h>
 
