@@ -1,4 +1,4 @@
-/* $Id: UINotificationObjectItem.cpp 113534 2026-03-24 09:32:50Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationObjectItem.cpp 113631 2026-03-27 14:51:51Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationObjectItem class implementation.
  */
@@ -219,8 +219,9 @@ void UINotificationObjectItem::prepareWidgets()
 void UINotificationObjectItem::prepareConnections()
 {
     /* Install translation listener: */
-    connect(&translationEventListener(), &UITranslationEventListener::sigRetranslateUI,
-        this, &UINotificationObjectItem::sltRetranslateUI);
+    if (UITranslationEventListener::instance())
+        connect(&translationEventListener(), &UITranslationEventListener::sigRetranslateUI,
+            this, &UINotificationObjectItem::sltRetranslateUI);
 }
 
 bool UINotificationObjectItem::event(QEvent *pEvent)
