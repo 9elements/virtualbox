@@ -1,4 +1,4 @@
-/* $Id: UIMessageCenter.cpp 113612 2026-03-27 09:48:15Z sergey.dubov@oracle.com $ */
+/* $Id: UIMessageCenter.cpp 113635 2026-03-27 15:10:30Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMessageCenter class implementation.
  */
@@ -241,26 +241,6 @@ bool UIMessageCenter::showModalProgressDialog(CProgress &progress,
 
     /* Return result: */
     return fRc;
-}
-
-void UIMessageCenter::cannotFindLanguage(const QString &strLangId, const QString &strNlsPath) const
-{
-    alert(0, MessageType_Error,
-          tr("<p>Could not find a language file for the language <b>%1</b> in the directory <b><nobr>%2</nobr></b>.</p>"
-             "<p>The language will be temporarily reset to the system default language. "
-             "Please go to the <b>Preferences</b> window which you can open from the <b>File</b> menu of the "
-             "VirtualBox Manager window, and select one of the existing languages on the <b>Language</b> page.</p>")
-             .arg(strLangId).arg(strNlsPath));
-}
-
-void UIMessageCenter::cannotLoadLanguage(const QString &strLangFile) const
-{
-    alert(0, MessageType_Error,
-          tr("<p>Could not load the language file <b><nobr>%1</nobr></b>. "
-             "<p>The language will be temporarily reset to English (built-in). "
-             "Please go to the <b>Preferences</b> window which you can open from the <b>File</b> menu of the "
-             "VirtualBox Manager window, and select one of the existing languages on the <b>Language</b> page.</p>")
-             .arg(strLangFile));
 }
 
 void UIMessageCenter::cannotInitUserHome(const QString &strUserHome) const

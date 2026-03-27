@@ -1,4 +1,4 @@
-/* $Id: UITranslator.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: UITranslator.cpp 113635 2026-03-27 15:10:30Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UITranslator class implementation.
  */
@@ -36,7 +36,7 @@
 
 /* GUI includes: */
 #include "UIConverter.h"
-#include "UIMessageCenter.h"
+#include "UINotificationMessage.h"
 #include "UITranslator.h"
 #ifdef VBOX_WS_MAC
 # include "VBoxUtils-darwin.h"
@@ -136,7 +136,7 @@ void UITranslator::loadLanguage(const QString &strLangId /* = QString() */)
              * case, if no explicit language file exists, we will simply
              * fall-back to English (built-in). */
             if (!strLangId.isNull() && strEffectiveLangId != "en")
-                msgCenter().cannotFindLanguage(strEffectiveLangId, strNlsPath);
+                UINotificationMessage::cannotFindLanguage(strEffectiveLangId, strNlsPath);
             /* strSelectedLangId remains built-in here: */
             AssertReturnVoid(strSelectedLangId == vboxBuiltInLanguageName());
         }
@@ -178,7 +178,7 @@ void UITranslator::loadLanguage(const QString &strLangId /* = QString() */)
         s_strLoadedLanguageId = strSelectedLangId;
     else
     {
-        msgCenter().cannotLoadLanguage(strLanguageFileName);
+        UINotificationMessage::cannotLoadLanguage(strLanguageFileName);
         s_strLoadedLanguageId = vboxBuiltInLanguageName();
     }
 
@@ -215,7 +215,7 @@ void UITranslator::loadLanguage(const QString &strLangId /* = QString() */)
          * but the load failure is so rare here that it's not worth a separate
          * message (but still, having something is better than having none) */
         if (!fLoadOk && !strLangId.isNull())
-            msgCenter().cannotLoadLanguage(strLanguageFileName);
+            UINotificationMessage::cannotLoadLanguage(strLanguageFileName);
     }
     if (fResetToC)
         s_strLoadedLanguageId = vboxBuiltInLanguageName();

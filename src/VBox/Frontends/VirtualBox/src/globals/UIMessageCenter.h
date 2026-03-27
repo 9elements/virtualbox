@@ -1,4 +1,4 @@
-/* $Id: UIMessageCenter.h 113612 2026-03-27 09:48:15Z sergey.dubov@oracle.com $ */
+/* $Id: UIMessageCenter.h 113635 2026-03-27 15:10:30Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMessageCenter class declaration.
  */
@@ -200,9 +200,6 @@ public:
 
     /** @name Startup warnings.
       * @{ */
-        void cannotFindLanguage(const QString &strLangId, const QString &strNlsPath) const;
-        void cannotLoadLanguage(const QString &strLangFile) const;
-
         void cannotInitUserHome(const QString &strUserHome) const;
         void cannotInitCOM(HRESULT rc) const;
 

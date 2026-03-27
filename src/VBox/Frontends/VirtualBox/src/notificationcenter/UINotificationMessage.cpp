@@ -1,4 +1,4 @@
-/* $Id: UINotificationMessage.cpp 113597 2026-03-26 16:19:13Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationMessage.cpp 113635 2026-03-27 15:10:30Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationMessage implementations.
  */
@@ -80,6 +80,37 @@
 /*********************************************************************************************************************************
 *   Class UINotificationMessage implementation.                                                                                  *
 *********************************************************************************************************************************/
+
+/* static */
+void UINotificationMessage::cannotFindLanguage(const QString &strLangId, const QString &strNlsPath)
+{
+    createBlockingMessage(
+        QApplication::translate("UIMessageCenter", "Can't find langauge file ..."),
+        QApplication::translate("UIMessageCenter", "<p>Could not find a language file for the language <b>%1</b> in the "
+                                                   "directory <b><nobr>%2</nobr></b>.</p><p>The language will be temporarily "
+                                                   "reset to the system default language. Please go to the <b>Preferences</b> "
+                                                   "window which you can open from the <b>File</b> menu of the VirtualBox "
+                                                   "Manager window, and select one of the existing languages on the "
+                                                   "<b>Language</b> page.</p>").arg(strLangId).arg(strNlsPath),
+        QString() /* internal name */,
+        QString() /* help keyword */,
+        NotificationType_Warning);
+}
+
+/* static */
+void UINotificationMessage::cannotLoadLanguage(const QString &strLangFile)
+{
+    createBlockingMessage(
+        QApplication::translate("UIMessageCenter", "Can't load langauge file ..."),
+        QApplication::translate("UIMessageCenter", "<p>Could not load the language file <b><nobr>%1</nobr></b>. <p>The language "
+                                                   "will be temporarily reset to English (built-in). Please go to the "
+                                                   "<b>Preferences</b> window which you can open from the <b>File</b> menu of "
+                                                   "the VirtualBox Manager window, and select one of the existing languages on "
+                                                   "the <b>Language</b> page.</p>").arg(strLangFile),
+        QString() /* internal name */,
+        QString() /* help keyword */,
+        NotificationType_Warning);
+}
 
 /* static */
 void UINotificationMessage::cannotFindHelpFile(const QString &strLocation)

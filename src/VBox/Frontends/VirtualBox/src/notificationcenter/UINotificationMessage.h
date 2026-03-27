@@ -1,4 +1,4 @@
-/* $Id: UINotificationMessage.h 113589 2026-03-26 11:48:29Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationMessage.h 113635 2026-03-27 15:10:30Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationMessage declarations.
  */
@@ -92,6 +92,11 @@ public:
 
     /** @name Simple general warnings.
       * @{ */
+        /** Notifies about inability to find language file for @a strLangId specified under certain @a strNlsPath. */
+        static void cannotFindLanguage(const QString &strLangId, const QString &strNlsPath);
+        /** Notifies about inability to load language @a strLangFile. */
+        static void cannotLoadLanguage(const QString &strLangFile);
+
         /** Notifies about inability to find help file at certain @a strLocation. */
         static void cannotFindHelpFile(const QString &strLocation);
 
