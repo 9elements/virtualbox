@@ -1,4 +1,4 @@
-/* $Id: UINotificationQuestion.cpp 113536 2026-03-24 12:55:20Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationQuestion.cpp 113611 2026-03-27 09:45:17Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationQuestion implementations.
  */
@@ -973,7 +973,7 @@ bool UINotificationQuestion::confirmOverridingFiles(const QVector<QString> &strP
 bool UINotificationQuestion::warnAboutGuruMeditation(const QString &strLogFolder)
 {
     return createBlockingQuestion(
-        QApplication::translate("UIMessageCenter", "Fatal Error", "runtime error info"),
+        QString("Guru Meditation") /* don't translate this */,
         QApplication::translate("UIMessageCenter", "<p>A critical error has occurred while running the virtual "
                                                    "machine and the machine execution has been stopped.</p>"
                                                    ""
