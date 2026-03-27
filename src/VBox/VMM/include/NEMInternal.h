@@ -1,4 +1,4 @@
-/* $Id: NEMInternal.h 113606 2026-03-27 07:25:58Z alexander.eichner@oracle.com $ */
+/* $Id: NEMInternal.h 113613 2026-03-27 10:13:48Z ramshankar.venkataraman@oracle.com $ */
 /** @file
  * NEM - Internal header file.
  */
@@ -541,12 +541,16 @@ typedef struct NEMCPU
     bool                        fLastInterruptShadow : 1;
     /** Flag whether the IRQ window notification was registered (for injecting PIC interrupts). */
     bool                        fIrqWindowRegistered: 1;
-    /** Flag whether it is possible inject a PIC interrupt. */
-    bool                        fPicReadyForInterrupt: 1;
+    /** Whether the HaltSuspend bit needs to be cleared prior to VM-entry. */
+    bool                        fClearHaltSuspend : 1;
     /** Whether debug breakpoints / events are armed or if single-stepping is active
      *  (can be removed later when dedicated debug loop is implemented). */
     bool                        fGuestDebug : 1;
+#  ifdef _WINHVAPIDEFS_H_
+    WHV_RUN_VP_EXIT_REASON      enmExitReason;
+#  else
     uint32_t                    uPadding;
+#  endif
     /** The VID_MSHAGN_F_XXX flags.
      * Either VID_MSHAGN_F_HANDLE_MESSAGE | VID_MSHAGN_F_GET_NEXT_MESSAGE or zero. */
     uint32_t                    fHandleAndGetFlags;
@@ -727,6 +731,10 @@ typedef struct NEMCPU
 } NEMCPU;
 /** Pointer to NEM VMCPU instance data. */
 typedef NEMCPU *PNEMCPU;
+
+#ifdef _WINHVAPIDEFS_H_
+AssertCompileSize(WHV_RUN_VP_EXIT_REASON, sizeof(uint32_t));
+#endif
 
 /** NEMCPU::u32Magic value. */
 #define NEMCPU_MAGIC            UINT32_C(0x4d454e20)

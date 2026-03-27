@@ -1,4 +1,4 @@
-/* $Id: NEMR3Native-win-x86.cpp 113140 2026-02-24 11:12:44Z alexander.eichner@oracle.com $ */
+/* $Id: NEMR3Native-win-x86.cpp 113613 2026-03-27 10:13:48Z ramshankar.venkataraman@oracle.com $ */
 /** @file
  * NEM - Native execution manager, native ring-3 Windows backend.
  *
@@ -59,6 +59,7 @@
 #include <VBox/vmm/em.h>
 #include <VBox/vmm/pdmapic.h>
 #include <VBox/vmm/pdm.h>
+#include <VBox/vmm/dbgf.h>
 #include <VBox/vmm/dbgftrace.h>
 #include "NEMInternal.h"
 #include <VBox/vmm/vmcc.h>
@@ -2047,6 +2048,58 @@ static int nemR3WinDisableX2Apic(PVM pVM)
 }
 
 
+/**
+ * Displays NEM/win info.
+ *
+ * @param   pVM         The cross context VM structure.
+ * @param   pHlp        The info helper functions.
+ * @param   pszArgs     Arguments, ignored.
+ */
+static DECLCALLBACK(void) nemR3WinInfo(PVM pVM, PCDBGFINFOHLP pHlp, const char *pszArgs)
+{
+    Assert(VM_IS_NEM_ENABLED(pVM));
+
+    NOREF(pszArgs);
+    PVMCPU pVCpu = VMMGetCpu(pVM);
+    if (!pVCpu)
+        pVCpu = pVM->apCpusR3[0];
+
+    pHlp->pfnPrintf(pHlp, "CPU[%u]: NEM/win info:\n", pVCpu->idCpu);
+    pHlp->pfnPrintf(pHlp, "  fDesiredInterruptWindows = %#x\n",     pVCpu->nem.s.fDesiredInterruptWindows);
+    pHlp->pfnPrintf(pHlp, "  fCurrentInterruptWindows = %#x\n",     pVCpu->nem.s.fCurrentInterruptWindows);
+    pHlp->pfnPrintf(pHlp, "  fLastInterruptShadow     = %RTbool\n", pVCpu->nem.s.fLastInterruptShadow);
+    pHlp->pfnPrintf(pHlp, "  fIrqWindowRegistered     = %RTbool\n", pVCpu->nem.s.fIrqWindowRegistered);
+    pHlp->pfnPrintf(pHlp, "  fClearHaltSuspend        = %RTbool\n", pVCpu->nem.s.fClearHaltSuspend);
+    pHlp->pfnPrintf(pHlp, "  fGuestDebug              = %RTbool\n", pVCpu->nem.s.fGuestDebug);
+
+    /* Event pending. */
+    {
+        WHV_REGISTER_VALUE EventPendingReg;
+        RT_ZERO(EventPendingReg);
+        static const WHV_REGISTER_NAME s_EventPendingRegName = WHvRegisterPendingEvent;
+        HRESULT const hrc = WHvGetVirtualProcessorRegisters(pVM->nem.s.hPartition, pVCpu->idCpu, &s_EventPendingRegName, 1,
+                                                             &EventPendingReg);
+        AssertLogRelMsgReturnVoid(SUCCEEDED(hrc),
+                                  ("%u: Failed to get WHvRegisterPendingEvent -> %Rhrc (Last=%#x/%u)\n",
+                                   pVCpu->idCpu, hrc, RTNtLastStatusValue(), RTNtLastErrorValue()));
+        pHlp->pfnPrintf(pHlp, "  EventPending             = %#RX64\n", EventPendingReg.Reg64);
+    }
+
+    /* Internal activity. */
+    {
+        WHV_REGISTER_VALUE ActivityReg;
+        RT_ZERO(ActivityReg);
+        static const WHV_REGISTER_NAME s_ActivityRegName = WHvRegisterInternalActivityState;
+        HRESULT const hrc = WHvGetVirtualProcessorRegisters(pVM->nem.s.hPartition, pVCpu->idCpu, &s_ActivityRegName, 1,
+                                                             &ActivityReg);
+        AssertLogRelMsgReturnVoid(SUCCEEDED(hrc),
+                                  ("%u: Failed to get WHvRegisterInternalActivityState -> %Rhrc (Last=%#x/%u)\n",
+                                   pVCpu->idCpu, hrc, RTNtLastStatusValue(), RTNtLastErrorValue()));
+        pHlp->pfnPrintf(pHlp, "  InternalActivity         = %#RX64\n", ActivityReg.Reg64);
+    }
+}
+
+
 DECLHIDDEN(int) nemR3NativeInit(PVM pVM, bool fFallback, bool fForced)
 {
     g_uBuildNo = RTSystemGetNtBuildNo();
@@ -2100,6 +2153,8 @@ DECLHIDDEN(int) nemR3NativeInit(PVM pVM, bool fFallback, bool fForced)
                     nemR3WinDisableX2Apic(pVM);
                     nemR3DisableCpuIsaExt(pVM, "MONITOR"); /* MONITOR is not supported by Hyper-V (MWAIT is sometimes). */
                     PGMR3EnableNemMode(pVM);
+                    rc = DBGFR3InfoRegisterInternalEx(pVM, "nem", "Dumps NEM info.", nemR3WinInfo, DBGFINFO_FLAGS_ALL_EMTS);
+                    AssertRCReturn(rc, rc);
 
                     /*
                      * Register release statistics
@@ -2796,33 +2851,82 @@ static int nemHCWinCopyStateToHyperV(PVMCC pVM, PVMCPUCC pVCpu)
             Assert(aValues[iReg - 1].DeliverabilityNotifications.InterruptPriority == (unsigned)((fDesiredIntWin & NEM_WIN_INTW_F_PRIO_MASK) >> NEM_WIN_INTW_F_PRIO_SHIFT));
         }
     }
-    else if (   VMCPU_FF_IS_SET(pVCpu, VMCPU_FF_INTERRUPT_PIC)
-             && !pVCpu->nem.s.fSingleInstruction)
+    else
     {
-        Log8(("Setting WHvX64RegisterDeliverabilityNotifications, fDesiredIntWin=%X fPicReadyForInterrupt=%RTbool\n",
-              pVCpu->nem.s.fDesiredInterruptWindows, pVCpu->nem.s.fPicReadyForInterrupt));
-
-        if (   pVCpu->nem.s.fDesiredInterruptWindows
-            && pVCpu->nem.s.fPicReadyForInterrupt)
+        bool fInjectingInterrupt = false;
+        if (   (pVCpu->cpum.GstCtx.eflags.u & X86_EFL_IF)
+            && !CPUMIsInInterruptShadow(&pVCpu->cpum.GstCtx))
         {
-            Assert(pVCpu->cpum.GstCtx.eflags.u & X86_EFL_IF);
-            ADD_REG64(WHvRegisterPendingEvent, 0);
+            /* Get the interrupt from a canceled injection (TRPM) or from the PIC (PDM). */
+            uint8_t bInterrupt = 0xff;
+            if (TRPMHasTrap(pVCpu))
+            {
+                TRPMEVENT enmEvent;
+                int rc = TRPMQueryTrapAll(pVCpu, &bInterrupt, &enmEvent, NULL /*puErrCode*/, NULL /*puCR2*/, NULL /*pcbInstr*/,
+                                          NULL /*pfIcebp*/);
+                if (   RT_SUCCESS(rc)
+                    && enmEvent == TRPM_HARDWARE_INT)
+                {
+                    TRPMResetTrap(pVCpu);
+                    fInjectingInterrupt = true;
+                }
+                else
+                    AssertLogRelMsgFailedReturn(("Unexpected TRPM trap. rc=%Rrc enmEvent=%#x\n", rc, enmEvent), VERR_NEM_IPE_4);
+            }
+            else if (   VMCPU_FF_IS_SET(pVCpu, VMCPU_FF_INTERRUPT_PIC)
+                     && !pVCpu->nem.s.fSingleInstruction)
+            {
+                int rc = PDMGetInterrupt(pVCpu, &bInterrupt);
+                AssertRC(rc);
+                fInjectingInterrupt = true;
+            }
 
-            uint8_t bInterrupt;
-            int rc = PDMGetInterrupt(pVCpu, &bInterrupt);
-            AssertRC(rc);
+            /* Inject the interrupt. */
+            if (fInjectingInterrupt)
+            {
+                ADD_REG64(WHvRegisterPendingEvent, 0);
+                aValues[iReg - 1].ExtIntEvent.EventPending = 1;
+                aValues[iReg - 1].ExtIntEvent.EventType    = WHvX64PendingEventExtInt;
+                aValues[iReg - 1].ExtIntEvent.Vector       = bInterrupt;
 
-            aValues[iReg - 1].Reg64                    = 0;
-            aValues[iReg - 1].ExtIntEvent.EventPending = 1;
-            aValues[iReg - 1].ExtIntEvent.EventType    = WHvX64PendingEventExtInt;
-            aValues[iReg - 1].ExtIntEvent.Vector       = bInterrupt;
+                /* Clear interrupt window while injecting an interrupt. */
+                ADD_REG64(WHvX64RegisterDeliverabilityNotifications, 0);
+                pVCpu->nem.s.fIrqWindowRegistered     = false;
+                pVCpu->nem.s.fCurrentInterruptWindows = 0;
+            }
         }
-
-        if (!pVCpu->nem.s.fIrqWindowRegistered)
+        else if (!pVCpu->nem.s.fIrqWindowRegistered)
         {
+            /* When interrupts are disabled or when in an interrupt shadow, enable interrupt window. */
             ADD_REG64(WHvX64RegisterDeliverabilityNotifications, 0);
             aValues[iReg - 1].DeliverabilityNotifications.InterruptNotification = 1;
-            pVCpu->nem.s.fIrqWindowRegistered = true;
+            pVCpu->nem.s.fIrqWindowRegistered     = true;
+            pVCpu->nem.s.fCurrentInterruptWindows = NEM_WIN_INTW_F_REGULAR;
+        }
+
+        /*
+         * Ensure the HaltSuspend bit is cleared when the previous VM-exit was caused by
+         * a host interrupt (canceled event) and we need to continue the guest or when
+         * injecting a guest interrupt and waking up the VCPU from a halted state. To be
+         * extra safe, we only modify the HaltSuspend bit preserving other bits, primarily
+         * the StartupSuspend bit which is relevant for SMP VMs, see @bugref{9993#c74}.
+         */
+        if (   fInjectingInterrupt
+            || pVCpu->nem.s.fClearHaltSuspend)
+        {
+            WHV_REGISTER_VALUE ActReg;
+            RT_ZERO(ActReg);
+            static const WHV_REGISTER_NAME enmActReg = WHvRegisterInternalActivityState;
+            HRESULT const hrc = WHvGetVirtualProcessorRegisters(pVM->nem.s.hPartition, pVCpu->idCpu, &enmActReg, 1, &ActReg);
+            AssertLogRelMsgReturn(SUCCEEDED(hrc),
+                                  ("%u: Failed to get WHvRegisterInternalActivityState. hrc=%Rhrc (Last=%#x/%u)\n",
+                                   pVCpu->idCpu, hrc, RTNtLastStatusValue(), RTNtLastErrorValue()), VERR_NEM_IPE_8);
+            if (ActReg.InternalActivity.HaltSuspend)
+            {
+                ActReg.InternalActivity.HaltSuspend = 0;
+                ADD_REG64(WHvRegisterInternalActivityState, ActReg.Reg64);
+            }
+            pVCpu->nem.s.fClearHaltSuspend = false;
         }
     }
 
@@ -2839,8 +2943,6 @@ static int nemHCWinCopyStateToHyperV(PVMCC pVM, PVMCPUCC pVCpu)
     Log12(("Calling WHvSetVirtualProcessorRegisters(%p, %u, %p, %u, %p)\n",
            pVM->nem.s.hPartition, pVCpu->idCpu, aenmNames, iReg, aValues));
 #endif
-
-    pVCpu->nem.s.fPicReadyForInterrupt = false;
 
     if (!iReg)
         return VINF_SUCCESS;
@@ -3547,8 +3649,22 @@ static int nemHCWinCopyStateFromHyperV(PVMCC pVM, PVMCPUCC pVCpu, uint64_t fWhat
         AssertMsg((aValues[iReg].PendingInterruption.AsUINT64 & UINT64_C(0xfc00)) == 0,
                   ("%#RX64\n", aValues[iReg].PendingInterruption.AsUINT64));
     }
+    iReg++;
 
-    /// @todo WHvRegisterPendingEvent
+    Assert(aenmNames[iReg] == WHvRegisterPendingEvent);
+    WHV_X64_PENDING_EXT_INT_EVENT const *pEventPending = &aValues[iReg].ExtIntEvent;
+    if (pEventPending->EventPending)
+    {
+        /* Currently this should only happen when injecting PIC interrupts using the Hyper-V APIC. */
+        Assert(pVM->nem.s.fLocalApicEmulation);
+        Assert(aValues[iReg - 1].PendingInterruption.InterruptionPending == 0); /* PendingInterruption shouldn't also be set. */
+        AssertLogRelMsgReturn(pEventPending->EventType == WHvX64PendingEventExtInt,
+                              ("%u: Unexpected pending event type %#x\n", pEventPending->EventType),
+                              VERR_NEM_IPE_8);
+        int rc = TRPMAssertTrap(pVCpu, pEventPending->Vector, TRPM_HARDWARE_INT);
+        AssertMsgReturn(rc == VINF_SUCCESS, ("rc=%Rrc\n", rc), RT_FAILURE_NP(rc) ? rc : VERR_NEM_IPE_3);
+    }
+    iReg++;
 
     /* Almost done, just update extrn flags and maybe change PGM mode. */
     pVCpu->cpum.GstCtx.fExtrn &= ~fWhat;
@@ -4320,7 +4436,7 @@ static VBOXSTRICTRC nemR3WinHandleExitInterruptWindow(PVMCC pVM, PVMCPUCC pVCpu,
           pExit->VpContext.ExecutionState.InterruptShadow, pExit->VpContext.Cr8));
 
     pVCpu->nem.s.fIrqWindowRegistered  = false;
-    pVCpu->nem.s.fPicReadyForInterrupt = true;
+    pVCpu->nem.s.fCurrentInterruptWindows = 0;
 
     /** @todo call nemHCWinHandleInterruptFF   */
     RT_NOREF(pVM);
@@ -4956,6 +5072,7 @@ static VBOXSTRICTRC nemR3WinHandleExit(PVMCC pVM, PVMCPUCC pVCpu, WHV_RUN_VP_EXI
         case WHvRunVpExitReasonCanceled:
             STAM_REL_COUNTER_INC(&pVCpu->nem.s.StatExitCanceled);
             nemR3WinCopyStateFromX64Header(pVCpu, &pExit->VpContext);
+            pVCpu->nem.s.fClearHaltSuspend = true;
             return VINF_SUCCESS;
 
         case WHvRunVpExitReasonX64InterruptWindow:
@@ -4986,9 +5103,21 @@ static VBOXSTRICTRC nemR3WinHandleExit(PVMCC pVM, PVMCPUCC pVCpu, WHV_RUN_VP_EXI
 
         case WHvRunVpExitReasonUnsupportedFeature:
         case WHvRunVpExitReasonInvalidVpRegisterValue:
+        {
+            WHV_REGISTER_VALUE ActReg;
+            RT_ZERO(ActReg);
+            static const WHV_REGISTER_NAME enmActReg = WHvRegisterInternalActivityState;
+            HRESULT const hrc = WHvGetVirtualProcessorRegisters(pVM->nem.s.hPartition, pVCpu->idCpu, &enmActReg, 1, &ActReg);
+            AssertLogRelMsgReturn(SUCCEEDED(hrc),
+                                  ("%u: Failed to get WHvRegisterInternalActivityState. hrc=%Rhrc (Last=%#x/%u)\n",
+                                   pVCpu->idCpu, hrc, RTNtLastStatusValue(), RTNtLastErrorValue()), VERR_NEM_IPE_8);
+
             LogRel(("Unimplemented exit:\n%.*Rhxd\n", (int)sizeof(*pExit), pExit));
-            AssertLogRelMsgFailedReturn(("Unexpected exit on CPU #%u: %#x\n%.32Rhxd\n",
-                                         pVCpu->idCpu, pExit->ExitReason, pExit), VERR_NEM_IPE_3);
+            LogRel(("Activity Reg: %#RX64\n", ActReg.Reg64));
+            //AssertLogRelMsgFailedReturn(("Unexpected exit on CPU #%u: %#x\n%.32Rhxd\n",
+            //                             pVCpu->idCpu, pExit->ExitReason, pExit), VERR_NEM_IPE_3);
+            return VINF_EM_DBG_STOP;
+        }
 
         case WHvRunVpExitReasonX64ApicInitSipiTrap:
             STAM_REL_COUNTER_INC(&pVCpu->nem.s.StatExitApicSipiInitTrap);
@@ -5308,6 +5437,7 @@ static VBOXSTRICTRC nemHCWinRunGC(PVMCC pVM, PVMCPUCC pVCpu)
                          ExitReason.VpContext.Rip, RT_BOOL(ExitReason.VpContext.Rflags & X86_EFL_IF), ExitReason.VpContext.Cr8,
                          ExitReason.ExitReason));
 #endif
+                pVCpu->nem.s.enmExitReason = ExitReason.ExitReason;
                 if (SUCCEEDED(hrc))
                 {
                     /*
