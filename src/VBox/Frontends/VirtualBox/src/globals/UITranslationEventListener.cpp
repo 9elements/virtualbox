@@ -1,4 +1,4 @@
-/* $Id: UITranslationEventListener.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: UITranslationEventListener.cpp 113621 2026-03-27 12:48:06Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UITranslationEventListener class implementation.
  */
@@ -32,9 +32,14 @@
 #include "UITranslationEventListener.h"
 #include "UITranslator.h"
 
+/* Other VBox includes: */
+#include "iprt/assert.h"
+
+
 /* static */
 UITranslationEventListener *UITranslationEventListener::s_pInstance = 0;
 
+/* static */
 UITranslationEventListener *UITranslationEventListener::instance()
 {
     return s_pInstance;
@@ -43,28 +48,35 @@ UITranslationEventListener *UITranslationEventListener::instance()
 /* static */
 void UITranslationEventListener::create()
 {
-    /* Make sure instance is NOT created yet: */
-    if (s_pInstance)
-        return;
-
-    /* Create instance: */
+    AssertReturnVoid(!s_pInstance);
     new UITranslationEventListener;
+    AssertPtrReturnVoid(s_pInstance);
 }
 
 /* static */
 void UITranslationEventListener::destroy()
 {
-    /* Make sure instance is NOT destroyed yet: */
-    if (!s_pInstance)
-        return;
-
-    /* Destroy instance: */
+    AssertPtrReturnVoid(s_pInstance);
     delete s_pInstance;
+    AssertReturnVoid(!s_pInstance);
 }
 
+bool UITranslationEventListener::eventFilter(QObject *pObject, QEvent *pEvent)
+{
+    /* Pre-process LanguageChange event: */
+    if (   !UITranslator::isTranslationInProgress()
+        && pEvent->type() == QEvent::LanguageChange
+        && pObject == qApp)
+    {
+        /* Send translation signal asynchronously: */
+        QMetaObject::invokeMethod(this, "sltRetranslateUI", Qt::QueuedConnection);
+    }
 
-UITranslationEventListener::UITranslationEventListener(QObject *pParent /* = 0 */)
-    :QObject(pParent)
+    /* Call to base-class: */
+    return QObject::eventFilter(pObject, pEvent);
+}
+
+UITranslationEventListener::UITranslationEventListener()
 {
     qApp->installEventFilter(this);
     s_pInstance = this;
@@ -73,17 +85,4 @@ UITranslationEventListener::UITranslationEventListener(QObject *pParent /* = 0 *
 UITranslationEventListener::~UITranslationEventListener()
 {
     s_pInstance = 0;
-}
-
-bool UITranslationEventListener::eventFilter(QObject *pObject, QEvent *pEvent)
-{
-    if (   !UITranslator::isTranslationInProgress()
-           && pEvent->type() == QEvent::LanguageChange
-           && pObject == qApp)
-    {
-        /* Send translation signal asynchronously: */
-        QMetaObject::invokeMethod(this, "sltRetranslateUI", Qt::QueuedConnection);
-    }
-    /* Call to base-class: */
-    return QObject::eventFilter(pObject, pEvent);
 }

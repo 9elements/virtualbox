@@ -1,4 +1,4 @@
-/* $Id: UITranslationEventListener.h 113262 2026-03-04 20:12:57Z sergey.dubov@oracle.com $ */
+/* $Id: UITranslationEventListener.h 113621 2026-03-27 12:48:06Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UITranslationEventListener class declaration.
  */
@@ -34,18 +34,24 @@
 /* Qt includes: */
 #include <QObject>
 
+/* GUI includes: */
 #include "UILibraryDefs.h"
 
+/** QObject extension catching application-wide LanguageChange event and broadcasting
+  * all the subscribed listeners corresponding sigRetranslateUI signal to handle. */
 class SHARED_LIBRARY_STUFF UITranslationEventListener : public QObject
 {
     Q_OBJECT;
 
 signals:
 
+    /** Notifies listeners about application-wide LanguageChange event. */
     void sigRetranslateUI();
 
 public:
 
+    /** Returns the singleton instance. */
+    static UITranslationEventListener *instance();
     /** Creates message-center singleton. */
     static void create();
     /** Destroys message-center singleton. */
@@ -53,20 +59,24 @@ public:
 
 protected:
 
-    bool eventFilter(QObject *pObject, QEvent *pEvent) RT_OVERRIDE RT_FINAL;
+    /** Preprocesses any Qt @a pEvent for passed @a pObject. */
+    virtual bool eventFilter(QObject *pObject, QEvent *pEvent) RT_OVERRIDE RT_FINAL;
 
 private slots:
 
+    /** Broadcasts signals about application-wide LanguageChange event. */
     void sltRetranslateUI() { emit sigRetranslateUI(); }
 
 private:
 
-    UITranslationEventListener(QObject *pParent = 0);
-    ~UITranslationEventListener();
+    /** Constructs translation event listener. */
+    UITranslationEventListener();
+    /** Destructs translation event listener. */
+    virtual ~UITranslationEventListener() RT_OVERRIDE RT_FINAL;
 
+    /** Holds the singleton instance. */
     static UITranslationEventListener *s_pInstance;
-    /** Returns the singleton instance. */
-    static UITranslationEventListener *instance();
+
     /** Allows for shortcut access. */
     friend UITranslationEventListener &translationEventListener();
 };
