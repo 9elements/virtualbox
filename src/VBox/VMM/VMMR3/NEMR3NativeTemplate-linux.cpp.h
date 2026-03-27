@@ -1,4 +1,4 @@
-/* $Id: NEMR3NativeTemplate-linux.cpp.h 113132 2026-02-23 18:18:04Z alexander.eichner@oracle.com $ */
+/* $Id: NEMR3NativeTemplate-linux.cpp.h 113606 2026-03-27 07:25:58Z alexander.eichner@oracle.com $ */
 /** @file
  * NEM - Native execution manager, native ring-3 Linux backend, common bits for x86 and arm64.
  */
@@ -593,7 +593,7 @@ static int nemR3LnxInitCheckCapabilities(PVM pVM, PRTERRINFO pErrInfo)
         CAP_ENTRY__U(55),
 #endif
 #ifdef __KVM_HAVE_XCRS
-        CAP_ENTRY_ML(KVM_CAP_XCRS),
+        CAP_ENTRY__S(KVM_CAP_XCRS, fXcrs),
 #else
         CAP_ENTRY__U(56),
 #endif

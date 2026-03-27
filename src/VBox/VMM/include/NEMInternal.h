@@ -1,4 +1,4 @@
-/* $Id: NEMInternal.h 113132 2026-02-23 18:18:04Z alexander.eichner@oracle.com $ */
+/* $Id: NEMInternal.h 113606 2026-03-27 07:25:58Z alexander.eichner@oracle.com $ */
 /** @file
  * NEM - Internal header file.
  */
@@ -234,6 +234,8 @@ typedef struct NEM
     bool                        fRobustSingleStep;
     /** KVM_CAP_SPLIT_IRQCHIP */
     bool                        fKvmApic;
+    /** KVM_CAP_XCRS */
+    bool                        fXcrs;
 # endif
     /** Size of the nested virt state, 0 if not supported. */
     uint32_t                    cbNestedState;

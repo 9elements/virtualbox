@@ -1,4 +1,4 @@
-/* $Id: NEMR3Native-linux-x86.cpp 113168 2026-02-26 08:53:43Z alexander.eichner@oracle.com $ */
+/* $Id: NEMR3Native-linux-x86.cpp 113606 2026-03-27 07:25:58Z alexander.eichner@oracle.com $ */
 /** @file
  * NEM - Native execution manager, native ring-3 Linux backend.
  */
@@ -692,42 +692,43 @@ static int nemHCLnxImportState(PVMCPUCC pVCpu, uint64_t fWhat, PCPUMCTX pCtx, st
     /*
      * FPU, SSE, AVX, ++.
      */
+    if (fWhat & (CPUMCTX_EXTRN_X87 | CPUMCTX_EXTRN_SSE_AVX | CPUMCTX_EXTRN_OTHER_XSAVE))
+    {
+        fWhat |= CPUMCTX_EXTRN_X87 | CPUMCTX_EXTRN_SSE_AVX | CPUMCTX_EXTRN_OTHER_XSAVE; /* we do all or nothing at all */
+
+        AssertCompile(sizeof(pCtx->XState) >= sizeof(struct kvm_xsave));
+        int rc = ioctl(pVCpu->nem.s.fdVCpu, KVM_GET_XSAVE, &pCtx->XState);
+        AssertMsgReturn(rc == 0, ("rc=%d errno=%d\n", rc, errno), VERR_NEM_IPE_3);
+    }
+
+    /*
+     * XCRs.
+     */
     bool fUpdateXcr0 = false;
     uint64_t u64Xcr0 = 0;
-    if (fWhat & (CPUMCTX_EXTRN_X87 | CPUMCTX_EXTRN_SSE_AVX | CPUMCTX_EXTRN_OTHER_XSAVE | CPUMCTX_EXTRN_XCRx))
+    if (   pVM->nem.s.fXcrs
+        && (fWhat & CPUMCTX_EXTRN_XCRx))
     {
-        if (fWhat & (CPUMCTX_EXTRN_X87 | CPUMCTX_EXTRN_SSE_AVX | CPUMCTX_EXTRN_OTHER_XSAVE))
-        {
-            fWhat |= CPUMCTX_EXTRN_X87 | CPUMCTX_EXTRN_SSE_AVX | CPUMCTX_EXTRN_OTHER_XSAVE; /* we do all or nothing at all */
-
-            AssertCompile(sizeof(pCtx->XState) >= sizeof(struct kvm_xsave));
-            int rc = ioctl(pVCpu->nem.s.fdVCpu, KVM_GET_XSAVE, &pCtx->XState);
-            AssertMsgReturn(rc == 0, ("rc=%d errno=%d\n", rc, errno), VERR_NEM_IPE_3);
-        }
-
-        if (fWhat & CPUMCTX_EXTRN_XCRx)
-        {
-            struct kvm_xcrs Xcrs =
-            {   /*.nr_xcrs = */ 2,
-                /*.flags = */   0,
-                /*.xcrs= */ {
-                    { /*.xcr =*/ 0, /*.reserved=*/ 0, /*.value=*/ pCtx->aXcr[0] },
-                    { /*.xcr =*/ 1, /*.reserved=*/ 0, /*.value=*/ pCtx->aXcr[1] },
-                }
-            };
-
-            int rc = ioctl(pVCpu->nem.s.fdVCpu, KVM_GET_XCRS, &Xcrs);
-            AssertMsgReturn(rc == 0, ("rc=%d errno=%d\n", rc, errno), VERR_NEM_IPE_3);
-
-            if (pCtx->aXcr[0] != Xcrs.xcrs[0].value)
-            {
-                u64Xcr0 = Xcrs.xcrs[0].value;
-                fUpdateXcr0 = true;
+        struct kvm_xcrs Xcrs =
+        {   /*.nr_xcrs = */ 2,
+            /*.flags = */   0,
+            /*.xcrs= */ {
+                { /*.xcr =*/ 0, /*.reserved=*/ 0, /*.value=*/ pCtx->aXcr[0] },
+                { /*.xcr =*/ 1, /*.reserved=*/ 0, /*.value=*/ pCtx->aXcr[1] },
             }
+        };
 
-            /** @todo Same logic for XCR1 when it becomes necessary. */
-            pCtx->aXcr[1] = Xcrs.xcrs[1].value;
+        int rc = ioctl(pVCpu->nem.s.fdVCpu, KVM_GET_XCRS, &Xcrs);
+        AssertMsgReturn(rc == 0, ("rc=%d errno=%d\n", rc, errno), VERR_NEM_IPE_3);
+
+        if (pCtx->aXcr[0] != Xcrs.xcrs[0].value)
+        {
+            u64Xcr0 = Xcrs.xcrs[0].value;
+            fUpdateXcr0 = true;
         }
+
+        /** @todo Same logic for XCR1 when it becomes necessary. */
+        pCtx->aXcr[1] = Xcrs.xcrs[1].value;
     }
 
     /*
@@ -1150,33 +1151,34 @@ static int nemHCLnxExportState(PVM pVM, PVMCPU pVCpu, PCPUMCTX pCtx, struct kvm_
     /*
      * FPU, SSE, AVX, ++.
      */
-    if (fExtrn & (CPUMCTX_EXTRN_X87 | CPUMCTX_EXTRN_SSE_AVX | CPUMCTX_EXTRN_OTHER_XSAVE | CPUMCTX_EXTRN_XCRx))
+    if (fExtrn & (CPUMCTX_EXTRN_X87 | CPUMCTX_EXTRN_SSE_AVX | CPUMCTX_EXTRN_OTHER_XSAVE))
     {
-        if (fExtrn & (CPUMCTX_EXTRN_X87 | CPUMCTX_EXTRN_SSE_AVX | CPUMCTX_EXTRN_OTHER_XSAVE))
-        {
-            /** @todo could IEM just grab state partial control in some situations? */
-            Assert(   (fExtrn & (CPUMCTX_EXTRN_X87 | CPUMCTX_EXTRN_SSE_AVX | CPUMCTX_EXTRN_OTHER_XSAVE))
-                   ==           (CPUMCTX_EXTRN_X87 | CPUMCTX_EXTRN_SSE_AVX | CPUMCTX_EXTRN_OTHER_XSAVE)); /* no partial states */
+        /** @todo could IEM just grab state partial control in some situations? */
+        Assert(   (fExtrn & (CPUMCTX_EXTRN_X87 | CPUMCTX_EXTRN_SSE_AVX | CPUMCTX_EXTRN_OTHER_XSAVE))
+               ==           (CPUMCTX_EXTRN_X87 | CPUMCTX_EXTRN_SSE_AVX | CPUMCTX_EXTRN_OTHER_XSAVE)); /* no partial states */
 
-            AssertCompile(sizeof(pCtx->XState) >= sizeof(struct kvm_xsave));
-            int rc = ioctl(pVCpu->nem.s.fdVCpu, KVM_SET_XSAVE, &pCtx->XState);
-            AssertMsgReturn(rc == 0, ("rc=%d errno=%d\n", rc, errno), VERR_NEM_IPE_3);
-        }
+        AssertCompile(sizeof(pCtx->XState) >= sizeof(struct kvm_xsave));
+        int rc = ioctl(pVCpu->nem.s.fdVCpu, KVM_SET_XSAVE, &pCtx->XState);
+        AssertMsgReturn(rc == 0, ("rc=%d errno=%d\n", rc, errno), VERR_NEM_IPE_3);
+    }
 
-        if (fExtrn & CPUMCTX_EXTRN_XCRx)
-        {
-            struct kvm_xcrs Xcrs =
-            {   /*.nr_xcrs = */ 2,
-                /*.flags = */   0,
-                /*.xcrs= */ {
-                    { /*.xcr =*/ 0, /*.reserved=*/ 0, /*.value=*/ pCtx->aXcr[0] },
-                    { /*.xcr =*/ 1, /*.reserved=*/ 0, /*.value=*/ pCtx->aXcr[1] },
-                }
-            };
+    /*
+     * XCR.
+     */
+    if (   pVM->nem.s.fXcrs
+        && (fExtrn & CPUMCTX_EXTRN_XCRx))
+    {
+        struct kvm_xcrs Xcrs =
+        {   /*.nr_xcrs = */ 2,
+            /*.flags = */   0,
+            /*.xcrs= */ {
+                { /*.xcr =*/ 0, /*.reserved=*/ 0, /*.value=*/ pCtx->aXcr[0] },
+                { /*.xcr =*/ 1, /*.reserved=*/ 0, /*.value=*/ pCtx->aXcr[1] },
+            }
+        };
 
-            int rc = ioctl(pVCpu->nem.s.fdVCpu, KVM_SET_XCRS, &Xcrs);
-            AssertMsgReturn(rc == 0, ("rc=%d errno=%d\n", rc, errno), VERR_NEM_IPE_3);
-        }
+        int rc = ioctl(pVCpu->nem.s.fdVCpu, KVM_SET_XCRS, &Xcrs);
+        AssertMsgReturn(rc == 0, ("rc=%d errno=%d\n", rc, errno), VERR_NEM_IPE_3);
     }
 
     /*
