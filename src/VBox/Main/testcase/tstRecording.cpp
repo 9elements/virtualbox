@@ -1,4 +1,4 @@
-/* $Id: tstRecording.cpp 113625 2026-03-27 13:46:36Z andreas.loeffler@oracle.com $ */
+/* $Id: tstRecording.cpp 113642 2026-03-30 10:11:57Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording testcases.
  */
@@ -56,7 +56,7 @@ int RecordingRenderSWFrameResizeCropCenter(RECORDINGVIDEOFRAME const *pDstFrame,
 #endif
 
 
-static void tstRecordingRenderCropCenter(RTTEST hTest)
+static void tstRecRenderCropCenter(RTTEST hTest)
 {
     RTTestSub(hTest, "Renderer: crop/center geometry");
 
@@ -569,7 +569,7 @@ static void tstRecCircBufRecFrames(RTTEST hTest)
     }
 }
 
-static void tstRecordingRenderer(RTTEST hTest)
+static void tstRecRenderer(RTTEST hTest)
 {
     RTTestSub(hTest, "Renderer");
 
@@ -582,41 +582,41 @@ static void tstRecordingRenderer(RTTEST hTest)
     /*
      * Create test pattern frame.
      */
-    RECORDINGSURFACEINFO SurfaceInfo;
-    RT_ZERO(SurfaceInfo);
-    SurfaceInfo.uWidth        = 640;
-    SurfaceInfo.uHeight       = 480;
-    SurfaceInfo.uBPP          = 32;
-    SurfaceInfo.enmPixelFmt   = RECORDINGPIXELFMT_BRGA32;
-    SurfaceInfo.uBytesPerLine = SurfaceInfo.uWidth * 4;
+    RECORDINGSURFACEINFO ScreenParms;
+    RT_ZERO(ScreenParms);
+    ScreenParms.uWidth        = 640;
+    ScreenParms.uHeight       = 480;
+    ScreenParms.uBPP          = 32;
+    ScreenParms.enmPixelFmt   = RECORDINGPIXELFMT_BRGA32;
+    ScreenParms.uBytesPerLine = ScreenParms.uWidth * 4;
 
-    RECORDINGRENDERPARAMS Parms;
-    RT_ZERO(Parms);
-    Parms.Info = SurfaceInfo;
+    RECORDINGRENDERPARAMS RenderParms;
+    RT_ZERO(RenderParms);
+    RenderParms.Info = ScreenParms;
 
-    rc = RecordingRenderSetParms(&Renderer, &Parms);
+    rc = RecordingRenderSetParms(&Renderer, &RenderParms);
     RTTESTI_CHECK_RC_RETV(rc, VINF_SUCCESS);
 
-    rc = RecordingRenderScreenChange(&Renderer, &SurfaceInfo);
+    rc = RecordingRenderScreenChange(&Renderer, &ScreenParms);
     RTTESTI_CHECK_RC_RETV(rc, VINF_SUCCESS);
 
     RECORDINGFRAME FrameVideo;
     RT_ZERO(FrameVideo);
     FrameVideo.enmType = RECORDINGFRAME_TYPE_VIDEO;
     rc = RecordingVideoFrameInit(&FrameVideo.u.Video, RECORDINGVIDEOFRAME_F_VISIBLE,
-                                 SurfaceInfo.uWidth, SurfaceInfo.uHeight,
+                                 ScreenParms.uWidth, ScreenParms.uHeight,
                                  0 /* uPosX */, 0 /* uPosY */,
-                                 SurfaceInfo.uBPP, SurfaceInfo.enmPixelFmt);
+                                 ScreenParms.uBPP, ScreenParms.enmPixelFmt);
     RTTESTI_CHECK_RC_RETV(rc, VINF_SUCCESS);
 
-    for (uint32_t y = 0; y < SurfaceInfo.uHeight; y++)
+    for (uint32_t y = 0; y < ScreenParms.uHeight; y++)
     {
-        for (uint32_t x = 0; x < SurfaceInfo.uWidth; x++)
+        for (uint32_t x = 0; x < ScreenParms.uWidth; x++)
         {
             uint8_t *pu8Pixel = &FrameVideo.u.Video.pau8Buf[(size_t)y * FrameVideo.u.Video.Info.uBytesPerLine + (size_t)x * 4];
 
-            uint8_t const uX = (uint8_t)((x * 255U) / (SurfaceInfo.uWidth  - 1));
-            uint8_t const uY = (uint8_t)((y * 255U) / (SurfaceInfo.uHeight - 1));
+            uint8_t const uX = (uint8_t)((x * 255U) / (ScreenParms.uWidth  - 1));
+            uint8_t const uY = (uint8_t)((y * 255U) / (ScreenParms.uHeight - 1));
 
             /* Gradient background to detect axis swaps. */
             pu8Pixel[0] = (uint8_t)(0x20 + (uX >> 1));
@@ -625,8 +625,8 @@ static void tstRecordingRenderer(RTTEST hTest)
             pu8Pixel[3] = 0xff;
 
             /* White center cross. */
-            if (   x == SurfaceInfo.uWidth / 2
-                || y == SurfaceInfo.uHeight / 2)
+            if (   x == ScreenParms.uWidth / 2
+                || y == ScreenParms.uHeight / 2)
             {
                 pu8Pixel[0] = 0xff;
                 pu8Pixel[1] = 0xff;
@@ -634,9 +634,9 @@ static void tstRecordingRenderer(RTTEST hTest)
             }
 
             /* Blue 1:1 square marker to catch ratio errors. */
-            uint32_t const uSquare = RT_MIN(SurfaceInfo.uWidth, SurfaceInfo.uHeight);
-            uint32_t const uSqX0   = (SurfaceInfo.uWidth  - uSquare) / 2;
-            uint32_t const uSqY0   = (SurfaceInfo.uHeight - uSquare) / 2;
+            uint32_t const uSquare = RT_MIN(ScreenParms.uWidth, ScreenParms.uHeight);
+            uint32_t const uSqX0   = (ScreenParms.uWidth  - uSquare) / 2;
+            uint32_t const uSqY0   = (ScreenParms.uHeight - uSquare) / 2;
             uint32_t const uSqX1   = uSqX0 + uSquare - 1;
             uint32_t const uSqY1   = uSqY0 + uSquare - 1;
             if (   (x >= uSqX0 && x <= uSqX1 && (y == uSqY0 || y == uSqY1))
@@ -650,8 +650,8 @@ static void tstRecordingRenderer(RTTEST hTest)
             /* Red border to ensure full frame area is handled. */
             if (   x == 0
                 || y == 0
-                || x == SurfaceInfo.uWidth  - 1
-                || y == SurfaceInfo.uHeight - 1)
+                || x == ScreenParms.uWidth  - 1
+                || y == ScreenParms.uHeight - 1)
             {
                 pu8Pixel[0] = 0x00;
                 pu8Pixel[1] = 0x00;
@@ -717,10 +717,8 @@ static void tstRecordingRenderer(RTTEST hTest)
     FrameCursorPos.u.Cursor.Pos.x = 28;
     FrameCursorPos.u.Cursor.Pos.y = 18;
 
-    RECORDINGRENDERPARAMS RenderParms;
-    RT_ZERO(RenderParms);
-
-    RenderParms.enmScalingMode = RecordingVideoScalingMode_None;
+    RenderParms.Info.enmPixelFmt = RECORDINGPIXELFMT_BRGA32; /* For making inspecting data easier. */
+    RenderParms.enmScalingMode   = RecordingVideoScalingMode_None;
 
     /*
      * Test cropping.
@@ -772,16 +770,49 @@ static void tstRecordingRenderer(RTTEST hTest)
     RTTESTI_CHECK_RC_RETV(RecordingRenderComposeEnd(&Renderer), VINF_SUCCESS);
     RTTESTI_CHECK_RC(RecordingRenderPerform(&Renderer), VINF_SUCCESS);
 
-    /* Query last rendered frame (+ dump it). */
-    RECORDINGFRAME Frame;
-    RTTESTI_CHECK_RC_RETV(RecordingRenderQueryFrame(&Renderer, &Frame.u.Video), VINF_SUCCESS);
+    /*
+     * Query last rendered frame (+ dump it).
+     */
+    RECORDINGVIDEOFRAME FrameQueried;
+    RTTESTI_CHECK_RC_RETV(RecordingRenderQueryFrame(&Renderer, &FrameQueried), VINF_SUCCESS);
 #ifdef VBOX_RECORDING_DEBUG_DUMP_FRAMES
-    RecordingDbgDumpVideoFrame(&Frame.u.Video, "tstRecordingRenderQueryFrame", 0 /* Timestamp */);
+    RecordingDbgDumpVideoFrame(&FrameQueried, "tstRecordingRenderFrameQueried", 0 /* Timestamp */);
 #endif
-    RecordingFrameDestroy(&Frame);
+    RecordingVideoFrameDestroy(&FrameQueried);
 
-    RecordingVideoFrameDestroy(&FrameCursorShape.u.CursorShape);
-    RecordingVideoFrameDestroy(&FrameVideo.u.Video);
+    /*
+     * YUV I420 conversion.
+     */
+    ScreenParms.uWidth        = 640;
+    ScreenParms.uHeight       = 480;
+    ScreenParms.uBPP          = 32;
+    ScreenParms.enmPixelFmt   = RECORDINGPIXELFMT_BRGA32;
+    ScreenParms.uBytesPerLine = ScreenParms.uWidth * 4;
+
+    RenderParms.Info.uWidth      = 640;
+    RenderParms.Info.uHeight     = 480;
+    RenderParms.Info.uBPP        = 32;
+    RenderParms.Info.enmPixelFmt = RECORDINGPIXELFMT_YUVI420;
+    RenderParms.enmScalingMode   = RecordingVideoScalingMode_None;
+
+    RTTESTI_CHECK_RC_RETV(RecordingRenderSetParms(&Renderer, &RenderParms), VINF_SUCCESS);
+    RTTESTI_CHECK_RC_RETV(RecordingRenderComposeBegin(&Renderer), VINF_SUCCESS);
+    RTTESTI_CHECK_RC_RETV(RecordingRenderComposeAddFrame(&Renderer, &FrameVideo), VINF_SUCCESS);
+    RTTESTI_CHECK_RC_RETV(RecordingRenderComposeAddFrame(&Renderer, &FrameCursorPos), VINF_SUCCESS);
+    RTTESTI_CHECK_RC_RETV(RecordingRenderComposeEnd(&Renderer), VINF_SUCCESS);
+    RTTESTI_CHECK_RC(RecordingRenderPerform(&Renderer), VINF_SUCCESS);
+
+    RTTESTI_CHECK_RC_RETV(RecordingRenderQueryFrame(&Renderer, &FrameQueried), VINF_SUCCESS);
+#ifdef VBOX_RECORDING_DEBUG_DUMP_FRAMES
+    RecordingDbgDumpVideoFrame(&FrameQueried, "tstRecordingRenderYUVI420", 0 /* Timestamp */);
+#endif
+    RecordingVideoFrameDestroy(&FrameQueried);
+
+    /*
+     * Clean up.
+     */
+    RecordingFrameDestroy(&FrameCursorShape);
+    RecordingFrameDestroy(&FrameVideo);
     RecordingRenderDestroy(&Renderer);
 }
 
@@ -820,8 +851,8 @@ int main()
     tstRecCircBufOverflowSlowReader(hTest);
     tstRecCircBufOverflowResolvedByRemovingSlow(hTest);
     tstRecCircBufRecFrames(hTest);
-    tstRecordingRenderCropCenter(hTest);
-    tstRecordingRenderer(hTest);
+    tstRecRenderCropCenter(hTest);
+    tstRecRenderer(hTest);
 
     return RTTestSummaryAndDestroy(hTest);
 }

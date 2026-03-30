@@ -1,4 +1,4 @@
-/* $Id: RecordingInternals.cpp 113625 2026-03-27 13:46:36Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingInternals.cpp 113642 2026-03-30 10:11:57Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording internals code.
  */
@@ -192,7 +192,8 @@ void RecordingVideoFrameDestroy(PRECORDINGVIDEOFRAME pFrame)
     if (pFrame->pau8Buf)
     {
         Assert(pFrame->cbBuf);
-        RTMemFree(pFrame->pau8Buf);
+        if (!(pFrame->fFlags & RECORDINGVIDEOFRAME_F_NO_DESTROY))
+            RTMemFree(pFrame->pau8Buf);
         pFrame->pau8Buf = NULL;
         pFrame->cbBuf  = 0;
     }

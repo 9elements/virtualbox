@@ -1,4 +1,4 @@
-/* $Id: RecordingInternals.h 113625 2026-03-27 13:46:36Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingInternals.h 113642 2026-03-30 10:11:57Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording internals header.
  */
@@ -135,8 +135,11 @@ typedef RECORDINGPOS *PRECORDINGPOS;
 #define RECORDINGVIDEOFRAME_F_VISIBLE    RT_BIT(0)
 /** Use blitting with alpha blending. */
 #define RECORDINGVIDEOFRAME_F_BLIT_ALPHA RT_BIT(1)
+/** Do not destroy the pixel data.
+ *  Might be used if the pixel data is not owned by this frame. Use with care! */
+#define RECORDINGVIDEOFRAME_F_NO_DESTROY RT_BIT(2)
 /** Validation mask. */
-#define RECORDINGVIDEOFRAME_F_VALID_MASK 0x3
+#define RECORDINGVIDEOFRAME_F_VALID_MASK 0x7
 
 /**
  * Structure for keeping a single recording video frame.

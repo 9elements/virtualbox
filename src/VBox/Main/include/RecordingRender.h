@@ -1,4 +1,4 @@
-/* $Id: RecordingRender.h 113627 2026-03-27 14:19:32Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingRender.h 113642 2026-03-30 10:11:57Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording rendering backend abstraction.
  */
@@ -316,15 +316,15 @@ typedef struct RECORDINGRENDERER
     PRECORDINGRENDERTEXTURE   pTexComposite;
     /** Pass 2 of the pipeline:
      *  Pointer to the resized composite frame.
-     *  Might point to \a pFrameComposite if scaling is not active / needed. */
+     *  Might point to \a pTexComposite if scaling is not active / needed. */
     PRECORDINGRENDERTEXTURE   pTexScaled;
     /** Pass 3 of the pipeline:
      *  Pointer to the converted (color space) scaled frame.
-     *  Might point to \a pFrameScaled if conversion is not active / needed. */
+     *  Might point to \a pTexScaled if conversion is not active / needed. */
     PRECORDINGRENDERTEXTURE   pTexConv;
     /** Timestamp (in ms) of the most recently composed frame.
      *  Set to 0 if no frame was composed yet. */
-    uint64_t                  msLastTimestamp;
+    uint64_t                  msLastRenderedTS;
 } RECORDINGRENDERER;
 /** Pointer to RECORDINGRENDERER. */
 typedef RECORDINGRENDERER *PRECORDINGRENDERER;

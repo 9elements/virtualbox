@@ -1,4 +1,4 @@
-/* $Id: RecordingUtils.cpp 113627 2026-03-27 14:19:32Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingUtils.cpp 113642 2026-03-30 10:11:57Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording utility code.
  */
@@ -40,6 +40,7 @@
 #ifdef DEBUG
 #include <iprt/file.h>
 #include <iprt/formats/bmp.h>
+#include <iprt/mem.h>
 #endif
 
 #include <iprt/errcore.h>
@@ -238,6 +239,84 @@ size_t RecordingUtilsCalcCapacityFromLatency(RTMSINTERVAL msLatencyBudget, size_
 }
 
 # ifdef DEBUG
+DECLINLINE(int) recordingUtilsDbgDumpBRGA32Frame(const uint8_t *pu8RGBBuf, size_t cbRGBBuf,
+                                                 const char *pszPath, const char *pszWhat,
+                                                 uint32_t uX, uint32_t uY, uint32_t uWidth, uint32_t uHeight,
+                                                 uint32_t uBytesPerLine, uint8_t uBPP, uint64_t msTimestamp);
+
+/**
+ * Dumps a YUVI420 frame by converting it to BRGA32 first.
+ *
+ * @returns VBox status code.
+ * @param   pFrame              YUVI420 frame to dump.
+ * @param   pszPath             Absolute path to dump file to. Must exist.
+ *                              Specify NULL to use the system's temp directory as output directory.
+ * @param   pszWhat             Hint of what to dump. Optional and can be NULL.
+ * @param   msTimestamp         Timestamp (PTS, absolute) of the frame.
+ */
+DECLINLINE(int) recordingUtilsDbgDumpYUVI420Frame(const PRECORDINGVIDEOFRAME pFrame, const char *pszPath,
+                                                  const char *pszWhat, uint64_t msTimestamp)
+{
+    AssertPtrReturn(pFrame, VERR_INVALID_POINTER);
+    AssertPtrReturn(pFrame->pau8Buf, VERR_INVALID_POINTER);
+
+    uint32_t const uWidth  = pFrame->Info.uWidth;
+    uint32_t const uHeight = pFrame->Info.uHeight;
+    if (!uWidth || !uHeight)
+        return VINF_SUCCESS;
+
+    /* I420/YUVI420 is 4:2:0 and therefore uses even dimensions. */
+    AssertReturn((uWidth & 1) == 0, VERR_INVALID_PARAMETER);
+    AssertReturn((uHeight & 1) == 0, VERR_INVALID_PARAMETER);
+
+    size_t const cbLumaPlane   = (size_t)uWidth * uHeight;
+    size_t const cbChromaPlane = cbLumaPlane / 4;
+    size_t const cbYUVI420     = cbLumaPlane + cbChromaPlane * 2;
+    AssertReturn(pFrame->cbBuf >= cbYUVI420, VERR_INVALID_PARAMETER);
+
+    size_t const cbBGRAStride = (size_t)uWidth * 4;
+    size_t const cbBGRA       = cbBGRAStride * uHeight;
+
+    uint8_t *pu8BGRA = (uint8_t *)RTMemAlloc(cbBGRA);
+    AssertPtrReturn(pu8BGRA, VERR_NO_MEMORY);
+
+    uint8_t const *pu8Y = pFrame->pau8Buf;
+    uint8_t const *pu8U = pu8Y + cbLumaPlane;
+    uint8_t const *pu8V = pu8U + cbChromaPlane;
+
+    for (uint32_t y = 0; y < uHeight; y++)
+    {
+        size_t const offY  = (size_t)y * uWidth;
+        size_t const offUV = (size_t)(y / 2) * (uWidth / 2);
+        uint8_t *pu8DstLine = pu8BGRA + (size_t)y * cbBGRAStride;
+
+        for (uint32_t x = 0; x < uWidth; x++)
+        {
+            int32_t const iY = pu8Y[offY + x];
+            int32_t const iU = (int32_t)pu8U[offUV + (x / 2)] - 128;
+            int32_t const iV = (int32_t)pu8V[offUV + (x / 2)] - 128;
+
+            int32_t const iR = iY + ((359 * iV + 128) >> 8);
+            int32_t const iG = iY - ((88 * iU + 183 * iV + 128) >> 8);
+            int32_t const iB = iY + ((454 * iU + 128) >> 8);
+
+            uint8_t *pu8Dst = pu8DstLine + (size_t)x * 4;
+            pu8Dst[0] = RT_CLAMP(iB, 0, UINT8_MAX);
+            pu8Dst[1] = RT_CLAMP(iG, 0, UINT8_MAX);
+            pu8Dst[2] = RT_CLAMP(iR, 0, UINT8_MAX);
+            pu8Dst[3] = 0xff;
+        }
+    }
+
+    int const vrc = recordingUtilsDbgDumpBRGA32Frame(pu8BGRA, cbBGRA,
+                                                      pszPath, pszWhat,
+                                                      0, 0, uWidth, uHeight,
+                                                      (uint32_t)cbBGRAStride, 32 /* uBPP */, msTimestamp);
+
+    RTMemFree(pu8BGRA);
+    return vrc;
+}
+
 /**
  * Dumps image data to a bitmap (BMP) file, inline version.
  *
@@ -257,7 +336,7 @@ size_t RecordingUtilsCalcCapacityFromLatency(RTMSINTERVAL msLatencyBudget, size_
  * @param   uBPP                Bits in pixel.
  * @param   msTimestamp         Timestamp (PTS, absolute) of the frame.
  */
-DECLINLINE(int) recordingUtilsDbgDumpImageData(const uint8_t *pu8RGBBuf, size_t cbRGBBuf, const char *pszPath, const char *pszWhat,
+DECLINLINE(int) recordingUtilsDbgDumpBRGA32Frame(const uint8_t *pu8RGBBuf, size_t cbRGBBuf, const char *pszPath, const char *pszWhat,
                                                uint32_t uX, uint32_t uY, uint32_t uWidth, uint32_t uHeight, uint32_t uBytesPerLine,
                                                uint8_t uBPP, uint64_t msTimestamp)
 {
@@ -369,8 +448,8 @@ int RecordingDbgDumpImageData(const uint8_t *pu8RGBBuf, size_t cbRGBBuf, const c
                                    uint32_t uX, uint32_t uY, uint32_t uWidth, uint32_t uHeight, uint32_t uBytesPerLine,
                                    uint8_t uBPP, uint64_t msTimestamp)
 {
-    return recordingUtilsDbgDumpImageData(pu8RGBBuf, cbRGBBuf, pszPath, pszWhat,
-                                          uX, uY, uWidth, uHeight, uBytesPerLine, uBPP, msTimestamp);
+    return recordingUtilsDbgDumpBRGA32Frame(pu8RGBBuf, cbRGBBuf, pszPath, pszWhat,
+                                            uX, uY, uWidth, uHeight, uBytesPerLine, uBPP, msTimestamp);
 }
 
 /**
@@ -385,10 +464,22 @@ int RecordingDbgDumpImageData(const uint8_t *pu8RGBBuf, size_t cbRGBBuf, const c
  */
 int RecordingDbgDumpVideoFrameEx(const PRECORDINGVIDEOFRAME pFrame, const char *pszPath, const char *pszWhat, uint64_t msTimestamp)
 {
-    return recordingUtilsDbgDumpImageData(pFrame->pau8Buf, pFrame->cbBuf,
-                                          pszPath, pszWhat,
-                                          0, 0, pFrame->Info.uWidth, pFrame->Info.uHeight,
-                                          pFrame->Info.uBytesPerLine, pFrame->Info.uBPP, msTimestamp);
+    switch (pFrame->Info.enmPixelFmt)
+    {
+        case RECORDINGPIXELFMT_BRGA32:
+            return recordingUtilsDbgDumpBRGA32Frame(pFrame->pau8Buf, pFrame->cbBuf,
+                                                    pszPath, pszWhat,
+                                                    0, 0, pFrame->Info.uWidth, pFrame->Info.uHeight,
+                                                    pFrame->Info.uBytesPerLine, pFrame->Info.uBPP, msTimestamp);
+
+        case RECORDINGPIXELFMT_YUVI420:
+            return recordingUtilsDbgDumpYUVI420Frame(pFrame, pszPath, pszWhat, msTimestamp);
+
+        default:
+            break;
+    }
+
+    AssertFailedReturn(VERR_NOT_IMPLEMENTED);
 }
 
 /**
@@ -401,10 +492,7 @@ int RecordingDbgDumpVideoFrameEx(const PRECORDINGVIDEOFRAME pFrame, const char *
  */
 int RecordingDbgDumpVideoFrame(const PRECORDINGVIDEOFRAME pFrame, const char *pszWhat, uint64_t msTimestamp)
 {
-    return recordingUtilsDbgDumpImageData(pFrame->pau8Buf, pFrame->cbBuf,
-                                          NULL /* Use temp directory */, pszWhat,
-                                          0, 0, pFrame->Info.uWidth, pFrame->Info.uHeight,
-                                          pFrame->Info.uBytesPerLine, pFrame->Info.uBPP, msTimestamp);
+    return RecordingDbgDumpVideoFrameEx(pFrame, NULL /* Use temp directory */, pszWhat, msTimestamp);
 }
 
 /**

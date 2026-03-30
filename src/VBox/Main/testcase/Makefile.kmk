@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 113626 2026-03-27 14:07:51Z andreas.loeffler@oracle.com $
+# $Id: Makefile.kmk 113642 2026-03-30 10:11:57Z andreas.loeffler@oracle.com $
 ## @file
 # Sub-Makefile for the VBox API testcases.
 #
@@ -312,9 +312,10 @@ tstSafeArray_SOURCES  = tstSafeArray.cpp
 # tstRecording
 #
 tstRecording_TEMPLATE     = VBoxMainClientTstExe
-ifdef VBOX_WITH_RECORDING_SDL_BACKEND
- tstRecording_DEFS       += VBOX_WITH_RECORDING_SDL_BACKEND
-endif
+tstRecording_DEFS       += \
+	$(if $(VBOX_WITH_RECORDING_SDL_BACKEND),VBOX_WITH_RECORDING_SDL_BACKEND,) \
+	$(if $(VBOX_RECORDING_DEBUG_DUMP_FRAMES),VBOX_RECORDING_DEBUG_DUMP_FRAMES,)
+
 tstRecording_SOURCES  = \
 	tstRecording.cpp \
 	../src-all/RecordingUtils.cpp \

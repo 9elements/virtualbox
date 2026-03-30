@@ -1,4 +1,4 @@
-/* $Id: RecordingRender.cpp 113636 2026-03-27 15:49:15Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingRender.cpp 113642 2026-03-30 10:11:57Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording rendering implementation.
  *
@@ -260,6 +260,78 @@ DECLINLINE(int) recRenderSWFrameResizeCropCenter(RECORDINGVIDEOFRAME const *pDst
     return VINF_SUCCESS;
 }
 
+/**
+ * Renderer-local nearest-neighbor resize independent from codec internals.
+ *
+ * @returns VBox status code.
+ * @param   pDstFrame           Destination frame that will receive the scaled region.
+ * @param   pSrcFrame           Source frame to scale from.
+ * @param   pDstRect            Destination rectangle in @a pDstFrame.
+ * @param   pSrcRect            Source rectangle in @a pSrcFrame.
+ */
+DECLINLINE(int) recRenderSWFrameResizeNearestNeighbor(PRECORDINGVIDEOFRAME pDstFrame,
+                                                      RECORDINGVIDEOFRAME const *pSrcFrame,
+                                                      RTRECT const *pDstRect,
+                                                      RTRECT const *pSrcRect)
+{
+#ifdef VBOX_STRICT /* Skip in release builds for speed reasons. */
+    AssertPtrReturn(pDstFrame, VERR_INVALID_POINTER);
+    AssertPtrReturn(pSrcFrame, VERR_INVALID_POINTER);
+    AssertPtrReturn(pDstRect,  VERR_INVALID_POINTER);
+    AssertPtrReturn(pSrcRect,  VERR_INVALID_POINTER);
+#endif
+
+    int32_t const sx = pSrcRect->xLeft;
+    int32_t const sy = pSrcRect->yTop;
+    int32_t const sw = pSrcRect->xRight  - pSrcRect->xLeft;
+    int32_t const sh = pSrcRect->yBottom - pSrcRect->yTop;
+    int32_t const dx = pDstRect->xLeft;
+    int32_t const dy = pDstRect->yTop;
+    int32_t const dw = pDstRect->xRight  - pDstRect->xLeft;
+    int32_t const dh = pDstRect->yBottom - pDstRect->yTop;
+
+#ifdef VBOX_STRICT /* Ditto. */
+    AssertReturn(sw > 0 && sh > 0 && dw > 0 && dh > 0, VERR_INVALID_PARAMETER);
+    AssertReturn((uint32_t)(dx + dw) <= pDstFrame->Info.uWidth, VERR_INVALID_PARAMETER);
+    AssertReturn((uint32_t)(dy + dh) <= pDstFrame->Info.uHeight, VERR_INVALID_PARAMETER);
+    AssertReturn((uint32_t)(sx + sw) <= pSrcFrame->Info.uWidth, VERR_INVALID_PARAMETER);
+    AssertReturn((uint32_t)(sy + sh) <= pSrcFrame->Info.uHeight, VERR_INVALID_PARAMETER);
+#endif
+
+    uint32_t const cbPixel = RT_MAX((uint32_t)pSrcFrame->Info.uBPP / 8, 1U);
+    uint32_t const uSw = (uint32_t)sw;
+    uint32_t const uSh = (uint32_t)sh;
+    uint32_t const uDw = (uint32_t)dw;
+    uint32_t const uDh = (uint32_t)dh;
+
+    for (uint32_t yDst = 0; yDst < (uint32_t)dh; yDst++)
+    {
+        uint32_t const ySrc = (uint32_t)sy
+                            + (   uSh > 1
+                               && uDh > 1
+                               ? (uint32_t)((((uint64_t)yDst * (uSh - 1)) + ((uDh - 1) / 2)) / (uDh - 1))
+                               : 0);
+        uint8_t const *pu8SrcLine = pSrcFrame->pau8Buf + (size_t)ySrc * pSrcFrame->Info.uBytesPerLine;
+        uint8_t       *pu8DstLine = pDstFrame->pau8Buf
+                                  + ((size_t)dy + yDst) * pDstFrame->Info.uBytesPerLine
+                                  + (size_t)dx * cbPixel;
+
+        for (uint32_t xDst = 0; xDst < (uint32_t)dw; xDst++)
+        {
+            uint32_t const xSrc = (uint32_t)sx
+                                + (   uSw > 1
+                                   && uDw > 1
+                                   ? (uint32_t)((((uint64_t)xDst * (uSw - 1)) + ((uDw - 1) / 2)) / (uDw - 1))
+                                   : 0);
+            uint8_t const *pu8Src = pu8SrcLine + (size_t)xSrc * cbPixel;
+            uint8_t       *pu8Dst = pu8DstLine + (size_t)xDst * cbPixel;
+            memcpy(pu8Dst, pu8Src, cbPixel);
+        }
+    }
+
+    return VINF_SUCCESS;
+}
+
 #ifdef TESTCASE
 /**
  * TESTCASE wrapper exposing crop/center rectangle computation.
@@ -366,6 +438,7 @@ static DECLCALLBACK(int) recRenderSWTextureUpdate(PRECORDINGRENDERER pRenderer, 
 
     /* For this software backend we already use RECORDINGVIDEOFRAME as a backend storage, so just (shallow) copy the data over. */
     memcpy(pFrameToUpdate, pFrame, sizeof(RECORDINGVIDEOFRAME));
+    pFrameToUpdate->fFlags |= RECORDINGVIDEOFRAME_F_NO_DESTROY;
 
     return VINF_SUCCESS;
 }
@@ -492,8 +565,6 @@ static DECLCALLBACK(int) recRenderSWResize(PRECORDINGRENDERER pRenderer,
                                            PCRECORDINGRENDERTEXTURE pSrcTexture,
                                            PRECORDINGRENDERRESIZEPARMS pResizeParms)
 {
-    AssertPtrReturn(pRenderer, VERR_INVALID_POINTER);
-
     RECORDINGVIDEOFRAME const *pSrcFrame = recRenderSWTex2FrmC(pSrcTexture);
     PRECORDINGVIDEOFRAME pDstFrame = recRenderSWTex2Frm(pDstTexture);
 
@@ -573,35 +644,11 @@ static DECLCALLBACK(int) recRenderSWResize(PRECORDINGRENDERER pRenderer,
 
     if (pResizeParms->enmMode == RecordingVideoScalingMode_NearestNeighbor)
     {
-        uint32_t const uSw = (uint32_t)sw;
-        uint32_t const uSh = (uint32_t)sh;
-        uint32_t const uDw = (uint32_t)dw;
-        uint32_t const uDh = (uint32_t)dh;
-
-        for (uint32_t yDst = 0; yDst < (uint32_t)dh; yDst++)
-        {
-            uint32_t const ySrc = (uint32_t)sy
-                                + (   uSh > 1
-                                   && uDh > 1
-                                   ? (uint32_t)((((uint64_t)yDst * (uSh - 1)) + ((uDh - 1) / 2)) / (uDh - 1))
-                                   : 0);
-            uint8_t const *pu8SrcLine = pSrcFrame->pau8Buf + (size_t)ySrc * pSrcFrame->Info.uBytesPerLine;
-            uint8_t       *pu8DstLine = pDstFrame->pau8Buf
-                                      + ((size_t)dy + yDst) * pDstFrame->Info.uBytesPerLine
-                                      + (size_t)dx * cbPixel;
-
-            for (uint32_t xDst = 0; xDst < (uint32_t)dw; xDst++)
-            {
-                uint32_t const xSrc = (uint32_t)sx
-                                    + (   uSw > 1
-                                       && uDw > 1
-                                       ? (uint32_t)((((uint64_t)xDst * (uSw - 1)) + ((uDw - 1) / 2)) / (uDw - 1))
-                                       : 0);
-                uint8_t const *pu8Src = pu8SrcLine + (size_t)xSrc * cbPixel;
-                uint8_t       *pu8Dst = pu8DstLine + (size_t)xDst * cbPixel;
-                memcpy(pu8Dst, pu8Src, cbPixel);
-            }
-        }
+        vrc = recRenderSWFrameResizeNearestNeighbor(pDstFrame, pSrcFrame,
+                                                    &pResizeParms->dstRect, &pResizeParms->srcRect);
+        AssertRC(vrc);
+        if (RT_FAILURE(vrc))
+            return vrc;
     }
     else
     {
@@ -619,7 +666,7 @@ static DECLCALLBACK(int) recRenderSWResize(PRECORDINGRENDERER pRenderer,
     }
 
 #ifdef VBOX_RECORDING_DEBUG_DUMP_FRAMES
-    RecordingDbgDumpVideoFrame(pDstFrame, "render-sw-resized", pRenderer->msLastTimestamp);
+    RecordingDbgDumpVideoFrame(pDstFrame, "render-sw-resized", pRenderer->msLastRenderedTS);
 #endif
 
     return VINF_SUCCESS;
@@ -726,7 +773,7 @@ static DECLCALLBACK(int) recRenderSWConvert(PRECORDINGRENDERER pRenderer,
                                       pSrcFrame->Info.uBytesPerLine, pSrcFrame->Info.uBPP);
 
 #ifdef VBOX_RECORDING_DEBUG_DUMP_FRAMES
-    RecordingDbgDumpVideoFrame(pDstFrame, "render-sw-convert", pRenderer->msLastTimestamp);
+    RecordingDbgDumpVideoFrame(pDstFrame, "render-sw-convert", pRenderer->msLastRenderedTS);
 #endif
 
     return VINF_SUCCESS;
@@ -972,8 +1019,8 @@ static void recRenderSDLLogRendererInfo(PRECORDINGRENDERSDL pSDL)
     SDL_RendererInfo Info;
     RT_ZERO(Info);
 
-    int const rcSDL = pSDL->pfnGetRendererInfo(pSDL->pRenderer, &Info);
-    if (rcSDL != 0)
+    int const vrcSDL = pSDL->pfnGetRendererInfo(pSDL->pRenderer, &Info);
+    if (vrcSDL != 0)
     {
         LogRel2(("Recording: SDL_GetRendererInfo failed: %s\n", pSDL->pfnGetError()));
         return;
@@ -1110,14 +1157,14 @@ static void recRenderSDLDbgDumpBGRATexture(PRECORDINGRENDERSDL pSDL, SDL_Texture
     AssertPtrReturnVoid(pu8Buf);
 
     SDL_Texture *pOldTarget = pSDL->pfnGetRenderTarget(pSDL->pRenderer);
-    int rcSDL = pSDL->pfnSetRenderTarget(pSDL->pRenderer, pTexture);
-    if (rcSDL == 0)
-        rcSDL = pSDL->pfnRenderReadPixels(pSDL->pRenderer, NULL /* pRect */, SDL_PIXELFORMAT_BGRA8888, pu8Buf, (int)cbStride);
+    int vrcSDL = pSDL->pfnSetRenderTarget(pSDL->pRenderer, pTexture);
+    if (vrcSDL == 0)
+        vrcSDL = pSDL->pfnRenderReadPixels(pSDL->pRenderer, NULL /* pRect */, SDL_PIXELFORMAT_BGRA8888, pu8Buf, (int)cbStride);
 
     int const rcRestore = pSDL->pfnSetRenderTarget(pSDL->pRenderer, pOldTarget);
     Assert(rcRestore == 0); RT_NOREF(rcRestore);
 
-    if (rcSDL == 0)
+    if (vrcSDL == 0)
     {
         RECORDINGVIDEOFRAME DbgFrame;
         RT_ZERO(DbgFrame);
@@ -1252,13 +1299,13 @@ static DECLCALLBACK(void) recRenderSDLTextureClear(PRECORDINGRENDERER pRenderer,
     }
 
     SDL_Texture *pOldTarget = pSDL->pfnGetRenderTarget(pSDL->pRenderer);
-    int rcSDL = pSDL->pfnSetRenderTarget(pSDL->pRenderer, pTex->pTexture);
-    if (rcSDL == 0)
+    int vrcSDL = pSDL->pfnSetRenderTarget(pSDL->pRenderer, pTex->pTexture);
+    if (vrcSDL == 0)
     {
         pSDL->pfnSetRenderDrawColor(pSDL->pRenderer, 0, 0, 0, 255);
-        rcSDL = pSDL->pfnRenderClear(pSDL->pRenderer);
+        vrcSDL = pSDL->pfnRenderClear(pSDL->pRenderer);
     }
-    RT_NOREF(rcSDL);
+    RT_NOREF(vrcSDL);
 
     int const rcRestore = pSDL->pfnSetRenderTarget(pSDL->pRenderer, pOldTarget);
     Assert(rcRestore == 0); RT_NOREF(rcRestore);
@@ -1272,8 +1319,8 @@ static DECLCALLBACK(int) recRenderSDLTextureQueryPixelData(PRECORDINGRENDERER pR
     PRECORDINGRENDERSDLTEXTURE pTex = recRenderSDLTexFromRef(pTexture);
 
     int w, h;
-    int rcSDL = pSDL->pfnQueryTexture(pTex->pTexture, NULL, NULL, &w, &h);
-    Assert(rcSDL == 0);
+    int vrcSDL = pSDL->pfnQueryTexture(pTex->pTexture, NULL, NULL, &w, &h);
+    Assert(vrcSDL == 0);
 
     Uint32 const outFmt         = SDL_PIXELFORMAT_BGRA8888;
     int    const uBPP           = 4 /* 32 bit */;
@@ -1286,20 +1333,20 @@ static DECLCALLBACK(int) recRenderSDLTextureQueryPixelData(PRECORDINGRENDERER pR
     SDL_Texture *pTexPrev = pSDL->pfnGetRenderTarget(pSDL->pRenderer);
     if (pTexPrev)
     {
-        rcSDL = pSDL->pfnSetRenderTarget(pSDL->pRenderer, pTex->pTexture);
-        if (rcSDL == 0)
-            rcSDL = pSDL->pfnRenderReadPixels(pSDL->pRenderer,
-                                              NULL,
-                                              outFmt,
-                                              pvBuf,
-                                              cbBytesPerLine);
+        vrcSDL = pSDL->pfnSetRenderTarget(pSDL->pRenderer, pTex->pTexture);
+        if (vrcSDL == 0)
+            vrcSDL = pSDL->pfnRenderReadPixels(pSDL->pRenderer,
+                                               NULL,
+                                               outFmt,
+                                               pvBuf,
+                                               cbBytesPerLine);
 
         pSDL->pfnSetRenderTarget(pSDL->pRenderer, pTexPrev);
     }
     else
-        AssertFailedStmt(rcSDL = -1);
+        AssertFailedStmt(vrcSDL = -1);
 
-    if (rcSDL == 0)
+    if (vrcSDL == 0)
     {
         *ppvBuf = pvBuf;
         *pcbBuf = cbBuf;
@@ -1307,7 +1354,7 @@ static DECLCALLBACK(int) recRenderSDLTextureQueryPixelData(PRECORDINGRENDERER pR
     else
         RTMemFree(pvBuf);
 
-    return rcSDL == 0 ? VINF_SUCCESS : VERR_RECORDING_BACKEND_ERROR;
+    return vrcSDL == 0 ? VINF_SUCCESS : VERR_RECORDING_BACKEND_ERROR;
 }
 
 /** @copydoc RECORDINGRENDEROPS::pfnTextureUpdate */
@@ -1321,8 +1368,8 @@ static DECLCALLBACK(int) recRenderSDLTextureUpdate(PRECORDINGRENDERER pRenderer,
 
     SDL_Rect const rectUpdate = { (int)pFrame->Pos.x, (int)pFrame->Pos.y, (int)pFrame->Info.uWidth, (int)pFrame->Info.uHeight };
 
-    int const rcSDL = pSDL->pfnUpdateTexture(pTex->pTexture, &rectUpdate, pFrame->pau8Buf, pFrame->Info.uBytesPerLine);
-    Assert(rcSDL == 0);
+    int const vrcSDL = pSDL->pfnUpdateTexture(pTex->pTexture, &rectUpdate, pFrame->pau8Buf, pFrame->Info.uBytesPerLine);
+    Assert(vrcSDL == 0);
 
     pTex->Info = pFrame->Info;
     pTexture->pInfo = &pTex->Info;
@@ -1330,7 +1377,7 @@ static DECLCALLBACK(int) recRenderSDLTextureUpdate(PRECORDINGRENDERER pRenderer,
 #ifdef VBOX_RECORDING_DEBUG_DUMP_FRAMES
     recRenderSDLDbgDumpBGRATexture(pSDL, pTex->pTexture,
                                    pTex->Info.uWidth, pTex->Info.uHeight,
-                                   pRenderer->msLastTimestamp, "render-sdl-tex-update");
+                                   pRenderer->msLastRenderedTS, "render-sdl-tex-update");
 #endif
 
     return VINF_SUCCESS;
@@ -1377,31 +1424,31 @@ static DECLCALLBACK(int) recRenderSDLBlit(PRECORDINGRENDERER pRenderer,
     if (!cxDst || !cyDst)
         return VINF_SUCCESS;
 
-    SDL_Texture *pSrcSDLTex = NULL;
+    SDL_Texture *pSvrcSDLTex = NULL;
     PCRECORDINGRENDERSDLTEXTURE pSrcTex = recRenderSDLTexFromRefC(pSrcTexture);
     if (pSrcTex)
-        pSrcSDLTex = pSrcTex->pTexture;
-    AssertPtr(pSrcSDLTex);
+        pSvrcSDLTex = pSrcTex->pTexture;
+    AssertPtr(pSvrcSDLTex);
 
     SDL_Rect const SrcRect = { (int)uSrcX, (int)uSrcY, (int)cxDst, (int)cyDst };
     SDL_Rect const DstRect = { (int)uDstX, (int)uDstY, (int)cxDst, (int)cyDst };
 
-    int rcSDL = pSDL->pfnSetRenderTarget(pSDL->pRenderer, pDstTex->pTexture);
-    if (rcSDL == 0)
+    int vrcSDL = pSDL->pfnSetRenderTarget(pSDL->pRenderer, pDstTex->pTexture);
+    if (vrcSDL == 0)
     {
-        rcSDL = pSDL->pfnSetTextureBlendMode(pSrcSDLTex, SDL_BLENDMODE_NONE);
-        if (rcSDL == 0)
-            rcSDL = pSDL->pfnRenderCopy(pSDL->pRenderer, pSrcSDLTex, &SrcRect, &DstRect);
+        vrcSDL = pSDL->pfnSetTextureBlendMode(pSvrcSDLTex, SDL_BLENDMODE_NONE);
+        if (vrcSDL == 0)
+            vrcSDL = pSDL->pfnRenderCopy(pSDL->pRenderer, pSvrcSDLTex, &SrcRect, &DstRect);
     }
-    AssertStmt(rcSDL == 0, LogFunc(("%s\n", pSDL->pfnGetError())));
+    AssertStmt(vrcSDL == 0, LogFunc(("%s\n", pSDL->pfnGetError())));
 
 #ifdef VBOX_RECORDING_DEBUG_DUMP_FRAMES
     recRenderSDLDbgDumpBGRATexture(pSDL, pDstTex->pTexture,
                                    pDstInfo->uWidth, pDstInfo->uHeight,
-                                   pRenderer->msLastTimestamp, "render-sdl-blit");
+                                   pRenderer->msLastRenderedTS, "render-sdl-blit");
 #endif
 
-    return rcSDL == 0 ? VINF_SUCCESS : VERR_RECORDING_BACKEND_ERROR;
+    return vrcSDL == 0 ? VINF_SUCCESS : VERR_RECORDING_BACKEND_ERROR;
 }
 
 /** @copydoc RECORDINGRENDEROPS::pfnBlend */
@@ -1445,27 +1492,27 @@ static DECLCALLBACK(int) recRenderSDLBlend(PRECORDINGRENDERER pRenderer,
     if (!cxDst || !cyDst)
         return VINF_SUCCESS;
 
-    SDL_Texture *pSrcSDLTex = NULL;
+    SDL_Texture *pSvrcSDLTex = NULL;
     PCRECORDINGRENDERSDLTEXTURE pSrcTex = recRenderSDLTexFromRefC(pSrcTexture);
     if (pSrcTex)
-        pSrcSDLTex = pSrcTex->pTexture;
-    AssertPtr(pSrcSDLTex);
+        pSvrcSDLTex = pSrcTex->pTexture;
+    AssertPtr(pSvrcSDLTex);
 
     SDL_Rect const SrcRect = { (int)uSrcX, (int)uSrcY, (int)cxDst, (int)cyDst };
     SDL_Rect const DstRect = { (int)uDstX, (int)uDstY, (int)cxDst, (int)cyDst };
 
     SDL_Texture *pOldTarget = pSDL->pfnGetRenderTarget(pSDL->pRenderer);
-    int rcSDL = pSDL->pfnSetRenderTarget(pSDL->pRenderer, pDstTex->pTexture);
-    if (rcSDL == 0)
+    int vrcSDL = pSDL->pfnSetRenderTarget(pSDL->pRenderer, pDstTex->pTexture);
+    if (vrcSDL == 0)
     {
-        pSDL->pfnSetTextureBlendMode(pSrcSDLTex, SDL_BLENDMODE_BLEND);
-        rcSDL = pSDL->pfnRenderCopy(pSDL->pRenderer, pSrcSDLTex, &SrcRect, &DstRect);
+        pSDL->pfnSetTextureBlendMode(pSvrcSDLTex, SDL_BLENDMODE_BLEND);
+        vrcSDL = pSDL->pfnRenderCopy(pSDL->pRenderer, pSvrcSDLTex, &SrcRect, &DstRect);
     }
 
     int const rcRestore = pSDL->pfnSetRenderTarget(pSDL->pRenderer, pOldTarget);
     Assert(rcRestore == 0); RT_NOREF(rcRestore);
 
-    return rcSDL == 0 ? VINF_SUCCESS : VERR_RECORDING_BACKEND_ERROR;
+    return vrcSDL == 0 ? VINF_SUCCESS : VERR_RECORDING_BACKEND_ERROR;
 }
 
 /** @copydoc RECORDINGRENDEROPS::pfnResize */
@@ -1550,37 +1597,37 @@ static DECLCALLBACK(int) recRenderSDLResize(PRECORDINGRENDERER pRenderer,
         || dh <= 0)
         return VWRN_RECORDING_ENCODING_SKIPPED;
 
-    SDL_Texture *pSrcSDLTex = NULL;
+    SDL_Texture *pSvrcSDLTex = NULL;
     PCRECORDINGRENDERSDLTEXTURE pSrcTex = recRenderSDLTexFromRefC(pSrcTexture);
     if (pSrcTex)
-        pSrcSDLTex = pSrcTex->pTexture;
-    AssertPtr(pSrcSDLTex);
+        pSvrcSDLTex = pSrcTex->pTexture;
+    AssertPtr(pSvrcSDLTex);
 
     SDL_Texture *pOldTarget = pSDL->pfnGetRenderTarget(pSDL->pRenderer);
-    int rcSDL = pSDL->pfnSetRenderTarget(pSDL->pRenderer, pDstTex->pTexture);
-    if (rcSDL == 0)
+    int vrcSDL = pSDL->pfnSetRenderTarget(pSDL->pRenderer, pDstTex->pTexture);
+    if (vrcSDL == 0)
     {
         pSDL->pfnSetRenderDrawColor(pSDL->pRenderer, 0, 0, 0, 255);
-        rcSDL = pSDL->pfnRenderClear(pSDL->pRenderer);
+        vrcSDL = pSDL->pfnRenderClear(pSDL->pRenderer);
     }
-    if (rcSDL == 0)
+    if (vrcSDL == 0)
     {
         SDL_Rect const SrcRect = { sx, sy, sw, sh };
         SDL_Rect const DstRect = { dx, dy, dw, dh };
-        pSDL->pfnSetTextureBlendMode(pSrcSDLTex, SDL_BLENDMODE_NONE);
-        rcSDL = pSDL->pfnRenderCopy(pSDL->pRenderer, pSrcSDLTex, &SrcRect, &DstRect);
+        pSDL->pfnSetTextureBlendMode(pSvrcSDLTex, SDL_BLENDMODE_NONE);
+        vrcSDL = pSDL->pfnRenderCopy(pSDL->pRenderer, pSvrcSDLTex, &SrcRect, &DstRect);
     }
 
     int const rcRestore = pSDL->pfnSetRenderTarget(pSDL->pRenderer, pOldTarget);
     Assert(rcRestore == 0); RT_NOREF(rcRestore);
 
-    if (rcSDL != 0)
+    if (vrcSDL != 0)
         return VERR_RECORDING_BACKEND_ERROR;
 
 #ifdef VBOX_RECORDING_DEBUG_DUMP_FRAMES
     recRenderSDLDbgDumpBGRATexture(pSDL, pDstTex->pTexture,
                                    pDstInfo->uWidth, pDstInfo->uHeight,
-                                   pRenderer->msLastTimestamp, "render-sdl-resized");
+                                   pRenderer->msLastRenderedTS, "render-sdl-resized");
 #endif
 
     return VINF_SUCCESS;
@@ -1627,14 +1674,14 @@ static DECLCALLBACK(int) recRenderSDLConvert(PRECORDINGRENDERER pRenderer,
     if (pSrcTex)
     {
         SDL_Texture *pOldTarget = pSDL->pfnGetRenderTarget(pSDL->pRenderer);
-        int rcSDL = pSDL->pfnSetRenderTarget(pSDL->pRenderer, pSrcTex->pTexture);
-        if (rcSDL == 0)
-            rcSDL = pSDL->pfnRenderReadPixels(pSDL->pRenderer, NULL, SDL_PIXELFORMAT_BGRA8888, pu8Src, (int)uSrcStride);
+        int vrcSDL = pSDL->pfnSetRenderTarget(pSDL->pRenderer, pSrcTex->pTexture);
+        if (vrcSDL == 0)
+            vrcSDL = pSDL->pfnRenderReadPixels(pSDL->pRenderer, NULL, SDL_PIXELFORMAT_BGRA8888, pu8Src, (int)uSrcStride);
 
         int const rcRestore = pSDL->pfnSetRenderTarget(pSDL->pRenderer, pOldTarget);
         Assert(rcRestore == 0); RT_NOREF(rcRestore);
 
-        if (rcSDL != 0)
+        if (vrcSDL != 0)
         {
             RTMemFree(pu8Src);
             return VERR_RECORDING_BACKEND_ERROR;
@@ -1666,7 +1713,7 @@ static DECLCALLBACK(int) recRenderSDLConvert(PRECORDINGRENDERER pRenderer,
         DbgFrame.pau8Buf            = pu8Src;
         DbgFrame.cbBuf              = cbSrc;
 
-        RecordingDbgDumpVideoFrame(&DbgFrame, "render-sdl-convert", pRenderer->msLastTimestamp);
+        RecordingDbgDumpVideoFrame(&DbgFrame, "render-sdl-convert", pRenderer->msLastRenderedTS);
     }
 #endif
 
@@ -1674,10 +1721,10 @@ static DECLCALLBACK(int) recRenderSDLConvert(PRECORDINGRENDERER pRenderer,
     uint8_t *pu8SrcYuv = (uint8_t *)RTMemAlloc(cbSrcYuv);
     AssertPtrReturnStmt(pu8SrcYuv, RTMemFree(pu8Src), VERR_NO_MEMORY);
 
-    int const rcSDL = pSDL->pfnConvertPixels((int)uSrcWidth, (int)uSrcHeight,
-                                        SDL_PIXELFORMAT_BGRA8888, pu8Src, (int)uSrcStride,
-                                        SDL_PIXELFORMAT_IYUV, pu8SrcYuv, (int)uSrcWidth);
-    if (rcSDL < 0)
+    int const vrcSDL = pSDL->pfnConvertPixels((int)uSrcWidth, (int)uSrcHeight,
+                                              SDL_PIXELFORMAT_BGRA8888, pu8Src, (int)uSrcStride,
+                                              SDL_PIXELFORMAT_IYUV, pu8SrcYuv, (int)uSrcWidth);
+    if (vrcSDL < 0)
     {
         RTMemFree(pu8SrcYuv);
         RTMemFree(pu8Src);
@@ -1908,6 +1955,7 @@ static int recRenderInitCommon(PRECORDINGRENDERER pRenderer)
     RT_ZERO(pRenderer->texBack);
     RT_ZERO(pRenderer->texScaled);
     RT_ZERO(pRenderer->texConv);
+    RT_ZERO(pRenderer->texVideo);
     RT_ZERO(pRenderer->texCursor);
 
     pRenderer->enmState = RECORDINGRENDERSTATE_IDLE;
@@ -1922,9 +1970,9 @@ static int recRenderInitCommon(PRECORDINGRENDERER pRenderer)
 
     pRenderer->pTexComposite = &pRenderer->texFront;
     pRenderer->pTexScaled    = pRenderer->pTexComposite;
-    pRenderer->pTexConv = pRenderer->pTexScaled;
+    pRenderer->pTexConv      = pRenderer->pTexScaled;
 
-    pRenderer->msLastTimestamp = 0;
+    pRenderer->msLastRenderedTS = 0;
 
     return VINF_SUCCESS;
 }
@@ -2084,17 +2132,24 @@ int RecordingRenderScreenChange(PRECORDINGRENDERER pRenderer,
     LogRel2(("Recording: Renderer got screen change notification (%RU16x%RU16, %RU8 BPP)\n",
              pInfo->uWidth, pInfo->uHeight, pInfo->uBPP));
 
+    AssertMsgReturn(pInfo->enmPixelFmt == RECORDINGPIXELFMT_BRGA32,
+                    ("BRGA32 is the only supported pixel format right now"), VERR_INVALID_PARAMETER);
+
     pRenderer->pOps->pfnTextureDestroy(pRenderer, &pRenderer->texFront);
     pRenderer->pOps->pfnTextureCreate(pRenderer, &pRenderer->texFront, pInfo);
+    pRenderer->pOps->pfnTextureClear(pRenderer, &pRenderer->texFront);
 
     pRenderer->pOps->pfnTextureDestroy(pRenderer, &pRenderer->texBack);
     pRenderer->pOps->pfnTextureCreate(pRenderer, &pRenderer->texBack, pInfo);
+    pRenderer->pOps->pfnTextureClear(pRenderer, &pRenderer->texBack);
 
     pRenderer->pOps->pfnTextureDestroy(pRenderer, &pRenderer->texVideo);
     pRenderer->pOps->pfnTextureCreate(pRenderer, &pRenderer->texVideo, pInfo);
+    pRenderer->pOps->pfnTextureClear(pRenderer, &pRenderer->texVideo);
 
     pRenderer->pOps->pfnTextureDestroy(pRenderer, &pRenderer->texCursor);
     pRenderer->pOps->pfnTextureCreate(pRenderer, &pRenderer->texCursor, pInfo);
+    pRenderer->pOps->pfnTextureClear(pRenderer, &pRenderer->texCursor);
 
     pRenderer->pTexComposite = NULL;
 
@@ -2108,11 +2163,6 @@ int RecordingRenderScreenChange(PRECORDINGRENDERER pRenderer,
 
     Assert(pRenderer->Parms.Info.uWidth);
     Assert(pRenderer->Parms.Info.uHeight);
-
-    pRenderer->pOps->pfnTextureClear(pRenderer, &pRenderer->texFront);
-    pRenderer->pOps->pfnTextureClear(pRenderer, &pRenderer->texBack);
-    pRenderer->pOps->pfnTextureClear(pRenderer, &pRenderer->texVideo);
-    pRenderer->pOps->pfnTextureClear(pRenderer, &pRenderer->texCursor);
 
     pRenderer->pTexComposite = &pRenderer->texFront;
 
@@ -2144,7 +2194,7 @@ int RecordingRenderComposeEnd(PRECORDINGRENDERER pRenderer)
     Assert(pRenderer->enmState == RECORDINGRENDERSTATE_COMPOSING);
     pRenderer->enmState = RECORDINGRENDERSTATE_DONE;
 
-    pRenderer->msLastTimestamp = RTTimeMilliTS();
+    pRenderer->msLastRenderedTS = RTTimeMilliTS();
 
     return VINF_SUCCESS;
 }
@@ -2428,9 +2478,12 @@ int RecordingRenderQueryFrame(PRECORDINGRENDERER pRenderer, PRECORDINGVIDEOFRAME
     if (RT_FAILURE(vrc))
         return vrc;
 
-    pFrame->Info   = *pRenderer->pTexScaled->pInfo;
-    pFrame->Pos.x  = 0;
-    pFrame->Pos.y  = 0;
+    /* Use pointer of the the pass 3 texture to get the final frame (original / resized / converted). */
+    pFrame->Info = *pRenderer->pTexConv->pInfo;
+
+    /* The software backend does not copy the pixel data over to pFrame but only sets the pointer to the data. */
+    if (pRenderer->enmBackend == RECORDINGRENDERBACKEND_SOFTWARE)
+        pFrame->fFlags |= RECORDINGVIDEOFRAME_F_NO_DESTROY;
 
     return vrc;
 }
@@ -2440,12 +2493,12 @@ int RecordingRenderQueryFrame(PRECORDINGRENDERER pRenderer, PRECORDINGVIDEOFRAME
  *
  * @returns VBox status code.
  * @param   pRenderer           Renderer instance.
- * @param   pParms              Parameters to apply.
+ * @param   pParms              Rendering output parameters to set.
  */
 int RecordingRenderSetParms(PRECORDINGRENDERER pRenderer, PRECORDINGRENDERPARMS pParms)
 {
     LogRel2(("Recording: Rendering parameters:\n"));
-    LogRel2(("Recording:   - Scaling mode: %#x\n", pParms->enmScalingMode));
+    LogRel2(("Recording:   - Scaling mode: %s\n", RecordingUtilsVideoScalingModeToStr(pParms->enmScalingMode)));
     LogRel2(("Recording:   - Scaling size: %u x %u\n", pParms->Info.uWidth, pParms->Info.uHeight));
     LogRel2(("Recording:   - Pixel format: %#x (%u BPP)\n", pParms->Info.enmPixelFmt, pParms->Info.uBPP));
 
@@ -2467,11 +2520,15 @@ int RecordingRenderSetParms(PRECORDINGRENDERER pRenderer, PRECORDINGRENDERPARMS 
 
     int vrc = VINF_SUCCESS;
 
-    /* No changes for BPP and pixel format? Use the renderer's parameters. */
+    /* Parameters not set? Use the renderer's parameters. */
     if (pParms->Info.uBPP == 0)
         pParms->Info.uBPP = pRenderer->Parms.Info.uBPP;
-    if (pParms->Info.enmPixelFmt == RECORDINGPIXELFMT_UNKNOWN)
-        pParms->Info.enmPixelFmt = pRenderer->Parms.Info.enmPixelFmt;
+
+    /* Save the pixel format which we need for the conversion texture only.
+     * Internally the renderer always works with BRGA32. */
+    RECORDINGPIXELFMT const enmConvPixelFmt = pParms->Info.enmPixelFmt == RECORDINGPIXELFMT_UNKNOWN
+                                            ? RECORDINGPIXELFMT_BRGA32  : pParms->Info.enmPixelFmt;
+    pParms->Info.enmPixelFmt = pRenderer->Parms.Info.enmPixelFmt;
 
     /*
      * Pass 1 of the pipeline: Composition
@@ -2504,16 +2561,23 @@ int RecordingRenderSetParms(PRECORDINGRENDERER pRenderer, PRECORDINGRENDERPARMS 
     /*
      * Pass 3 of the pipeline: Conversion
      */
-    if (pRenderer->Parms.Info.enmPixelFmt != pParms->Info.enmPixelFmt)
+    if (enmConvPixelFmt != pRenderer->Parms.Info.enmPixelFmt)
     {
+        pParms->Info.enmPixelFmt = enmConvPixelFmt;
+
         /* Some render backends require a (pre-)converted destination texture. */
         pRenderer->pOps->pfnTextureDestroy(pRenderer, &pRenderer->texConv);
-        vrc = pRenderer->pOps->pfnTextureCreate(pRenderer, &pRenderer->texConv, &pRenderer->Parms.Info);
+        vrc = pRenderer->pOps->pfnTextureCreate(pRenderer, &pRenderer->texConv, &pParms->Info);
         if (RT_SUCCESS(vrc))
             pRenderer->pTexConv = &pRenderer->texConv;
     }
-    else
-        pRenderer->pTexConv = &pRenderer->texScaled;
+    else /* No conversion -- point to the scaled texture (if any). */
+        pRenderer->pTexConv = pRenderer->pTexScaled;
+
+    /* Sanity. */
+    AssertPtr(pRenderer->pTexComposite);
+    AssertPtr(pRenderer->pTexConv);
+    AssertPtr(pRenderer->pTexScaled);
 
     pRenderer->Parms = *pParms;
 
