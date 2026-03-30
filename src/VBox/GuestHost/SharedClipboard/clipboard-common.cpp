@@ -1,4 +1,4 @@
-/* $Id: clipboard-common.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: clipboard-common.cpp 113688 2026-03-30 17:45:51Z vadim.galitsyn@oracle.com $ */
 /** @file
  * Shared Clipboard: Some helper function for converting between the various eol.
  */
@@ -74,7 +74,7 @@ int ShClPayloadInit(uint32_t uID, void *pvData, uint32_t cbData,
     AssertPtrReturn(pvData, VERR_INVALID_POINTER);
     AssertReturn(cbData > 0, VERR_INVALID_PARAMETER);
 
-    PSHCLEVENTPAYLOAD pPayload = (PSHCLEVENTPAYLOAD)RTMemAlloc(sizeof(SHCLEVENTPAYLOAD));
+    PSHCLEVENTPAYLOAD pPayload = (PSHCLEVENTPAYLOAD)RTMemAllocZ(sizeof(SHCLEVENTPAYLOAD));
     if (pPayload)
     {
         pPayload->pvData = pvData;
@@ -636,7 +636,7 @@ int ShClConvUtf16CRLFToUtf8LF(PCRTUTF16 pcwszSrc, size_t cwcSrc,
     {
         cchTmp++; /* Add space for terminator. */
 
-        pwszTmp = (PRTUTF16)RTMemAlloc(cchTmp * sizeof(RTUTF16));
+        pwszTmp = (PRTUTF16)RTMemAllocZ(cchTmp * sizeof(RTUTF16));
         if (pwszTmp)
         {
             rc = ShClConvUtf16CRLFToLF(pcwszSrc, cwcSrc, pwszTmp, cchTmp);
@@ -670,7 +670,7 @@ int ShClConvUtf16LFToCRLFA(PCRTUTF16 pcwszSrc, size_t cwcSrc,
     int rc = ShClUtf16CalcNormalizedEolToCRLFLength(pcwszSrc, cwcSrc, &cchDst);
     if (RT_SUCCESS(rc))
     {
-        pwszDst = (PRTUTF16)RTMemAlloc((cchDst + 1 /* Leave space for terminator */) * sizeof(RTUTF16));
+        pwszDst = (PRTUTF16)RTMemAllocZ((cchDst + 1 /* Leave space for terminator */) * sizeof(RTUTF16));
         if (pwszDst)
         {
             rc = ShClConvUtf16LFToCRLF(pcwszSrc, cwcSrc, pwszDst, cchDst + 1 /* Include terminator */);
@@ -746,7 +746,7 @@ int ShClConvLatin1LFToUtf16CRLF(const char *pcszSrc, size_t cbSrc,
         chSrc++;
     }
 
-    pwszDst = (PRTUTF16)RTMemAlloc((cwDst + 1 /* Leave space for the terminator */) * sizeof(RTUTF16));
+    pwszDst = (PRTUTF16)RTMemAllocZ((cwDst + 1 /* Leave space for the terminator */) * sizeof(RTUTF16));
     AssertPtrReturn(pwszDst, VERR_NO_MEMORY);
 
     /* Do the conversion, bearing in mind that Latin-1 expands "naturally" to UTF-16. */
@@ -1047,7 +1047,7 @@ int ShClDibToBmp(const void *pvSrc, size_t cbSrc, void **ppvDest, size_t *pcbDes
 
     size_t cbDst = sizeof(BMPFILEHDR) + cbSrc;
 
-    void *pvDest = RTMemAlloc(cbDst);
+    void *pvDest = RTMemAllocZ(cbDst);
     if (!pvDest)
         return VERR_NO_MEMORY;
 

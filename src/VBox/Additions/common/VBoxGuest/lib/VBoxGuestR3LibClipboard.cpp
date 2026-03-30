@@ -1,4 +1,4 @@
-/* $Id: VBoxGuestR3LibClipboard.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: VBoxGuestR3LibClipboard.cpp 113688 2026-03-30 17:45:51Z vadim.galitsyn@oracle.com $ */
 /** @file
  * VBoxGuestR3Lib - Ring-3 Support Library for VirtualBox guest additions, Shared Clipboard.
  */
@@ -503,7 +503,7 @@ VBGLR3DECL(int) VbglR3ClipboardReadDataEx(PVBGLR3SHCLCMDCTX pCtx,
     uint32_t cbRead = 0;
     uint32_t cbData = _4K;
 
-    void *pvData = RTMemAlloc(cbData);
+    void *pvData = RTMemAllocZ(cbData);
     if (pvData)
     {
         rc = VbglR3ClipboardReadData(pCtx->idClient, uFormat, pvData, cbData, &cbRead);
