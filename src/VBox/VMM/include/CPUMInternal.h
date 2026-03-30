@@ -1,4 +1,4 @@
-/* $Id: CPUMInternal.h 113527 2026-03-24 08:47:06Z knut.osmundsen@oracle.com $ */
+/* $Id: CPUMInternal.h 113655 2026-03-30 10:50:52Z knut.osmundsen@oracle.com $ */
 /** @file
  * CPUM - Internal header file.
  */
@@ -113,12 +113,14 @@ typedef uint64_t STAMCOUNTER;
  *  @todo AMD64:When bumping to next version, add CPUMCTX::enmHwVirt and
  *        uMicrocodeRevision to the saved state. */
 #if defined(VBOX_VMM_TARGET_X86)
-# define CPUM_SAVED_STATE_VERSION               CPUM_SAVED_STATE_VERSION_HWVIRT_VMX_4
+# define CPUM_SAVED_STATE_VERSION               CPUM_SAVED_STATE_VERSION_HWVIRT_CFG
 #elif defined(VBOX_VMM_TARGET_ARMV8)
 # define CPUM_SAVED_STATE_VERSION               CPUM_SAVED_STATE_VERSION_ARMV8_IDREGS2
 #endif
 
 #if defined(VBOX_VMM_TARGET_X86)
+/** The saved state version with nested hardware virtualization config. */
+# define CPUM_SAVED_STATE_VERSION_HWVIRT_CFG    24
 /** The saved state version with u32RestoreProcCtls2 for Nested Microsoft
  *  Hyper-V. */
 # define CPUM_SAVED_STATE_VERSION_HWVIRT_VMX_4  23
