@@ -1,4 +1,4 @@
-/* $Id: wayland-helper-dcp.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: wayland-helper-dcp.cpp 113687 2026-03-30 17:43:39Z vadim.galitsyn@oracle.com $ */
 /** @file
  * Guest Additions - Data Control Protocol (DCP) helper for Wayland.
  *
@@ -460,6 +460,12 @@ static void vbcl_wayland_hlp_dcp_session_release(vbox_wl_dcp_session_t *pSession
 {
     void *pvData;
 
+    VBCL_LOG_CALLBACK;
+
+    int rc = VBoxMimeConvClearCache();
+    if (RT_FAILURE(rc))
+        VBClLogVerbose(5, "unable to clear clipboard cache (2), rc=%Rrc", rc);
+
     if (!RTListIsEmpty(&pSession->clip.mimeTypesList.Node))
     {
         vbox_wl_dcp_mime_t *pEntry, *pNextEntry;
@@ -620,6 +626,7 @@ static DECLCALLBACK(int) vbcl_wayland_hlp_dcp_gh_add_fmt_cb(
             vbox_wl_dcp_mime_t *pNode = (vbox_wl_dcp_mime_t *)RTMemAllocZ(sizeof(vbox_wl_dcp_mime_t));
             if (RT_VALID_PTR(pNode))
             {
+                VBClLogVerbose(5, "Wayland announces mime-type: %s\n", sMimeType);
                 pNode->pszMimeType = RTStrDup((char *)sMimeType);
                 if (RT_VALID_PTR(pNode->pszMimeType))
                     RTListAppend(&g_DcpCtx.Session.clip.mimeTypesList.Node, &pNode->Node);
@@ -680,79 +687,21 @@ static const struct zwlr_data_control_offer_v1_listener g_data_control_offer_lis
 
 
 /**
- * Convert list of mime-types in string representation into bitmask of VBox formats.
- *
- * @returns Formats bitmask.
- * @param   pList   List of mime-types in string representation.
- */
-static SHCLFORMATS vbcl_wayland_hlp_dcp_match_formats(vbox_wl_dcp_mime_t *pList)
-{
-    SHCLFORMATS fFmts = VBOX_SHCL_FMT_NONE;
-
-    if (!RTListIsEmpty(&pList->Node))
-    {
-        vbox_wl_dcp_mime_t *pEntry;
-        RTListForEach(&pList->Node, pEntry, vbox_wl_dcp_mime_t, Node)
-        {
-            AssertPtrReturn(pEntry, VBOX_SHCL_FMT_NONE);
-            AssertPtrReturn(pEntry->pszMimeType, VBOX_SHCL_FMT_NONE);
-
-            fFmts |= VBoxMimeConvGetIdByMime(pEntry->pszMimeType);
-        }
-    }
-
-    return fFmts;
-}
-
-/**
- * Find first matching clipboard mime-type for given format ID.
- *
- * @returns Matching mime-type in string representation or NULL if not found.
- * @param   uFmt    Format in VBox representation to match.
- * @param   pList   List of Wayland mime-types in string representation.
- */
-static char *vbcl_wayland_hlp_dcp_match_mime_type(SHCLFORMAT uFmt, vbox_wl_dcp_mime_t *pList)
-{
-    char *pszMimeType = NULL;
-
-    if (!RTListIsEmpty(&pList->Node))
-    {
-        vbox_wl_dcp_mime_t *pEntry;
-        RTListForEach(&pList->Node, pEntry, vbox_wl_dcp_mime_t, Node)
-        {
-            AssertPtrReturn(pEntry, NULL);
-            AssertPtrReturn(pEntry->pszMimeType, NULL);
-
-            if (uFmt == VBoxMimeConvGetIdByMime(pEntry->pszMimeType))
-            {
-                pszMimeType = pEntry->pszMimeType;
-                break;
-            }
-        }
-    }
-
-    return pszMimeType;
-}
-
-/**
  * Read clipboard buffer from Wayland in specified format.
  *
  * @returns IPRT status code.
  * @param   pCtx            DCP context data.
  * @param   pOffer          Data offer object.
- * @param   uFmt            Clipboard format in VBox representation.
  * @param   pszMimeType     Requested mime-type in string representation.
  */
 static int vbcl_wayland_hlp_dcp_receive_offer(
-    vbox_wl_dcp_ctx_t *pCtx, zwlr_data_control_offer_v1 *pOffer, SHCLFORMAT uFmt, char *pszMimeType)
+    vbox_wl_dcp_ctx_t *pCtx, zwlr_data_control_offer_v1 *pOffer, char *pszMimeType)
 {
     int rc = VERR_PIPE_NOT_CONNECTED;
 
     int aFds[2];
     void *pvBuf = NULL;
     size_t cbBuf = 0;
-
-    RT_NOREF(uFmt);
 
     if (pipe(aFds) == 0)
     {
@@ -773,6 +722,9 @@ static int vbcl_wayland_hlp_dcp_receive_offer(
             {
                 pCtx->Session.clip.pvDataBuf.set((uint64_t)pvBufOut);
                 pCtx->Session.clip.cbDataBuf.set((uint64_t)cbBufOut);
+
+                rc = VBoxMimeConvSetCacheByMime(pszMimeType, pvBufOut, cbBufOut);
+                VBClLogVerbose(5, "Put %u bytes into cache for mime-type: %s\n", cbBufOut, pszMimeType);
             }
 
             RTMemFree(pvBuf);
@@ -782,6 +734,38 @@ static int vbcl_wayland_hlp_dcp_receive_offer(
         VBClLogError("cannot read mime-type '%s' from Wayland, rc=%Rrc\n", pszMimeType, rc);
 
     return rc;
+}
+
+/**
+ * Convert list of mime-types in string representation into bitmask of VBox formats.
+ *
+ * @returns Formats bitmask.
+ * @param   pList       List of mime-types in string representation.
+ * @param   pOffert     Wayland offer.
+ */
+static SHCLFORMATS vbcl_wayland_hlp_dcp_match_formats(vbox_wl_dcp_mime_t *pList, struct zwlr_data_control_offer_v1 *pOffer)
+{
+    SHCLFORMATS fFmts = VBOX_SHCL_FMT_NONE;
+
+    if (!RTListIsEmpty(&pList->Node))
+    {
+        vbox_wl_dcp_mime_t *pEntry;
+        RTListForEach(&pList->Node, pEntry, vbox_wl_dcp_mime_t, Node)
+        {
+            int rc;
+
+            AssertPtrReturn(pEntry, VBOX_SHCL_FMT_NONE);
+            AssertPtrReturn(pEntry->pszMimeType, VBOX_SHCL_FMT_NONE);
+
+            VBClLogVerbose(5, "Wayland last offer contains data in format: %s\n", pEntry->pszMimeType);
+
+            fFmts |= VBoxMimeConvGetIdByMime(pEntry->pszMimeType);
+
+            rc = vbcl_wayland_hlp_dcp_receive_offer(&g_DcpCtx, pOffer, pEntry->pszMimeType);
+        }
+    }
+
+    return fFmts;
 }
 
 /**
@@ -815,37 +799,15 @@ static DECLCALLBACK(int) vbcl_wayland_hlp_dcp_gh_clip_report_cb(
 
     if (RT_SUCCESS(rc))
     {
-        fFmts = vbcl_wayland_hlp_dcp_match_formats(&g_DcpCtx.Session.clip.mimeTypesList);
+        fFmts = vbcl_wayland_hlp_dcp_match_formats(&g_DcpCtx.Session.clip.mimeTypesList, pOffer);
         if (fFmts != VBOX_SHCL_FMT_NONE)
         {
-            SHCLFORMAT uFmt;
-
             g_DcpCtx.Session.clip.fFmts.set(fFmts);
 
             if (RT_VALID_PTR(g_DcpCtx.pClipboardCtx))
             {
                 rc = VbglR3ClipboardReportFormats(g_DcpCtx.pClipboardCtx->idClient, fFmts);
-                if (RT_SUCCESS(rc))
-                {
-                    uFmt = g_DcpCtx.Session.clip.uFmt.wait();
-                    if (uFmt != g_DcpCtx.Session.clip.uFmt.defaults())
-                    {
-                        char *pszMimeType =
-                            vbcl_wayland_hlp_dcp_match_mime_type(uFmt, &g_DcpCtx.Session.clip.mimeTypesList);
-
-                        if (RT_VALID_PTR(pszMimeType))
-                        {
-                            rc = vbcl_wayland_hlp_dcp_receive_offer(&g_DcpCtx, pOffer, uFmt, pszMimeType);
-
-                            VBClLogVerbose(5, "will send fmt=0x%x (%s) to the host\n", uFmt, pszMimeType);
-                        }
-                        else
-                            rc = VERR_NO_DATA;
-                    }
-                    else
-                        rc = VERR_TIMEOUT;
-                }
-                else
+                if (RT_FAILURE(rc))
                     VBClLogError("cannot report formats to host, rc=%Rrc\n", rc);
             }
             else
@@ -901,6 +863,10 @@ static void vbcl_wayland_hlp_dcp_data_device_data_offer(
                                         &pCtx->Session);
         if (RT_SUCCESS(rc))
         {
+            rc = VBoxMimeConvClearCache();
+            if (RT_FAILURE(rc))
+                VBClLogVerbose(5, "unable to clear clipboard cache, rc=%Rrc", rc);
+
             zwlr_data_control_offer_v1_add_listener(pOffer, &g_data_control_offer_listener, pvUser);
 
             /* Receive all the advertised mime types. */
@@ -1251,6 +1217,8 @@ static DECLCALLBACK(int) vbcl_wayland_hlp_dcp_probe(void)
     int fCaps = VBOX_WAYLAND_HELPER_CAP_NONE;
     VBGHDISPLAYSERVERTYPE enmDisplayServerType = VBGHDisplayServerTypeDetect();
 
+    VBoxMimeConvInitCache();
+
     vbcl_wayland_hlp_dcp_reset_ctx(&probeCtx, false /* fShutdown */);
     vbcl_wayland_session_init(&probeCtx.Session.Base);
 
@@ -1590,20 +1558,17 @@ static DECLCALLBACK(int) vbcl_wayland_hlp_dcp_clip_gh_read_join_cb(
         void *pvData;
         size_t cbData;
 
-        /* Store requested clipboard format to the session. */
-        g_DcpCtx.Session.clip.uFmt.set(*puFmt);
-
-        /* Wait for data in requested format. */
-        pvData = (void *)g_DcpCtx.Session.clip.pvDataBuf.wait();
-        cbData = g_DcpCtx.Session.clip.cbDataBuf.wait();
-        if (   cbData != g_DcpCtx.Session.clip.cbDataBuf.defaults()
-            && pvData != (void *)g_DcpCtx.Session.clip.pvDataBuf.defaults())
+        /* Take data from cache. */
+        rc = VBoxMimeConvGetCacheById(*puFmt, &pvData, &cbData);
+        if (RT_SUCCESS(rc))
         {
             /* Send clipboard data to the host. */
             rc = VbglR3ClipboardWriteDataEx(g_DcpCtx.pClipboardCtx, *puFmt, pvData, cbData);
         }
         else
             rc = VERR_TIMEOUT;
+
+        VBClLogVerbose(5, "Sent %u bytes to host in format 0x%x, rc=%Rrc\n", cbData, *puFmt, rc);
     }
 
     return rc;
