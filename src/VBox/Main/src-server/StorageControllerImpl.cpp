@@ -1,4 +1,4 @@
-/* $Id: StorageControllerImpl.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: StorageControllerImpl.cpp 113680 2026-03-30 13:41:29Z knut.osmundsen@oracle.com $ */
 /** @file
  * Implementation of IStorageController.
  */
@@ -49,12 +49,12 @@
 struct StorageController::Data
 {
     Data(Machine * const aMachine)
-        : pVirtualBox(NULL),
+        : pVirtualBox(aMachine->i_getVirtualBox()),
           pSystemProperties(NULL),
           pParent(aMachine)
     {
-        unconst(pVirtualBox) = aMachine->i_getVirtualBox();
-        unconst(pSystemProperties) = pVirtualBox->i_getSystemProperties();
+        if (pVirtualBox) /* MSC /analyze paranoia */
+            unconst(pSystemProperties) = pVirtualBox->i_getSystemProperties();
     }
 
     VirtualBox * const                  pVirtualBox;

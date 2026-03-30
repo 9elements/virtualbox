@@ -1,4 +1,4 @@
-/* $Id: UefiVariableStoreImpl.cpp 113245 2026-03-04 11:35:32Z alexander.eichner@oracle.com $ */
+/* $Id: UefiVariableStoreImpl.cpp 113680 2026-03-30 13:41:29Z knut.osmundsen@oracle.com $ */
 /** @file
  * VirtualBox COM NVRAM store class implementation
  */
@@ -834,7 +834,7 @@ void UefiVariableStore::i_uefiAttrMaskToVec(uint32_t fAttr, std::vector<UefiVari
  */
 HRESULT UefiVariableStore::i_retainUefiVariableStore(bool fReadonly)
 {
-    Assert(m->hVfsUefiVarStore = NIL_RTVFS);
+    Assert(m->hVfsUefiVarStore == NIL_RTVFS);
     return m->pParent->i_retainUefiVarStore(&m->hVfsUefiVarStore, fReadonly);
 }
 

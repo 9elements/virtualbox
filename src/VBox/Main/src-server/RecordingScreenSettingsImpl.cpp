@@ -1,4 +1,4 @@
-/* $Id: RecordingScreenSettingsImpl.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: RecordingScreenSettingsImpl.cpp 113680 2026-03-30 13:41:29Z knut.osmundsen@oracle.com $ */
 /** @file
  *
  * VirtualBox COM class implementation - Recording settings of one virtual screen.
@@ -1121,7 +1121,9 @@ HRESULT RecordingScreenSettings::i_saveSettings(settings::RecordingScreen &Setti
 
     AutoReadLock alock(this COMMA_LOCKVAL_SRC_POS);
 
-    Settings = *m->bd.data();
+    settings::RecordingScreen const * const pSrc = m ? m->bd.data() : NULL;
+    AssertPtrReturn(pSrc, E_UNEXPECTED); /* MSC /analyze */
+    Settings = *pSrc;
 
     return S_OK;
 }
