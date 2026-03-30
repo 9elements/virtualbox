@@ -1,4 +1,4 @@
-/* $Id: extvfs.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: extvfs.cpp 113639 2026-03-30 09:40:28Z knut.osmundsen@oracle.com $ */
 /** @file
  * IPRT - Ext2/3/4 Virtual Filesystem.
  */
@@ -1974,13 +1974,12 @@ static int rtFsExtVol_NewFile(PRTFSEXTVOL pThis, uint64_t fOpen, uint32_t iInode
                 pNewFile->pVol    = pThis;
                 pNewFile->pInode  = pInode;
                 pNewFile->offFile = 0;
+                return VINF_SUCCESS;
             }
         }
         else
             rc = RTERRINFO_LOG_SET_F(pErrInfo, VERR_NOT_A_FILE, "%s: fMode=%#RX32", pszWhat, pInode->ObjInfo.Attr.fMode);
-
-        if (RT_FAILURE(rc))
-            rtFsExtInodeRelease(pThis, pInode);
+        rtFsExtInodeRelease(pThis, pInode);
     }
 
     return rc;
@@ -2177,6 +2176,7 @@ static DECLCALLBACK(int) rtFsExtDir_Open(void *pvThis, const char *pszEntry, uin
             }
             else
                 rc = VERR_NOT_SUPPORTED;
+            rtFsExtInodeRelease(pVol, pInode);
         }
     }
 
@@ -2395,13 +2395,12 @@ static int rtFsExtVol_OpenDirByInode(PRTFSEXTVOL pThis, uint32_t iInode, PRTVFSD
                 pNewDir->fNoMoreFiles = false;
                 pNewDir->pVol         = pThis;
                 pNewDir->pInode       = pInode;
+                return VINF_SUCCESS;
             }
         }
         else
             rc = VERR_VFS_BOGUS_FORMAT;
-
-        if (RT_FAILURE(rc))
-            rtFsExtInodeRelease(pThis, pInode);
+        rtFsExtInodeRelease(pThis, pInode);
     }
 
     return rc;
@@ -2461,7 +2460,7 @@ static DECLCALLBACK(int) rtFsExtVolInodeTreeDestroy(PAVLU32NODECORE pCore, void 
     RT_NOREF(pvUser);
 
     PRTFSEXTINODE pInode = (PRTFSEXTINODE)pCore;
-    Assert(!pInode->cRefs);
+    AssertMsg(!pInode->cRefs, ("Key=%#RX64: cRefs=%u fMode=%#x\n", pInode->Core.Key, pInode->cRefs, pInode->ObjInfo.Attr.fMode));
     RTMemFree(pInode);
     return VINF_SUCCESS;
 }
@@ -2641,9 +2640,12 @@ static int rtFsExtVolLoadAndParseSuperBlockV0(PRTFSEXTVOL pThis, PCEXTSUPERBLOCK
  */
 static int rtFsExtVolLoadAndParseSuperBlockV1(PRTFSEXTVOL pThis, PCEXTSUPERBLOCK pSb, PRTERRINFO pErrInfo)
 {
-    if ((RT_LE2H_U32(pSb->fFeaturesIncompat) & ~RTFSEXT_INCOMPAT_FEATURES_SUPP) != 0)
+    uint32_t fIncompatFeaturesSupp = RTFSEXT_INCOMPAT_FEATURES_SUPP;
+    if (pThis->fMntFlags & RTVFSMNT_F_READ_ONLY) /** @todo add a special flag for read-only + ignore recovery! */
+        fIncompatFeaturesSupp |= EXT_SB_FEAT_INCOMPAT_RECOVER;
+    if ((RT_LE2H_U32(pSb->fFeaturesIncompat) & ~fIncompatFeaturesSupp) != 0)
         return RTERRINFO_LOG_SET_F(pErrInfo, VERR_VFS_UNSUPPORTED_FORMAT, "EXT filesystem contains unsupported incompatible features: %RX32",
-                                   RT_LE2H_U32(pSb->fFeaturesIncompat) & ~RTFSEXT_INCOMPAT_FEATURES_SUPP);
+                                   RT_LE2H_U32(pSb->fFeaturesIncompat) & ~fIncompatFeaturesSupp);
     if (   RT_LE2H_U32(pSb->fFeaturesCompatRo) != 0
         && !(pThis->fMntFlags & RTVFSMNT_F_READ_ONLY))
         return RTERRINFO_LOG_SET_F(pErrInfo, VERR_VFS_UNSUPPORTED_FORMAT, "EXT filesystem contains unsupported readonly features: %RX32",
