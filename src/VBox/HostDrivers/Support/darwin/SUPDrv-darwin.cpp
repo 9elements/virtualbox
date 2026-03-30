@@ -1,4 +1,4 @@
-/* $Id: SUPDrv-darwin.cpp 113503 2026-03-23 13:48:19Z knut.osmundsen@oracle.com $ */
+/* $Id: SUPDrv-darwin.cpp 113644 2026-03-30 10:33:56Z knut.osmundsen@oracle.com $ */
 /** @file
  * VirtualBox Support Driver - Darwin Specific Code.
  */
@@ -253,7 +253,7 @@ static struct cdevsw    g_DevCW =
     /*.d_select= */eno_select,
     /*.d_mmap  = */eno_mmap,
     /*.d_strategy = */eno_strat,
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1200 /* changed from 'void *' to 'rsvd_fcn_t' */
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 120000 /* changed from 'void *' to 'rsvd_fcn_t' */
     /*.d_getc/d_reserved_1 = */eno_getc,
     /*.d_putc/d_reserved_2 = */eno_putc,
 #else

@@ -1,4 +1,4 @@
-/* $Id: SUPDrv.cpp 113643 2026-03-30 10:31:43Z knut.osmundsen@oracle.com $ */
+/* $Id: SUPDrv.cpp 113644 2026-03-30 10:33:56Z knut.osmundsen@oracle.com $ */
 /** @file
  * VBoxDrv - The VirtualBox Support Driver - Common code.
  */
@@ -1609,7 +1609,7 @@ int VBOXCALL supdrvIOCtlFast(uintptr_t uOperation, VMCPUID idCpu, PSUPDRVDEVEXT 
                 /*
                  * Make the call.
                  */
-                pDevExt->pfnVMMR0EntryFast(pGVM, pVM, idCpu, uOperation);
+                pDevExt->pfnVMMR0EntryFast(pGVM, pVM, idCpu, (uint32_t)uOperation);
                 return VINF_SUCCESS;
             }
 
@@ -5830,7 +5830,7 @@ int VBOXCALL supdrvLdrRegisterWrappedModule(PSUPDRVDEVEXT pDevExt, PCSUPLDRWRAPP
     size_t                  cchName;
     PSUPDRVLDRIMAGE         pImage;
     PCSUPLDRWRAPMODSYMBOL   paSymbols;
-    uint16_t                idx;
+    uint32_t                idx;
     const char             *pszPrevSymbol;
     int                     rc;
     SUPDRV_CHECK_SMAP_SETUP();
@@ -5958,7 +5958,7 @@ int VBOXCALL supdrvLdrRegisterWrappedModule(PSUPDRVDEVEXT pDevExt, PCSUPLDRWRAPP
     pImage->pvImage         = (void *)pWrappedModInfo->pvImageStart;
     pImage->hMemObjImage    = NIL_RTR0MEMOBJ;
     pImage->cbImageWithEverything
-        = pImage->cbImageBits = (uintptr_t)pWrappedModInfo->pvImageEnd - (uintptr_t)pWrappedModInfo->pvImageStart;
+        = pImage->cbImageBits = (uint32_t)((uintptr_t)pWrappedModInfo->pvImageEnd - (uintptr_t)pWrappedModInfo->pvImageStart);
     pImage->cSymbols        = 0;
     pImage->paSymbols       = NULL;
     pImage->pachStrTab      = NULL;
