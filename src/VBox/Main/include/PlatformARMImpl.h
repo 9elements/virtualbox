@@ -1,4 +1,4 @@
-/* $Id: PlatformARMImpl.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: PlatformARMImpl.h 113679 2026-03-30 13:39:59Z knut.osmundsen@oracle.com $ */
 /** @file
  * VirtualBox COM class implementation - ARM platform settings.
  */
@@ -54,7 +54,7 @@ public:
 
     // public initializer/uninitializer for internal purposes only
     HRESULT init(Platform *aParent, Machine *aMachine);
-    HRESULT init(Platform *aParent, Machine *aMachine, PlatformARM *aThat);
+    HRESULT initWithPeer(Platform *aParent, Machine *aMachine, PlatformARM *aThat);
     HRESULT initCopy(Platform *aParent, Machine *aMachine, PlatformARM *aThat);
     void uninit();
 

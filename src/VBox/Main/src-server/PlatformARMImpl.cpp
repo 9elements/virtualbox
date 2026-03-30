@@ -1,4 +1,4 @@
-/* $Id: PlatformARMImpl.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: PlatformARMImpl.cpp 113679 2026-03-30 13:39:59Z knut.osmundsen@oracle.com $ */
 /** @file
  * VirtualBox COM class implementation - ARM platform settings.
  */
@@ -83,6 +83,9 @@ void PlatformARM::FinalRelease()
 
 HRESULT PlatformARM::init(Platform *aParent, Machine *aMachine)
 {
+    AssertPtrReturn(aParent, E_INVALIDARG);
+    AssertPtrReturn(aMachine, E_INVALIDARG);
+
     /* Enclose the state transition NotReady->InInit->Ready */
     AutoInitSpan autoInitSpan(this);
     AssertReturn(autoInitSpan.isOk(), E_FAIL);
@@ -107,13 +110,15 @@ HRESULT PlatformARM::init(Platform *aParent, Machine *aMachine)
  * @note This object must be destroyed before the original object
  *       it shares data with is destroyed.
  */
-HRESULT PlatformARM::init(Platform *aParent, Machine *aMachine, PlatformARM *aThat)
+HRESULT PlatformARM::initWithPeer(Platform *aParent, Machine *aMachine, PlatformARM *aThat)
 {
+    AssertPtrReturn(aParent, E_INVALIDARG);
+    AssertPtrReturn(aMachine, E_INVALIDARG);
+    AssertPtrReturn(aThat, E_INVALIDARG);
+
     /* Enclose the state transition NotReady->InInit->Ready */
     AutoInitSpan autoInitSpan(this);
     AssertReturn(autoInitSpan.isOk(), E_FAIL);
-
-    ComAssertRet(aParent && aParent, E_INVALIDARG);
 
     unconst(mParent)  = aParent;
     unconst(mMachine) = aMachine;
@@ -136,7 +141,9 @@ HRESULT PlatformARM::init(Platform *aParent, Machine *aMachine, PlatformARM *aTh
  */
 HRESULT PlatformARM::initCopy(Platform *aParent, Machine *aMachine, PlatformARM *aThat)
 {
-    ComAssertRet(aParent && aParent, E_INVALIDARG);
+    AssertPtrReturn(aParent, E_INVALIDARG);
+    AssertPtrReturn(aMachine, E_INVALIDARG);
+    AssertPtrReturn(aThat, E_INVALIDARG);
 
     /* Enclose the state transition NotReady->InInit->Ready */
     AutoInitSpan autoInitSpan(this);

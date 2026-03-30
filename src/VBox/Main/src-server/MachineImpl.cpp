@@ -1,4 +1,4 @@
-/* $Id: MachineImpl.cpp 113545 2026-03-24 17:35:10Z andreas.loeffler@oracle.com $ */
+/* $Id: MachineImpl.cpp 113679 2026-03-30 13:39:59Z knut.osmundsen@oracle.com $ */
 /** @file
  * Implementation of IMachine in VBoxSVC.
  */
@@ -15763,7 +15763,7 @@ HRESULT Machine::i_changeEncryptionForComponent(ChangeEncryptionTask &task, cons
                                                                        &pszCipher);
         if (RT_SUCCESS(vrc))
         {
-            task.mForce = strcmp(pszTaskCipher, pszCipher) != 0;
+            task.mForce = RTStrCmp(pszTaskCipher, pszCipher) != 0;
             RTMemFree(pszCipher);
         }
         else

@@ -1,4 +1,4 @@
-/* $Id: HostNetworkInterfaceImpl.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: HostNetworkInterfaceImpl.cpp 113679 2026-03-30 13:39:59Z knut.osmundsen@oracle.com $ */
 /** @file
  * VirtualBox COM class implementation
  */
@@ -225,7 +225,7 @@ HRESULT HostNetworkInterface::saveAdapterConfig(void)
 {
     /* We care about host-only adapters only */
     if (mIfType != HostNetworkInterfaceType_HostOnly)
-        return true;
+        return S_OK;
 
     HRESULT hrc = saveAdapterConfigParameter("Name", mInterfaceName.c_str());
     if (FAILED(hrc))
