@@ -1,4 +1,4 @@
-/* $Id: elf32.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: elf32.h 113656 2026-03-30 10:54:12Z knut.osmundsen@oracle.com $ */
 /** @file
  * IPRT - ELF 32-bit header.
  */
@@ -222,8 +222,8 @@ typedef struct
 
 /** The symbol's visibility. */
 #define ELF32_ST_VISIBILITY(other)  ((other) & 0x03)
-/** Make st_other given the visbility. */
-#define ELF32_ST_OTHER(visbility)   ((visbility) & 0x03)
+/** Make st_other given the visibility. */
+#define ELF32_ST_OTHER(visibility)  ((visibility) & 0x03)
 
 #endif /* !IPRT_INCLUDED_formats_elf32_h */
 
