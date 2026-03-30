@@ -1,4 +1,4 @@
-/* $Id: IEMAllMemRWTmplInline-x86.cpp.h 112435 2026-01-13 08:49:25Z knut.osmundsen@oracle.com $ */
+/* $Id: IEMAllMemRWTmplInline-x86.cpp.h 113653 2026-03-30 10:50:06Z knut.osmundsen@oracle.com $ */
 /** @file
  * IEM - Interpreted Execution Manager - Inlined R/W Memory Functions Template, x86 target.
  */
@@ -1313,7 +1313,7 @@ RT_CONCAT3(iemMemStackPopGReg,TMPL_MEM_FN_SUFF,Jmp)(PVMCPUCC pVCpu, uint8_t iGRe
      */
     uint64_t      uNewRsp;
     RTGCPTR const GCPtrTop = iemRegGetRspForPop(pVCpu, sizeof(TMPL_MEM_TYPE), &uNewRsp);
-    RTGCPTR const GCPtrEff = iemMemApplySegmentToWriteJmp(pVCpu, X86_SREG_SS, sizeof(TMPL_MEM_TYPE), GCPtrTop);
+    RTGCPTR const GCPtrEff = iemMemApplySegmentToReadJmp(pVCpu, X86_SREG_SS, sizeof(TMPL_MEM_TYPE), GCPtrTop);
 #  if TMPL_MEM_TYPE_SIZE > 1
     if (RT_LIKELY(TMPL_MEM_ALIGN_CHECK(GCPtrEff)))
 #  endif
