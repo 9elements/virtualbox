@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 113664 2026-03-30 11:49:16Z knut.osmundsen@oracle.com $
+# $Id: Makefile.kmk 113669 2026-03-30 11:55:55Z knut.osmundsen@oracle.com $
 ## @file
 # Sub-Makefile for the IPRT.
 #
@@ -3086,10 +3086,10 @@ VBoxRT_LDFLAGS.darwin          = \
 	-install_name $(VBOX_DYLD_EXECUTABLE_PATH)/VBoxRT.dylib
 VBoxRT_LDFLAGS.win             = /MANIFEST \
 	/delayload:user32.dll \
-	/delayload:shell32.dll \
 	/delayload:ole32.dll \
 	/delayload:oleaut32.dll \
-	/delayload:advapi32.dll
+	/delayload:advapi32.dll \
+	/delayload:mpr.dll
 
 if1of (VBoxRT, $(DLLS))
  $(call VBOX_SET_VER_INFO_DLL,VBoxRT,VirtualBox Runtime)
