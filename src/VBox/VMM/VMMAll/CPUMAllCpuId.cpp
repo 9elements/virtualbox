@@ -1,4 +1,4 @@
-/* $Id: CPUMAllCpuId.cpp 112442 2026-01-13 09:12:20Z knut.osmundsen@oracle.com $ */
+/* $Id: CPUMAllCpuId.cpp 113643 2026-03-30 10:31:43Z knut.osmundsen@oracle.com $ */
 /** @file
  * CPUM - CPU ID part, common bits.
  */
@@ -82,6 +82,8 @@ typedef struct PARTNUMINFO
 /** ARM CPU info by part number. */
 static PARTNUMINFO const g_aPartNumDbArm[] =
 {
+    { 0xd4b,    kCpumMicroarch_Arm_Hercules,        "ARM Cortex-A78",       "ARM Cortex-A78 (Hercules)",        kCpumCoreType_Efficiency },  /* MIDR_EL1=0x410FD4C0 - Qualcomm Snapdragon 8cx Gen 3 (Kryo Gold) */
+    { 0xd4c,    kCpumMicroarch_Arm_Hera,            "ARM Cortex-X1",        "ARM Cortex-X1 (Hera)",             kCpumCoreType_Performance }, /* MIDR_EL1=0x410FD4B0 - Qualcomm Snapdragon 8cx Gen 3 (Kryo Prime) */
     { 0xd85,    kCpumMicroarch_Arm_Blackhawk,       "ARM Cortex-X925",      "ARM Cortex-X925 (Blackhawk)",      kCpumCoreType_Performance },
     { 0xd87,    kCpumMicroarch_Arm_Chaberton,       "ARM Cortex-A725",      "ARM Cortex-A725 (Chaberton)",      kCpumCoreType_Efficiency },
 };
@@ -95,8 +97,10 @@ static PARTNUMINFO const g_aPartNumDbBroadcom[] =
 /** Qualcomm CPU info by part number. */
 static PARTNUMINFO const g_aPartNumDbQualcomm[] =
 {
+#if 1 /** @todo these aren't actually Qualcomm CPUs, are they? Firmware/Windows(26100) DevKit problem? */
     { 0x0d4b,   kCpumMicroarch_Qualcomm_Kyro,       "Qualcomm Snapdragon 8cx Gen 3",    "Qualcomm Snapdragon 8cx Gen 3 (Kryo Prime)",   kCpumCoreType_Efficiency  }, /* Guessing which part */    /*MIDR_EL1=0x410FD4B0*/
     { 0x0d4c,   kCpumMicroarch_Qualcomm_Kyro,       "Qualcomm Snapdragon 8cx Gen 3",    "Qualcomm Snapdragon 8cx Gen 3 (Kryo Gold)",    kCpumCoreType_Performance }, /* is for which core... */   /*MIDR_EL1=0x410FD4C0*/
+#endif
     { 0x1001,   kCpumMicroarch_Qualcomm_Oryon,      "Qualcomm Snapdragon X",            "Qualcomm Snapdragon X (Oryon var 1)",          kCpumCoreType_Unknown     }, /*MIDR_EL1=0x511f0011 (perf?)*/
     { 0x2001,   kCpumMicroarch_Qualcomm_Oryon,      "Qualcomm Snapdragon X",            "Qualcomm Snapdragon X (Oryon var 2)",          kCpumCoreType_Unknown     }, /*MIDR_EL1=0x512f0011 (eff?)*/
 };
@@ -879,6 +883,8 @@ VMMDECL(const char *) CPUMMicroarchName(CPUMMICROARCH enmMicroarch)
         CASE_RET_STR(kCpumMicroarch_Qualcomm_Kyro);
         CASE_RET_STR(kCpumMicroarch_Qualcomm_Oryon);
 
+        CASE_RET_STR(kCpumMicroarch_Arm_Hercules);
+        CASE_RET_STR(kCpumMicroarch_Arm_Hera);
         CASE_RET_STR(kCpumMicroarch_Arm_Chaberton);
         CASE_RET_STR(kCpumMicroarch_Arm_Blackhawk);
 

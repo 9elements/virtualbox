@@ -1,4 +1,4 @@
-/* $Id: VBoxCpuReport-arm.cpp 112442 2026-01-13 09:12:20Z knut.osmundsen@oracle.com $ */
+/* $Id: VBoxCpuReport-arm.cpp 113643 2026-03-30 10:31:43Z knut.osmundsen@oracle.com $ */
 /** @file
  * VBoxCpuReport - Produces the basis for a CPU DB entry, x86 specifics.
  */
@@ -57,6 +57,11 @@ static struct CPUCOREVARIATION
     uint32_t            cCores;
     uint32_t            cSysRegVals;
     SUPARMSYSREGVAL     aSysRegVals[256];
+    uint64_t            uCacheLevelIdReg;
+    uint64_t            uCacheTypeReg;
+    uint64_t            uDataCacheZeroId;
+    uint32_t            cCacheEntries;
+    SUPARMCACHELEVEL    aCacheEntries[16];
     /** @} */
 
     /** @name Set later by produceCpuReport().
@@ -103,7 +108,7 @@ static SUPARMSYSREGVAL *lookupSysReg(SUPARMSYSREGVAL *paSysRegVals, uint32_t con
 }
 
 
-/** Looks up a register value in g_aSysRegVals. */
+/** Looks up a register value in g_aVariations[iVar].aSysRegVals. */
 static uint64_t getSysRegVal(uint32_t idReg, uint32_t iVar, uint64_t uNotFoundValue = 0)
 {
     SUPARMSYSREGVAL const *pVal = lookupSysReg(g_aCmnSysRegVals, g_cCmnSysRegVals, idReg);
@@ -261,6 +266,19 @@ static DECLCALLBACK(int) sysRegValSortCmp(void const *pvElement1, void const *pv
     return pElm1->idReg < pElm2->idReg ? -1 : pElm1->idReg > pElm2->idReg ? 1 : 0;
 }
 
+/** Formats a 64-bit unsigned integer value. */
+static const char *formatU64(char *pszTmp, size_t cbTmp, uint64_t uValue, int cchWidth = 18, bool fTrailingComma = true)
+{
+    if (uValue == UINT64_MAX)
+        return fTrailingComma ? "UINT64_MAX," : "UINT64_MAX";
+    if (uValue == UINT32_MAX)
+        return fTrailingComma ? "UINT32_MAX," : "UINT32_MAX";
+    if (uValue == 0)
+        return fTrailingComma ? "0,"          : "0";
+    RTStrPrintf(pszTmp, cbTmp, "UINT64_C(%#0*RX64)%s", cchWidth, uValue, fTrailingComma ? "," : "");
+    return pszTmp;
+}
+
 
 static int populateSystemRegistersComplete(void)
 {
@@ -390,7 +408,7 @@ static const char *darwinHvReturnToString(hv_return_t rc)
 
 
 /**
- * Populates g_aSysRegVals and g_cSysRegVals
+ * Populates g_aVariations.
  */
 static int populateSystemRegisters(void)
 {
@@ -408,6 +426,10 @@ static int populateSystemRegisters(void)
             if (RTMpIsCpuOnline(idxCpu))
             {
                 RTCPUID const idCpu         = RTMpCpuIdFromSetIndex(idxCpu);
+
+                /*
+                 * Get the registers.
+                 */
                 uint32_t      cTries        = 0; /* Kludge for M3 Max / 14.7.5. Takes anywhere from 44 to at least 144 tries. */
                 uint32_t      cRegAvailable;
                 do
@@ -429,8 +451,8 @@ static int populateSystemRegisters(void)
                     return RTMsgErrorRc(rc, "SUPR3ArmQuerySysRegs failed: %Rrc", rc);
                 if (cRegAvailable > g_aVariations[iVar].cSysRegVals)
                     return RTMsgErrorRc(rc,
-                                        "SUPR3ArmQuerySysRegs claims there are %u more registers availble.\n"
-                                        "Increase size of g_aSysRegVals to at least %u entries and retry!",
+                                        "SUPR3ArmQuerySysRegs claims there are %u more registers available.\n"
+                                        "Increase size of g_aVariations::aSysRegVals to at least %u entries and retry!",
                                         cRegAvailable - g_aVariations[iVar].cSysRegVals, cRegAvailable);
                 /* Sort it. */
                 RTSortShell(g_aVariations[iVar].aSysRegVals, g_aVariations[iVar].cSysRegVals,
@@ -445,13 +467,61 @@ static int populateSystemRegisters(void)
                     pReg->fFlags = 1;
                 }
 
-                /* Check if it's the same as an existing variation. */
+                /*
+                 * Get the cache info.
+                 */
+                uint32_t cEntriesAvailable;
+                cTries = 0;
+                do
+                {
+                     cEntriesAvailable                   = 0;
+                     g_aVariations[iVar].cCacheEntries   = 0;
+                     rc = SUPR3ArmQueryCacheInfo(idCpu, RT_ELEMENTS(g_aVariations[iVar].aCacheEntries),
+                                                 &g_aVariations[iVar].uCacheLevelIdReg,
+                                                 &g_aVariations[iVar].uCacheTypeReg,
+                                                 &g_aVariations[iVar].uDataCacheZeroId,
+                                                 &g_aVariations[iVar].cCacheEntries,
+                                                 &cEntriesAvailable,
+                                                 g_aVariations[iVar].aCacheEntries);
+                } while (rc == VERR_CPU_OFFLINE && ++cTries < 512);
+                vbCpuRepDebug("SUPR3ArmQueryCacheInfo(%u/%u) -> %Rrc (%u/%u entries - %u retries)\n",
+                              idCpu, idxCpu, rc, g_aVariations[iVar].cCacheEntries, cEntriesAvailable, cTries);
+                if (RT_FAILURE(rc))
+                    return RTMsgErrorRc(rc, "SUPR3ArmQueryCacheInfo failed: %Rrc", rc);
+                if (cEntriesAvailable > g_aVariations[iVar].cCacheEntries)
+                    return RTMsgErrorRc(rc,
+                                        "SUPR3ArmQueryCacheInfo claims there are %u more registers available.\n"
+                                        "Increase size of g_aVariations::aCacheEntries to at least %u entries and retry!",
+                                        cEntriesAvailable - g_aVariations[iVar].cCacheEntries, cEntriesAvailable);
+
+
+                /*
+                 * Check if it's the same as an existing variation.
+                 */
+                int iBestReject = 0;
                 int iVarMatch;
                 for (iVarMatch = iVar - 1; iVarMatch >= 0; iVarMatch--)
-                    if (   g_aVariations[iVarMatch].cSysRegVals == g_aVariations[iVar].cSysRegVals
-                        && memcmp(&g_aVariations[iVarMatch].aSysRegVals,
-                                  &g_aVariations[iVar].aSysRegVals, g_aVariations[iVar].cSysRegVals) == 0)
-                        break;
+                    if (g_aVariations[iVarMatch].cSysRegVals == g_aVariations[iVar].cSysRegVals)
+                    {
+                        if (memcmp(&g_aVariations[iVarMatch].aSysRegVals,
+                                   &g_aVariations[iVar].aSysRegVals, g_aVariations[iVar].cSysRegVals) == 0)
+                        {
+                            if (g_aVariations[iVarMatch].cCacheEntries == g_aVariations[iVar].cCacheEntries)
+                            {
+                                if (memcmp(&g_aVariations[iVarMatch].aCacheEntries,
+                                           &g_aVariations[iVar].aCacheEntries, g_aVariations[iVar].cCacheEntries) == 0)
+                                {
+                                    if (   g_aVariations[iVarMatch].uCacheLevelIdReg == g_aVariations[iVar].uCacheLevelIdReg
+                                        && g_aVariations[iVarMatch].uCacheTypeReg    == g_aVariations[iVar].uCacheTypeReg)
+                                        break;
+                                    iBestReject = RT_MAX(iBestReject, 4);
+                                }
+                                iBestReject = RT_MAX(iBestReject, 3);
+                            }
+                            iBestReject = RT_MAX(iBestReject, 2);
+                        }
+                        iBestReject = RT_MAX(iBestReject, 1);
+                    }
                 if (iVarMatch >= 0)
                 {
                     /* Add to existing */
@@ -461,7 +531,7 @@ static int populateSystemRegisters(void)
                 }
                 else
                 {
-                    vbCpuRepDebug("CPU %u/%u is a new variant #%u\n", idCpu, idxCpu, iVar);
+                    vbCpuRepDebug("CPU %u/%u is a new variant #%u (iBestReject=%u)\n", idCpu, idxCpu, iVar, iBestReject);
                     g_aVariations[iVar].cCores = 1;
                     RTCpuSetEmpty(&g_aVariations[iVar].bmMembers);
                     RTCpuSetAddByIndex(&g_aVariations[iVar].bmMembers, idxCpu);
@@ -726,6 +796,66 @@ static void printSysRegArray(const char *pszNameC, uint32_t cSysRegVals, SUPARMS
 }
 
 
+static void printCacheEntries(const char *pszNameC, uint32_t cEntries, SUPARMCACHELEVEL const *paEntries,
+                              const char *pszCpuDesc, uint32_t iVariation, bool fFeatCcIdx)
+{
+    if (!cEntries)
+        return;
+
+    vbCpuRepPrintf("\n"
+                   "/**\n");
+    vbCpuRepPrintf(" * System register values for %s, variation #%u.\n"
+                   " * %u CPUs shares this variant: ",
+                   pszCpuDesc, iVariation,
+                   g_aVariations[iVariation].cCores);
+    int iLast = RTCpuSetLastIndex(&g_aVariations[iVariation].bmMembers);
+    for (int i = 0, cPrinted = 0; i <= iLast; i++)
+        if (RTCpuSetIsMemberByIndex(&g_aVariations[iVariation].bmMembers, i))
+            vbCpuRepPrintf(cPrinted++ == 0 ? "%u" : ", %u", i);
+    vbCpuRepPrintf("\n"
+                   " */\n"
+                   "static SUPARMCACHELEVEL const g_aVar%uCacheEntries_%s[] =\n"
+                   "{\n",
+                   iVariation, pszNameC);
+
+    for (uint32_t i = 0; i < cEntries; i++)
+    {
+        const char *pszType;
+        if (paEntries[i].bCsSel & 1)
+            pszType = "inst";
+        else if (   (   i + 1 < cEntries
+                     && (paEntries[i + 1].bCsSel & 15) == ((paEntries[i].bCsSel & 15) | 1) )
+                 || (   i > 0
+                     && (paEntries[i - 1].bCsSel & 15) == ((paEntries[i].bCsSel & 15) | 1) ))
+            pszType = "data";
+        else
+            pszType = "unif";
+        uint32_t const cSets  = (fFeatCcIdx
+                                 ? (uint32_t)(paEntries[i].uCcsIdR >> 32) & (RT_BIT_32(24) - 1U)
+                                 : (uint32_t)(paEntries[i].uCcsIdR >> 13) & (RT_BIT_32(15) - 1U)) + 1U;
+        uint32_t const cbLine = RT_BIT_32((paEntries[i].uCcsIdR & 7U) + 4);
+        uint32_t const uAssoc = (uint32_t)((paEntries[i].uCcsIdR >> 3) & ((fFeatCcIdx ? RT_BIT_32(21) : RT_BIT_32(10)) - 1U)) + 1U;
+        uint64_t const cbCache = cbLine * cSets * uAssoc;
+        char szTmp1[64], szTmp2[64];
+        vbCpuRepPrintf("    { %#04x, {%u,%u,%u}, %u, %s %s }, /* CSSEL=L%u-%s%s cbLine=%-3u cSets=%-5u Asc=%-2u (% .0RhubB) */\n",
+                       paEntries[i].bCsSel,
+                       paEntries[i].abReserved[0], paEntries[i].abReserved[1], paEntries[i].abReserved[2],
+                       paEntries[i].fFlags,
+                       formatU64(szTmp1, sizeof(szTmp1), paEntries[i].uCcsIdR, 14),
+                       formatU64(szTmp2, sizeof(szTmp2), paEntries[i].uCcs2IdR, 10, false),
+                       (paEntries[i].bCsSel >> 1) & 7,
+                       pszType,
+                       paEntries[i].bCsSel & 16 ? "-tag" : "",
+                       cbLine,
+                       cSets,
+                       uAssoc,
+                       cbCache);
+    }
+    vbCpuRepPrintf("};\n"
+                   "\n");
+}
+
+
 /**
  * Populate the system register array and output it.
  */
@@ -733,8 +863,20 @@ static int produceSysRegArray(const char *pszNameC, const char *pszCpuDesc)
 {
     printSysRegArray(pszNameC, g_cCmnSysRegVals, g_aCmnSysRegVals, pszCpuDesc);
     for (uint32_t iVar = 0; iVar < g_cVariations; iVar++)
+    {
         printSysRegArray(pszNameC, g_aVariations[iVar].cSysRegVals, g_aVariations[iVar].aSysRegVals,
                          g_aVariations[iVar].pszFullName, iVar);
+
+        /* Determine FEAT_CCIDX - extended cache index */
+        SUPARMSYSREGVAL *pReg = lookupSysReg(g_aVariations[iVar].aSysRegVals, g_aVariations[iVar].cSysRegVals,
+                                             ARMV8_AARCH64_SYSREG_ID_AA64MMFR2_EL1);
+        if (!pReg)
+            pReg = lookupSysReg(g_aCmnSysRegVals, g_cCmnSysRegVals, ARMV8_AARCH64_SYSREG_ID_AA64MMFR2_EL1);
+        bool const fFeatCcIdx = pReg && ((pReg->uValue >> 20) & UINT32_C(0xf)) >= 1;
+
+        printCacheEntries(pszNameC, g_aVariations[iVar].cCacheEntries, g_aVariations[iVar].aCacheEntries,
+                          g_aVariations[iVar].pszFullName, iVar, fFeatCcIdx);
+    }
     return VINF_SUCCESS;
 }
 
@@ -787,8 +929,8 @@ int produceCpuReport(void)
                                                 &g_aVariations[iVar].pszName,
                                                 &g_aVariations[iVar].pszFullName);
         if (RT_FAILURE(rc))
-            return RTMsgErrorRc(rc, "CPUMCpuIdDetermineArmV8MicroarchEx failed for %#RX64%s%s: %Rrc",
-                                uMIdReg, *pszCpuName ? " " : "", pszCpuName, rc);
+            return RTMsgErrorRc(rc, "CPUMCpuIdDetermineArmV8MicroarchEx failed for %#RX64%s%s (iVar=%u): %Rrc",
+                                uMIdReg, *pszCpuName ? " " : "", pszCpuName, iVar, rc);
         if (rc != VINF_SUCCESS)
              RTMsgWarning("%s part number not found (MIDR_EL1=%#x%s%s), matched by CPU name instead.",
                           CPUMCpuVendorName(g_aVariations[iVar].enmVendor), uMIdReg, *pszCpuName ? " " : "", pszCpuName);
@@ -926,7 +1068,7 @@ int produceCpuReport(void)
                        "                    /*.u4Implementer = */ %#04x,\n"
                        "                }\n"
                        "            },\n"
-                       "            /*.enmCoreType  = */ kCpumCoreType_%s,\n"
+                       "            /*.enmCoreType    = */ kCpumCoreType_%s,\n"
                        ,
                        iVar,
                        g_aVariations[iVar].pszFullName,
@@ -937,12 +1079,31 @@ int produceCpuReport(void)
                        (unsigned)((g_aVariations[iVar].uMIdReg >> 24) & 0xff),
                        vbGetCoreTypeToString(g_aVariations[iVar].enmCoreType));
         if (g_aVariations[iVar].cSysRegVals == 0)
-            vbCpuRepPrintf("            /*.cSysRegVals  = */ 0,\n"
-                           "            /*.paSysRegVals = */ NULL\n");
+            vbCpuRepPrintf("            /*.cSysRegVals    = */ 0,\n"
+                           "            /*.paSysRegVals   = */ NULL,\n");
         else
-            vbCpuRepPrintf("            /*.cSysRegVals  = */ ZERO_ALONE(RT_ELEMENTS(g_aVar%uSysRegVals_%s)),\n"
-                           "            /*.paSysRegVals = */ NULL_ALONE(g_aVar%uSysRegVals_%s)\n",
+            vbCpuRepPrintf("            /*.cSysRegVals    = */ ZERO_ALONE(RT_ELEMENTS(g_aVar%uSysRegVals_%s)),\n"
+                           "            /*.paSysRegVals   = */ NULL_ALONE(g_aVar%uSysRegVals_%s),\n",
                            iVar, szNameC, iVar, szNameC);
+        vbCpuRepPrintf("            /*.uUnused        = */ 0,\n");
+        if (g_aVariations[iVar].cCacheEntries == 0)
+            vbCpuRepPrintf("            /*.cCacheEntries  = */ 0,\n"
+                           "            /*.paSysRegVals   = */ NULL\n");
+        else
+        {
+            vbCpuRepPrintf("            /*.cCacheEntries  = */ ZERO_ALONE(RT_ELEMENTS(g_aVar%uCacheEntries_%s)),\n"
+                           "            /*.paCacheEntries = */ NULL_ALONE(g_aVar%uCacheEntries_%s)\n",
+                           iVar, szNameC, iVar, szNameC);
+            vbCpuRepPrintf("            /* info: CLIDR_EL1  = %#RX64 -", g_aVariations[iVar].uCacheLevelIdReg);
+            static const char * const s_apszCacheTypes[8] = { "0", "i-only", "d-only", "i&d", "unified", "5", "6", "7" };
+            for (uint32_t i = 0, u = (uint32_t)g_aVariations[iVar].uCacheLevelIdReg; i < 7; i++, u >>= 3)
+                if (u & 7)
+                    vbCpuRepPrintf(" L%u=%s", i + 1, s_apszCacheTypes[u & 7]);
+            vbCpuRepPrintf(" */\n");
+            vbCpuRepPrintf("            /* info: CTR_EL0    = %#RX64 */\n", g_aVariations[iVar].uCacheTypeReg);
+            vbCpuRepPrintf("            /* info: DCZID_EL0: = %#RX64 */\n", g_aVariations[iVar].uDataCacheZeroId);
+        }
+
         vbCpuRepPrintf("        },\n");
     }
     vbCpuRepPrintf("    }\n"
