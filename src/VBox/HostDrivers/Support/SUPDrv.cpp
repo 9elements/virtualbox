@@ -1,4 +1,4 @@
-/* $Id: SUPDrv.cpp 113650 2026-03-30 10:47:35Z knut.osmundsen@oracle.com $ */
+/* $Id: SUPDrv.cpp 113662 2026-03-30 11:15:23Z knut.osmundsen@oracle.com $ */
 /** @file
  * VBoxDrv - The VirtualBox Support Driver - Common code.
  */
@@ -207,6 +207,56 @@ static int                  supdrvIOCtl_ArmGetCacheInfo(PSUPARMGETCACHEINFO pReq
                                                         RTCPUID idCpu, uint32_t fFlags);
 #endif
 static int                  supdrvIOCtl_ResumeSuspendedKbds(void);
+
+
+/*********************************************************************************************************************************
+*   Structures and Typedefs                                                                                                      *
+*********************************************************************************************************************************/
+/**
+ * Hack to force the compiler to align to 16-bytes the stack on linux.
+ *
+ * On AMD64 hosts, our .r0 modules expects the stack to be 16-byte aligned.  Linux is usually
+ * compiled with mpreferred-stack-boundrary=3 instead of the default 4.
+ */
+typedef union
+#if RT_CPLUSPLUS_PREREQ(201100)
+alignas(16)
+#endif
+SUPR0STACKALIGNMENT
+{
+    uint64_t   au64[2];
+    RTUINT128U u128;
+} SUPR0STACKALIGNMENT
+#if defined(__GNUC__)
+  __attribute__((__aligned__(16)))
+#endif
+;
+
+/** @def SUPR0STACKALIGNMENT_VAR
+ * Hack to make sure a SUPR0STACKALIGNMENT variable actually works and isn't
+ * optimized away. */
+#if 1
+# define SUPR0STACKALIGNMENT_VAR(a_VarNm)   volatile SUPR0STACKALIGNMENT a_VarNm
+#else
+# define SUPR0STACKALIGNMENT_VAR(a_VarNm)   uint8_t a_VarNm
+#endif
+
+/** @def SUPR0STACKALIGNMENT_CHECK
+ * Hack to make sure a SUPR0STACKALIGNMENT variable actually works and isn't
+ * optimized away. */
+#if 1
+# define SUPR0STACKALIGNMENT_CHECK(a_VarNm) do { \
+        if (!((uintptr_t)&(a_VarNm) & 15)) { /* likely */ } \
+        else \
+        { \
+            static volatile uint32_t s_cMsgs = 0; \
+            if (ASMAtomicIncU32(&s_cMsgs) < 5) \
+                SUPR0Printf("%s: misaligned stack: %p\n", __FUNCTION__, &(a_VarNm)); \
+        } \
+    } while (0)
+#else
+# define SUPR0STACKALIGNMENT_CHECK(a_VarNm)     RT_NOREF(a_VarNm)
+#endif
 
 
 /*********************************************************************************************************************************
@@ -1608,6 +1658,8 @@ static DECLCALLBACK(void) supdrvSessionObjHandleDelete(RTHANDLETABLE hHandleTabl
  */
 int VBOXCALL supdrvIOCtlFast(uintptr_t uOperation, VMCPUID idCpu, PSUPDRVDEVEXT pDevExt, PSUPDRVSESSION pSession)
 {
+    SUPR0STACKALIGNMENT_VAR(AlignmentDummy);
+
     /*
      * Validate input and check that the VM has a session.
      */
@@ -1628,14 +1680,14 @@ int VBOXCALL supdrvIOCtlFast(uintptr_t uOperation, VMCPUID idCpu, PSUPDRVDEVEXT 
                 return VINF_SUCCESS;
             }
 
-            SUPR0Printf("supdrvIOCtlFast: pfnVMMR0EntryFast is NULL\n");
+            SUPR0Printf("supdrvIOCtlFast: pfnVMMR0EntryFast is NULL (dummy=%p)\n", &AlignmentDummy);
         }
         else
-            SUPR0Printf("supdrvIOCtlFast: Misconfig session: pGVM=%p pVM=%p pFastIoCtrlVM=%p\n",
-                        pGVM, pVM, pSession->pFastIoCtrlVM);
+            SUPR0Printf("supdrvIOCtlFast: Misconfig session: pGVM=%p pVM=%p pFastIoCtrlVM=%p (dummy=%p)\n",
+                        pGVM, pVM, pSession->pFastIoCtrlVM, &AlignmentDummy);
     }
     else
-        SUPR0Printf("supdrvIOCtlFast: Bad session pointer %p\n", pSession);
+        SUPR0Printf("supdrvIOCtlFast: Bad session pointer %p (dummy=%p)\n", pSession, &AlignmentDummy);
     return VERR_INTERNAL_ERROR;
 }
 
@@ -2000,6 +2052,8 @@ static int supdrvIOCtlInnerUnrestricted(uintptr_t uIOCtl, PSUPDRVDEVEXT pDevExt,
         {
             /* validate */
             PSUPCALLVMMR0 pReq = (PSUPCALLVMMR0)pReqHdr;
+            SUPR0STACKALIGNMENT_VAR(AlignmentDummy);
+
             Log4(("SUP_IOCTL_CALL_VMMR0: op=%u in=%u arg=%RX64 p/t=%RTproc/%RTthrd\n",
                   pReq->u.In.uOperation, pReq->Hdr.cbIn, pReq->u.In.u64Arg, RTProcSelf(), RTThreadNativeSelf()));
 
@@ -2018,6 +2072,7 @@ static int supdrvIOCtlInnerUnrestricted(uintptr_t uIOCtl, PSUPDRVDEVEXT pDevExt,
                                                                 pReq->u.In.uOperation, NULL, pReq->u.In.u64Arg, pSession);
                     else
                         pReq->Hdr.rc = VERR_INVALID_VM_HANDLE;
+                    SUPR0STACKALIGNMENT_CHECK(AlignmentDummy);
                 }
                 else
                     pReq->Hdr.rc = VERR_WRONG_ORDER;
@@ -2041,6 +2096,7 @@ static int supdrvIOCtlInnerUnrestricted(uintptr_t uIOCtl, PSUPDRVDEVEXT pDevExt,
                                                                 pReq->u.In.uOperation, pVMMReq, pReq->u.In.u64Arg, pSession);
                     else
                         pReq->Hdr.rc = VERR_INVALID_VM_HANDLE;
+                    SUPR0STACKALIGNMENT_CHECK(AlignmentDummy);
                 }
                 else
                     pReq->Hdr.rc = VERR_WRONG_ORDER;
@@ -2074,6 +2130,7 @@ static int supdrvIOCtlInnerUnrestricted(uintptr_t uIOCtl, PSUPDRVDEVEXT pDevExt,
             /* execute */
             if (RT_LIKELY(pDevExt->pfnVMMR0EntryEx))
             {
+                SUPR0STACKALIGNMENT_VAR(AlignmentDummy);
                 if (pReq->u.In.pVMR0 == NULL)
                     pReq->Hdr.rc = pDevExt->pfnVMMR0EntryEx(NULL, NULL, pReq->u.In.idCpu, pReq->u.In.uOperation, pVMMReq, pReq->u.In.u64Arg, pSession);
                 else if (pReq->u.In.pVMR0 == pSession->pSessionVM)
@@ -2081,6 +2138,7 @@ static int supdrvIOCtlInnerUnrestricted(uintptr_t uIOCtl, PSUPDRVDEVEXT pDevExt,
                                                             pReq->u.In.uOperation, pVMMReq, pReq->u.In.u64Arg, pSession);
                 else
                     pReq->Hdr.rc = VERR_INVALID_VM_HANDLE;
+                SUPR0STACKALIGNMENT_CHECK(AlignmentDummy);
             }
             else
                 pReq->Hdr.rc = VERR_WRONG_ORDER;
@@ -3225,6 +3283,7 @@ SUPR0DECL(int) SUPR0ObjRelease(void *pvObj, PSUPDRVSESSION pSession)
     int                 rc          = VERR_INVALID_PARAMETER;
     PSUPDRVUSAGE        pUsage;
     PSUPDRVUSAGE        pUsagePrev;
+    SUPR0STACKALIGNMENT_VAR(AlignmentDummy);
 
     /*
      * Validate the input.
@@ -3306,6 +3365,7 @@ SUPR0DECL(int) SUPR0ObjRelease(void *pvObj, PSUPDRVSESSION pSession)
         if (pObj->pfnDestructor)
             pObj->pfnDestructor(pObj, pObj->pvUser1, pObj->pvUser2);
         RTMemFree(pObj);
+        SUPR0STACKALIGNMENT_CHECK(AlignmentDummy);
     }
 
     AssertMsg(pUsage, ("pvObj=%p\n", pvObj));
@@ -5111,6 +5171,7 @@ SUPR0DECL(int) SUPR0ComponentQueryFactory(PSUPDRVSESSION pSession, const char *p
     const char *pszEnd;
     size_t cchName;
     int rc;
+    SUPR0STACKALIGNMENT_VAR(AlignmentDummy);
 
     /*
      * Validate parameters.
@@ -5147,6 +5208,7 @@ SUPR0DECL(int) SUPR0ComponentQueryFactory(PSUPDRVSESSION pSession, const char *p
                 {
                     *ppvFactoryIf = pvFactory;
                     rc = VINF_SUCCESS;
+                    SUPR0STACKALIGNMENT_CHECK(AlignmentDummy);
                     break;
                 }
                 rc = VERR_SUPDRV_INTERFACE_NOT_SUPPORTED;
@@ -5754,6 +5816,7 @@ static int supdrvIOCtl_LdrLoad(PSUPDRVDEVEXT pDevExt, PSUPDRVSESSION pSession, P
     LogFlow(("supdrvIOCtl_LdrLoad: pfnModuleInit=%p\n", pImage->pfnModuleInit));
     if (RT_SUCCESS(rc) && pImage->pfnModuleInit)
     {
+        SUPR0STACKALIGNMENT_VAR(AlignmentDummy);
         Log(("supdrvIOCtl_LdrLoad: calling pfnModuleInit=%p\n", pImage->pfnModuleInit));
         pDevExt->pLdrInitImage  = pImage;
         pDevExt->hLdrInitThread = RTThreadNativeSelf();
@@ -5764,6 +5827,7 @@ static int supdrvIOCtl_LdrLoad(PSUPDRVDEVEXT pDevExt, PSUPDRVSESSION pSession, P
         pDevExt->hLdrInitThread = NIL_RTNATIVETHREAD;
         if (RT_FAILURE(rc))
             supdrvLdrLoadError(rc, pReq, "ModuleInit failed: %Rrc", rc);
+        SUPR0STACKALIGNMENT_CHECK(AlignmentDummy);
     }
     if (RT_SUCCESS(rc))
     {
@@ -6005,6 +6069,7 @@ int VBOXCALL supdrvLdrRegisterWrappedModule(PSUPDRVDEVEXT pDevExt, PCSUPLDRWRAPP
     rc = VINF_SUCCESS;
     if (pImage->pfnModuleInit)
     {
+        SUPR0STACKALIGNMENT_VAR(AlignmentDummy);
         Log(("supdrvIOCtl_LdrLoad: calling pfnModuleInit=%p\n", pImage->pfnModuleInit));
         pDevExt->pLdrInitImage  = pImage;
         pDevExt->hLdrInitThread = RTThreadNativeSelf();
@@ -6013,6 +6078,7 @@ int VBOXCALL supdrvLdrRegisterWrappedModule(PSUPDRVDEVEXT pDevExt, PCSUPLDRWRAPP
         SUPDRV_CHECK_SMAP_CHECK(pDevExt, RT_NOTHING);
         pDevExt->pLdrInitImage  = NULL;
         pDevExt->hLdrInitThread = NIL_RTNATIVETHREAD;
+        SUPR0STACKALIGNMENT_CHECK(AlignmentDummy);
     }
     if (RT_SUCCESS(rc))
     {
@@ -6638,10 +6704,12 @@ static void supdrvLdrFree(PSUPDRVDEVEXT pDevExt, PSUPDRVLDRIMAGE pImage)
         if (    pImage->pfnModuleTerm
             &&  pImage->uState == SUP_IOCTL_LDR_LOAD)
         {
+            SUPR0STACKALIGNMENT_VAR(AlignmentDummy);
             LogFlow(("supdrvLdrFree: calling pfnModuleTerm=%p\n", pImage->pfnModuleTerm));
             pDevExt->hLdrTermThread = RTThreadNativeSelf();
             pImage->pfnModuleTerm(pImage);
             pDevExt->hLdrTermThread = NIL_RTNATIVETHREAD;
+            SUPR0STACKALIGNMENT_CHECK(AlignmentDummy);
         }
 
         /* Inform the tracing component. */
@@ -7030,6 +7098,7 @@ static int supdrvIOCtl_CallServiceModule(PSUPDRVDEVEXT pDevExt, PSUPDRVSESSION p
     {
         PFNSUPR0SERVICEREQHANDLER   pfnServiceReqHandler = NULL;
         PSUPDRVLDRUSAGE             pUsage;
+        SUPR0STACKALIGNMENT_VAR(AlignmentDummy);
 
         for (pUsage = pSession->pLdrUsage; pUsage; pUsage = pUsage->pNext)
             if (    pUsage->pImage->pfnServiceReqHandler
@@ -7051,7 +7120,10 @@ static int supdrvIOCtl_CallServiceModule(PSUPDRVDEVEXT pDevExt, PSUPDRVSESSION p
                 rc = pfnServiceReqHandler(pSession, pReq->u.In.uOperation, pReq->u.In.u64Arg, (PSUPR0SERVICEREQHDR)&pReq->abReqPkt[0]);
         }
         else
+        {
+            SUPR0STACKALIGNMENT_CHECK(AlignmentDummy);
             rc = VERR_SUPDRV_SERVICE_NOT_FOUND;
+        }
     }
 
     /* log it */
