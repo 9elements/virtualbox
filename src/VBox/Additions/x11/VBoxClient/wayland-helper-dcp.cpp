@@ -1,4 +1,4 @@
-/* $Id: wayland-helper-dcp.cpp 113687 2026-03-30 17:43:39Z vadim.galitsyn@oracle.com $ */
+/* $Id: wayland-helper-dcp.cpp 113689 2026-03-30 18:00:53Z vadim.galitsyn@oracle.com $ */
 /** @file
  * Guest Additions - Data Control Protocol (DCP) helper for Wayland.
  *
@@ -741,7 +741,7 @@ static int vbcl_wayland_hlp_dcp_receive_offer(
  *
  * @returns Formats bitmask.
  * @param   pList       List of mime-types in string representation.
- * @param   pOffert     Wayland offer.
+ * @param   pOffer      Wayland offer.
  */
 static SHCLFORMATS vbcl_wayland_hlp_dcp_match_formats(vbox_wl_dcp_mime_t *pList, struct zwlr_data_control_offer_v1 *pOffer)
 {
