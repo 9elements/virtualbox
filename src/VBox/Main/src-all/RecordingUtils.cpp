@@ -1,4 +1,4 @@
-/* $Id: RecordingUtils.cpp 113642 2026-03-30 10:11:57Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingUtils.cpp 113663 2026-03-30 11:23:48Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording utility code.
  */
@@ -49,106 +49,6 @@
 
 
 #ifndef IN_VBOXSVC /* Code only used in VBoxC. */
-/**
- * Convert an image to YUV420p format.
- *
- * @return \c true on success, \c false on failure.
- * @param  aDstBuf              The destination image buffer.
- * @param  aDstWidth            Width (in pixel) of destination buffer.
- * @param  aDstHeight           Height (in pixel) of destination buffer.
- * @param  aSrcBuf              The source image buffer.
- * @param  aSrcWidth            Width (in pixel) of source buffer.
- * @param  aSrcHeight           Height (in pixel) of source buffer.
- */
-template <class T>
-inline bool recordingUtilsColorConvWriteYUV420p(uint8_t *aDstBuf, unsigned aDstWidth, unsigned aDstHeight,
-                                                uint8_t *aSrcBuf, unsigned aSrcWidth, unsigned aSrcHeight)
-{
-    RT_NOREF(aDstWidth, aDstHeight);
-
-    size_t image_size = aSrcWidth * aSrcHeight;
-    size_t upos = image_size;
-    size_t vpos = upos + upos / 4;
-    size_t i = 0;
-
-#define CALC_Y(r, g, b) \
-    ((66 * r + 129 * g + 25 * b) >> 8) + 16
-#define CALC_U(r, g, b) \
-    ((-38 * r + -74 * g + 112 * b) >> 8) + 128
-#define CALC_V(r, g, b) \
-    ((112 * r + -94 * g + -18 * b) >> 8) + 128
-
-    for (size_t line = 0; line < aSrcHeight; ++line)
-    {
-        if ((line % 2) == 0)
-        {
-            for (size_t x = 0; x < aSrcWidth; x += 2)
-            {
-                uint8_t b = aSrcBuf[4 * i];
-                uint8_t g = aSrcBuf[4 * i + 1];
-                uint8_t r = aSrcBuf[4 * i + 2];
-
-                aDstBuf[i++]    = CALC_Y(r, g, b);
-                aDstBuf[upos++] = CALC_U(r, g, b);
-                aDstBuf[vpos++] = CALC_V(r, g, b);
-
-                b = aSrcBuf[4 * i];
-                g = aSrcBuf[4 * i + 1];
-                r = aSrcBuf[4 * i + 2];
-
-                aDstBuf[i++] = CALC_Y(r, g, b);
-            }
-        }
-        else
-        {
-            for (size_t x = 0; x < aSrcWidth; x++)
-            {
-                uint8_t b = aSrcBuf[4 * i];
-                uint8_t g = aSrcBuf[4 * i + 1];
-                uint8_t r = aSrcBuf[4 * i + 2];
-
-                aDstBuf[i++] = CALC_Y(r, g, b);
-            }
-        }
-    }
-
-    return true;
-}
-
-/**
- * Convert an image to RGB24 format.
- *
- * @returns true on success, false on failure.
- * @param aWidth    Width of image.
- * @param aHeight   Height of image.
- * @param aDestBuf  An allocated memory buffer large enough to hold the
- *                  destination image (i.e. width * height * 12bits).
- * @param aSrcBuf   The source image as an array of bytes.
- */
-template <class T>
-inline bool RecordingUtilsColorConvWriteRGB24(unsigned aWidth, unsigned aHeight,
-                                              uint8_t *aDestBuf, uint8_t *aSrcBuf)
-{
-    enum { PIX_SIZE = 3 };
-    bool fRc = true;
-    AssertReturn(0 == (aWidth & 1), false);
-    AssertReturn(0 == (aHeight & 1), false);
-    T iter(aWidth, aHeight, aSrcBuf);
-    unsigned cPixels = aWidth * aHeight;
-    for (unsigned i = 0; i < cPixels && fRc; ++i)
-    {
-        unsigned red, green, blue;
-        fRc = iter.getRGB(&red, &green, &blue);
-        if (fRc)
-        {
-            aDestBuf[i * PIX_SIZE    ] = red;
-            aDestBuf[i * PIX_SIZE + 1] = green;
-            aDestBuf[i * PIX_SIZE + 2] = blue;
-        }
-    }
-    return fRc;
-}
-
 /**
  * Translates a recording frame type to a string.
  *
