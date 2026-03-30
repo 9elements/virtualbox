@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 113650 2026-03-30 10:47:35Z knut.osmundsen@oracle.com $
+# $Id: Makefile.kmk 113664 2026-03-30 11:49:16Z knut.osmundsen@oracle.com $
 ## @file
 # Sub-Makefile for the IPRT.
 #
@@ -3955,7 +3955,8 @@ RuntimeR0Drv_SOURCES.win = \
 	r0drv/nt/thread2-r0drv-nt.cpp \
 	r0drv/nt/time-r0drv-nt.cpp \
 	r0drv/nt/timer-r0drv-nt.cpp \
-	r0drv/nt/RTTimerGetSystemGranularity-r0drv-nt.cpp
+	r0drv/nt/RTTimerGetSystemGranularity-r0drv-nt.cpp \
+	common/compiler/vcc/loadcfg-vcc.c
 
 RuntimeR0Drv_SOURCES.win.amd64 := $(RuntimeWin64ASM_SOURCES) \
 	common/misc/zero.asm \
@@ -3965,6 +3966,7 @@ RuntimeR0Drv_SOURCES.win.amd64 := $(RuntimeWin64ASM_SOURCES) \
 	common/string/memset.asm \
 	common/string/memmove.asm \
 	common/string/strlen.asm \
+	r0drv/nt/security-cookie-vcc.asm \
 	r0drv/nt/toxic-chkstk-r0drv-nt.asm
 
 RuntimeR0Drv_SOURCES.win.x86   := $(RuntimeWin32ASM_SOURCES) \
@@ -3977,6 +3979,7 @@ RuntimeR0Drv_SOURCES.win.x86   := $(RuntimeWin32ASM_SOURCES) \
 	common/string/strlen.asm \
 	r0drv/nt/nt3fakes-stub-r0drv-nt.cpp \
 	r0drv/nt/alloca-x86-r0drv-nt.asm \
+	r0drv/nt/security-cookie-vcc.asm \
 	r0drv/nt/toxic-chkstk-r0drv-nt.asm
 
 RuntimeR0Drv_SOURCES.win.arm64 := \
