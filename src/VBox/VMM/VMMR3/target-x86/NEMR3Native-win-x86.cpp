@@ -1,4 +1,4 @@
-/* $Id: NEMR3Native-win-x86.cpp 112435 2026-01-13 08:49:25Z knut.osmundsen@oracle.com $ */
+/* $Id: NEMR3Native-win-x86.cpp 113640 2026-03-30 09:40:56Z knut.osmundsen@oracle.com $ */
 /** @file
  * NEM - Native execution manager, native ring-3 Windows backend.
  *
@@ -701,9 +701,12 @@ static int nemR3WinInitProbeAndLoad(bool fForced, PRTERRINFO pErrInfo)
 /**
  * Wrapper for different WHvGetCapability signatures.
  */
-DECLINLINE(HRESULT) WHvGetCapabilityWrapper(WHV_CAPABILITY_CODE enmCap, WHV_CAPABILITY *pOutput, uint32_t cbOutput)
+static HRESULT
+WHvGetCapabilityWrapper(WHV_CAPABILITY_CODE enmCap, WHV_CAPABILITY *pOutput, uint32_t cbOutput, uint32_t *pcbOutput = NULL)
 {
-    return g_pfnWHvGetCapability(enmCap, pOutput, cbOutput, NULL);
+    if (pcbOutput)
+        *pcbOutput = cbOutput;
+    return g_pfnWHvGetCapability(enmCap, pOutput, cbOutput, pcbOutput);
 }
 
 
@@ -719,6 +722,10 @@ static int nemR3WinInitCheckCapabilities(PVM pVM, PRTERRINFO pErrInfo)
 #define NEM_LOG_REL_CAP_EX(a_szField, a_szFmt, a_Value)     LogRel(("NEM: %-38s= " a_szFmt "\n", a_szField, a_Value))
 #define NEM_LOG_REL_CAP_SUB_EX(a_szField, a_szFmt, a_Value) LogRel(("NEM:   %36s: " a_szFmt "\n", a_szField, a_Value))
 #define NEM_LOG_REL_CAP_SUB(a_szField, a_Value)             NEM_LOG_REL_CAP_SUB_EX(a_szField, "%d", a_Value)
+#define NEM_CHECK_RET_SIZE(a_cbRet, a_cbExpect, a_szWhat) do { \
+            if ((a_cbRet) != (a_cbExpect) && g_uBuildNo >= 0x19000 /*??*/) \
+                LogRel(("NEM: Warning! %s returned %u bytes, expected %u!\n", (a_cbRet), (a_cbExpect) )); \
+        } while (0)
 
     /*
      * Is the hypervisor present with the desired capability?
@@ -731,20 +738,17 @@ static int nemR3WinInitCheckCapabilities(PVM pVM, PRTERRINFO pErrInfo)
      *      - VidGetExoPartitionProperty(INVALID_HANDLE_VALUE, 0x60000, &Ignored) returns
      *        a non-zero value.
      */
-    /**
-     * @todo Someone at Microsoft please explain weird API design:
-     *   1. Pointless CapabilityCode duplication int the output;
-     *   2. No output size.
-     */
     WHV_CAPABILITY Caps;
     RT_ZERO(Caps);
+    UINT32 cbRet;
     SetLastError(0);
-    HRESULT hrc = WHvGetCapabilityWrapper(WHvCapabilityCodeHypervisorPresent, &Caps, sizeof(Caps));
+    HRESULT hrc = WHvGetCapabilityWrapper(WHvCapabilityCodeHypervisorPresent, &Caps, sizeof(Caps), &cbRet);
     DWORD   rcWin = GetLastError();
     if (FAILED(hrc))
         return RTErrInfoSetF(pErrInfo, VERR_NEM_INIT_FAILED,
                              "WHvGetCapability/WHvCapabilityCodeHypervisorPresent failed: %Rhrc (Last=%#x/%u)",
                              hrc, RTNtLastStatusValue(), RTNtLastErrorValue());
+    NEM_CHECK_RET_SIZE(cbRet, sizeof(UINT32), "WHvCapabilityCodeHypervisorPresent");
     if (!Caps.HypervisorPresent)
     {
         if (!RTPathExists(RTPATH_NT_PASSTHRU_PREFIX "Device\\VidExo"))
@@ -756,7 +760,7 @@ static int nemR3WinInitCheckCapabilities(PVM pVM, PRTERRINFO pErrInfo)
 
 
     /*
-     * Check what extended VM exits are supported.
+     * 0x0002 - Check what extended VM exits are supported.
      */
     RT_ZERO(Caps);
     hrc = WHvGetCapabilityWrapper(WHvCapabilityCodeExtendedVmExits, &Caps, sizeof(Caps));
@@ -764,28 +768,29 @@ static int nemR3WinInitCheckCapabilities(PVM pVM, PRTERRINFO pErrInfo)
         return RTErrInfoSetF(pErrInfo, VERR_NEM_INIT_FAILED,
                              "WHvGetCapability/WHvCapabilityCodeExtendedVmExits failed: %Rhrc (Last=%#x/%u)",
                              hrc, RTNtLastStatusValue(), RTNtLastErrorValue());
+    NEM_CHECK_RET_SIZE(cbRet, sizeof(UINT64), "WHvCapabilityCodeExtendedVmExits");
     NEM_LOG_REL_CAP_EX("WHvCapabilityCodeExtendedVmExits", "%'#018RX64", Caps.ExtendedVmExits.AsUINT64);
-#define NEM_LOG_REL_CAP_VM_EXIT(a_Field)    NEM_LOG_REL_CAP_SUB(#a_Field, Caps.ExtendedVmExits.a_Field)
-    NEM_LOG_REL_CAP_VM_EXIT(X64CpuidExit);
-    NEM_LOG_REL_CAP_VM_EXIT(X64MsrExit);
-    NEM_LOG_REL_CAP_VM_EXIT(ExceptionExit);
+#define NEM_LOG_REL_FIELD(a_Field)    NEM_LOG_REL_CAP_SUB(#a_Field, Caps.ExtendedVmExits.a_Field)
+    NEM_LOG_REL_FIELD(X64CpuidExit);
+    NEM_LOG_REL_FIELD(X64MsrExit);
+    NEM_LOG_REL_FIELD(ExceptionExit);
 #if WDK_NTDDI_VERSION >= MY_NTDDI_WIN10_19040
-    NEM_LOG_REL_CAP_VM_EXIT(X64RdtscExit);
-    NEM_LOG_REL_CAP_VM_EXIT(X64ApicSmiExitTrap);
-    NEM_LOG_REL_CAP_VM_EXIT(HypercallExit);
-    NEM_LOG_REL_CAP_VM_EXIT(X64ApicInitSipiExitTrap);
+    NEM_LOG_REL_FIELD(X64RdtscExit);
+    NEM_LOG_REL_FIELD(X64ApicSmiExitTrap);
+    NEM_LOG_REL_FIELD(HypercallExit);
+    NEM_LOG_REL_FIELD(X64ApicInitSipiExitTrap);
 #endif
-#if WDK_NTDDI_VERSION >= MY_NTDDI_WIN11_22000 /** @todo Could some of these may have been added earlier... */
-    NEM_LOG_REL_CAP_VM_EXIT(X64ApicWriteLint0ExitTrap);
-    NEM_LOG_REL_CAP_VM_EXIT(X64ApicWriteLint1ExitTrap);
-    NEM_LOG_REL_CAP_VM_EXIT(X64ApicWriteSvrExitTrap);
-    NEM_LOG_REL_CAP_VM_EXIT(UnknownSynicConnection);
-    NEM_LOG_REL_CAP_VM_EXIT(RetargetUnknownVpciDevice);
-    NEM_LOG_REL_CAP_VM_EXIT(X64ApicWriteLdrExitTrap);
-    NEM_LOG_REL_CAP_VM_EXIT(X64ApicWriteDfrExitTrap);
-    NEM_LOG_REL_CAP_VM_EXIT(GpaAccessFaultExit);
+#if WDK_NTDDI_VERSION >= MY_NTDDI_WIN11_22000 /** @todo Could be some of these may have been added earlier... */
+    NEM_LOG_REL_FIELD(X64ApicWriteLint0ExitTrap);
+    NEM_LOG_REL_FIELD(X64ApicWriteLint1ExitTrap);
+    NEM_LOG_REL_FIELD(X64ApicWriteSvrExitTrap);
+    NEM_LOG_REL_FIELD(UnknownSynicConnection);
+    NEM_LOG_REL_FIELD(RetargetUnknownVpciDevice);
+    NEM_LOG_REL_FIELD(X64ApicWriteLdrExitTrap);
+    NEM_LOG_REL_FIELD(X64ApicWriteDfrExitTrap);
+    NEM_LOG_REL_FIELD(GpaAccessFaultExit);
 #endif
-#undef  NEM_LOG_REL_CAP_VM_EXIT
+#undef  NEM_LOG_REL_FIELD
     uint64_t const fKnownVmExits = RT_BIT_64(15) - 1U;
     if (Caps.ExtendedVmExits.AsUINT64 & ~fKnownVmExits)
         NEM_LOG_REL_CAP_SUB_EX("Unknown VM exit defs", "%#RX64", Caps.ExtendedVmExits.AsUINT64 & ~fKnownVmExits);
@@ -796,7 +801,7 @@ static int nemR3WinInitCheckCapabilities(PVM pVM, PRTERRINFO pErrInfo)
     /** @todo RECHECK: WHV_EXTENDED_VM_EXITS typedef. */
 
     /*
-     * Check features in case they end up defining any.
+     * 0x0001 - Check features.
      */
     RT_ZERO(Caps);
     hrc = WHvGetCapabilityWrapper(WHvCapabilityCodeFeatures, &Caps, sizeof(Caps));
@@ -804,25 +809,26 @@ static int nemR3WinInitCheckCapabilities(PVM pVM, PRTERRINFO pErrInfo)
         return RTErrInfoSetF(pErrInfo, VERR_NEM_INIT_FAILED,
                              "WHvGetCapability/WHvCapabilityCodeFeatures failed: %Rhrc (Last=%#x/%u)",
                              hrc, RTNtLastStatusValue(), RTNtLastErrorValue());
+    NEM_CHECK_RET_SIZE(cbRet, sizeof(UINT64), "WHvCapabilityCodeFeatures");
     NEM_LOG_REL_CAP_EX("WHvCapabilityCodeFeatures", "%'#018RX64", Caps.Features.AsUINT64);
-#define NEM_LOG_REL_CAP_FEATURE(a_Field)    NEM_LOG_REL_CAP_SUB(#a_Field, Caps.Features.a_Field)
+#define NEM_LOG_REL_FIELD(a_Field)    NEM_LOG_REL_CAP_SUB(#a_Field, Caps.Features.a_Field)
 #if WDK_NTDDI_VERSION >= MY_NTDDI_WIN10_18362
-    NEM_LOG_REL_CAP_FEATURE(PartialUnmap);
-    NEM_LOG_REL_CAP_FEATURE(LocalApicEmulation);
-    NEM_LOG_REL_CAP_FEATURE(Xsave);
-    NEM_LOG_REL_CAP_FEATURE(DirtyPageTracking);
-    NEM_LOG_REL_CAP_FEATURE(SpeculationControl);
+    NEM_LOG_REL_FIELD(PartialUnmap);
+    NEM_LOG_REL_FIELD(LocalApicEmulation);
+    NEM_LOG_REL_FIELD(Xsave);
+    NEM_LOG_REL_FIELD(DirtyPageTracking);
+    NEM_LOG_REL_FIELD(SpeculationControl);
 #endif
 #if WDK_NTDDI_VERSION >= MY_NTDDI_WIN10_19040
-    NEM_LOG_REL_CAP_FEATURE(ApicRemoteRead);
-    NEM_LOG_REL_CAP_FEATURE(IdleSuspend);
+    NEM_LOG_REL_FIELD(ApicRemoteRead);
+    NEM_LOG_REL_FIELD(IdleSuspend);
 #endif
 #if WDK_NTDDI_VERSION >= MY_NTDDI_WIN11_22000 /** @todo Could some of these may have been added earlier... */
-    NEM_LOG_REL_CAP_FEATURE(VirtualPciDeviceSupport);
-    NEM_LOG_REL_CAP_FEATURE(IommuSupport);
-    NEM_LOG_REL_CAP_FEATURE(VpHotAddRemove);
+    NEM_LOG_REL_FIELD(VirtualPciDeviceSupport);
+    NEM_LOG_REL_FIELD(IommuSupport);
+    NEM_LOG_REL_FIELD(VpHotAddRemove);
 #endif
-#undef  NEM_LOG_REL_CAP_FEATURE
+#undef  NEM_LOG_REL_FIELD
     const uint64_t fKnownFeatures = RT_BIT_64(10) - 1U;
     if (Caps.Features.AsUINT64 & ~fKnownFeatures)
         NEM_LOG_REL_CAP_SUB_EX("Unknown features", "%#RX64", Caps.ExtendedVmExits.AsUINT64 & ~fKnownFeatures);
@@ -830,80 +836,93 @@ static int nemR3WinInitCheckCapabilities(PVM pVM, PRTERRINFO pErrInfo)
     pVM->nem.s.fLocalApicEmulation = RT_BOOL(Caps.Features.LocalApicEmulation);
     /** @todo RECHECK: WHV_CAPABILITY_FEATURES typedef. */
 
-    pVM->nem.s.fXsaveSupported = RT_BOOL(Caps.Features.Xsave);
-    if (pVM->nem.s.fXsaveSupported)
-    {
-        /*
-         * Check supported Xsave features.
-         */
-        RT_ZERO(Caps);
-        hrc = WHvGetCapabilityWrapper(WHvCapabilityCodeProcessorXsaveFeatures, &Caps, sizeof(Caps));
-        if (SUCCEEDED(hrc))
-            LogRel(("NEM: Supported xsave features: %#RX64\n", Caps.ProcessorXsaveFeatures.AsUINT64));
-        else
-            LogRel(("NEM: Warning! WHvGetCapability/WHvCapabilityCodeProcessorXsaveFeatures failed: %Rhrc (Last=%#x/%u)",
-                    hrc, RTNtLastStatusValue(), RTNtLastErrorValue()));
-#define NEM_LOG_REL_XSAVE_FEATURE(a_Field)    NEM_LOG_REL_CAP_SUB(#a_Field, Caps.ProcessorXsaveFeatures.a_Field)
-        NEM_LOG_REL_XSAVE_FEATURE(XsaveSupport);
-        NEM_LOG_REL_XSAVE_FEATURE(XsaveoptSupport);
-        NEM_LOG_REL_XSAVE_FEATURE(AvxSupport);
-        NEM_LOG_REL_XSAVE_FEATURE(Avx2Support);
-        NEM_LOG_REL_XSAVE_FEATURE(FmaSupport);
-        NEM_LOG_REL_XSAVE_FEATURE(MpxSupport);
-        NEM_LOG_REL_XSAVE_FEATURE(Avx512Support);
-        NEM_LOG_REL_XSAVE_FEATURE(Avx512DQSupport);
-        NEM_LOG_REL_XSAVE_FEATURE(Avx512BWSupport);
-        NEM_LOG_REL_XSAVE_FEATURE(Avx512VLSupport);
-        NEM_LOG_REL_XSAVE_FEATURE(XsaveCompSupport);
-        NEM_LOG_REL_XSAVE_FEATURE(XsaveSupervisorSupport);
-        NEM_LOG_REL_XSAVE_FEATURE(Xcr1Support);
-        NEM_LOG_REL_XSAVE_FEATURE(Avx512BitalgSupport);
-        NEM_LOG_REL_XSAVE_FEATURE(Avx512IfmaSupport);
-        NEM_LOG_REL_XSAVE_FEATURE(Avx512VBmiSupport);
-        NEM_LOG_REL_XSAVE_FEATURE(Avx512VBmi2Support);
-        NEM_LOG_REL_XSAVE_FEATURE(Avx512VnniSupport);
-        NEM_LOG_REL_XSAVE_FEATURE(GfniSupport);
-        NEM_LOG_REL_XSAVE_FEATURE(VaesSupport);
-        NEM_LOG_REL_XSAVE_FEATURE(Avx512VPopcntdqSupport);
-        NEM_LOG_REL_XSAVE_FEATURE(VpclmulqdqSupport);
-        NEM_LOG_REL_XSAVE_FEATURE(Avx512Bf16Support);
-        NEM_LOG_REL_XSAVE_FEATURE(Avx512Vp2IntersectSupport);
-        NEM_LOG_REL_XSAVE_FEATURE(Avx512Fp16Support);
-        NEM_LOG_REL_XSAVE_FEATURE(XfdSupport);
-        NEM_LOG_REL_XSAVE_FEATURE(AmxTileSupport);
-        NEM_LOG_REL_XSAVE_FEATURE(AmxBf16Support);
-        NEM_LOG_REL_XSAVE_FEATURE(AmxInt8Support);
-        NEM_LOG_REL_XSAVE_FEATURE(AvxVnniSupport);
-#if WDK_NTDDI_VERSION > MY_NTDDI_WIN11_22000 /** @todo Introduced at some later point. */
-        NEM_LOG_REL_XSAVE_FEATURE(AvxIfmaSupport);
-        NEM_LOG_REL_XSAVE_FEATURE(AvxNeConvertSupport);
-        NEM_LOG_REL_XSAVE_FEATURE(AvxVnniInt8Support);
-        NEM_LOG_REL_XSAVE_FEATURE(AvxVnniInt16Support);
-        NEM_LOG_REL_XSAVE_FEATURE(Avx10_1_256Support);
-        NEM_LOG_REL_XSAVE_FEATURE(Avx10_1_512Support);
-        NEM_LOG_REL_XSAVE_FEATURE(AmxFp16Support);
-#endif
-        const uint64_t fKnownXsave = RT_BIT_64(38) - 1U;
-        if (Caps.ProcessorXsaveFeatures.AsUINT64 & ~fKnownXsave)
-            NEM_LOG_REL_CAP_SUB_EX("Unknown xsave features", "%#RX64", Caps.ProcessorXsaveFeatures.AsUINT64 & ~fKnownXsave);
-
-#undef  NEM_LOG_REL_XSAVE_FEATURE
-    }
-
     /*
-     * Check supported exception exit bitmap bits.
+     * 0x0003 - Check supported exception exit bitmap bits.
      * We don't currently require this, so we just log failure.
      */
     RT_ZERO(Caps);
     hrc = WHvGetCapabilityWrapper(WHvCapabilityCodeExceptionExitBitmap, &Caps, sizeof(Caps));
     if (SUCCEEDED(hrc))
-        LogRel(("NEM: Supported exception exit bitmap: %#RX64\n", Caps.ExceptionExitBitmap));
+    {
+        NEM_CHECK_RET_SIZE(cbRet, sizeof(UINT64), "WHvCapabilityCodeExceptionExitBitmap");
+        NEM_LOG_REL_CAP_EX("WHvCapabilityCodeExceptionExitBitmap", "%'#018RX64", Caps.ExceptionExitBitmap);
+    }
     else
         LogRel(("NEM: Warning! WHvGetCapability/WHvCapabilityCodeExceptionExitBitmap failed: %Rhrc (Last=%#x/%u)",
                 hrc, RTNtLastStatusValue(), RTNtLastErrorValue()));
 
     /*
-     * Check that the CPU vendor is supported.
+     * 0x0004 - MSR exit bitmap.
+     */
+    RT_ZERO(Caps);
+    hrc = WHvGetCapabilityWrapper(WHvCapabilityCodeX64MsrExitBitmap, &Caps, sizeof(Caps));
+    if (SUCCEEDED(hrc))
+    {
+        NEM_CHECK_RET_SIZE(cbRet, sizeof(UINT64), "WHvCapabilityCodeX64MsrExitBitmap");
+        NEM_LOG_REL_CAP_EX("WHvCapabilityCodeX64MsrExitBitmap", "%'#018RX64", Caps.X64MsrExitBitmap.AsUINT64);
+#define NEM_LOG_REL_FIELD(a_Field)    NEM_LOG_REL_CAP_SUB(#a_Field, Caps.X64MsrExitBitmap.a_Field)
+        NEM_LOG_REL_FIELD(UnhandledMsrs);
+        NEM_LOG_REL_FIELD(TscMsrWrite);
+        NEM_LOG_REL_FIELD(TscMsrRead);
+        NEM_LOG_REL_FIELD(ApicBaseMsrWrite);
+        NEM_LOG_REL_FIELD(MiscEnableMsrRead);
+        NEM_LOG_REL_FIELD(McUpdatePatchLevelMsrRead);
+#undef  NEM_LOG_REL_FIELD
+        const uint64_t fKnown = RT_BIT_64(6) - 1U;
+        if (Caps.X64MsrExitBitmap.AsUINT64 & ~fKnown)
+            NEM_LOG_REL_CAP_SUB_EX("Unknown MSR exit bits", "%#RX64", Caps.X64MsrExitBitmap.AsUINT64 & ~fKnown);
+    }
+    else
+        LogRel(("NEM: Warning! WHvGetCapability/WHvCapabilityCodeX64MsrExitBitmap failed: %Rhrc (Last=%#x/%u)",
+                hrc, RTNtLastStatusValue(), RTNtLastErrorValue()));
+
+    /*
+     * 0x0005 - GPA range population flags.
+     */
+    RT_ZERO(Caps);
+    hrc = WHvGetCapabilityWrapper(WHvCapabilityCodeGpaRangePopulateFlags, &Caps, sizeof(Caps));
+    if (SUCCEEDED(hrc))
+    {
+        NEM_CHECK_RET_SIZE(cbRet, sizeof(UINT32), "WHvCapabilityCodeGpaRangePopulateFlags");
+        NEM_LOG_REL_CAP_EX("WHvCapabilityCodeGpaRangePopulateFlags", "%'#010RX32", Caps.GpaRangePopulateFlags.AsUINT32);
+#define NEM_LOG_REL_FIELD(a_Field)    NEM_LOG_REL_CAP_SUB(#a_Field, Caps.GpaRangePopulateFlags.a_Field)
+        NEM_LOG_REL_FIELD(Prefetch);
+        NEM_LOG_REL_FIELD(AvoidHardFaults);
+#undef  NEM_LOG_REL_FIELD
+        const uint32_t fKnown = RT_BIT_32(2) - 1U;
+        if (Caps.GpaRangePopulateFlags.AsUINT32 & ~fKnown)
+            NEM_LOG_REL_CAP_SUB_EX("Unknown GPA Range Population flags", "%#RX32", Caps.GpaRangePopulateFlags.AsUINT32 & ~fKnown);
+    }
+    else
+        LogRel(("NEM: Warning! WHvGetCapability/WHvCapabilityCodeGpaRangePopulateFlags failed: %Rhrc (Last=%#x/%u)",
+                hrc, RTNtLastStatusValue(), RTNtLastErrorValue()));
+
+    /*
+     * 0x0006 - Scheduler features.
+     */
+    RT_ZERO(Caps);
+    hrc = WHvGetCapabilityWrapper(WHvCapabilityCodeSchedulerFeatures, &Caps, sizeof(Caps));
+    if (SUCCEEDED(hrc))
+    {
+        NEM_CHECK_RET_SIZE(cbRet, sizeof(UINT64), "WHvCapabilityCodeSchedulerFeatures");
+        NEM_LOG_REL_CAP_EX("WHvCapabilityCodeSchedulerFeatures", "%'#018RX64", Caps.SchedulerFeatures.AsUINT64);
+#define NEM_LOG_REL_FIELD(a_Field)    NEM_LOG_REL_CAP_SUB(#a_Field, Caps.SchedulerFeatures.a_Field)
+        NEM_LOG_REL_FIELD(CpuReserve);
+        NEM_LOG_REL_FIELD(CpuCap);
+        NEM_LOG_REL_FIELD(CpuWeight);
+        NEM_LOG_REL_FIELD(CpuGroupId);
+        NEM_LOG_REL_FIELD(DisableSmt);
+#undef  NEM_LOG_REL_FIELD
+        const uint64_t fKnown = RT_BIT_64(5) - 1U;
+        if (Caps.SchedulerFeatures.AsUINT64 & ~fKnown)
+            NEM_LOG_REL_CAP_SUB_EX("Unknown scheduler features", "%#RX64", Caps.SchedulerFeatures.AsUINT64 & ~fKnown);
+    }
+    else
+        LogRel(("NEM: Warning! WHvGetCapability/WHvCapabilityCodeSchedulerFeatures failed: %Rhrc (Last=%#x/%u)",
+                hrc, RTNtLastStatusValue(), RTNtLastErrorValue()));
+
+    /*
+     * 0x1000 - Check that the CPU vendor is supported.
      */
     RT_ZERO(Caps);
     hrc = WHvGetCapabilityWrapper(WHvCapabilityCodeProcessorVendor, &Caps, sizeof(Caps));
@@ -911,6 +930,7 @@ static int nemR3WinInitCheckCapabilities(PVM pVM, PRTERRINFO pErrInfo)
         return RTErrInfoSetF(pErrInfo, VERR_NEM_INIT_FAILED,
                              "WHvGetCapability/WHvCapabilityCodeProcessorVendor failed: %Rhrc (Last=%#x/%u)",
                              hrc, RTNtLastStatusValue(), RTNtLastErrorValue());
+    NEM_CHECK_RET_SIZE(cbRet, sizeof(UINT32), "WHvCapabilityCodeProcessorVendor");
     switch (Caps.ProcessorVendor)
     {
         /** @todo RECHECK: WHV_PROCESSOR_VENDOR typedef. */
@@ -922,13 +942,17 @@ static int nemR3WinInitCheckCapabilities(PVM pVM, PRTERRINFO pErrInfo)
             NEM_LOG_REL_CAP_EX("WHvCapabilityCodeProcessorVendor", "%d - AMD", Caps.ProcessorVendor);
             pVM->nem.s.enmCpuVendor = CPUMCPUVENDOR_AMD;
             break;
+        case WHvProcessorVendorHygon:
+            NEM_LOG_REL_CAP_EX("WHvCapabilityCodeProcessorVendor", "%d - Hygon -- !untested!", Caps.ProcessorVendor);
+            pVM->nem.s.enmCpuVendor = CPUMCPUVENDOR_HYGON;
+            break;
         default:
             NEM_LOG_REL_CAP_EX("WHvCapabilityCodeProcessorVendor", "%d", Caps.ProcessorVendor);
             return RTErrInfoSetF(pErrInfo, VERR_NEM_INIT_FAILED, "Unknown processor vendor: %d", Caps.ProcessorVendor);
     }
 
     /*
-     * CPU features, guessing these are virtual CPU features?
+     * 0x1001 - CPU features, guessing these are virtual CPU features?
      */
     RT_ZERO(Caps);
     hrc = WHvGetCapabilityWrapper(WHvCapabilityCodeProcessorFeatures, &Caps, sizeof(Caps));
@@ -936,83 +960,88 @@ static int nemR3WinInitCheckCapabilities(PVM pVM, PRTERRINFO pErrInfo)
         return RTErrInfoSetF(pErrInfo, VERR_NEM_INIT_FAILED,
                              "WHvGetCapability/WHvCapabilityCodeProcessorFeatures failed: %Rhrc (Last=%#x/%u)",
                              hrc, RTNtLastStatusValue(), RTNtLastErrorValue());
+    NEM_CHECK_RET_SIZE(cbRet, sizeof(UINT64), "WHvCapabilityCodeProcessorFeatures");
     NEM_LOG_REL_CAP_EX("WHvCapabilityCodeProcessorFeatures", "%'#018RX64", Caps.ProcessorFeatures.AsUINT64);
-#define NEM_LOG_REL_CPU_FEATURE(a_Field)    NEM_LOG_REL_CAP_SUB(#a_Field, Caps.ProcessorFeatures.a_Field)
-    NEM_LOG_REL_CPU_FEATURE(Sse3Support);
-    NEM_LOG_REL_CPU_FEATURE(LahfSahfSupport);
-    NEM_LOG_REL_CPU_FEATURE(Ssse3Support);
-    NEM_LOG_REL_CPU_FEATURE(Sse4_1Support);
-    NEM_LOG_REL_CPU_FEATURE(Sse4_2Support);
-    NEM_LOG_REL_CPU_FEATURE(Sse4aSupport);
-    NEM_LOG_REL_CPU_FEATURE(XopSupport);
-    NEM_LOG_REL_CPU_FEATURE(PopCntSupport);
-    NEM_LOG_REL_CPU_FEATURE(Cmpxchg16bSupport);
-    NEM_LOG_REL_CPU_FEATURE(Altmovcr8Support);
-    NEM_LOG_REL_CPU_FEATURE(LzcntSupport);
-    NEM_LOG_REL_CPU_FEATURE(MisAlignSseSupport);
-    NEM_LOG_REL_CPU_FEATURE(MmxExtSupport);
-    NEM_LOG_REL_CPU_FEATURE(Amd3DNowSupport);
-    NEM_LOG_REL_CPU_FEATURE(ExtendedAmd3DNowSupport);
-    NEM_LOG_REL_CPU_FEATURE(Page1GbSupport);
-    NEM_LOG_REL_CPU_FEATURE(AesSupport);
-    NEM_LOG_REL_CPU_FEATURE(PclmulqdqSupport);
-    NEM_LOG_REL_CPU_FEATURE(PcidSupport);
-    NEM_LOG_REL_CPU_FEATURE(Fma4Support);
-    NEM_LOG_REL_CPU_FEATURE(F16CSupport);
-    NEM_LOG_REL_CPU_FEATURE(RdRandSupport);
-    NEM_LOG_REL_CPU_FEATURE(RdWrFsGsSupport);
-    NEM_LOG_REL_CPU_FEATURE(SmepSupport);
-    NEM_LOG_REL_CPU_FEATURE(EnhancedFastStringSupport);
-    NEM_LOG_REL_CPU_FEATURE(Bmi1Support);
-    NEM_LOG_REL_CPU_FEATURE(Bmi2Support);
-    NEM_LOG_REL_CPU_FEATURE(Reserved1);
-    NEM_LOG_REL_CPU_FEATURE(MovbeSupport);
-    NEM_LOG_REL_CPU_FEATURE(Npiep1Support);
-    NEM_LOG_REL_CPU_FEATURE(DepX87FPUSaveSupport);
-    NEM_LOG_REL_CPU_FEATURE(RdSeedSupport);
-    NEM_LOG_REL_CPU_FEATURE(AdxSupport);
-    NEM_LOG_REL_CPU_FEATURE(IntelPrefetchSupport);
-    NEM_LOG_REL_CPU_FEATURE(SmapSupport);
-    NEM_LOG_REL_CPU_FEATURE(HleSupport);
-    NEM_LOG_REL_CPU_FEATURE(RtmSupport);
-    NEM_LOG_REL_CPU_FEATURE(RdtscpSupport);
-    NEM_LOG_REL_CPU_FEATURE(ClflushoptSupport);
-    NEM_LOG_REL_CPU_FEATURE(ClwbSupport);
-    NEM_LOG_REL_CPU_FEATURE(ShaSupport);
-    NEM_LOG_REL_CPU_FEATURE(X87PointersSavedSupport);
+#define NEM_LOG_REL_FIELD(a_Field)    NEM_LOG_REL_CAP_SUB(#a_Field, Caps.ProcessorFeatures.a_Field)
+    NEM_LOG_REL_FIELD(Sse3Support);
+    NEM_LOG_REL_FIELD(LahfSahfSupport);
+    NEM_LOG_REL_FIELD(Ssse3Support);
+    NEM_LOG_REL_FIELD(Sse4_1Support);
+    NEM_LOG_REL_FIELD(Sse4_2Support);
+    NEM_LOG_REL_FIELD(Sse4aSupport);
+    NEM_LOG_REL_FIELD(XopSupport);
+    NEM_LOG_REL_FIELD(PopCntSupport);
+    NEM_LOG_REL_FIELD(Cmpxchg16bSupport);
+    NEM_LOG_REL_FIELD(Altmovcr8Support);
+    NEM_LOG_REL_FIELD(LzcntSupport);
+    NEM_LOG_REL_FIELD(MisAlignSseSupport);
+    NEM_LOG_REL_FIELD(MmxExtSupport);
+    NEM_LOG_REL_FIELD(Amd3DNowSupport);
+    NEM_LOG_REL_FIELD(ExtendedAmd3DNowSupport);
+    NEM_LOG_REL_FIELD(Page1GbSupport);
+    NEM_LOG_REL_FIELD(AesSupport);
+    NEM_LOG_REL_FIELD(PclmulqdqSupport);
+    NEM_LOG_REL_FIELD(PcidSupport);
+    NEM_LOG_REL_FIELD(Fma4Support);
+    NEM_LOG_REL_FIELD(F16CSupport);
+    NEM_LOG_REL_FIELD(RdRandSupport);
+    NEM_LOG_REL_FIELD(RdWrFsGsSupport);
+    NEM_LOG_REL_FIELD(SmepSupport);
+    NEM_LOG_REL_FIELD(EnhancedFastStringSupport);
+    NEM_LOG_REL_FIELD(Bmi1Support);
+    NEM_LOG_REL_FIELD(Bmi2Support);
+    NEM_LOG_REL_FIELD(Reserved1);
+    NEM_LOG_REL_FIELD(MovbeSupport);
+    NEM_LOG_REL_FIELD(Npiep1Support);
+    NEM_LOG_REL_FIELD(DepX87FPUSaveSupport);
+    NEM_LOG_REL_FIELD(RdSeedSupport);
+    NEM_LOG_REL_FIELD(AdxSupport);
+    NEM_LOG_REL_FIELD(IntelPrefetchSupport);
+    NEM_LOG_REL_FIELD(SmapSupport);
+    NEM_LOG_REL_FIELD(HleSupport);
+    NEM_LOG_REL_FIELD(RtmSupport);
+    NEM_LOG_REL_FIELD(RdtscpSupport);
+    NEM_LOG_REL_FIELD(ClflushoptSupport);
+    NEM_LOG_REL_FIELD(ClwbSupport);
+    NEM_LOG_REL_FIELD(ShaSupport);
+    NEM_LOG_REL_FIELD(X87PointersSavedSupport);
 #if WDK_NTDDI_VERSION >= MY_NTDDI_WIN10_17134 /** @todo maybe some of these were added earlier... */
-    NEM_LOG_REL_CPU_FEATURE(InvpcidSupport);
-    NEM_LOG_REL_CPU_FEATURE(IbrsSupport);
-    NEM_LOG_REL_CPU_FEATURE(StibpSupport);
-    NEM_LOG_REL_CPU_FEATURE(IbpbSupport);
-    NEM_LOG_REL_CPU_FEATURE(Reserved2);
-    NEM_LOG_REL_CPU_FEATURE(SsbdSupport);
-    NEM_LOG_REL_CPU_FEATURE(FastShortRepMovSupport);
-    NEM_LOG_REL_CPU_FEATURE(Reserved3);
-    NEM_LOG_REL_CPU_FEATURE(RdclNo);
-    NEM_LOG_REL_CPU_FEATURE(IbrsAllSupport);
-    NEM_LOG_REL_CPU_FEATURE(Reserved4);
-    NEM_LOG_REL_CPU_FEATURE(SsbNo);
-    NEM_LOG_REL_CPU_FEATURE(RsbANo);
+    NEM_LOG_REL_FIELD(InvpcidSupport);
+    NEM_LOG_REL_FIELD(IbrsSupport);
+    NEM_LOG_REL_FIELD(StibpSupport);
+    NEM_LOG_REL_FIELD(IbpbSupport);
+# if WDK_NTDDI_VERSION > MY_NTDDI_WIN11_22000
+    NEM_LOG_REL_FIELD(UnrestrictedGuestSupport);
+# else
+    NEM_LOG_REL_FIELD(Reserved2);
+# endif
+    NEM_LOG_REL_FIELD(SsbdSupport);
+    NEM_LOG_REL_FIELD(FastShortRepMovSupport);
+    NEM_LOG_REL_FIELD(Reserved3);
+    NEM_LOG_REL_FIELD(RdclNo);
+    NEM_LOG_REL_FIELD(IbrsAllSupport);
+    NEM_LOG_REL_FIELD(Reserved4);
+    NEM_LOG_REL_FIELD(SsbNo);
+    NEM_LOG_REL_FIELD(RsbANo);
 #endif
 #if WDK_NTDDI_VERSION >= MY_NTDDI_WIN10_19040
-    NEM_LOG_REL_CPU_FEATURE(Reserved5);
-    NEM_LOG_REL_CPU_FEATURE(RdPidSupport);
-    NEM_LOG_REL_CPU_FEATURE(UmipSupport);
-    NEM_LOG_REL_CPU_FEATURE(MdsNoSupport);
-    NEM_LOG_REL_CPU_FEATURE(MdClearSupport);
+    NEM_LOG_REL_FIELD(Reserved5);
+    NEM_LOG_REL_FIELD(RdPidSupport);
+    NEM_LOG_REL_FIELD(UmipSupport);
+    NEM_LOG_REL_FIELD(MdsNoSupport);
+    NEM_LOG_REL_FIELD(MdClearSupport);
 #endif
 #if WDK_NTDDI_VERSION >= MY_NTDDI_WIN11_22000
-    NEM_LOG_REL_CPU_FEATURE(TaaNoSupport);
-    NEM_LOG_REL_CPU_FEATURE(TsxCtrlSupport);
-    NEM_LOG_REL_CPU_FEATURE(Reserved6);
+    NEM_LOG_REL_FIELD(TaaNoSupport);
+    NEM_LOG_REL_FIELD(TsxCtrlSupport);
+    NEM_LOG_REL_FIELD(Reserved6);
 #endif
-#undef NEM_LOG_REL_CPU_FEATURE
+#undef NEM_LOG_REL_FIELD
     pVM->nem.s.uCpuFeatures.u64 = Caps.ProcessorFeatures.AsUINT64;
     /** @todo RECHECK: WHV_PROCESSOR_FEATURES typedef. */
 
     /*
-     * The cache line flush size.
+     * 0x1002 - The cache line flush size.
      */
     RT_ZERO(Caps);
     hrc = WHvGetCapabilityWrapper(WHvCapabilityCodeProcessorClFlushSize, &Caps, sizeof(Caps));
@@ -1020,24 +1049,446 @@ static int nemR3WinInitCheckCapabilities(PVM pVM, PRTERRINFO pErrInfo)
         return RTErrInfoSetF(pErrInfo, VERR_NEM_INIT_FAILED,
                              "WHvGetCapability/WHvCapabilityCodeProcessorClFlushSize failed: %Rhrc (Last=%#x/%u)",
                              hrc, RTNtLastStatusValue(), RTNtLastErrorValue());
+    NEM_CHECK_RET_SIZE(cbRet, sizeof(UINT8), "WHvCapabilityCodeProcessorClFlushSize");
     NEM_LOG_REL_CAP_EX("WHvCapabilityCodeProcessorClFlushSize", "2^%u", Caps.ProcessorClFlushSize);
     if (Caps.ProcessorClFlushSize < 8 && Caps.ProcessorClFlushSize > 9)
         return RTErrInfoSetF(pErrInfo, VERR_NEM_INIT_FAILED, "Unsupported cache line flush size: %u", Caps.ProcessorClFlushSize);
     pVM->nem.s.cCacheLineFlushShift = Caps.ProcessorClFlushSize;
 
     /*
+     * 0x1003 - Check supported Xsave features.
+     */
+    RT_ZERO(Caps);
+    hrc = WHvGetCapabilityWrapper(WHvCapabilityCodeProcessorXsaveFeatures, &Caps, sizeof(Caps));
+    if (SUCCEEDED(hrc))
+    {
+        NEM_CHECK_RET_SIZE(cbRet, sizeof(UINT64), "WHvCapabilityCodeProcessorXsaveFeatures");
+        NEM_LOG_REL_CAP_EX("WHvCapabilityCodeProcessorXsaveFeatures", "%'#018RX64", Caps.ProcessorXsaveFeatures.AsUINT64);
+#define NEM_LOG_REL_FIELD(a_Field)    NEM_LOG_REL_CAP_SUB(#a_Field, Caps.ProcessorXsaveFeatures.a_Field)
+        NEM_LOG_REL_FIELD(XsaveSupport);
+        NEM_LOG_REL_FIELD(XsaveoptSupport);
+        NEM_LOG_REL_FIELD(AvxSupport);
+        NEM_LOG_REL_FIELD(Avx2Support);
+        NEM_LOG_REL_FIELD(FmaSupport);
+        NEM_LOG_REL_FIELD(MpxSupport);
+        NEM_LOG_REL_FIELD(Avx512Support);
+        NEM_LOG_REL_FIELD(Avx512DQSupport);
+        NEM_LOG_REL_FIELD(Avx512BWSupport);
+        NEM_LOG_REL_FIELD(Avx512VLSupport);
+        NEM_LOG_REL_FIELD(XsaveCompSupport);
+        NEM_LOG_REL_FIELD(XsaveSupervisorSupport);
+        NEM_LOG_REL_FIELD(Xcr1Support);
+        NEM_LOG_REL_FIELD(Avx512BitalgSupport);
+        NEM_LOG_REL_FIELD(Avx512IfmaSupport);
+        NEM_LOG_REL_FIELD(Avx512VBmiSupport);
+        NEM_LOG_REL_FIELD(Avx512VBmi2Support);
+        NEM_LOG_REL_FIELD(Avx512VnniSupport);
+        NEM_LOG_REL_FIELD(GfniSupport);
+        NEM_LOG_REL_FIELD(VaesSupport);
+        NEM_LOG_REL_FIELD(Avx512VPopcntdqSupport);
+        NEM_LOG_REL_FIELD(VpclmulqdqSupport);
+        NEM_LOG_REL_FIELD(Avx512Bf16Support);
+        NEM_LOG_REL_FIELD(Avx512Vp2IntersectSupport);
+        NEM_LOG_REL_FIELD(Avx512Fp16Support);
+        NEM_LOG_REL_FIELD(XfdSupport);
+        NEM_LOG_REL_FIELD(AmxTileSupport);
+        NEM_LOG_REL_FIELD(AmxBf16Support);
+        NEM_LOG_REL_FIELD(AmxInt8Support);
+        NEM_LOG_REL_FIELD(AvxVnniSupport);
+#if WDK_NTDDI_VERSION > MY_NTDDI_WIN11_22000 /** @todo Introduced at some later point. */
+        NEM_LOG_REL_FIELD(AvxIfmaSupport);
+        NEM_LOG_REL_FIELD(AvxNeConvertSupport);
+        NEM_LOG_REL_FIELD(AvxVnniInt8Support);
+        NEM_LOG_REL_FIELD(AvxVnniInt16Support);
+        NEM_LOG_REL_FIELD(Avx10_1_256Support);
+        NEM_LOG_REL_FIELD(Avx10_1_512Support);
+        NEM_LOG_REL_FIELD(AmxFp16Support);
+#endif
+#undef  NEM_LOG_REL_FIELD
+        const uint64_t fKnown = RT_BIT_64(38) - 1U;
+        if (Caps.ProcessorXsaveFeatures.AsUINT64 & ~fKnown)
+            NEM_LOG_REL_CAP_SUB_EX("Unknown xsave features", "%#RX64", Caps.ProcessorXsaveFeatures.AsUINT64 & ~fKnown);
+    }
+    else
+        LogRel(("NEM: %s WHvGetCapability/WHvCapabilityCodeProcessorXsaveFeatures failed: %Rhrc (Last=%#x/%u)",
+                pVM->nem.s.fXsaveSupported ? "Warning!" : "Harmless:", hrc, RTNtLastStatusValue(), RTNtLastErrorValue()));
+
+    /*
+     * 0x1004 - Processor clock frequency.
+     */
+    RT_ZERO(Caps);
+    hrc = WHvGetCapabilityWrapper(WHvCapabilityCodeProcessorClockFrequency, &Caps, sizeof(Caps));
+    if (SUCCEEDED(hrc))
+    {
+        NEM_CHECK_RET_SIZE(cbRet, sizeof(UINT64), "WHvCapabilityCodeProcessorClockFrequency");
+        NEM_LOG_REL_CAP_EX("WHvCapabilityCodeProcessorClockFrequency", "%'RU64", Caps.ProcessorClockFrequency);
+    }
+    else
+        LogRel(("NEM: Warning! WHvGetCapability/WHvCapabilityCodeProcessorClockFrequency failed: %Rhrc (Last=%#x/%u)",
+                hrc, RTNtLastStatusValue(), RTNtLastErrorValue()));
+
+    /*
+     * 0x1005 - Interrupt clock frequency.
+     */
+    RT_ZERO(Caps);
+    hrc = WHvGetCapabilityWrapper(WHvCapabilityCodeInterruptClockFrequency, &Caps, sizeof(Caps));
+    if (SUCCEEDED(hrc))
+    {
+        NEM_CHECK_RET_SIZE(cbRet, sizeof(UINT64), "WHvCapabilityCodeInterruptClockFrequency");
+        NEM_LOG_REL_CAP_EX("WHvCapabilityCodeInterruptClockFrequency", "%'RU64", Caps.InterruptClockFrequency);
+    }
+    else
+        LogRel(("NEM: Warning! WHvGetCapability/WHvCapabilityCodeInterruptClockFrequency failed: %Rhrc (Last=%#x/%u)",
+                hrc, RTNtLastStatusValue(), RTNtLastErrorValue()));
+
+    /*
+     * 0x1006 - Processor feature banks.
+     * Note! Bank0 is a duplicate of the WHvCapabilityCodeProcessorFeatures dump above.
+     */
+    RT_ZERO(Caps);
+    Caps.ProcessorFeaturesBanks.BanksCount = WHV_PROCESSOR_FEATURES_BANKS_COUNT;
+    hrc = WHvGetCapabilityWrapper(WHvCapabilityCodeProcessorFeaturesBanks, &Caps, sizeof(Caps));
+    if (SUCCEEDED(hrc))
+    {
+        AssertCompile(WHV_PROCESSOR_FEATURES_BANKS_COUNT == 2); /* adjust dumper code if this changes. */
+        NEM_CHECK_RET_SIZE(cbRet, sizeof(UINT64) * 3, "WHvCapabilityCodeProcessorFeaturesBanks");
+        NEM_LOG_REL_CAP_EX("WHvCapabilityCodeProcessorFeaturesBanks", "%u bank(s)", Caps.ProcessorFeaturesBanks.BanksCount);
+        if (Caps.ProcessorFeaturesBanks.BanksCount >= 1 || Caps.ProcessorFeaturesBanks.AsUINT64[0])
+        {
+            NEM_LOG_REL_CAP_EX("WHvCapabilityCodeProcessorFeaturesBanks[0]", "%'#018RX64", Caps.ProcessorFeaturesBanks.AsUINT64[0]);
+#define NEM_LOG_REL_FIELD(a_Field)    NEM_LOG_REL_CAP_SUB(#a_Field, Caps.ProcessorFeaturesBanks.Bank0.a_Field)
+            NEM_LOG_REL_FIELD(Sse3Support);
+            NEM_LOG_REL_FIELD(LahfSahfSupport);
+            NEM_LOG_REL_FIELD(Ssse3Support);
+            NEM_LOG_REL_FIELD(Sse4_1Support);
+            NEM_LOG_REL_FIELD(Sse4_2Support);
+            NEM_LOG_REL_FIELD(Sse4aSupport);
+            NEM_LOG_REL_FIELD(XopSupport);
+            NEM_LOG_REL_FIELD(PopCntSupport);
+            NEM_LOG_REL_FIELD(Cmpxchg16bSupport);
+            NEM_LOG_REL_FIELD(Altmovcr8Support);
+            NEM_LOG_REL_FIELD(LzcntSupport);
+            NEM_LOG_REL_FIELD(MisAlignSseSupport);
+            NEM_LOG_REL_FIELD(MmxExtSupport);
+            NEM_LOG_REL_FIELD(Amd3DNowSupport);
+            NEM_LOG_REL_FIELD(ExtendedAmd3DNowSupport);
+            NEM_LOG_REL_FIELD(Page1GbSupport);
+            NEM_LOG_REL_FIELD(AesSupport);
+            NEM_LOG_REL_FIELD(PclmulqdqSupport);
+            NEM_LOG_REL_FIELD(PcidSupport);
+            NEM_LOG_REL_FIELD(Fma4Support);
+            NEM_LOG_REL_FIELD(F16CSupport);
+            NEM_LOG_REL_FIELD(RdRandSupport);
+            NEM_LOG_REL_FIELD(RdWrFsGsSupport);
+            NEM_LOG_REL_FIELD(SmepSupport);
+            NEM_LOG_REL_FIELD(EnhancedFastStringSupport);
+            NEM_LOG_REL_FIELD(Bmi1Support);
+            NEM_LOG_REL_FIELD(Bmi2Support);
+            NEM_LOG_REL_FIELD(Reserved1);
+            NEM_LOG_REL_FIELD(MovbeSupport);
+            NEM_LOG_REL_FIELD(Npiep1Support);
+            NEM_LOG_REL_FIELD(DepX87FPUSaveSupport);
+            NEM_LOG_REL_FIELD(RdSeedSupport);
+            NEM_LOG_REL_FIELD(AdxSupport);
+            NEM_LOG_REL_FIELD(IntelPrefetchSupport);
+            NEM_LOG_REL_FIELD(SmapSupport);
+            NEM_LOG_REL_FIELD(HleSupport);
+            NEM_LOG_REL_FIELD(RtmSupport);
+            NEM_LOG_REL_FIELD(RdtscpSupport);
+            NEM_LOG_REL_FIELD(ClflushoptSupport);
+            NEM_LOG_REL_FIELD(ClwbSupport);
+            NEM_LOG_REL_FIELD(ShaSupport);
+            NEM_LOG_REL_FIELD(X87PointersSavedSupport);
+#if WDK_NTDDI_VERSION >= MY_NTDDI_WIN10_17134 /** @todo maybe some of these were added earlier... */
+            NEM_LOG_REL_FIELD(InvpcidSupport);
+            NEM_LOG_REL_FIELD(IbrsSupport);
+            NEM_LOG_REL_FIELD(StibpSupport);
+            NEM_LOG_REL_FIELD(IbpbSupport);
+# if WDK_NTDDI_VERSION > MY_NTDDI_WIN11_22000
+            NEM_LOG_REL_FIELD(UnrestrictedGuestSupport);
+# else
+            NEM_LOG_REL_FIELD(Reserved2);
+# endif
+            NEM_LOG_REL_FIELD(SsbdSupport);
+            NEM_LOG_REL_FIELD(FastShortRepMovSupport);
+            NEM_LOG_REL_FIELD(Reserved3);
+            NEM_LOG_REL_FIELD(RdclNo);
+            NEM_LOG_REL_FIELD(IbrsAllSupport);
+            NEM_LOG_REL_FIELD(Reserved4);
+            NEM_LOG_REL_FIELD(SsbNo);
+            NEM_LOG_REL_FIELD(RsbANo);
+#endif
+#if WDK_NTDDI_VERSION >= MY_NTDDI_WIN10_19040
+            NEM_LOG_REL_FIELD(Reserved5);
+            NEM_LOG_REL_FIELD(RdPidSupport);
+            NEM_LOG_REL_FIELD(UmipSupport);
+            NEM_LOG_REL_FIELD(MdsNoSupport);
+            NEM_LOG_REL_FIELD(MdClearSupport);
+#endif
+#if WDK_NTDDI_VERSION >= MY_NTDDI_WIN11_22000
+            NEM_LOG_REL_FIELD(TaaNoSupport);
+            NEM_LOG_REL_FIELD(TsxCtrlSupport);
+            NEM_LOG_REL_FIELD(Reserved6);
+#endif
+#undef NEM_LOG_REL_FIELD
+            /** @todo RECHECK: WHV_PROCESSOR_FEATURES typedef. */
+        }
+        NEM_LOG_REL_CAP_EX("WHvCapabilityCodeProcessorFeaturesBanks[1]", "%'#018RX64", Caps.ProcessorFeaturesBanks.AsUINT64[1]);
+        if (Caps.ProcessorFeaturesBanks.BanksCount >= 2 || Caps.ProcessorFeaturesBanks.AsUINT64[1])
+        {
+#define NEM_LOG_REL_FIELD(a_Field) NEM_LOG_REL_CAP_SUB(#a_Field, Caps.ProcessorFeaturesBanks.Bank1.a_Field)
+            NEM_LOG_REL_FIELD(ACountMCountSupport);
+            NEM_LOG_REL_FIELD(TscInvariantSupport);
+            NEM_LOG_REL_FIELD(ClZeroSupport);
+            NEM_LOG_REL_FIELD(RdpruSupport);
+#if WDK_NTDDI_VERSION > MY_NTDDI_WIN11_22000
+            NEM_LOG_REL_FIELD(La57Support);
+            NEM_LOG_REL_FIELD(MbecSupport);
+#else
+            NEM_LOG_REL_FIELD(Reserved2);
+#endif
+            NEM_LOG_REL_FIELD(NestedVirtSupport);
+            NEM_LOG_REL_FIELD(PsfdSupport);
+            NEM_LOG_REL_FIELD(CetSsSupport);
+            NEM_LOG_REL_FIELD(CetIbtSupport);
+            NEM_LOG_REL_FIELD(VmxExceptionInjectSupport);
+#if WDK_NTDDI_VERSION > MY_NTDDI_WIN11_22000
+            NEM_LOG_REL_FIELD(Reserved2);
+#else
+            NEM_LOG_REL_FIELD(Reserved4);
+#endif
+            NEM_LOG_REL_FIELD(UmwaitTpauseSupport);
+            NEM_LOG_REL_FIELD(MovdiriSupport);
+            NEM_LOG_REL_FIELD(Movdir64bSupport);
+            NEM_LOG_REL_FIELD(CldemoteSupport);
+            NEM_LOG_REL_FIELD(SerializeSupport);
+            NEM_LOG_REL_FIELD(TscDeadlineTmrSupport);
+            NEM_LOG_REL_FIELD(TscAdjustSupport);
+            NEM_LOG_REL_FIELD(FZLRepMovsb);
+            NEM_LOG_REL_FIELD(FSRepStosb);
+            NEM_LOG_REL_FIELD(FSRepCmpsb);
+#if WDK_NTDDI_VERSION > MY_NTDDI_WIN11_22000
+            NEM_LOG_REL_FIELD(TsxLdTrkSupport);
+            NEM_LOG_REL_FIELD(VmxInsOutsExitInfoSupport);
+            NEM_LOG_REL_FIELD(Reserved3);
+            NEM_LOG_REL_FIELD(SbdrSsdpNoSupport);
+            NEM_LOG_REL_FIELD(FbsdpNoSupport);
+            NEM_LOG_REL_FIELD(PsdpNoSupport);
+            NEM_LOG_REL_FIELD(FbClearSupport);
+            NEM_LOG_REL_FIELD(BtcNoSupport);
+            NEM_LOG_REL_FIELD(IbpbRsbFlushSupport);
+            NEM_LOG_REL_FIELD(StibpAlwaysOnSupport);
+            NEM_LOG_REL_FIELD(PerfGlobalCtrlSupport);
+            NEM_LOG_REL_FIELD(NptExecuteOnlySupport);
+            NEM_LOG_REL_FIELD(NptADFlagsSupport);
+            NEM_LOG_REL_FIELD(Npt1GbPageSupport);
+            NEM_LOG_REL_FIELD(Reserved4);
+            NEM_LOG_REL_FIELD(Reserved5);
+            NEM_LOG_REL_FIELD(Reserved6);
+            NEM_LOG_REL_FIELD(Reserved7);
+            NEM_LOG_REL_FIELD(CmpccxaddSupport);
+            NEM_LOG_REL_FIELD(Reserved8);
+            NEM_LOG_REL_FIELD(Reserved9);
+            NEM_LOG_REL_FIELD(Reserved10);
+            NEM_LOG_REL_FIELD(Reserved11);
+            NEM_LOG_REL_FIELD(PrefetchISupport);
+            NEM_LOG_REL_FIELD(Sha512Support);
+            NEM_LOG_REL_FIELD(Reserved12);
+            NEM_LOG_REL_FIELD(Reserved13);
+            NEM_LOG_REL_FIELD(Reserved14);
+            NEM_LOG_REL_FIELD(SM3Support);
+            NEM_LOG_REL_FIELD(SM4Support);
+            uint64_t const fKnown = RT_BIT_64(64 - 12) - 1U;
+#else
+            uint64_t const fKnown = RT_BIT_64(64 - 42) - 1U;
+#endif
+#undef NEM_LOG_REL_FIELD
+            if (Caps.ProcessorFeaturesBanks.Bank1.AsUINT64 & ~fKnown)
+                NEM_LOG_REL_CAP_SUB_EX("Unknown bank 1 features", "%#RX64", Caps.ProcessorFeaturesBanks.Bank1.AsUINT64 & ~fKnown);
+        }
+    }
+    else
+        LogRel(("NEM: Warning! WHvGetCapability/WHvCapabilityCodeProcessorFeaturesBanks failed: %Rhrc (Last=%#x/%u)",
+                hrc, RTNtLastStatusValue(), RTNtLastErrorValue()));
+
+    /*
+     * 0x1007 - Processor frequency cap.
+     */
+    RT_ZERO(Caps);
+    hrc = WHvGetCapabilityWrapper(WHvCapabilityCodeProcessorFrequencyCap, &Caps, sizeof(Caps));
+    if (SUCCEEDED(hrc))
+    {
+        NEM_CHECK_RET_SIZE(cbRet, sizeof(Caps.ProcessorFrequencyCap), "WHvCapabilityCodeProcessorFrequencyCap");
+        NEM_LOG_REL_CAP_EX("WHvCapabilityCodeProcessorFrequencyCap", "%.16Rhxs", &Caps);
+        NEM_LOG_REL_CAP_SUB_EX("IsSupported", "%d", Caps.ProcessorFrequencyCap.IsSupported);
+        NEM_LOG_REL_CAP_SUB_EX("Reserved", "%RX32", Caps.ProcessorFrequencyCap.Reserved);
+        NEM_LOG_REL_CAP_SUB_EX("HighestFrequencyMhz",   "%'RU32", Caps.ProcessorFrequencyCap.HighestFrequencyMhz);
+        NEM_LOG_REL_CAP_SUB_EX("NominalFrequencyMhz",   "%'RU32", Caps.ProcessorFrequencyCap.NominalFrequencyMhz);
+        NEM_LOG_REL_CAP_SUB_EX("LowestFrequencyMhz",    "%'RU32", Caps.ProcessorFrequencyCap.LowestFrequencyMhz);
+        NEM_LOG_REL_CAP_SUB_EX("FrequencyStepMhz",      "%'RU32", Caps.ProcessorFrequencyCap.FrequencyStepMhz);
+    }
+    else
+        LogRel(("NEM: Warning! WHvGetCapability/WHvCapabilityCodeProcessorFrequencyCap failed: %Rhrc (Last=%#x/%u)",
+                hrc, RTNtLastStatusValue(), RTNtLastErrorValue()));
+
+    /*
+     * 0x1008 - Synthetic processor freatures.
+     */
+    RT_ZERO(Caps);
+    Caps.SyntheticProcessorFeaturesBanks.BanksCount = WHV_SYNTHETIC_PROCESSOR_FEATURES_BANKS_COUNT;
+    hrc = WHvGetCapabilityWrapper(WHvCapabilityCodeSyntheticProcessorFeaturesBanks, &Caps, sizeof(Caps));
+    if (SUCCEEDED(hrc))
+    {
+        AssertCompile(WHV_SYNTHETIC_PROCESSOR_FEATURES_BANKS_COUNT == 1); /* adjust dumper code if this changes. */
+        NEM_LOG_REL_CAP_EX("WHvCapabilityCodeSyntheticProcessorFeaturesBanks", "%u bank(s)", Caps.ProcessorFeaturesBanks.BanksCount);
+        if (Caps.SyntheticProcessorFeaturesBanks.BanksCount >= 1 || Caps.SyntheticProcessorFeaturesBanks.AsUINT64[0])
+        {
+            NEM_LOG_REL_CAP_EX("WHvCapabilityCodeSyntheticProcessorFeaturesBanks[0]", "%'#018RX64",
+                               Caps.SyntheticProcessorFeaturesBanks.AsUINT64[0]);
+#define NEM_LOG_REL_FIELD(a_Field)    NEM_LOG_REL_CAP_SUB(#a_Field, Caps.SyntheticProcessorFeaturesBanks.Bank0.a_Field)
+            NEM_LOG_REL_FIELD(HypervisorPresent);
+            NEM_LOG_REL_FIELD(Hv1);
+            NEM_LOG_REL_FIELD(AccessVpRunTimeReg);
+            NEM_LOG_REL_FIELD(AccessPartitionReferenceCounter);
+            NEM_LOG_REL_FIELD(AccessSynicRegs);
+            NEM_LOG_REL_FIELD(AccessSyntheticTimerRegs);
+            NEM_LOG_REL_FIELD(AccessIntrCtrlRegs);
+            NEM_LOG_REL_FIELD(AccessHypercallRegs);
+            NEM_LOG_REL_FIELD(AccessVpIndex);
+            NEM_LOG_REL_FIELD(AccessPartitionReferenceTsc);
+            NEM_LOG_REL_FIELD(AccessGuestIdleReg);
+            NEM_LOG_REL_FIELD(AccessFrequencyRegs);
+            NEM_LOG_REL_FIELD(ReservedZ12);
+            NEM_LOG_REL_FIELD(ReservedZ13);
+            NEM_LOG_REL_FIELD(ReservedZ14);
+            NEM_LOG_REL_FIELD(EnableExtendedGvaRangesForFlushVirtualAddressList);
+            NEM_LOG_REL_FIELD(ReservedZ16);
+            NEM_LOG_REL_FIELD(ReservedZ17);
+            NEM_LOG_REL_FIELD(FastHypercallOutput);
+            NEM_LOG_REL_FIELD(ReservedZ19);
+            NEM_LOG_REL_FIELD(ReservedZ20);
+            NEM_LOG_REL_FIELD(ReservedZ21);
+            NEM_LOG_REL_FIELD(DirectSyntheticTimers);
+            NEM_LOG_REL_FIELD(ReservedZ23);
+            NEM_LOG_REL_FIELD(ExtendedProcessorMasks);
+            NEM_LOG_REL_FIELD(TbFlushHypercalls);
+            NEM_LOG_REL_FIELD(SyntheticClusterIpi);
+            NEM_LOG_REL_FIELD(NotifyLongSpinWait);
+            NEM_LOG_REL_FIELD(QueryNumaDistance);
+            NEM_LOG_REL_FIELD(SignalEvents);
+            NEM_LOG_REL_FIELD(RetargetDeviceInterrupt);
+#if WDK_NTDDI_VERSION > MY_NTDDI_WIN11_22000
+            NEM_LOG_REL_FIELD(RestoreTime);
+            NEM_LOG_REL_FIELD(EnlightenedVmcs);
+            NEM_LOG_REL_FIELD(NestedDebugCtl);
+            NEM_LOG_REL_FIELD(SyntheticTimeUnhaltedTimer);
+            NEM_LOG_REL_FIELD(IdleSpecCtrl);
+            NEM_LOG_REL_FIELD(ReservedZ36);
+            NEM_LOG_REL_FIELD(WakeVps);
+            NEM_LOG_REL_FIELD(AccessVpRegs);
+            NEM_LOG_REL_FIELD(ReservedZ39);
+            NEM_LOG_REL_FIELD(ReservedZ40);
+            uint64_t const fKnown = RT_BIT_64(64 - 33) - 1U;
+#else
+            uint64_t const fKnown = RT_BIT_64(64 - 23) - 1U;
+#endif
+#undef NEM_LOG_REL_FIELD
+            /** @todo RECHECK: WHV_SYNTHETIC_PROCESSOR_FEATURES typedef. */
+            if (Caps.SyntheticProcessorFeaturesBanks.AsUINT64[0] & ~fKnown)
+                NEM_LOG_REL_CAP_SUB_EX("Unknown bank 0 features", "%#RX64",
+                                       Caps.SyntheticProcessorFeaturesBanks.AsUINT64[0] & ~fKnown);
+        }
+    }
+    else
+        LogRel(("NEM: Warning! WHvGetCapability/WHvCapabilityCodeSyntheticProcessorFeaturesBanks failed: %Rhrc (Last=%#x/%u)",
+                hrc, RTNtLastStatusValue(), RTNtLastErrorValue()));
+
+    /*
+     * 0x1009 - Performance monitor features.
+     */
+    RT_ZERO(Caps);
+    hrc = WHvGetCapabilityWrapper(WHvCapabilityCodeProcessorPerfmonFeatures, &Caps, sizeof(Caps));
+    if (SUCCEEDED(hrc))
+    {
+        NEM_CHECK_RET_SIZE(cbRet, sizeof(UINT64), "WHvCapabilityCodeProcessorPerfmonFeatures");
+        NEM_LOG_REL_CAP_EX("WHvCapabilityCodeProcessorPerfmonFeatures", "%'#018RX64", Caps.ProcessorPerfmonFeatures.AsUINT64);
+#define NEM_LOG_REL_FIELD(a_Field)    NEM_LOG_REL_CAP_SUB(#a_Field, Caps.ProcessorPerfmonFeatures.a_Field)
+        NEM_LOG_REL_FIELD(PmuSupport);
+        NEM_LOG_REL_FIELD(LbrSupport);
+#undef  NEM_LOG_REL_FIELD
+        const uint64_t fKnown = RT_BIT_64(62) - 1U;
+        if (Caps.ProcessorPerfmonFeatures.AsUINT64 & ~fKnown)
+            NEM_LOG_REL_CAP_SUB_EX("Unknown Perfmon features", "%#RX64", Caps.ProcessorPerfmonFeatures.AsUINT64 & ~fKnown);
+    }
+    else
+        LogRel(("NEM: Warning! WHvGetCapability/WHvCapabilityCodeProcessorPerfmonFeatures failed: %Rhrc (Last=%#x/%u)",
+                hrc, RTNtLastStatusValue(), RTNtLastErrorValue()));
+
+    /*
+     * 0x100a - Physical address width.
+     */
+    RT_ZERO(Caps);
+#if WDK_NTDDI_VERSION <= MY_NTDDI_WIN11_22000
+# define WHvCapabilityCodePhysicalAddressWidth ((WHV_CAPABILITY_CODE)0x100a)
+#endif
+    hrc = WHvGetCapabilityWrapper(WHvCapabilityCodePhysicalAddressWidth, &Caps, sizeof(Caps));
+    if (SUCCEEDED(hrc))
+    {
+        NEM_CHECK_RET_SIZE(cbRet, sizeof(UINT32), "WHvCapabilityCodePhysicalAddressWidth");
+#if WDK_NTDDI_VERSION > MY_NTDDI_WIN11_22000
+        NEM_LOG_REL_CAP_EX("WHvCapabilityCodePhysicalAddressWidth", "%RU32", Caps.PhysicalAddressWidth);
+#else
+        NEM_LOG_REL_CAP_EX("WHvCapabilityCodePhysicalAddressWidth", "%RU32", *(uint32_t const *)&Caps);
+#endif
+    }
+    else
+        LogRel(("NEM: Warning! WHvGetCapability/WHvCapabilityCodePhysicalAddressWidth failed: %Rhrc (Last=%#x/%u)",
+                hrc, RTNtLastStatusValue(), RTNtLastErrorValue()));
+
+    /*
+     * Nested VMX caps.
+     */
+    static const struct { uint32_t uCode; const char *pszName; } s_aNestedVmxCaps[] =
+    {
+        { 0x2000, "WHvCapabilityCodeVmxBasic" },
+        { 0x2001, "WHvCapabilityCodeVmxPinbasedCtls" },
+        { 0x2002, "WHvCapabilityCodeVmxProcbasedCtls" },
+        { 0x2003, "WHvCapabilityCodeVmxExitCtls" },
+        { 0x2004, "WHvCapabilityCodeVmxEntryCtls" },
+        { 0x2005, "WHvCapabilityCodeVmxMisc" },
+        { 0x2006, "WHvCapabilityCodeVmxCr0Fixed0" },
+        { 0x2007, "WHvCapabilityCodeVmxCr0Fixed1" },
+        { 0x2008, "WHvCapabilityCodeVmxCr4Fixed0" },
+        { 0x2009, "WHvCapabilityCodeVmxCr4Fixed1" },
+        { 0x200a, "WHvCapabilityCodeVmxVmcsEnum" },
+        { 0x200b, "WHvCapabilityCodeVmxProcbasedCtls2" },
+        { 0x200c, "WHvCapabilityCodeVmxEptVpidCap" },
+        { 0x200d, "WHvCapabilityCodeVmxTruePinbasedCtls" },
+        { 0x200e, "WHvCapabilityCodeVmxTrueProcbasedCtls" },
+        { 0x200f, "WHvCapabilityCodeVmxTrueExitCtls" },
+        { 0x2010, "WHvCapabilityCodeVmxTrueEntryCtls" },
+    };
+    for (uint32_t i = 0; i < RT_ELEMENTS(s_aNestedVmxCaps); i++)
+    {
+        RT_ZERO(Caps);
+        hrc = WHvGetCapabilityWrapper((WHV_CAPABILITY_CODE)s_aNestedVmxCaps[i].uCode, &Caps, sizeof(Caps));
+        if (SUCCEEDED(hrc))
+        {
+            NEM_CHECK_RET_SIZE(cbRet, sizeof(UINT64), s_aNestedVmxCaps[i].pszName);
+            NEM_LOG_REL_CAP_EX(s_aNestedVmxCaps[i].pszName, "%'#018RX64", *(uint64_t const *)&Caps);
+        }
+    }
+
+    /*
      * See if they've added more properties that we're not aware of.
      */
-    /** @todo RECHECK: WHV_CAPABILITY_CODE typedef. */
     if (!IsDebuggerPresent()) /* Too noisy when in debugger, so skip. */
     {
-        static const struct
+        static const struct { uint32_t iMin, iMax; } s_aUnknowns[] =
         {
-            uint32_t iMin, iMax; } s_aUnknowns[] =
-        {
-            { 0x0004, 0x000f },
-            { 0x1003, 0x100f },
-            { 0x2000, 0x200f },
+            { 0x0007, 0x001f },
+            { 0x100b, 0x1017 },
+            { 0x2011, 0x2017 },
             { 0x3000, 0x300f },
             { 0x4000, 0x400f },
         };
@@ -1045,9 +1496,10 @@ static int nemR3WinInitCheckCapabilities(PVM pVM, PRTERRINFO pErrInfo)
             for (uint32_t i = s_aUnknowns[j].iMin; i <= s_aUnknowns[j].iMax; i++)
             {
                 RT_ZERO(Caps);
-                hrc = WHvGetCapabilityWrapper((WHV_CAPABILITY_CODE)i, &Caps, sizeof(Caps));
+                hrc = WHvGetCapabilityWrapper((WHV_CAPABILITY_CODE)i, &Caps, sizeof(Caps), &cbRet);
                 if (SUCCEEDED(hrc))
-                    LogRel(("NEM: Warning! Unknown capability %#x returning: %.*Rhxs\n", i, sizeof(Caps), &Caps));
+                    LogRel(("NEM: Warning! Unknown capability %#x returning: %.*Rhxs (cbRet=%u)\n",
+                            i, sizeof(Caps), &Caps, cbRet));
             }
     }
 
@@ -1064,6 +1516,7 @@ static int nemR3WinInitCheckCapabilities(PVM pVM, PRTERRINFO pErrInfo)
 #undef NEM_LOG_REL_CAP_EX
 #undef NEM_LOG_REL_CAP_SUB_EX
 #undef NEM_LOG_REL_CAP_SUB
+#undef NEM_CHECK_RET_SIZE
     return VINF_SUCCESS;
 }
 
