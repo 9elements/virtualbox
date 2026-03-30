@@ -1,4 +1,4 @@
-/* $Id: UIVMActivityMonitorContainer.h 113581 2026-03-26 09:01:36Z serkan.bayraktar@oracle.com $ */
+/* $Id: UIVMActivityMonitorContainer.h 113637 2026-03-30 09:05:06Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVMActivityMonitorPanel class declaration.
  */
@@ -40,6 +40,7 @@
 
 class CCloudMachine;
 class CMachine;
+class QCheckBox;
 class QColor;
 class QLabel;
 class QPushButton;
@@ -82,6 +83,8 @@ private:
     QLabel *m_pColorLabel[2];
     QPushButton *m_pColorChangeButton[2];
     QPushButton *m_pResetButton;
+    QCheckBox *m_pPieChartCheckBox;
+    QCheckBox *m_pDrawAreaChartCheckBox;
 
     QColor m_color[2];
 };

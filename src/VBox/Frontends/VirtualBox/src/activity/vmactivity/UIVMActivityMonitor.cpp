@@ -1,4 +1,4 @@
-/* $Id: UIVMActivityMonitor.cpp 113624 2026-03-27 13:20:03Z serkan.bayraktar@oracle.com $ */
+/* $Id: UIVMActivityMonitor.cpp 113637 2026-03-30 09:05:06Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVMActivityMonitor class implementation.
  */
@@ -967,21 +967,6 @@ void UIChart::sltCreateContextMenu(const QPoint &point)
     connect(pExportAction, &QAction::triggered, this, &UIChart::sigExportMetricsToFile);
     if (uiCommon().uiType() == UIType_RuntimeUI)
         menu.addAction(m_pActionPool->action(UIActionIndex_M_Activity_T_Preferences));
-    menu.addSeparator();
-    if (m_fIsPieChartAllowed)
-    {
-        QAction *pPieChartToggle = menu.addAction(m_strPieChartToggleActionLabel);
-        pPieChartToggle->setCheckable(true);
-        pPieChartToggle->setChecked(m_fShowPieChart);
-        connect(pPieChartToggle, &QAction::toggled, this, &UIChart::sltSetShowPieChart);
-    }
-    if (m_fIsAreaChartAllowed)
-    {
-        QAction *pAreaChartToggle = menu.addAction(m_strAreaChartToggleActionLabel);
-        pAreaChartToggle->setCheckable(true);
-        pAreaChartToggle->setChecked(m_fUseAreaChart);
-        connect(pAreaChartToggle, &QAction::toggled, this, &UIChart::sltSetUseAreaChart);
-    }
     menu.exec(mapToGlobal(point));
 }
 

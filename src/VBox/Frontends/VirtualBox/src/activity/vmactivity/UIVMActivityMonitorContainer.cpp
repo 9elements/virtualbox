@@ -1,4 +1,4 @@
-/* $Id: UIVMActivityMonitorContainer.cpp 113581 2026-03-26 09:01:36Z serkan.bayraktar@oracle.com $ */
+/* $Id: UIVMActivityMonitorContainer.cpp 113637 2026-03-30 09:05:06Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVMLogViewer class implementation.
  */
@@ -27,6 +27,7 @@
 
 /* Qt includes: */
 #include <QApplication>
+#include <QCheckBox>
 #include <QColor>
 #include <QColorDialog>
 #include <QHBoxLayout>
@@ -61,6 +62,8 @@ UIVMActivityMonitorPaneContainer::UIVMActivityMonitorPaneContainer(QWidget *pPar
     , m_pColorLabel{0, 0}
     , m_pColorChangeButton{0, 0}
     , m_pResetButton(0)
+    , m_pPieChartCheckBox(0)
+    , m_pDrawAreaChartCheckBox(0)
 {
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
     prepare();
@@ -69,7 +72,7 @@ UIVMActivityMonitorPaneContainer::UIVMActivityMonitorPaneContainer(QWidget *pPar
 void UIVMActivityMonitorPaneContainer::prepare()
 {
     QWidget *pContainerWidget = new QWidget(this);
-    QVBoxLayout *pContainerLayout = new QVBoxLayout(pContainerWidget);
+    QGridLayout *pContainerLayout = new QGridLayout(pContainerWidget);
     AssertReturnVoid(pContainerWidget);
     AssertReturnVoid(pContainerLayout);
     insertTab(Tab_Preferences, pContainerWidget, "");
@@ -86,7 +89,7 @@ void UIVMActivityMonitorPaneContainer::prepare()
         pColorLayout->addWidget(m_pColorLabel[i]);
         pColorLayout->addWidget(m_pColorChangeButton[i]);
         pColorLayout->addStretch();
-        pContainerLayout->addLayout(pColorLayout);
+        pContainerLayout->addLayout(pColorLayout, i, 0, 1, 1);
         connect(m_pColorChangeButton[i], &QPushButton::pressed,
                 this, &UIVMActivityMonitorPaneContainer::sltColorChangeButtonPressed);
     }
@@ -96,10 +99,19 @@ void UIVMActivityMonitorPaneContainer::prepare()
     connect(m_pResetButton, &QPushButton::pressed,
             this, &UIVMActivityMonitorPaneContainer::sltResetToDefaults);
 
-    pContainerLayout->addWidget(m_pResetButton);
+    pContainerLayout->addWidget(m_pResetButton, 2, 0, 1, 1);
+    m_pPieChartCheckBox = new QCheckBox(this);
+    AssertReturnVoid(m_pPieChartCheckBox);
+    pContainerLayout->addWidget(m_pPieChartCheckBox, 0, 1, 1, 1);
 
-    pContainerLayout->addStretch();
+    m_pDrawAreaChartCheckBox = new QCheckBox(this);
+    AssertReturnVoid(m_pDrawAreaChartCheckBox);
+    pContainerLayout->addWidget(m_pDrawAreaChartCheckBox, 1, 1, 1, 1);
 
+    pContainerLayout->setColumnStretch(0, 0);
+    pContainerLayout->setColumnStretch(1, 0);
+    pContainerLayout->setColumnStretch(2, 1);
+    pContainerLayout->setHorizontalSpacing(12);
     sltRetranslateUI();
     connect(&translationEventListener(), &UITranslationEventListener::sigRetranslateUI,
             this, &UIVMActivityMonitorPaneContainer::sltRetranslateUI);
@@ -116,7 +128,10 @@ void UIVMActivityMonitorPaneContainer::sltRetranslateUI()
         m_pColorLabel[1]->setText(QApplication::translate("UIVMActivityMonitorPaneContainer", "Data Series 2 Color"));
     if (m_pResetButton)
         m_pResetButton->setText(QApplication::translate("UIVMActivityMonitorPaneContainer", "Reset to Defaults"));
-
+    if (m_pPieChartCheckBox)
+        m_pPieChartCheckBox->setText(QApplication::translate("UIVMActivityMonitorPaneContainer", "Show Pie Charts"));
+    if (m_pDrawAreaChartCheckBox)
+        m_pDrawAreaChartCheckBox->setText(QApplication::translate("UIVMActivityMonitorPaneContainer", "Draw Area Charts"));
 }
 
 void UIVMActivityMonitorPaneContainer::colorPushButtons(QPushButton *pButton, const QColor &color)
