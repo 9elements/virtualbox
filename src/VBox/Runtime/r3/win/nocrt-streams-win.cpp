@@ -1,4 +1,4 @@
-/* $Id: nocrt-streams-win.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: nocrt-streams-win.cpp 113648 2026-03-30 10:41:13Z knut.osmundsen@oracle.com $ */
 /** @file
  * IPRT - No-CRT - minimal stream implementation
  */
@@ -83,9 +83,9 @@ struct RTSTREAM
 *********************************************************************************************************************************/
 RTSTREAM g_aStdStreams[3] =
 {
-    { 0, NULL, NIL_RTFILE },
-    { 1, NULL, NIL_RTFILE },
-    { 2, NULL, NIL_RTFILE },
+    { 0, (HANDLE)(intptr_t)STD_INPUT_HANDLE,  NIL_RTFILE },
+    { 1, (HANDLE)(intptr_t)STD_OUTPUT_HANDLE, NIL_RTFILE },
+    { 2, (HANDLE)(intptr_t)STD_ERROR_HANDLE,  NIL_RTFILE },
 };
 
 RTSTREAM *g_pStdIn  = &g_aStdStreams[0];
@@ -98,6 +98,8 @@ DECLHIDDEN(void) InitStdHandles(PRTL_USER_PROCESS_PARAMETERS pParams)
 {
     if (pParams)
     {
+        /** @todo this isn't really needed any more, just use the aliases and we'll
+         *        automatically support stdout/err/in redirecting as well. */
         g_pStdIn->hNative  = pParams->StandardInput;
         g_pStdOut->hNative = pParams->StandardOutput;
         g_pStdErr->hNative = pParams->StandardError;
