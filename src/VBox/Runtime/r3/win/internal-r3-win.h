@@ -1,4 +1,4 @@
-/* $Id: internal-r3-win.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: internal-r3-win.h 113667 2026-03-30 11:51:37Z knut.osmundsen@oracle.com $ */
 /** @file
  * IPRT - some Windows OS type constants.
  */
@@ -157,10 +157,14 @@ typedef int             (WINAPI *PFNWSASETLASTERROR)(int);
 typedef HANDLE          (WINAPI *PFNWSACREATEEVENT)(void);
 /** WSASetEvent */
 typedef BOOL            (WINAPI *PFNWSASETEVENT)(HANDLE);
+/** WSAResetEvent */
+typedef BOOL            (WINAPI *PFNWSARESETEVENT)(HANDLE);
 /** WSACloseEvent */
 typedef BOOL            (WINAPI *PFNWSACLOSEEVENT)(HANDLE);
 /** WSAEventSelect */
 typedef BOOL            (WINAPI *PFNWSAEVENTSELECT)(UINT_PTR, HANDLE, LONG);
+/** WSAWaitForMultipleEvents  */
+typedef DWORD           (WINAPI *PFNWSAWAITFORMULTIPLEEVENTS)(DWORD, const HANDLE *, BOOL, DWORD, BOOL);
 /** WSAEnumNetworkEvents */
 typedef int             (WINAPI *PFNWSAENUMNETWORKEVENTS)(UINT_PTR, HANDLE, struct _WSANETWORKEVENTS *);
 /** WSASocketW */
@@ -170,7 +174,7 @@ typedef int             (WINAPI *PFNWSASEND)(UINT_PTR, struct _WSABUF *, DWORD, 
                                              struct _OVERLAPPED *, uintptr_t /*LPWSAOVERLAPPED_COMPLETION_ROUTINE*/);
 /** WSAIoctl */
 typedef int             (WINAPI *PFNWSAIOCTL)(UINT_PTR, DWORD, LPVOID, DWORD, LPVOID, DWORD, LPDWORD,
-                                             struct _OVERLAPPED *, uintptr_t /*LPWSAOVERLAPPED_COMPLETION_ROUTINE*/);
+                                              struct _OVERLAPPED *, uintptr_t /*LPWSAOVERLAPPED_COMPLETION_ROUTINE*/);
 
 /** socket */
 typedef UINT_PTR        (WINAPI *PFNWINSOCKSOCKET)(int, int, int);
@@ -218,7 +222,9 @@ extern DECL_HIDDEN_DATA(PFNWSASETLASTERROR)              g_pfnWSASetLastError;
 extern DECL_HIDDEN_DATA(PFNWSACREATEEVENT)               g_pfnWSACreateEvent;
 extern DECL_HIDDEN_DATA(PFNWSACLOSEEVENT)                g_pfnWSACloseEvent;
 extern DECL_HIDDEN_DATA(PFNWSASETEVENT)                  g_pfnWSASetEvent;
+extern DECL_HIDDEN_DATA(PFNWSARESETEVENT)                g_pfnWSAResetEvent;
 extern DECL_HIDDEN_DATA(PFNWSAEVENTSELECT)               g_pfnWSAEventSelect;
+extern DECL_HIDDEN_DATA(PFNWSAWAITFORMULTIPLEEVENTS)     g_pfnWSAWaitForMultipleEvents;
 extern DECL_HIDDEN_DATA(PFNWSAENUMNETWORKEVENTS)         g_pfnWSAEnumNetworkEvents;
 extern DECL_HIDDEN_DATA(PFNWSASOCKETW)                   g_pfnWSASocketW;
 extern DECL_HIDDEN_DATA(PFNWSASEND)                      g_pfnWSASend;
