@@ -1,4 +1,4 @@
-/* $Id: VMMInternal.h 113650 2026-03-30 10:47:35Z knut.osmundsen@oracle.com $ */
+/* $Id: VMMInternal.h 113661 2026-03-30 11:15:03Z knut.osmundsen@oracle.com $ */
 /** @file
  * VMM - Internal header file.
  */
@@ -167,7 +167,9 @@ typedef struct VMMR0JMPBUF
 #endif
         struct
         {
+#ifdef RT_OS_WINDOWS
             uint64_t                    uFrame;
+#endif
             uint64_t                    rbx;
             uint64_t                    rsp;
             uint64_t                    rbp;

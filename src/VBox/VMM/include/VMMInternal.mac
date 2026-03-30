@@ -1,4 +1,4 @@
-; $Id: VMMInternal.mac 113650 2026-03-30 10:47:35Z knut.osmundsen@oracle.com $
+; $Id: VMMInternal.mac 113661 2026-03-30 11:15:03Z knut.osmundsen@oracle.com $
 ;; @file
 ; VMM - Internal header file.
 ;
@@ -33,7 +33,9 @@ struc VMMR0JMPBUF
         ;
         ; Traditional jmp_buf - must match Runtime/common/misc/setjmp.asm and UCRT layout.
         ;
+%ifdef RT_OS_WINDOWS
         .Core.s.uFrame          resq 1
+%endif
         .Core.s.rbx             resq 1
         .Core.s.rsp             resq 1
         .Core.s.rbp             resq 1
