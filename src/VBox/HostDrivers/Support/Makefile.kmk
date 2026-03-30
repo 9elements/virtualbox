@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 112495 2026-01-13 14:13:40Z knut.osmundsen@oracle.com $
+# $Id: Makefile.kmk 113650 2026-03-30 10:47:35Z knut.osmundsen@oracle.com $
 ## @file
 # Sub-Makefile for the support library and the drivers/modules/kexts it uses.
 #
@@ -789,7 +789,7 @@ if   !defined(VBOX_ONLY_DOCS) \
    VBoxDrv_LDFLAGS.solaris += -N drv/dtrace
   endif
   VBoxDrv_LDFLAGS.win.x86   = -Entry:DriverEntry@8
-  VBoxDrv_LDFLAGS.win.amd64 = -Entry:DriverEntry
+  VBoxDrv_LDFLAGS.win.amd64 = -Entry:DriverEntry -Export:RtlUnwind -Export:IoWithinStackLimits
   VBoxDrv_LDFLAGS.win.arm64 = -Entry:DriverEntry
 
   VBoxDrv_SOURCES.darwin  = \

@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 113646 2026-03-30 10:35:55Z knut.osmundsen@oracle.com $
+# $Id: Makefile.kmk 113650 2026-03-30 10:47:35Z knut.osmundsen@oracle.com $
 ## @file
 # Sub-Makefile for the VMM testcases.
 #
@@ -93,10 +93,11 @@ ifndef VBOX_ONLY_EXTPACKS_USE_IMPLIBS
    PROGRAMS += tstPGMAllGst-armv8
   endif
 
+  if1of ($(KBUILD_TARGET_ARCH), amd64)
+   PROGRAMS += tstVMMR0CallHost-1
+  endif
   if1of ($(KBUILD_TARGET_ARCH), amd64 x86)
-   PROGRAMS += \
-   	tstVMMR0CallHost-1 \
-   	tstX86-FpuSaveRestore
+   PROGRAMS += tstX86-FpuSaveRestore
    ifn1of ($(KBUILD_TARGET).$(KBUILD_TARGET_ARCH), solaris.x86 solaris.amd64 win.amd64)  ## TODO: Fix the code.
     PROGRAMS += tstX86-1
    endif
@@ -788,9 +789,8 @@ tstVMMR0CallHost-1_INCS = $(VBOX_PATH_VMM_SRC)/include
 tstVMMR0CallHost-1_SOURCES = \
 	tstVMMR0CallHost-1.cpp
 tstVMMR0CallHost-1_SOURCES.amd64 = \
-	$(VBOX_PATH_VMM_SRC)/VMMR0/VMMR0JmpA-amd64.asm
-tstVMMR0CallHost-1_SOURCES.x86 = \
-	$(VBOX_PATH_VMM_SRC)/VMMR0/VMMR0JmpA-x86.asm
+	$(VBOX_PATH_VMM_SRC)/VMMR0/VMMR0JmpA-amd64.asm \
+	$(VBOX_PATH_VMM_SRC)/../Runtime/common/misc/setjmp.asm
 
 
 #

@@ -1,4 +1,4 @@
-/* $Id: tstVMMR0CallHost-1.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: tstVMMR0CallHost-1.cpp 113650 2026-03-30 10:47:35Z knut.osmundsen@oracle.com $ */
 /** @file
  * Testcase for the VMMR0JMPBUF operations.
  */
@@ -29,6 +29,14 @@
 /*********************************************************************************************************************************
 *   Header Files                                                                                                                 *
 *********************************************************************************************************************************/
+/* MSC hack: instrin.h drags in setjmp.h (included by VBox/vmm/stam.h via vmmapi.h and vmm.h) */
+#ifndef _MSC_VER
+# define setjmp  crt_setjmp
+#endif
+#define _setjmp crt__setjmp
+#define longjmp crt_longjmp
+#define jmp_buf crt_jmp_buf
+
 #include <iprt/errcore.h>
 #include <VBox/param.h>
 #include <iprt/alloca.h>
@@ -41,6 +49,16 @@
 #define IN_VMM_R0
 #define IN_RING0 /* pretent we're in Ring-0 to get the prototypes. */
 #include <VBox/vmm/vmm.h>
+
+#undef setjmp
+#undef _setjmp
+#undef longjmp
+#undef jmp_buf
+#ifdef IPRT_INCLUDED_nocrt_setjmp_h
+# error "The nocrt setjmp.h is already included!"
+#endif
+#include <iprt/nocrt/setjmp.h>
+
 #include "VMMInternal.h"
 
 
@@ -71,11 +89,13 @@ static int foo(int i, int iZero, int iMinusOne)
     char  *pv = (char *)alloca(cb);
     RTStrPrintf(pv, cb, "i=%d%*s\n", i, cb, "");
 #if defined(RT_ARCH_AMD64)
-    g_cbFooUsed = (uintptr_t)g_Jmp.rsp - (uintptr_t)pv;
-    RTTESTI_CHECK_MSG_RET(g_cbFooUsed < VMM_STACK_SIZE - 128, ("%p - %p -> %#x; cb=%#x i=%d\n", g_Jmp.rsp, pv, g_cbFooUsed, cb, i), -15);
+    g_cbFooUsed = (uintptr_t)g_Jmp.Core.s.rsp - (uintptr_t)pv;
+    RTTESTI_CHECK_MSG_RET(g_cbFooUsed < VMM_STACK_SIZE - 128,
+                          ("%p - %p -> %#x; cb=%#x i=%d\n", g_Jmp.Core.s.rsp, pv, g_cbFooUsed, cb, i), -15);
 #elif defined(RT_ARCH_X86)
-    g_cbFooUsed = (uintptr_t)g_Jmp.esp - (uintptr_t)pv;
-    RTTESTI_CHECK_MSG_RET(g_cbFooUsed < (intptr_t)VMM_STACK_SIZE - 128, ("%p - %p -> %#x; cb=%#x i=%d\n", g_Jmp.esp, pv, g_cbFooUsed, cb, i), -15);
+    g_cbFooUsed = (uintptr_t)g_Jmp.Core.s.esp - (uintptr_t)pv;
+    RTTESTI_CHECK_MSG_RET(g_cbFooUsed < (intptr_t)VMM_STACK_SIZE - 128,
+                          ("%p - %p -> %#x; cb=%#x i=%d\n", g_Jmp.Core.s.esp, pv, g_cbFooUsed, cb, i), -15);
 #endif
 
     /* Twice in a row, every 7th time. */
@@ -105,6 +125,10 @@ static DECLCALLBACK(int) tst2(intptr_t i, intptr_t i2)
 }
 
 
+/* legacy */
+typedef DECLCALLBACKTYPE(int, FNVMMR0SETJMP,(PVM pVM, PVMCPU pVCpu));
+typedef FNVMMR0SETJMP *PFNVMMR0SETJMP;
+
 static DECLCALLBACK(DECL_NO_INLINE(RT_NOTHING, int)) stackRandom(PVMMR0JMPBUF pJmpBuf, PFNVMMR0SETJMP pfn, PVM pVM, PVMCPU pVCpu)
 {
 #ifdef RT_ARCH_AMD64
@@ -114,7 +138,16 @@ static DECLCALLBACK(DECL_NO_INLINE(RT_NOTHING, int)) stackRandom(PVMMR0JMPBUF pJ
 #endif
     uint8_t volatile   *pabFuzz = (uint8_t volatile *)alloca(cbRand);
     memset((void *)pabFuzz, 0xfa, cbRand);
-    int rc = vmmR0CallRing3SetJmp(pJmpBuf, pfn, pVM, pVCpu);
+
+    /* This used to be done by vmmR0CallRing3SetJmp: */
+    pJmpBuf->rflags     = ASMGetFlags();
+    pJmpBuf->uOperation = (uintptr_t)pfn;
+    int rc = setjmp(pJmpBuf->Core.JmpBuf);
+    if (rc == 0)
+        rc = pfn(pVM, pVCpu);
+    ASMSetFlags(pJmpBuf->rflags);
+    pJmpBuf->Core.s.rip = 0;
+
     memset((void *)pabFuzz, 0xaf, cbRand);
     return rc;
 }

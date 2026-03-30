@@ -1,4 +1,4 @@
-/* $Id: VMMR0.cpp 113503 2026-03-23 13:48:19Z knut.osmundsen@oracle.com $ */
+/* $Id: VMMR0.cpp 113650 2026-03-30 10:47:35Z knut.osmundsen@oracle.com $ */
 /** @file
  * VMM - Host Context Ring 0.
  */
@@ -44,6 +44,7 @@
 #include <VBox/vmm/em.h>
 #include <VBox/vmm/stam.h>
 #include <VBox/vmm/tm.h>
+#include <iprt/nocrt/setjmp.h>
 #include "VMMInternal.h"
 #include <VBox/vmm/vmcc.h>
 #include <VBox/vmm/gvm.h>
@@ -1495,7 +1496,7 @@ VMMR0DECL(void) VMMR0EntryFast(PGVM pGVM, PVMCC pVMIgnored, VMCPUID idCpu, VMMR0
                     CPUMR0TouchHostFpu();
 # endif
                     int  rc;
-                    bool fPreemptRestored = false;
+                    bool volatile fPreemptRestored = false; /* volatile is courtesy of gcc */
                     if (!HMR0SuspendPending())
                     {
                         /*
@@ -1530,7 +1531,13 @@ VMMR0DECL(void) VMMR0EntryFast(PGVM pGVM, PVMCC pVMIgnored, VMCPUID idCpu, VMMR0
                             /*
                              * Setup the longjmp machinery and execute guest code (calls HMR0RunGuestCode).
                              */
-                            rc = vmmR0CallRing3SetJmp(&pGVCpu->vmmr0.s.AssertJmpBuf, HMR0RunGuestCode, pGVM, pGVCpu);
+                            pGVCpu->vmmr0.s.AssertJmpBuf.rflags     = ASMGetFlags();
+                            pGVCpu->vmmr0.s.AssertJmpBuf.uOperation = (uintptr_t)VMMR0_DO_HM_RUN;
+                            rc = setjmp(pGVCpu->vmmr0.s.AssertJmpBuf.Core.JmpBuf);
+                            if (rc == 0)
+                                rc = HMR0RunGuestCode(pGVM, pGVCpu);
+                            ASMSetFlags(pGVCpu->vmmr0.s.AssertJmpBuf.rflags);
+                            pGVCpu->vmmr0.s.AssertJmpBuf.Core.s.rip = 0;
 
                             /*
                              * Assert sanity on the way out.  Using manual assertions code here as normal
@@ -1661,13 +1668,15 @@ VMMR0DECL(void) VMMR0EntryFast(PGVM pGVM, PVMCC pVMIgnored, VMCPUID idCpu, VMMR0
                 /*
                  * Setup the longjmp machinery and execute guest code (calls NEMR0RunGuestCode).
                  */
-#   ifdef VBOXSTRICTRC_STRICT_ENABLED
-                int rc = vmmR0CallRing3SetJmp2(&pGVCpu->vmmr0.s.AssertJmpBuf, (PFNVMMR0SETJMP2)NEMR0RunGuestCode, pGVM, idCpu);
-#   else
-                int rc = vmmR0CallRing3SetJmp2(&pGVCpu->vmmr0.s.AssertJmpBuf, NEMR0RunGuestCode, pGVM, idCpu);
-#   endif
-                STAM_COUNTER_INC(&pGVM->vmm.s.StatRunGC);
+                pGVCpu->vmmr0.s.AssertJmpBuf.rflags     = ASMGetFlags();
+                pGVCpu->vmmr0.s.AssertJmpBuf.uOperation = (uintptr_t)VMMR0_DO_NEM_RUN;
+                int rc = setjmp(pGVCpu->vmmr0.s.AssertJmpBuf.Core.JmpBuf);
+                if (rc == 0)
+                    rc = VBOXSTRICTRC_VAL(NEMR0RunGuestCode(pGVM, idCpu));
+                ASMSetFlags(pGVCpu->vmmr0.s.AssertJmpBuf.rflags);
+                pGVCpu->vmmr0.s.AssertJmpBuf.Core.s.rip = 0;
 
+                STAM_COUNTER_INC(&pGVM->vmm.s.StatRunGC);
                 pGVCpu->vmm.s.iLastGZRc = rc;
 
                 /*
@@ -2634,8 +2643,16 @@ VMMR0DECL(int) VMMR0EntryEx(PGVM pGVM, PVMCC pVM, VMCPUID idCpu, VMMR0OPERATION 
             pGVCpu->vmmr0.s.pReq         = pReq;
             pGVCpu->vmmr0.s.u64Arg       = u64Arg;
             pGVCpu->vmmr0.s.pSession     = pSession;
-            return vmmR0CallRing3SetJmpEx(&pGVCpu->vmmr0.s.AssertJmpBuf, vmmR0EntryExWrapper, pGVCpu,
-                                          ((uintptr_t)u64Arg << 16) | (uintptr_t)enmOperation);
+
+            /* (this used to be done by vmmR0CallRing3SetJmpEx) */
+            pGVCpu->vmmr0.s.AssertJmpBuf.rflags     = ASMGetFlags();
+            pGVCpu->vmmr0.s.AssertJmpBuf.uOperation = ((uintptr_t)u64Arg << 16) | (uintptr_t)enmOperation;
+            int rc = setjmp(pGVCpu->vmmr0.s.AssertJmpBuf.Core.JmpBuf);
+            if (rc == 0)
+                rc = vmmR0EntryExWrapper(pGVCpu);
+            ASMSetFlags(pGVCpu->vmmr0.s.AssertJmpBuf.rflags);
+            pGVCpu->vmmr0.s.AssertJmpBuf.Core.s.rip = 0;
+            return rc;
         }
         return VERR_VM_THREAD_NOT_EMT;
     }
@@ -2661,9 +2678,9 @@ VMMR0DECL(int) VMMR0EntryEx(PGVM pGVM, PVMCC pVM, VMCPUID idCpu, VMMR0OPERATION 
 VMMR0_INT_DECL(bool) VMMR0IsLongJumpArmed(PVMCPUCC pVCpu)
 {
 #ifdef RT_ARCH_X86
-    return pVCpu->vmmr0.s.AssertJmpBuf.eip != 0;
+    return pVCpu->vmmr0.s.AssertJmpBuf.Core.s.eip != 0;
 #else
-    return pVCpu->vmmr0.s.AssertJmpBuf.rip != 0;
+    return pVCpu->vmmr0.s.AssertJmpBuf.Core.s.rip != 0;
 #endif
 }
 
@@ -3791,9 +3808,9 @@ DECLEXPORT(bool) RTCALL RTAssertShouldPanic(void)
         if (pVCpu)
         {
 # ifdef RT_ARCH_X86
-            if (pVCpu->vmmr0.s.AssertJmpBuf.eip)
+            if (pVCpu->vmmr0.s.AssertJmpBuf.Core.s.eip)
 # else
-            if (pVCpu->vmmr0.s.AssertJmpBuf.rip)
+            if (pVCpu->vmmr0.s.AssertJmpBuf.Core.s.rip)
 # endif
             {
                 if (pVCpu->vmmr0.s.pfnAssertCallback)

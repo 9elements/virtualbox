@@ -1,4 +1,4 @@
-; $Id: VMMInternal.mac 112438 2026-01-13 09:00:11Z knut.osmundsen@oracle.com $
+; $Id: VMMInternal.mac 113650 2026-03-30 10:47:35Z knut.osmundsen@oracle.com $
 ;; @file
 ; VMM - Internal header file.
 ;
@@ -31,35 +31,39 @@
 
 struc VMMR0JMPBUF
         ;
-        ; traditional jmp_buf
+        ; Traditional jmp_buf - must match Runtime/common/misc/setjmp.asm and UCRT layout.
         ;
-%ifdef RT_ARCH_AMD64
-        .rbx                    resq 1
- %ifdef RT_OS_WINDOWS
-        .rsi                    resq 1
-        .rdi                    resq 1
- %endif
-        .rbp                    resq 1
-        .r12                    resq 1
-        .r13                    resq 1
-        .r14                    resq 1
-        .r15                    resq 1
-        .rsp                    resq 1
-        .rip                    resq 1
- %ifdef RT_OS_WINDOWS
-        .xmm6                   resq 2
-        .xmm7                   resq 2
-        .xmm8                   resq 2
-        .xmm9                   resq 2
-        .xmm10                  resq 2
-        .xmm11                  resq 2
-        .xmm12                  resq 2
-        .xmm13                  resq 2
-        .xmm14                  resq 2
-        .xmm15                  resq 2
- %endif
-        .rflags                 resq 1
+        .Core.s.uFrame          resq 1
+        .Core.s.rbx             resq 1
+        .Core.s.rsp             resq 1
+        .Core.s.rbp             resq 1
+%ifdef RT_OS_WINDOWS
+        .Core.s.rsi             resq 1
+        .Core.s.rdi             resq 1
 %endif
+        .Core.s.r12             resq 1
+        .Core.s.r13             resq 1
+        .Core.s.r14             resq 1
+        .Core.s.r15             resq 1
+        .Core.s.rip             resq 1
+%ifdef RT_OS_WINDOWS
+        .Core.s.uMxCsr          resd 1
+        .Core.s.uFcw            resw 1
+        .Core.s.uReserved       resw 1
+        .Core.s.xmm6            resq 2
+        .Core.s.xmm7            resq 2
+        .Core.s.xmm8            resq 2
+        .Core.s.xmm9            resq 2
+        .Core.s.xmm10           resq 2
+        .Core.s.xmm11           resq 2
+        .Core.s.xmm12           resq 2
+        .Core.s.xmm13           resq 2
+        .Core.s.xmm14           resq 2
+        .Core.s.xmm15           resq 2
+%endif
+
+        ; Extra stuff.
+        .rflags                 resq 1
 
         ;
         ; Additional state and stack info for unwinding.
@@ -74,9 +78,7 @@ struc VMMR0JMPBUF
         ;
         ; Info about what we were doing in case it's helpful.
         ;
-        .pfn                    RTR0PTR_RES 1
-        .pvUser1                RTR0PTR_RES 1
-        .pvUser2                RTR0PTR_RES 1
+        .uOperation             RTR0PTR_RES 1
 
         ;
         ; For mirroring the jump buffer and stack to ring-3 for unwinding and analysis.

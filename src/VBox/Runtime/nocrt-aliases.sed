@@ -1,4 +1,4 @@
-# $Id: nocrt-aliases.sed 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+# $Id: nocrt-aliases.sed 113650 2026-03-30 10:47:35Z knut.osmundsen@oracle.com $
 ## @file
 # SED script for generating input for genalias from C/C++ and ASM sources.
 #
@@ -34,6 +34,7 @@
 # SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 #
 
+/^ *RT_NOCRT_BEGINPROC.*no-alias/d
 s/^ *RT_NOCRT_BEGINPROC  *([a-zA-Z_][^ ;]*)([ ;].*|)$/\1=nocrt_\1 _\1=nocrt_\1 \\/p
 s/^ *RT_ALIAS_AND_EXPORT_NOCRT_SYMBOL\(([^;)]+)\);.*$/\1=nocrt_\1 _\1=nocrt_\1 \\/p
 s/^ *RT_ALIAS_AND_EXPORT_NOCRT_SYMBOL_WITHOUT_UNDERSCORE\(([^;)]+)\);.*$/\1=nocrt_\1 \\/p

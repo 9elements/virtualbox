@@ -1,4 +1,4 @@
-/* $Id: VMMInternal.h 112438 2026-01-13 09:00:11Z knut.osmundsen@oracle.com $ */
+/* $Id: VMMInternal.h 113650 2026-03-30 10:47:35Z knut.osmundsen@oracle.com $ */
 /** @file
  * VMM - Internal header file.
  */
@@ -158,34 +158,49 @@ typedef struct VMMR0JMPBUF *PVMMR0JMPBUF;
  */
 typedef struct VMMR0JMPBUF
 {
-    /** Traditional jmp_buf stuff
+    /** Traditional jmp_buf stuff - (must match Runtime/common/misc/setjmp.asm and UCRT layout).
      * @{ */
-    uint64_t                    rbx;
-#ifdef RT_OS_WINDOWS
-    uint64_t                    rsi;
-    uint64_t                    rdi;
+    union
+    {
+#ifdef IPRT_INCLUDED_nocrt_setjmp_h
+        RT_NOCRT(jmp_buf)               JmpBuf;
 #endif
-    uint64_t                    rbp;
-    uint64_t                    r12;
-    uint64_t                    r13;
-    uint64_t                    r14;
-    uint64_t                    r15;
-    uint64_t                    rsp;
-    uint64_t                    rip;
+        struct
+        {
+            uint64_t                    uFrame;
+            uint64_t                    rbx;
+            uint64_t                    rsp;
+            uint64_t                    rbp;
 #ifdef RT_OS_WINDOWS
-    uint128_t                   xmm6;
-    uint128_t                   xmm7;
-    uint128_t                   xmm8;
-    uint128_t                   xmm9;
-    uint128_t                   xmm10;
-    uint128_t                   xmm11;
-    uint128_t                   xmm12;
-    uint128_t                   xmm13;
-    uint128_t                   xmm14;
-    uint128_t                   xmm15;
+            uint64_t                    rsi;
+            uint64_t                    rdi;
 #endif
-    uint64_t                    rflags;
+            uint64_t                    r12;
+            uint64_t                    r13;
+            uint64_t                    r14;
+            uint64_t                    r15;
+            uint64_t                    rip;
+#ifdef RT_OS_WINDOWS
+            uint32_t                    uMxCsr;
+            uint16_t                    uFcw;
+            uint16_t                    uReserved;
+            uint128_t                   xmm6;
+            uint128_t                   xmm7;
+            uint128_t                   xmm8;
+            uint128_t                   xmm9;
+            uint128_t                   xmm10;
+            uint128_t                   xmm11;
+            uint128_t                   xmm12;
+            uint128_t                   xmm13;
+            uint128_t                   xmm14;
+            uint128_t                   xmm15;
+#endif
+        } s;
+    } Core;
     /** @} */
+
+    /** Extra stuff. */
+    uint64_t                    rflags;
 
     /** RSP/ESP at the time of the stack mirroring (what pvStackBuf starts with). */
     RTHCUINTREG                 UnwindSp;
@@ -195,17 +210,14 @@ typedef struct VMMR0JMPBUF
     RTHCUINTREG                 UnwindBp;
     /** RIP/EIP within vmmR0CallRing3LongJmp for assisting unwinding. */
     RTHCUINTREG                 UnwindPc;
-    /** Unwind: The vmmR0CallRing3SetJmp return address value. */
+    /** Unwind: The setjmp return address value. */
     RTHCUINTREG                 UnwindRetPcValue;
-    /** Unwind: The vmmR0CallRing3SetJmp return address stack location. */
+    /** Unwind: The setjmp return address stack location. */
     RTHCUINTREG                 UnwindRetPcLocation;
 
-    /** The function last being executed here. */
-    RTHCUINTREG                 pfn;
-    /** The first argument to the function. */
-    RTHCUINTREG                 pvUser1;
-    /** The second argument to the function. */
-    RTHCUINTREG                 pvUser2;
+    /** The last operation being executed here.
+     * The low 16 bits is the VMMR0OPERATION, the rest is u64Arg or zero.  */
+    uint64_t                    uOperation;
 
     /** Number of valid bytes in pvStackBuf.  */
     uint32_t                    cbStackValid;
@@ -647,81 +659,9 @@ void vmmR3SwitcherRelocate(PVM pVM, RTGCINTPTR offDelta);
 DECLASM(int)    vmmR0WorldSwitch(PVM pVM, unsigned uArg);
 
 /**
- * Callback function for vmmR0CallRing3SetJmp.
+ * Wrapper around longjmp() that saves the context & stack for ring-3 analysis.
  *
- * @returns VBox status code.
- * @param   pVM         The cross context VM structure.
- * @param   pVCpu       The cross context virtual CPU structure of the calling EMT.
- */
-typedef DECLCALLBACKTYPE(int, FNVMMR0SETJMP,(PVMCC pVM, PVMCPUCC pVCpu));
-/** Pointer to FNVMMR0SETJMP(). */
-typedef FNVMMR0SETJMP *PFNVMMR0SETJMP;
-
-/**
- * The setjmp variant used for calling Ring-3.
- *
- * This differs from the normal setjmp in that it will resume VMMRZCallRing3 if we're
- * in the middle of a ring-3 call. Another differences is the function pointer and
- * argument. This has to do with resuming code and the stack frame of the caller.
- *
- * @returns VINF_SUCCESS on success or whatever is passed to vmmR0CallRing3LongJmp.
- * @param   pJmpBuf     The jmp_buf to set.
- * @param   pfn         The function to be called when not resuming.
- * @param   pVM         The cross context VM structure.
- * @param   pVCpu       The cross context virtual CPU structure of the calling EMT.
- */
-DECLASM(int)    vmmR0CallRing3SetJmp(PVMMR0JMPBUF pJmpBuf, PFNVMMR0SETJMP pfn, PVM pVM, PVMCPU pVCpu);
-
-
-/**
- * Callback function for vmmR0CallRing3SetJmp2.
- *
- * @returns VBox status code.
- * @param   pGVM        The ring-0 VM structure.
- * @param   idCpu       The ID of the calling EMT.
- */
-typedef DECLCALLBACKTYPE(int, FNVMMR0SETJMP2,(PGVM pGVM, VMCPUID idCpu));
-/** Pointer to FNVMMR0SETJMP2(). */
-typedef FNVMMR0SETJMP2 *PFNVMMR0SETJMP2;
-
-/**
- * Same as vmmR0CallRing3SetJmp except for the function signature.
- *
- * @returns VINF_SUCCESS on success or whatever is passed to vmmR0CallRing3LongJmp.
- * @param   pJmpBuf     The jmp_buf to set.
- * @param   pfn         The function to be called when not resuming.
- * @param   pGVM        The ring-0 VM structure.
- * @param   idCpu       The ID of the calling EMT.
- */
-DECLASM(int)    vmmR0CallRing3SetJmp2(PVMMR0JMPBUF pJmpBuf, PFNVMMR0SETJMP2 pfn, PGVM pGVM, VMCPUID idCpu);
-
-
-/**
- * Callback function for vmmR0CallRing3SetJmpEx.
- *
- * @returns VBox status code.
- * @param   pvUser      The user argument.
- */
-typedef DECLCALLBACKTYPE(int, FNVMMR0SETJMPEX,(void *pvUser));
-/** Pointer to FNVMMR0SETJMPEX(). */
-typedef FNVMMR0SETJMPEX *PFNVMMR0SETJMPEX;
-
-/**
- * Same as vmmR0CallRing3SetJmp except for the function signature.
- *
- * @returns VINF_SUCCESS on success or whatever is passed to vmmR0CallRing3LongJmp.
- * @param   pJmpBuf     The jmp_buf to set.
- * @param   pfn         The function to be called when not resuming.
- * @param   pvUser      The argument of that function.
- * @param   uCallKey    Unused call parameter that should be used to help
- *                      uniquely identify the call.
- */
-DECLASM(int)    vmmR0CallRing3SetJmpEx(PVMMR0JMPBUF pJmpBuf, PFNVMMR0SETJMPEX pfn, void *pvUser, uintptr_t uCallKey);
-
-
-/**
- * Worker for VMMRZCallRing3.
- * This will save the stack and registers.
+ * This is only used by the assertion hooks.
  *
  * @returns rc.
  * @param   pJmpBuf     Pointer to the jump buffer.

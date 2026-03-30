@@ -1,4 +1,4 @@
-/* $Id: VMMR3GuruMeditation.cpp 112438 2026-01-13 09:00:11Z knut.osmundsen@oracle.com $ */
+/* $Id: VMMR3GuruMeditation.cpp 113650 2026-03-30 10:47:35Z knut.osmundsen@oracle.com $ */
 /** @file
  * VMM - The Virtual Machine Monitor, Guru Meditation Code.
  */
@@ -411,40 +411,53 @@ VMMR3DECL(void) VMMR3FatalDump(PVM pVM, PVMCPU pVCpu, int rcErr)
                                 pVCpu->vmm.s.AssertJmpBuf.UnwindRetPcValue,
                                 pVCpu->vmm.s.AssertJmpBuf.UnwindRetPcLocation);
                 pHlp->pfnPrintf(pHlp,
-                                "pfn=%RHv pvUser1=%RHv pvUser2=%RHv\n",
-                                pVCpu->vmm.s.AssertJmpBuf.pfn,
-                                pVCpu->vmm.s.AssertJmpBuf.pvUser1,
-                                pVCpu->vmm.s.AssertJmpBuf.pvUser2);
+                                "uOperation=%RHv\n", pVCpu->vmm.s.AssertJmpBuf.uOperation);
 
-                /* Dump the resume register frame on the stack. */
+                /* Dump the resume register frame on the stack (see VMMR0JmpA-amd64.asm). */
                 PRTHCUINTPTR const pBP = (PRTHCUINTPTR)&pVCpu->vmm.s.abAssertStack[  pVCpu->vmm.s.AssertJmpBuf.UnwindBp
                                                                                    - pVCpu->vmm.s.AssertJmpBuf.UnwindSp];
+                bool const fFullContext = (pVCpu->vmm.s.AssertJmpBuf.UnwindBp - pVCpu->vmm.s.AssertJmpBuf.UnwindSp) >= 16*8
+                                       && pBP[-9] == UINT32_C(0x0badf00d);
+
+                if (fFullContext)
+                    pHlp->pfnPrintf(pHlp,
+                                    "rax=%016RX64 rbx=%016RX64 rcx=%016RX64 rdx=%016RX64\n"
+                                    "rsi=%016RX64 rdi=%016RX64 r8 =%016RX64 r9 =%016RX64\n"
+                                    "r10=%016RX64 r11=%016RX64 r12=%016RX64 r13=%016RX64\n"
+                                    "r14=%016RX64 r15=%016RX64 rfl=%08RX64\n"
+                                    "rip=%016RX64 rsp=%016RX64 rbp=%016RX64\n",
+                                    pBP[-16], pBP[-5],  pBP[-15], pBP[-14],
+                                    pBP[-8],  pBP[-7],  pBP[-13], pBP[-12],
+                                    pBP[-11], pBP[-10], pBP[-4],  pBP[-3],
+                                    pBP[-2],  pBP[-1],  pBP[-6],
+                                    pBP[1], pVCpu->vmm.s.AssertJmpBuf.UnwindRetSp, pBP[0]);
+                else
 # ifdef RT_OS_WINDOWS
-                pHlp->pfnPrintf(pHlp,
-                                "rax=volatile         rbx=%016RX64 rcx=volatile         rdx=volatile\n"
-                                "rsi=%016RX64 rdi=%016RX64  r8=volatile          r9=volatile        \n"
-                                "r10=volatile         r11=volatile         r12=%016RX64 r13=%016RX64\n"
-                                "r14=%016RX64 r15=%016RX64\n"
-                                "rip=%016RX64 rsp=%016RX64 rbp=%016RX64 rfl=%08RX64\n"
-                                ,
-                                pBP[-7],
-                                pBP[-6], pBP[-5],
-                                pBP[-4], pBP[-3],
-                                pBP[-2], pBP[-1],
-                                pBP[1], pVCpu->vmm.s.AssertJmpBuf.UnwindRetSp, pBP[0], pBP[-8]);
+                    pHlp->pfnPrintf(pHlp,
+                                    "rax=volatile         rbx=%016RX64 rcx=volatile         rdx=volatile\n"
+                                    "rsi=%016RX64 rdi=%016RX64  r8=volatile          r9=volatile\n"
+                                    "r10=volatile         r11=volatile         r12=%016RX64 r13=%016RX64\n"
+                                    "r14=%016RX64 r15=%016RX64 rfl=%08RX64\n"
+                                    "rip=%016RX64 rsp=%016RX64 rbp=%016RX64\n",
+                                    pBP[-5],
+                                    pBP[-8], pBP[-7],
+                                    pBP[-4], pBP[-3],
+                                    pBP[-2], pBP[-1], pBP[-6],
+                                    pBP[1], pVCpu->vmm.s.AssertJmpBuf.UnwindRetSp, pBP[0]);
 # else
-                pHlp->pfnPrintf(pHlp,
-                                "rax=volatile         rbx=%016RX64 rcx=volatile         rdx=volatile\n"
-                                "rsi=volatile         rdi=volatile          r8=volatile          r9=volatile        \n"
-                                "r10=volatile         r11=volatile         r12=%016RX64 r13=%016RX64\n"
-                                "r14=%016RX64 r15=%016RX64\n"
-                                "rip=%016RX64 rsp=%016RX64 rbp=%016RX64 rflags=%08RX64\n"
-                                ,
-                                pBP[-5],
-                                pBP[-4], pBP[-3],
-                                pBP[-2], pBP[-1],
-                                pBP[1], pVCpu->vmm.s.AssertJmpBuf.UnwindRetSp, pBP[0], pBP[-6]);
+                    pHlp->pfnPrintf(pHlp,
+                                    "rax=volatile         rbx=%016RX64 rcx=volatile         rdx=volatile\n"
+                                    "rsi=volatile         rdi=volatile          r8=volatile          r9=volatile\n"
+                                    "r10=volatile         r11=volatile         r12=%016RX64 r13=%016RX64\n"
+                                    "r14=%016RX64 r15=%016RX64 rfl=%08RX64\n"
+                                    "rip=%016RX64 rsp=%016RX64 rbp=%016RX64\n"
+                                    ,
+                                    pBP[-5],
+                                    pBP[-4], pBP[-3],
+                                    pBP[-2], pBP[-1], pBP[-6],
+                                    pBP[1], pVCpu->vmm.s.AssertJmpBuf.UnwindRetSp, pBP[0]);
 # endif
+                /** @todo dump xmm regs. Can be found on raw stack dump, no hurry. */
 
                 /* Callstack. */
                 DBGFADDRESS AddrPc, AddrBp, AddrSp;

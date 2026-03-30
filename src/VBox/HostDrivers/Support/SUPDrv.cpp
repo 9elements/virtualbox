@@ -1,4 +1,4 @@
-/* $Id: SUPDrv.cpp 113644 2026-03-30 10:33:56Z knut.osmundsen@oracle.com $ */
+/* $Id: SUPDrv.cpp 113650 2026-03-30 10:47:35Z knut.osmundsen@oracle.com $ */
 /** @file
  * VBoxDrv - The VirtualBox Support Driver - Common code.
  */
@@ -40,6 +40,8 @@
 *********************************************************************************************************************************/
 #define LOG_GROUP LOG_GROUP_SUP_DRV
 #define SUPDRV_AGNOSTIC
+#define RtlUnwind RtlUnwind_Imported /* HACK: Avoid runtime initializers and take the RtlUnwind stub function address in table. */
+#define IoWithinStackLimits IoWithinStackLimits_Imported /* HACK: Ditto */
 #include "SUPDrvInternal.h"
 #ifndef PAGE_SHIFT
 # include <iprt/param.h>
@@ -113,6 +115,15 @@
 #   include <type_traits>
 #  endif
 # endif
+#endif
+
+#ifdef RT_OS_WINDOWS
+/* HACK: Avoid runtime initializers and take the RtlUnwind stub function address in table. */
+# undef RtlUnwind
+extern "C" void __stdcall RtlUnwind(void *, void*, void *, void *) RT_NOEXCEPT;
+/* HACK: Ditto IoWithinStackLimits (added windows 7) */
+# undef IoWithinStackLimits
+extern "C" uint8_t __stdcall IoWithinStackLimits(uintptr_t, size_t) RT_NOEXCEPT;
 #endif
 
 
@@ -596,6 +607,10 @@ static SUPFUNC g_aFunctions[] =
     SUPEXP_STK_OKAY(    2,  RTUuidCompare),
     SUPEXP_STK_OKAY(    2,  RTUuidCompareStr),
     SUPEXP_STK_OKAY(    2,  RTUuidFromStr),
+#ifdef RT_OS_WINDOWS
+    SUPEXP_STK_OKAY(    4,  RtlUnwind),             /* only-windows (hack for longjmp use in VMMR0) */
+    SUPEXP_STK_OKAY(    2,  IoWithinStackLimits),   /* only-windows (hack for longjmp use in VMMR0) */
+#endif
 /* SED: END */
 };
 

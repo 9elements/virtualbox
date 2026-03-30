@@ -1,4 +1,4 @@
-; $Id: VMMR0JmpA-amd64.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+; $Id: VMMR0JmpA-amd64.asm 113650 2026-03-30 10:47:35Z knut.osmundsen@oracle.com $
 ;; @file
 ; VMM - R0 SetJmp / LongJmp routines for AMD64.
 ;
@@ -33,137 +33,23 @@
 %include "VMMInternal.mac"
 %include "VBox/err.mac"
 %include "VBox/param.mac"
+%include "iprt/x86.mac"
 
+
+;*********************************************************************************************************************************
+;*  External Symbols                                                                                                             *
+;*********************************************************************************************************************************
+extern RT_NOCRT(longjmp)
+
+
+%ifdef RT_STRICT
+ %define INCLUDE_NON_VOLATILE_REGS
+%endif
 
 BEGINCODE
 
-;;
-; The setjmp variant used for calling Ring-3.
-;
-; This differs from the normal setjmp in that it will resume VMMRZCallRing3 if we're
-; in the middle of a ring-3 call. Another differences is the function pointer and
-; argument. This has to do with resuming code and the stack frame of the caller.
-;
-; @returns  VINF_SUCCESS on success or whatever is passed to vmmR0CallRing3LongJmp.
-; @param    pJmpBuf msc:rcx gcc:rdi x86:[esp+0x04]     Our jmp_buf.
-; @param    pfn     msc:rdx gcc:rsi x86:[esp+0x08]     The function to be called when not resuming.
-; @param    pvUser1 msc:r8  gcc:rdx x86:[esp+0x0c]     The argument of that function.
-; @param    pvUser2 msc:r9  gcc:rcx x86:[esp+0x10]     The argument of that function.
-;
-GLOBALNAME vmmR0CallRing3SetJmp2
-GLOBALNAME vmmR0CallRing3SetJmpEx
-BEGINPROC vmmR0CallRing3SetJmp
-    ;
-    ; Save the registers.
-    ;
-    push    rbp
-    SEH64_PUSH_xBP
-    mov     rbp, rsp
-    SEH64_SET_FRAME_xBP 0
- %ifdef ASM_CALL64_MSC
-    sub     rsp, 30h                    ; (10h is used by resume (??), 20h for callee spill area)
-    SEH64_ALLOCATE_STACK 30h
-SEH64_END_PROLOGUE
-    mov     r11, rdx                    ; pfn
-    mov     rdx, rcx                    ; pJmpBuf;
- %else
-    sub     rsp, 10h                    ; (10h is used by resume (??))
-    SEH64_ALLOCATE_STACK 10h
-SEH64_END_PROLOGUE
-    mov     r8, rdx                     ; pvUser1 (save it like MSC)
-    mov     r9, rcx                     ; pvUser2 (save it like MSC)
-    mov     r11, rsi                    ; pfn
-    mov     rdx, rdi                    ; pJmpBuf
- %endif
-    mov     [xDX + VMMR0JMPBUF.rbx], rbx
- %ifdef ASM_CALL64_MSC
-    mov     [xDX + VMMR0JMPBUF.rsi], rsi
-    mov     [xDX + VMMR0JMPBUF.rdi], rdi
- %endif
-    mov     [xDX + VMMR0JMPBUF.rbp], rbp
-    mov     [xDX + VMMR0JMPBUF.r12], r12
-    mov     [xDX + VMMR0JMPBUF.r13], r13
-    mov     [xDX + VMMR0JMPBUF.r14], r14
-    mov     [xDX + VMMR0JMPBUF.r15], r15
-    mov     xAX, [rbp + 8]              ; (not really necessary, except for validity check)
-    mov     [xDX + VMMR0JMPBUF.rip], xAX
- %ifdef ASM_CALL64_MSC
-    lea     r10, [rsp + 20h]            ; Must skip the callee spill area.
- %else
-    mov     r10, rsp
- %endif
-    mov     [xDX + VMMR0JMPBUF.rsp], r10
- %ifdef RT_OS_WINDOWS
-    movdqa  [xDX + VMMR0JMPBUF.xmm6], xmm6
-    movdqa  [xDX + VMMR0JMPBUF.xmm7], xmm7
-    movdqa  [xDX + VMMR0JMPBUF.xmm8], xmm8
-    movdqa  [xDX + VMMR0JMPBUF.xmm9], xmm9
-    movdqa  [xDX + VMMR0JMPBUF.xmm10], xmm10
-    movdqa  [xDX + VMMR0JMPBUF.xmm11], xmm11
-    movdqa  [xDX + VMMR0JMPBUF.xmm12], xmm12
-    movdqa  [xDX + VMMR0JMPBUF.xmm13], xmm13
-    movdqa  [xDX + VMMR0JMPBUF.xmm14], xmm14
-    movdqa  [xDX + VMMR0JMPBUF.xmm15], xmm15
- %endif
-    pushf
-    pop     xAX
-    mov     [xDX + VMMR0JMPBUF.rflags], xAX
-
-    ;
-    ; Save the call then make it.
-    ;
-    mov     [xDX + VMMR0JMPBUF.pfn], r11
-    mov     [xDX + VMMR0JMPBUF.pvUser1], r8
-    mov     [xDX + VMMR0JMPBUF.pvUser2], r9
-
-    mov     r12, rdx                    ; Save pJmpBuf.
- %ifdef ASM_CALL64_MSC
-    mov     rcx, r8                     ; pvUser -> arg0
-    mov     rdx, r9
- %else
-    mov     rdi, r8                     ; pvUser -> arg0
-    mov     rsi, r9
- %endif
-    call    r11
-    mov     rdx, r12                    ; Restore pJmpBuf
-
-    ;
-    ; Return like in the long jump but clear eip, no shortcuts here.
-    ;
-.proper_return:
-%ifdef RT_OS_WINDOWS
-    movdqa  xmm6,  [xDX + VMMR0JMPBUF.xmm6 ]
-    movdqa  xmm7,  [xDX + VMMR0JMPBUF.xmm7 ]
-    movdqa  xmm8,  [xDX + VMMR0JMPBUF.xmm8 ]
-    movdqa  xmm9,  [xDX + VMMR0JMPBUF.xmm9 ]
-    movdqa  xmm10, [xDX + VMMR0JMPBUF.xmm10]
-    movdqa  xmm11, [xDX + VMMR0JMPBUF.xmm11]
-    movdqa  xmm12, [xDX + VMMR0JMPBUF.xmm12]
-    movdqa  xmm13, [xDX + VMMR0JMPBUF.xmm13]
-    movdqa  xmm14, [xDX + VMMR0JMPBUF.xmm14]
-    movdqa  xmm15, [xDX + VMMR0JMPBUF.xmm15]
-%endif
-    mov     rbx, [xDX + VMMR0JMPBUF.rbx]
-%ifdef ASM_CALL64_MSC
-    mov     rsi, [xDX + VMMR0JMPBUF.rsi]
-    mov     rdi, [xDX + VMMR0JMPBUF.rdi]
-%endif
-    mov     r12, [xDX + VMMR0JMPBUF.r12]
-    mov     r13, [xDX + VMMR0JMPBUF.r13]
-    mov     r14, [xDX + VMMR0JMPBUF.r14]
-    mov     r15, [xDX + VMMR0JMPBUF.r15]
-    mov     rbp, [xDX + VMMR0JMPBUF.rbp]
-    and     qword [xDX + VMMR0JMPBUF.rip], byte 0 ; used for valid check.
-    mov     rsp, [xDX + VMMR0JMPBUF.rsp]
-    push    qword [xDX + VMMR0JMPBUF.rflags]
-    popf
-    leave
-    ret
-ENDPROC vmmR0CallRing3SetJmp
-
 
 ;;
-; Worker for VMMRZCallRing3.
 ; This will save the stack and registers.
 ;
 ; @param    pJmpBuf msc:rcx gcc:rdi x86:[ebp+8]     Pointer to the jump buffer.
@@ -171,43 +57,78 @@ ENDPROC vmmR0CallRing3SetJmp
 ;
 BEGINPROC vmmR0CallRing3LongJmp
     ;
-    ; Save the registers on the stack.
+    ; Save the registers on the stack (benefits ring-3 analysis).
     ;
-    push    rbp
+    push    rbp                             ; paBP[0]
     SEH64_PUSH_xBP
     mov     rbp, rsp
-    SEH64_SET_FRAME_xBP 0
-    push    r15
+    ;SEH64_SET_FRAME_xBP 0 - Do NOT include this (unnecessary). No initial RBP in the guru stack walking code, so we end up with
+    ;                        RBP=0 afterwards, which isn't very useful...
+    push    r15                             ; paBP[-1]
     SEH64_PUSH_GREG r15
-    push    r14
+    push    r14                             ; paBP[-2]
     SEH64_PUSH_GREG r14
-    push    r13
+    push    r13                             ; paBP[-3]
     SEH64_PUSH_GREG r13
-    push    r12
+    push    r12                             ; paBP[-4]
     SEH64_PUSH_GREG r12
+    push    rbx                             ; paBP[-5]
+    SEH64_PUSH_GREG rbx
+    pushf                                   ; paBP[-6]
+    SEH64_ALLOCATE_STACK 8
 %ifdef ASM_CALL64_MSC
+    push    rdi                             ; paBP[-7]
+    SEH64_PUSH_GREG rdi
+    push    rsi                             ; paBP[-8]
+    SEH64_PUSH_GREG rsi
+%endif
+%ifdef INCLUDE_NON_VOLATILE_REGS
+ %ifndef ASM_CALL64_MSC
     push    rdi
     SEH64_PUSH_GREG rdi
     push    rsi
     SEH64_PUSH_GREG rsi
-%endif
-    push    rbx
-    SEH64_PUSH_GREG rbx
-    pushf
+ %endif
+    push    0x0badf00d                      ; paBP[-9] (magic)
     SEH64_ALLOCATE_STACK 8
-%ifdef RT_OS_WINDOWS
+    push    r11                             ; paBP[-10]
+    SEH64_PUSH_GREG r11
+    push    r10                             ; paBP[-11]
+    SEH64_PUSH_GREG r10
+    push    r9                              ; paBP[-12]
+    SEH64_PUSH_GREG r9
+    push    r8                              ; paBP[-13]
+    SEH64_PUSH_GREG r8
+    push    rdx                             ; paBP[-14]
+    SEH64_PUSH_GREG rdx
+    push    rcx                             ; paBP[-15]
+    SEH64_PUSH_GREG rcx
+    push    rax                             ; paBP[-16]
+    SEH64_PUSH_GREG rax
+%endif
+%ifdef ASM_CALL64_MSC
     sub     rsp, 0a0h
     SEH64_ALLOCATE_STACK 0a0h
     movdqa  [rsp + 000h], xmm6
+    SEH64_SAVE_XMM128 xmm6, 00h
     movdqa  [rsp + 010h], xmm7
+    SEH64_SAVE_XMM128 xmm7, 10h
     movdqa  [rsp + 020h], xmm8
+    SEH64_SAVE_XMM128 xmm8, 20h
     movdqa  [rsp + 030h], xmm9
+    SEH64_SAVE_XMM128 xmm9, 30h
     movdqa  [rsp + 040h], xmm10
+    SEH64_SAVE_XMM128 xmm10, 40h
     movdqa  [rsp + 050h], xmm11
+    SEH64_SAVE_XMM128 xmm11, 50h
     movdqa  [rsp + 060h], xmm12
+    SEH64_SAVE_XMM128 xmm12, 60h
     movdqa  [rsp + 070h], xmm13
+    SEH64_SAVE_XMM128 xmm13, 70h
     movdqa  [rsp + 080h], xmm14
+    SEH64_SAVE_XMM128 xmm14, 80h
     movdqa  [rsp + 090h], xmm15
+    SEH64_SAVE_XMM128 xmm15, 90h
 %endif
 SEH64_END_PROLOGUE
 
@@ -225,7 +146,7 @@ SEH64_END_PROLOGUE
     ;
     ; Is the jump buffer armed?
     ;
-    cmp     qword [xDX + VMMR0JMPBUF.rip], byte 0
+    cmp     qword [xDX + VMMR0JMPBUF.Core.s.rip], byte 0
     je      .nok
 
     ;
@@ -233,18 +154,18 @@ SEH64_END_PROLOGUE
     ; on so the stack mirroring below doesn't go wild.
     ;
     mov     rsi, rsp
-    mov     rcx, [xDX + VMMR0JMPBUF.rsp]
+    mov     rcx, [xDX + VMMR0JMPBUF.Core.s.rsp]
     sub     rcx, rsi
     cmp     rcx, _64K
     jnbe    .nok
 
     ;
-    ; Save a PC and return PC here to assist unwinding.
+    ; Save a PC and return PC here to assist unwinding in the debugger.
     ;
 .unwind_point:
     lea     rcx, [.unwind_point wrt RIP]
     mov     [xDX + VMMR0JMPBUF.UnwindPc], rcx
-    mov     rcx, [xDX + VMMR0JMPBUF.rbp]
+    mov     rcx, [xDX + VMMR0JMPBUF.Core.s.rbp]
     lea     rcx, [rcx + 8]
     mov     [xDX + VMMR0JMPBUF.UnwindRetPcLocation], rcx
     mov     rcx, [rcx]
@@ -254,7 +175,7 @@ SEH64_END_PROLOGUE
     mov     [xDX + VMMR0JMPBUF.UnwindSp], rsp
     mov     rcx, rbp
     mov     [xDX + VMMR0JMPBUF.UnwindBp], rcx
-    sub     rcx, 8
+    sub     rcx, 8                   ; ??  maybe 16?
     mov     [xDX + VMMR0JMPBUF.UnwindRetSp], rcx
 
     ;
@@ -275,9 +196,9 @@ SEH64_END_PROLOGUE
     or      ebx, ebx
     jz      .skip_stack_mirroring
 
-    mov     rcx, [xDX + VMMR0JMPBUF.rsp]
+    mov     rcx, [xDX + VMMR0JMPBUF.Core.s.rsp]
+    or      rcx, X86_PAGE_OFFSET_MASK   ; copy up to the page boundrary if possible
     sub     rcx, rsp
-    and     rcx, ~0fffh                 ; copy up to the page boundrary
 
     cmp     rcx, rbx                    ; rbx = rcx = RT_MIN(rbx, rcx);
     jbe     .do_stack_buffer_big_enough
@@ -305,43 +226,44 @@ SEH64_END_PROLOGUE
 .skip_buffer_mirroring:
 
     ;
-    ; Do the long jump.
+    ; Call the actual long jump code.
     ;
-%ifdef RT_OS_WINDOWS
-    movdqa  xmm6,  [xDX + VMMR0JMPBUF.xmm6 ]
-    movdqa  xmm7,  [xDX + VMMR0JMPBUF.xmm7 ]
-    movdqa  xmm8,  [xDX + VMMR0JMPBUF.xmm8 ]
-    movdqa  xmm9,  [xDX + VMMR0JMPBUF.xmm9 ]
-    movdqa  xmm10, [xDX + VMMR0JMPBUF.xmm10]
-    movdqa  xmm11, [xDX + VMMR0JMPBUF.xmm11]
-    movdqa  xmm12, [xDX + VMMR0JMPBUF.xmm12]
-    movdqa  xmm13, [xDX + VMMR0JMPBUF.xmm13]
-    movdqa  xmm14, [xDX + VMMR0JMPBUF.xmm14]
-    movdqa  xmm15, [xDX + VMMR0JMPBUF.xmm15]
-%endif
-    mov     rbx, [xDX + VMMR0JMPBUF.rbx]
 %ifdef ASM_CALL64_MSC
-    mov     rsi, [xDX + VMMR0JMPBUF.rsi]
-    mov     rdi, [xDX + VMMR0JMPBUF.rdi]
+    mov     rcx, rdx                        ; Parameter 0 - jmp_buf pointer.
+    mov     rdx, rax                        ; Parameter 1 - return code.
+%else
+    mov     rdi, rdx                        ; Parameter 0 - jmp_buf pointer.
+    mov     rsi, rax                        ; Parameter 1 - return code.
 %endif
-    mov     r12, [xDX + VMMR0JMPBUF.r12]
-    mov     r13, [xDX + VMMR0JMPBUF.r13]
-    mov     r14, [xDX + VMMR0JMPBUF.r14]
-    mov     r15, [xDX + VMMR0JMPBUF.r15]
-    mov     rbp, [xDX + VMMR0JMPBUF.rbp]
-    mov     rsp, [xDX + VMMR0JMPBUF.rsp]
-    push    qword [xDX + VMMR0JMPBUF.rflags]
-    popf
-    leave
-    ret
+%ifdef RT_STRICT
+    test    rsp, 15
+    jz      .the_stack_is_aligned
+    int3
+.the_stack_is_aligned:
+%endif
+%ifdef VBOX_WITH_VBOXR0_AS_DLL
+    call    RT_NOCRT(longjmp) wrt ..plt
+%else
+    call    RT_NOCRT(longjmp)
+%endif
+
+.unexpected_return_loop:
+    int3
+    jmp     .unexpected_return_loop
 
     ;
     ; Failure
     ;
 .nok:
     mov     eax, VERR_VMM_LONG_JMP_ERROR
-%ifdef RT_OS_WINDOWS
+%ifdef ASM_CALL64_MSC
+ %ifdef INCLUDE_NON_VOLATILE_REGS
+    add     rsp, 0a0h + ((1+7)*8)       ; skip XMM registers since they are unmodified, alignment and the volatile registers.
+ %else
     add     rsp, 0a0h                   ; skip XMM registers since they are unmodified.
+ %endif
+%elifdef INCLUDE_NON_VOLATILE_REGS
+    add     rsp, ((1+9)*8)              ; alignment and the volatile registers.
 %endif
     popf
     pop     rbx
