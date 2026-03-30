@@ -1,4 +1,4 @@
-/* $Id: RecordingStream.h 113625 2026-03-27 13:46:36Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingStream.h 113683 2026-03-30 13:57:36Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording stream code header.
  */
@@ -98,6 +98,10 @@ public:
     int Stop(void);
 
     const ComPtr<IRecordingScreenSettings> &GetSettings(void) const;
+
+    int SetVideoOutputTargetDesc(PDMDISPLAYOUTPUTTARGETDESC const *pDesc);
+    PDMDISPLAYOUTPUTTARGETDESC const * GetVideoOutputTargetDesc(void);
+
     uint16_t GetID(void) const { return this->m_uScreenID; };
 #ifdef VBOX_WITH_AUDIO_RECORDING
     PRECORDINGCODEC GetAudioCodec(void) { return this->m_pCodecAudio; };
@@ -293,6 +297,11 @@ protected:
         /** Current surface screen info being used.
          *  Can be changed by a SendScreenChange() call. */
         RECORDINGSURFACEINFO ScreenInfo;
+        /** The current output target description to use.
+         * Currently only being used if Guest Additions with enabled 3D support are installed.
+         * Set by Main / DisplayImpl. See @bugref{9297}. */
+        PDMDISPLAYOUTPUTTARGETDESC
+                             OutputTargetDesc;
 #ifdef VBOX_WITH_RECORDING_STATS
         /** Internal, non-STAM video stats. */
         struct

@@ -1,4 +1,4 @@
-/* $Id: RecordingContext.cpp 113625 2026-03-27 13:46:36Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingContext.cpp 113683 2026-03-30 13:57:36Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording context code.
  */
@@ -289,6 +289,9 @@ protected:
     int writeCommonData(PRECORDINGCODEC pCodec, const void *pvData, size_t cbData, uint64_t msTimestamp, uint32_t uFlags);
 
     void updateInternal(void);
+
+    int SetVideoOutputTargetDesc(uint32_t idScreen, PDMDISPLAYOUTPUTTARGETDESC const *pDesc);
+    PDMDISPLAYOUTPUTTARGETDESC const * GetVideoOutputTargetDesc(uint32_t idScreen) const;
 
 protected:
 
@@ -613,6 +616,39 @@ int RecordingContextImpl::progressNotifyComplete(HRESULT hrc /* = S_OK */, IVirt
     }
 
     return VINF_SUCCESS;
+}
+
+/**
+ * Sets the output target description for a given stream.
+ *
+ * @returns VBox status code.
+ * @param   idScreen            Screen ID to set output target description for.
+ * @param   pDesc               Output target description to set.
+ */
+int RecordingContextImpl::SetVideoOutputTargetDesc(uint32_t idScreen, PDMDISPLAYOUTPUTTARGETDESC const *pDesc)
+{
+    Assert(idScreen == pDesc->idScreen);
+
+    RecordingStream *pStream = getStreamInternal(idScreen);
+    if (pStream)
+        return pStream->SetVideoOutputTargetDesc(pDesc);
+
+    return VERR_INVALID_PARAMETER;
+}
+
+/**
+ * Returns the current output target description for a given stream.
+ *
+ * @returns Current output target description.
+ * @param   idScreen            Screen ID to get output target description for.
+ */
+PDMDISPLAYOUTPUTTARGETDESC const * RecordingContextImpl::GetVideoOutputTargetDesc(uint32_t idScreen) const
+{
+    RecordingStream *pStream = getStreamInternal(idScreen);
+    if (pStream)
+        return pStream->GetVideoOutputTargetDesc();
+
+    AssertFailedReturn(NULL);
 }
 
 /**
@@ -1524,7 +1560,7 @@ const ComPtr<IRecordingSettings> &RecordingContext::GetSettings(void) const
  * @returns Recording stream for a specific screen, or NULL if not found.
  * @param   uScreen             Screen ID to retrieve recording stream for.
  */
-RecordingStream *RecordingContextImpl::getStreamInternal(unsigned uScreen) const
+inline RecordingStream *RecordingContextImpl::getStreamInternal(unsigned uScreen) const
 {
     RecordingStream *pStream;
 
@@ -2117,6 +2153,29 @@ int RecordingContext::SendScreenChange(uint32_t uScreen, uint32_t uWidth, uint32
         m->threadNotify();
 
     return vrc;
+}
+
+/**
+ * Sets the output target description for a given stream.
+ *
+ * @returns VBox status code.
+ * @param   idScreen            Screen ID to set output target description for.
+ * @param   pDesc               Output target description to set.
+ */
+int RecordingContext::SetVideoOutputTargetDesc(uint32_t idScreen, PDMDISPLAYOUTPUTTARGETDESC const *pDesc)
+{
+    return m->SetVideoOutputTargetDesc(idScreen, pDesc);
+}
+
+/**
+ * Returns the current output target description for a given stream.
+ *
+ * @returns Current output target description.
+ * @param   idScreen            Screen ID to get output target description for.
+ */
+PDMDISPLAYOUTPUTTARGETDESC const * RecordingContext::GetVideoOutputTargetDesc(uint32_t idScreen) const
+{
+    return m->GetVideoOutputTargetDesc(idScreen);
 }
 
 /**

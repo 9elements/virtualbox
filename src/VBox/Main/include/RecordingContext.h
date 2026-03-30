@@ -1,4 +1,4 @@
-/* $Id: RecordingContext.h 113625 2026-03-27 13:46:36Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingContext.h 113683 2026-03-30 13:57:36Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording code header. Used by VBoxSVC + VBoxC.
  *
@@ -39,6 +39,7 @@
 #include <iprt/types.h>
 
 #include <VBox/err.h>
+#include <VBox/vmm/pdmifs.h>
 
 #include "VirtualBoxBase.h"
 
@@ -145,6 +146,11 @@ public:
     int SendCursorPositionChange(uint32_t uScreen, int32_t x, int32_t y, uint64_t msTimestamp);
     int SendCursorShapeChange(bool fVisible, bool fAlpha, uint32_t xHot, uint32_t yHot, uint32_t uWidth, uint32_t uHeight, const uint8_t *pu8Shape, size_t cbShape, uint64_t msTimestamp);
     int SendScreenChange(uint32_t uScreen, uint32_t uWidth, uint32_t uHeight, uint8_t uBPP, uint32_t uBytesPerLine, uint64_t uTimestampMs);
+
+public:
+
+    int SetVideoOutputTargetDesc(uint32_t idScreen, PDMDISPLAYOUTPUTTARGETDESC const *pDesc);
+    PDMDISPLAYOUTPUTTARGETDESC const * GetVideoOutputTargetDesc(uint32_t idScreen) const;
 
 public:
 

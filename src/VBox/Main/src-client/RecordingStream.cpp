@@ -1,4 +1,4 @@
-/* $Id: RecordingStream.cpp 113625 2026-03-27 13:46:36Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingStream.cpp 113683 2026-03-30 13:57:36Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording stream code.
  */
@@ -263,6 +263,38 @@ int RecordingStream::open(const ComPtr<IRecordingScreenSettings> &ScreenSettings
 const ComPtr<IRecordingScreenSettings> &RecordingStream::GetSettings(void) const
 {
     return m_Settings;
+}
+
+/**
+ * Sets the video output target description.
+ *
+ * @returns VBox status code.
+ * @param   pDesc               Video output target description to set.
+ */
+int RecordingStream::SetVideoOutputTargetDesc(PDMDISPLAYOUTPUTTARGETDESC const *pDesc)
+{
+    AssertReturn(pDesc->idScreen == m_uScreenID, VERR_INVALID_PARAMETER);
+
+    if (pDesc)
+    {
+        LogRel2(("Recording: Got output target description for screen #%RU32: %RU32x%RU32 (format %#x)\n",
+                 pDesc->idScreen, pDesc->cWidth, pDesc->cHeight, pDesc->enmFormat));
+        m_Video.OutputTargetDesc = *pDesc;
+    }
+    else
+        RT_ZERO(m_Video.OutputTargetDesc);
+
+    return VINF_SUCCESS;
+}
+
+/**
+ * Returns the current video output target description.
+ *
+ * @return  Current video output target description.
+ */
+PDMDISPLAYOUTPUTTARGETDESC const * RecordingStream::GetVideoOutputTargetDesc(void)
+{
+    return &m_Video.OutputTargetDesc;
 }
 
 /**
@@ -1439,11 +1471,6 @@ int RecordingStream::initCommon(RecordingContext *pCtx, uint32_t uScreen,
 
     m_Settings = ScreenSettings;
 
-    RT_ZERO(m_Video.ScreenInfo);
-#ifdef VBOX_WITH_RECORDING_STATS
-    RT_ZERO(m_Video.Stats);
-#endif
-
     /*
      * Populate cached settings.
      */
@@ -1847,6 +1874,12 @@ int RecordingStream::InitVideo(const ComPtr<IRecordingScreenSettings> &ScreenSet
 {
     if (!IsFeatureEnabled(RecordingFeature_Video))
         return VINF_SUCCESS;
+
+    RT_ZERO(m_Video.ScreenInfo);
+    RT_ZERO(m_Video.OutputTargetDesc);
+#ifdef VBOX_WITH_RECORDING_STATS
+    RT_ZERO(m_Video.Stats);
+#endif
 
     RecordingVideoFrameDestroy(&m_CodecInputFrame);
 

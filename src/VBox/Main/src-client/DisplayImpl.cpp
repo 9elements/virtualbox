@@ -1,4 +1,4 @@
-/* $Id: DisplayImpl.cpp 113463 2026-03-19 11:12:24Z vitali.pelenjow@oracle.com $ */
+/* $Id: DisplayImpl.cpp 113683 2026-03-30 13:57:36Z andreas.loeffler@oracle.com $ */
 /** @file
  * VirtualBox COM class implementation
  */
@@ -57,6 +57,7 @@
 
 #ifdef VBOX_WITH_RECORDING
 # include "RecordingContext.h"
+# include "RecordingStream.h"
 #endif
 
 /**
@@ -2193,6 +2194,47 @@ int Display::i_recordingScreenChanged(unsigned uScreenId, const DISPLAYFBINFO *p
                                      tsNowMs);
     if (RT_SUCCESS(vrc))
     {
+        /** @todo Have a registry of output targets which are in use. */
+        /* Release old target token if there was one before. */
+        if (Recording.au64VideoOutputTargetToken[uScreenId])
+        {
+            pCtx->SetVideoOutputTargetDesc(uScreenId, NULL);
+            mpDrv->pUpPort->pfnReleaseOutputTarget(mpDrv->pUpPort, Recording.au64VideoOutputTargetToken[uScreenId]);
+        }
+
+        mpDrv->pUpPort->pfnGetUniqueOutputTargetToken(mpDrv->pUpPort, &Recording.au64VideoOutputTargetToken[uScreenId]);
+
+        RecordingStream *pStream = pCtx->GetStream(uScreenId);
+        if (pStream)
+        {
+            const ComPtr<IRecordingScreenSettings> ScreenSettings = pStream->GetSettings();
+            if (ScreenSettings.isNotNull())
+            {
+                ULONG ulVideoWidth;
+                ULONG uLVideoHeight;
+
+                HRESULT hrc2 = ScreenSettings->COMGETTER(VideoWidth)(&ulVideoWidth);
+                if (SUCCEEDED(hrc2))
+                    hrc2 = ScreenSettings->COMGETTER(VideoHeight)(&uLVideoHeight);
+
+                /* Send asynchronous request to the graphics device to create a new ouput target.
+                 * For recording the output size must match the recording target resolution.
+                 * Failure is not a problem. Just continue using RGBA.
+                 */
+                if (SUCCEEDED(hrc2))
+                {
+                    /** @todo Is this necessary for every screen change? This should be consistent across a recording session. */
+                    int vrc2 = mpDrv->pUpPort->pfnCreateOutputTargetAsync(mpDrv->pUpPort, uScreenId,
+                                                                          PDMDISPLAYOUTPUTTARGETFORMAT_I420,
+                                                                          ulVideoWidth, uLVideoHeight,
+                                                                          PDM_DISPLAY_OUTPUT_TARGET_FIXED_SIZE,
+                                                                          Recording.au64VideoOutputTargetToken[uScreenId]);
+                    if (RT_FAILURE(vrc2))
+                        Recording.au64VideoOutputTargetToken[uScreenId] = 0;
+                }
+            }
+        }
+
         /* Make sure that we get the latest mouse pointer shape required for recording. */
         MousePointerData pointerData;
         mParent->i_getMouse()->i_getPointerShape(pointerData);
@@ -3267,14 +3309,42 @@ DECLCALLBACK(int) Display::i_display3DNotifyProcess(PPDMIDISPLAYCONNECTOR pInter
     return pDrv->pDisplay->i_handle3DNotifyProcess(p3DNotify);
 }
 
-void Display::i_handleOnOutputTargetCreated(uint32_t uScreenId, uint64_t u64OutputTargetToken, int vrcCreated)
+void Display::i_handleOnOutputTargetCreated(uint32_t idSreen, uint64_t u64OutputTargetToken, int vrcCreated)
 {
-    RT_NOREF(uScreenId, u64OutputTargetToken, vrcCreated);
+#ifdef VBOX_WITH_RECORDING
+    Assert(Recording.au64VideoOutputTargetToken[idSreen] == u64OutputTargetToken); RT_NOREF(idSreen);
+
+    if (RT_SUCCESS(vrcCreated))
+    {
+        PDMDISPLAYOUTPUTTARGETDESC desc;
+        int vrc = mpDrv->pUpPort->pfnOutputTargetDesc(mpDrv->pUpPort, u64OutputTargetToken, &desc);
+        if (RT_SUCCESS(vrc))
+        {
+            if (Recording.pCtx)
+                Recording.pCtx->SetVideoOutputTargetDesc(idSreen, &desc);
+            else
+                vrc = VERR_INVALID_STATE;
+        }
+
+        if (RT_FAILURE(vrc))
+            mpDrv->pUpPort->pfnReleaseOutputTarget(mpDrv->pUpPort, u64OutputTargetToken);
+    }
+#else
+    RT_NOREF(idSreen, u64OutputTargetToken, vrcCreated);
+#endif
 }
 
-void Display::i_handleOnOutputTargetRetired(uint32_t uScreenId, uint64_t u64OutputTargetToken)
+void Display::i_handleOnOutputTargetRetired(uint32_t idScreen, uint64_t u64OutputTargetToken)
 {
-    RT_NOREF(uScreenId, u64OutputTargetToken);
+#ifdef VBOX_WITH_RECORDING
+    Assert(Recording.au64VideoOutputTargetToken[idScreen] == u64OutputTargetToken);
+
+    mpDrv->pUpPort->pfnReleaseOutputTarget(mpDrv->pUpPort, u64OutputTargetToken);
+    Recording.au64VideoOutputTargetToken[idScreen] = 0;
+    Recording.pCtx->SetVideoOutputTargetDesc(idScreen, NULL);
+#else
+    RT_NOREF(idScreen, u64OutputTargetToken);
+#endif
 }
 
 DECLCALLBACK(void) Display::i_displayOnOutputTargetCreated(PPDMIDISPLAYCONNECTOR pInterface,
