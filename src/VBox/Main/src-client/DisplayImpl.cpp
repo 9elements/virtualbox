@@ -1,4 +1,4 @@
-/* $Id: DisplayImpl.cpp 113683 2026-03-30 13:57:36Z andreas.loeffler@oracle.com $ */
+/* $Id: DisplayImpl.cpp 113684 2026-03-30 14:10:26Z andreas.loeffler@oracle.com $ */
 /** @file
  * VirtualBox COM class implementation
  */
@@ -2210,12 +2210,12 @@ int Display::i_recordingScreenChanged(unsigned uScreenId, const DISPLAYFBINFO *p
             const ComPtr<IRecordingScreenSettings> ScreenSettings = pStream->GetSettings();
             if (ScreenSettings.isNotNull())
             {
-                ULONG ulVideoWidth;
-                ULONG uLVideoHeight;
+                ULONG ulVideoWidth  = 0; /* Shut up MSVC. */
+                ULONG ulVideoHeight = 0; /* Ditto. */
 
                 HRESULT hrc2 = ScreenSettings->COMGETTER(VideoWidth)(&ulVideoWidth);
                 if (SUCCEEDED(hrc2))
-                    hrc2 = ScreenSettings->COMGETTER(VideoHeight)(&uLVideoHeight);
+                    hrc2 = ScreenSettings->COMGETTER(VideoHeight)(&ulVideoHeight);
 
                 /* Send asynchronous request to the graphics device to create a new ouput target.
                  * For recording the output size must match the recording target resolution.
@@ -2226,7 +2226,7 @@ int Display::i_recordingScreenChanged(unsigned uScreenId, const DISPLAYFBINFO *p
                     /** @todo Is this necessary for every screen change? This should be consistent across a recording session. */
                     int vrc2 = mpDrv->pUpPort->pfnCreateOutputTargetAsync(mpDrv->pUpPort, uScreenId,
                                                                           PDMDISPLAYOUTPUTTARGETFORMAT_I420,
-                                                                          ulVideoWidth, uLVideoHeight,
+                                                                          ulVideoWidth, ulVideoHeight,
                                                                           PDM_DISPLAY_OUTPUT_TARGET_FIXED_SIZE,
                                                                           Recording.au64VideoOutputTargetToken[uScreenId]);
                     if (RT_FAILURE(vrc2))
