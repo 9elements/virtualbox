@@ -1,4 +1,4 @@
-# $Id: Config.kmk 113669 2026-03-30 11:55:55Z knut.osmundsen@oracle.com $
+# $Id: Config.kmk 113670 2026-03-30 11:58:31Z knut.osmundsen@oracle.com $
 ## @file
 # The global build configuration file for VBox.
 #
@@ -7446,14 +7446,13 @@ ifeq ($(KBUILD_TARGET),win)
  else
   TEMPLATE_VBoxMainExe_SDKS              = ReorderCompilerIncs $(VBOX_WINPSDK) $(VBOX_WINDDK)
  endif
- TEMPLATE_VBoxMainExe_CXXFLAGS           = -Zi -Zl -GR -EHsc -GF -MD$(VBOX_VCC_CRT_TYPE) $(VBOX_VCC_WCHAR_T_VARIANT) \
+ TEMPLATE_VBoxMainExe_CXXFLAGS           = -Zi -Zl -GR -EHsc -GF -GS -sdl -Gy -MD$(VBOX_VCC_CRT_TYPE) $(VBOX_VCC_WCHAR_T_VARIANT) \
  	$(VBOX_VCC_OPT) $(VBOX_VCC_FP) $(VBOX_VCC_CC_GUARD_CF) $(VBOX_VCC_CC_GUARD_EHCONT) $(VBOX_VCC_SANITIZER_FLAGS) $(VBOX_VCC_std)
  #    -wd4625: 'DisplaySourceBitmap' : copy constructor could not be generated because a base class copy constructor is inaccessible
  #    -wd4626: 'DisplaySourceBitmap' : assignment operator could not be generated because a base class assignment operator is inaccessible
  #             The two above can be cured by adding private: DECLARE_CLS_COPY_CTOR_ASSIGN_NOOP(xxxx); but too much work.
  #    -wd4355: 'this' : used in base member initializer list (e.g. VirtualBoxBase.cpp)
  TEMPLATE_VBoxMainExe_CXXFLAGS          += $(VBOX_VCC_WARN_ALL) -wd4625 -wd4626 -wd4355 $(VBOX_VCC_WERR)
- TEMPLATE_VBoxMainExe_CXXFLAGS          += -Gy
  if "$(VBOX_VCC_TOOL_STEM)" >= "VCC120"
   TEMPLATE_VBoxMainExe_CXXFLAGS         += -Gw
  endif
@@ -8155,7 +8154,8 @@ ifdef VBOX_WITH_QTGUI
   	QT_DLL _CRT_SECURE_NO_DEPRECATE \
   	$(QMAKE_PRL_DEFINES)
   TEMPLATE_VBoxQtGuiExe_CXXFLAGS = -nologo -Zm200 -MD$(if-expr "$(VBOX_QT_DBG)" == "$(VBOX_VCC_CRT_TYPE)",$(VBOX_VCC_CRT_TYPE),) \
-  	-Zi -EHsc $(VBOX_VCC_WCHAR_T_VARIANT) $(VBOX_VCC_CC_GUARD_CF) $(VBOX_VCC_CC_GUARD_EHCONT) $(VBOX_VCC_SANITIZER_FLAGS) $(VBOX_VCC_std)
+  	-Zi -Zl -EHsc -GF -GS -sdl -Gy $(VBOX_VCC_WCHAR_T_VARIANT) \
+  	$(VBOX_VCC_CC_GUARD_CF) $(VBOX_VCC_CC_GUARD_EHCONT) $(VBOX_VCC_SANITIZER_FLAGS) $(VBOX_VCC_std)
   #    -wd4481: nonstandard extension used: override specifier 'override'
   #    -wd4625: 'QRubberBand' : copy constructor could not be generated because a base class copy constructor is inaccessible
   #    -wd4626: 'QRubberBand' : assignment operator could not be generated because a base class assignment operator is inaccessible
@@ -8200,7 +8200,6 @@ ifdef VBOX_WITH_QTGUI
    TEMPLATE_VBoxQtGuiExe_CXXFLAGS += -wd4668
   endif
 
-  TEMPLATE_VBoxQtGuiExe_CXXFLAGS += -Gy
   if "$(VBOX_VCC_TOOL_STEM)" >= "VCC120"
    TEMPLATE_VBoxQtGuiExe_CXXFLAGS += -Gw
   endif
@@ -8510,7 +8509,7 @@ ifeq ($(KBUILD_HOST),win)
  else
   TEMPLATE_VBoxBldProg_SDKS             := ReorderCompilerIncs $(VBOX_WINPSDK)
  endif
- TEMPLATE_VBoxBldProg_CXXFLAGS          := -Zi -Zl -GR- -EHsc -GF $(VBOX_VCC_WCHAR_T_VARIANT) $(VBOX_VCC_OPT) $(VBOX_VCC_FP) \
+ TEMPLATE_VBoxBldProg_CXXFLAGS          := -Zi -Zl -GR- -EHsc -GF -GS -sdl $(VBOX_VCC_WCHAR_T_VARIANT) $(VBOX_VCC_OPT) $(VBOX_VCC_FP) \
  	-MT$(VBOX_VCC_CRT_TYPE) -Gy $(VBOX_VCC_CC_GUARD_CF) $(VBOX_VCC_CC_GUARD_EHCONT) $(VBOX_VCC_std) $(VBOX_VCC_WARN_ALL) $(VBOX_VCC_WERR)
  if "$(VBOX_VCC_TOOL_STEM)" >= "VCC120"
   TEMPLATE_VBoxBldProg_CXXFLAGS         += -Gw
@@ -9476,7 +9475,7 @@ SVN                    ?= svn$(HOSTSUFF_EXE)
 GIT                    ?= git$(HOSTSUFF_EXE)
 VBOX_SVN_REV_KMK        = $(PATH_OUT)/revision.kmk
 ifndef VBOX_SVN_REV
- VBOX_SVN_REV_CONFIG_FALLBACK := $(patsubst %:,,  $Rev: 113669 $  )
+ VBOX_SVN_REV_CONFIG_FALLBACK := $(patsubst %:,,  $Rev: 113670 $  )
  VBOX_SVN_REV_FALLBACK := $(if-expr $(VBOX_SVN_REV_CONFIG_FALLBACK) > $(VBOX_SVN_REV_VERSION_FALLBACK),$(VBOX_SVN_REV_CONFIG_FALLBACK),$(VBOX_SVN_REV_VERSION_FALLBACK))
  VBOX_SVN_DEP          := $(firstword $(wildcard $(PATH_ROOT)/.svn/wc.db $(abspath $(PATH_ROOT)/../.svn/wc.db) $(abspath $(PATH_ROOT)/../../.svn/wc.db) $(PATH_ROOT)/.svn/entries))
  VBOX_GIT_DEP          := $(firstword $(wildcard $(PATH_ROOT)/.git/config $(abspath $(PATH_ROOT)/../.git/config) $(abspath $(PATH_ROOT)/../../.git/config)))
@@ -9490,7 +9489,7 @@ ifndef VBOX_SVN_REV
  ifneq ($(VBOX_GIT_DEP),)
   #
   # VBOX_SVN_REV_CONFIG_FALLBACK is not properly populated for a git checkout,
-  # as the $Rev: 113669 $ is not expanded, so we have to set it based on the information in the repo.
+  # as the $Rev: 113670 $ is not expanded, so we have to set it based on the information in the repo.
   #
   VBOX_SVN_REV_FALLBACK := $(shell $(GIT) log -1 $(PATH_ROOT)/Config.kmk | $(SED) -e 's/^[ \t]*//' -e '/svn:sync-xref-src-repo-rev\: r/!d' -e 's/svn:sync-xref-src-repo-rev\: r*//; t a; :a q')
  endif
