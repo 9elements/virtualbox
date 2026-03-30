@@ -368,6 +368,9 @@ static struct VBCONVERTERFMTTABLE
     { "image/x-MS-bmp",                 VBOX_SHCL_FMT_BITMAP,       vbConvertBmpToVBox,       vbConvertVBoxToBmp,     NULL, 0, },
 };
 
+/** Access lock to mapping table cache. */
+static RTCRITSECT g_vboxMimeConvCacheLock;
+
 
 RTDECL(void) VBoxMimeConvEnumerateMimeById(const SHCLFORMAT uFmtVBox, PFNVBFMTCONVMIMEBYID pfnCb, void *pvData)
 {
@@ -410,4 +413,124 @@ RTDECL(int) VBoxMimeConvNativeToVBox(const char *pcszMimeType, void *pvBufIn, in
             return g_aConverterFormats[i].pfnConvertToVbox(pvBufIn, cbBufIn, ppvBufOut, pcbBufOut);
 
     return VERR_NOT_FOUND;
+}
+
+
+
+RTDECL(int) VBoxMimeConvInitCache(void)
+{
+    AssertReturn(!RTCritSectIsInitialized(&g_vboxMimeConvCacheLock), VERR_ACCESS_DENIED);
+
+    return RTCritSectInit(&g_vboxMimeConvCacheLock);
+}
+
+RTDECL(int) VBoxMimeConvClearCache(void)
+{
+    int rc;
+
+    AssertReturn(RTCritSectIsInitialized(&g_vboxMimeConvCacheLock), VERR_ACCESS_DENIED);
+
+    rc = RTCritSectEnter(&g_vboxMimeConvCacheLock);
+    if (RT_SUCCESS(rc))
+    {
+        for (unsigned i = 0; i < RT_ELEMENTS(g_aConverterFormats); i++)
+        {
+            g_aConverterFormats[i].pvBuf = NULL;
+            g_aConverterFormats[i].cbBuf = 0;
+        }
+
+        RTCritSectLeave(&g_vboxMimeConvCacheLock);
+    }
+
+    return rc;
+}
+
+RTDECL(int) VBoxMimeConvSetCacheByMime(const char *pcszMimeType, void *pvBuf, int cbBuf)
+{
+    int rc;
+
+    AssertReturn(RTCritSectIsInitialized(&g_vboxMimeConvCacheLock), VERR_ACCESS_DENIED);
+
+    rc = RTCritSectEnter(&g_vboxMimeConvCacheLock);
+    if (RT_SUCCESS(rc))
+    {
+        for (unsigned i = 0; i < RT_ELEMENTS(g_aConverterFormats); i++)
+        {
+            if (RTStrNCmp(g_aConverterFormats[i].pcszMimeType, pcszMimeType, VBOX_WAYLAND_MIME_TYPE_NAME_MAX) == 0)
+            {
+                g_aConverterFormats[i].pvBuf = pvBuf;
+                g_aConverterFormats[i].cbBuf = cbBuf;
+            }
+        }
+
+        RTCritSectLeave(&g_vboxMimeConvCacheLock);
+    }
+
+    return rc;
+}
+
+RTDECL(int) VBoxMimeConvGetCacheByMime(const char *pcszMimeType, void **ppvBufOut, size_t *pcbBufOut)
+{
+    int rc;
+
+    AssertReturn(RTCritSectIsInitialized(&g_vboxMimeConvCacheLock), VERR_ACCESS_DENIED);
+
+    rc = RTCritSectEnter(&g_vboxMimeConvCacheLock);
+    if (RT_SUCCESS(rc))
+    {
+        bool fFound = false;
+
+        for (unsigned i = 0; i < RT_ELEMENTS(g_aConverterFormats); i++)
+        {
+            if (   RTStrNCmp(g_aConverterFormats[i].pcszMimeType, pcszMimeType, VBOX_WAYLAND_MIME_TYPE_NAME_MAX) == 0
+                && RT_VALID_PTR(g_aConverterFormats[i].pvBuf)
+                && g_aConverterFormats[i].cbBuf > 0)
+            {
+                *ppvBufOut = g_aConverterFormats[i].pvBuf;
+                *pcbBufOut = g_aConverterFormats[i].cbBuf;
+                fFound = true;
+
+                break;
+            }
+        }
+
+        rc = fFound ? VINF_SUCCESS : VERR_NOT_FOUND;
+
+        RTCritSectLeave(&g_vboxMimeConvCacheLock);
+    }
+
+    return rc;
+}
+
+RTDECL(int) VBoxMimeConvGetCacheById(const SHCLFORMAT uFmtVBox, void **ppvBufOut, size_t *pcbBufOut)
+{
+    int rc;
+
+    AssertReturn(RTCritSectIsInitialized(&g_vboxMimeConvCacheLock), VERR_ACCESS_DENIED);
+
+    rc = RTCritSectEnter(&g_vboxMimeConvCacheLock);
+    if (RT_SUCCESS(rc))
+    {
+        bool fFound = false;
+
+        for (unsigned i = 0; i < RT_ELEMENTS(g_aConverterFormats); i++)
+        {
+            if (   uFmtVBox == g_aConverterFormats[i].uFmtVBox
+                && RT_VALID_PTR(g_aConverterFormats[i].pvBuf)
+                && g_aConverterFormats[i].cbBuf > 0)
+            {
+                *ppvBufOut = g_aConverterFormats[i].pvBuf;
+                *pcbBufOut = g_aConverterFormats[i].cbBuf;
+                fFound = true;
+
+                break;
+            }
+        }
+
+        rc = fFound ? VINF_SUCCESS : VERR_NOT_FOUND;
+
+        RTCritSectLeave(&g_vboxMimeConvCacheLock);
+    }
+
+    return rc;
 }

@@ -1,4 +1,4 @@
-/* $Id: mime-type-converter.h 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: mime-type-converter.h 113686 2026-03-30 17:35:22Z vadim.galitsyn@oracle.com $ */
 /** @file
  * Mime-type converter for Shared Clipboard and Drag-and-Drop code.
  */
@@ -113,6 +113,50 @@ extern RTDECL(int) VBoxMimeConvVBoxToNative(const char *pcszMimeType, void *pvBu
  */
 extern RTDECL(int) VBoxMimeConvNativeToVBox(const char *pcszMimeType, void *pvBufIn, int cbBufIn,
                                             void **ppvBufOut, size_t *pcbBufOut);
+
+/**
+ * Initializes mapping table cache.
+ *
+ * Must be called before any other VBoxMimeConvXXXCacheYYY call.
+ */
+RTDECL(int) VBoxMimeConvInitCache(void);
+
+/**
+ * Clears mapping table cache.
+ */
+RTDECL(int) VBoxMimeConvClearCache(void);
+
+/**
+ * Adds data into cache using mime-type as a key.
+ *
+ * @returns IPRT status code.
+ * @param   pcszMimeType    Mime-type in string representation.
+ * @param   pvBuf           Input buffer which contains data in specified mime-type format.
+ * @param   cbBuf           Size of input buffer in bytes.
+ */
+RTDECL(int) VBoxMimeConvSetCacheByMime(const char *pcszMimeType, void *pvBuf, int cbBuf);
+
+/**
+ * Extracts data from cache using mime-type as a key.
+ *
+ * @returns VINF_SUCCESS on success, VERR_NOT_FOUND if no cache entry corresponds to
+ *          given memi-type or IPRT error code.
+ * @param   pcszMimeType    Mime-type in string representation.
+ * @param   ppvBufOut       Data which corresponds to given mime-type.
+ * @param   pcbBufOut       Size of output buffer.
+ */
+RTDECL(int) VBoxMimeConvGetCacheByMime(const char *pcszMimeType, void **ppvBufOut, size_t *pcbBufOut);
+
+/**
+ * Extracts data from cache using format ID as a key.
+ *
+ * @returns VINF_SUCCESS on success, VERR_NOT_FOUND if no cache entry corresponds to
+ *          given memi-type or IPRT error code.
+ * @param   uFmtVBox        Format ID in VBox representation.
+ * @param   ppvBufOut       Data which corresponds to given mime-type.
+ * @param   pcbBufOut       Size of output buffer.
+ */
+RTDECL(int) VBoxMimeConvGetCacheById(const SHCLFORMAT uFmtVBox, void **ppvBufOut, size_t *pcbBufOut);
 
 #endif /* !VBOX_INCLUDED_GuestHost_mime_type_converter_h */
 
