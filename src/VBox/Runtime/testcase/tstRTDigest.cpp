@@ -1,4 +1,4 @@
-/* $Id: tstRTDigest.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: tstRTDigest.cpp 113658 2026-03-30 11:04:58Z knut.osmundsen@oracle.com $ */
 /** @file
  * IPRT Testcase - RTSha*, RTMd5, RTCrc*.
  */
@@ -434,6 +434,23 @@ int main(int argc, char **argv)
                                  break;
                              }
 
+                             case RTDIGESTTYPE_SHA224:
+                             {
+                                 RTSHA224CONTEXT Ctx;
+                                 RTSha224Init(&Ctx);
+                                 for (;;)
+                                 {
+                                     rc = MyReadFile(hFile, abBuf, sizeof(abBuf), &cbRead, &cbMaxLeft);
+                                     if (RT_FAILURE(rc) || !cbRead)
+                                         break;
+                                     RTSha224Update(&Ctx, abBuf, cbRead);
+                                 }
+                                 uint8_t abDigest[RTSHA224_HASH_SIZE];
+                                 RTSha224Final(&Ctx, abDigest);
+                                 RTSha224ToString(abDigest, pszDigest, sizeof(abBuf));
+                                 break;
+                             }
+
                              case RTDIGESTTYPE_SHA256:
                              {
                                  RTSHA256CONTEXT Ctx;
@@ -448,6 +465,23 @@ int main(int argc, char **argv)
                                  uint8_t abDigest[RTSHA256_HASH_SIZE];
                                  RTSha256Final(&Ctx, abDigest);
                                  RTSha256ToString(abDigest, pszDigest, sizeof(abBuf));
+                                 break;
+                             }
+
+                             case RTDIGESTTYPE_SHA384:
+                             {
+                                 RTSHA384CONTEXT Ctx;
+                                 RTSha384Init(&Ctx);
+                                 for (;;)
+                                 {
+                                     rc = MyReadFile(hFile, abBuf, sizeof(abBuf), &cbRead, &cbMaxLeft);
+                                     if (RT_FAILURE(rc) || !cbRead)
+                                         break;
+                                     RTSha384Update(&Ctx, abBuf, cbRead);
+                                 }
+                                 uint8_t abDigest[RTSHA384_HASH_SIZE];
+                                 RTSha384Final(&Ctx, abDigest);
+                                 RTSha384ToString(abDigest, pszDigest, sizeof(abBuf));
                                  break;
                              }
 
@@ -539,7 +573,7 @@ int main(int argc, char **argv)
                              /** @todo SHAKE128 and SHAKE256   */
 
                              default:
-                                 return Error("Internal error #1: %d %s\n", enmDigestType, pszDigest);
+                                 return Error("Internal error #1: %d %s\n", enmDigestType, pszDigestType);
                          }
                          RTFileClose(hFile);
                          if (RT_FAILURE(rc) && rc != VERR_EOF)
