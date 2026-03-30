@@ -1,4 +1,4 @@
-/* $Id: RecordingRender.cpp 113642 2026-03-30 10:11:57Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingRender.cpp 113685 2026-03-30 14:32:57Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording rendering implementation.
  *
@@ -698,9 +698,11 @@ DECLINLINE(void) recRenderSWConvertBGRA32ToYUVI420(uint8_t *paDst, uint32_t uDst
     AssertReturnVoid(uDstY < uDstHeight);
     AssertReturnVoid(uDstY + uSrcHeight <= uDstHeight);
     AssertReturnVoid(uSrcBPP % 8 == 0);
+    AssertReturnVoid(uSrcWidth);
+    AssertReturnVoid(uSrcHeight);
+    AssertReturnVoid((uDstWidth & 1) == 0);
+    AssertReturnVoid((uDstHeight & 1) == 0);
 #endif
-
-    RT_NOREF(uSrcHeight, uDstHeight);
 
 #define CALC_Y(r, g, b) \
     (66 * r + 129 * g + 25 * b) >> 8
@@ -709,36 +711,181 @@ DECLINLINE(void) recRenderSWConvertBGRA32ToYUVI420(uint8_t *paDst, uint32_t uDst
 #define CALC_V(r, g, b) \
     ((112 * r + -94 * g + -18 * b) >> 8) + 128
 
-    uint32_t uDstXCur = uDstX;
-
     const unsigned uSrcBytesPerPixel = uSrcBPP / 8;
+    size_t const cbDstLumaPlane = (size_t)uDstWidth * uDstHeight;
+    uint8_t *const pu8DstY = paDst;
+    uint8_t *const pu8DstU = paDst + cbDstLumaPlane;
+    uint8_t *const pu8DstV = pu8DstU + cbDstLumaPlane / 4;
+    uint32_t const uDstChromaWidth  = uDstWidth / 2;
+    uint32_t const uDstChromaHeight = uDstHeight / 2;
 
-    size_t offSrc = (uSrcY * uSrcStride) + (uSrcX * uSrcBytesPerPixel);
+    /*
+     * Fast single-pass 2x2 conversion for the common full-frame path.
+     *
+     * For unaligned sub-rectangles, keep a generic fallback below.
+     */
+    bool const fAligned2x2Path =    (uDstX & 1) == 0
+                                 && (uDstY & 1) == 0
+                                 && (uSrcX & 1) == 0
+                                 && (uSrcY & 1) == 0;
 
-    for (size_t y = 0; y < uSrcHeight; y++)
+    if (fAligned2x2Path)
     {
-        for (size_t x = 0; x < uSrcWidth; x++)
+        uint32_t const uSrcXLast = uSrcX + uSrcWidth  - 1;
+        uint32_t const uSrcYLast = uSrcY + uSrcHeight - 1;
+
+        for (uint32_t y = 0; y < uSrcHeight; y += 2)
         {
-            size_t const offBGR = offSrc + (x * uSrcBytesPerPixel);
+            uint32_t const uY0Src = uSrcY + y;
+            uint32_t const uY1Src = RT_MIN(uY0Src + 1, uSrcYLast);
+            uint32_t const uY0Dst = uDstY + y;
+            uint32_t const uYDstChroma = uY0Dst / 2;
+            if (uYDstChroma >= uDstChromaHeight)
+                break;
 
-            uint8_t const b = paSrc[offBGR];
-            uint8_t const g = paSrc[offBGR + 1];
-            uint8_t const r = paSrc[offBGR + 2];
+            uint8_t const *pu8SrcRow0 = paSrc + (size_t)uY0Src * uSrcStride;
+            uint8_t const *pu8SrcRow1 = paSrc + (size_t)uY1Src * uSrcStride;
 
-            size_t const offY  = uDstY * uDstWidth + uDstXCur;
-            size_t const offUV = (uDstY / 2) * (uDstWidth / 2) + (uDstXCur / 2) + uDstWidth * uDstHeight;
+            uint8_t *pu8DstYRow0 = pu8DstY + (size_t)uY0Dst * uDstWidth + uDstX;
+            uint8_t *pu8DstYRow1 = NULL;
+            if (y + 1 < uSrcHeight)
+                pu8DstYRow1 = pu8DstY + (size_t)(uY0Dst + 1) * uDstWidth + uDstX;
 
-            paDst[offY]                               = CALC_Y(r, g, b);
-            paDst[offUV]                              = CALC_U(r, g, b);
-            paDst[offUV + uDstWidth * uDstHeight / 4] = CALC_V(r, g, b);
+            uint8_t *pu8DstURow = pu8DstU + (size_t)uYDstChroma * uDstChromaWidth;
+            uint8_t *pu8DstVRow = pu8DstV + (size_t)uYDstChroma * uDstChromaWidth;
 
-            uDstXCur++;
+            for (uint32_t x = 0; x < uSrcWidth; x += 2)
+            {
+                uint32_t const uX0Src = uSrcX + x;
+                uint32_t const uX1Src = RT_MIN(uX0Src + 1, uSrcXLast);
+                uint32_t const uXDstChroma = (uDstX + x) / 2;
+                if (uXDstChroma >= uDstChromaWidth)
+                    break;
+
+                uint8_t const *pu8Src00 = pu8SrcRow0 + (size_t)uX0Src * uSrcBytesPerPixel;
+                uint8_t const *pu8Src01 = pu8SrcRow0 + (size_t)uX1Src * uSrcBytesPerPixel;
+                uint8_t const *pu8Src10 = pu8SrcRow1 + (size_t)uX0Src * uSrcBytesPerPixel;
+                uint8_t const *pu8Src11 = pu8SrcRow1 + (size_t)uX1Src * uSrcBytesPerPixel;
+
+                int32_t const iY00 = (int32_t)CALC_Y(pu8Src00[2], pu8Src00[1], pu8Src00[0]);
+                int32_t const iY01 = (int32_t)CALC_Y(pu8Src01[2], pu8Src01[1], pu8Src01[0]);
+                int32_t const iY10 = (int32_t)CALC_Y(pu8Src10[2], pu8Src10[1], pu8Src10[0]);
+                int32_t const iY11 = (int32_t)CALC_Y(pu8Src11[2], pu8Src11[1], pu8Src11[0]);
+
+                pu8DstYRow0[x] = (uint8_t)RT_MIN(RT_MAX(iY00, 0), 255);
+                if (x + 1 < uSrcWidth)
+                    pu8DstYRow0[x + 1] = (uint8_t)RT_MIN(RT_MAX(iY01, 0), 255);
+                if (pu8DstYRow1)
+                {
+                    pu8DstYRow1[x] = (uint8_t)RT_MIN(RT_MAX(iY10, 0), 255);
+                    if (x + 1 < uSrcWidth)
+                        pu8DstYRow1[x + 1] = (uint8_t)RT_MIN(RT_MAX(iY11, 0), 255);
+                }
+
+                int32_t const iBAvg = (int32_t)(  (pu8Src00[0]
+                                                  + pu8Src01[0]
+                                                  + pu8Src10[0]
+                                                  + pu8Src11[0]
+                                                  + 2) / 4);
+                int32_t const iGAvg = (int32_t)(  (pu8Src00[1]
+                                                  + pu8Src01[1]
+                                                  + pu8Src10[1]
+                                                  + pu8Src11[1]
+                                                  + 2) / 4);
+                int32_t const iRAvg = (int32_t)(  (pu8Src00[2]
+                                                  + pu8Src01[2]
+                                                  + pu8Src10[2]
+                                                  + pu8Src11[2]
+                                                  + 2) / 4);
+
+                int32_t const iU = (int32_t)CALC_U(iRAvg, iGAvg, iBAvg);
+                int32_t const iV = (int32_t)CALC_V(iRAvg, iGAvg, iBAvg);
+
+                pu8DstURow[uXDstChroma] = (uint8_t)RT_MIN(RT_MAX(iU, 0), 255);
+                pu8DstVRow[uXDstChroma] = (uint8_t)RT_MIN(RT_MAX(iV, 0), 255);
+            }
+        }
+    }
+    else
+    {
+        /*
+         * Fallback for odd-aligned source/destination rectangles.
+         */
+        for (uint32_t y = 0; y < uSrcHeight; y++)
+        {
+            uint32_t const uDstYCur = uDstY + y;
+            size_t const offSrcRow = (size_t)(uSrcY + y) * uSrcStride + (size_t)uSrcX * uSrcBytesPerPixel;
+            size_t const offDstYRow = (size_t)uDstYCur * uDstWidth + uDstX;
+
+            for (uint32_t x = 0; x < uSrcWidth; x++)
+            {
+                size_t const offBGR = offSrcRow + (size_t)x * uSrcBytesPerPixel;
+
+                uint8_t const b = paSrc[offBGR + 0];
+                uint8_t const g = paSrc[offBGR + 1];
+                uint8_t const r = paSrc[offBGR + 2];
+
+                int32_t const iY = (int32_t)CALC_Y(r, g, b);
+                pu8DstY[offDstYRow + x] = (uint8_t)RT_MIN(RT_MAX(iY, 0), 255);
+            }
         }
 
-        offSrc += uSrcStride;
+        if (uDstChromaWidth && uDstChromaHeight)
+        {
+            uint32_t const uSrcXLast = uSrcX + uSrcWidth  - 1;
+            uint32_t const uSrcYLast = uSrcY + uSrcHeight - 1;
 
-        uDstXCur = uDstX;
-        uDstY++;
+            for (uint32_t y = 0; y < uSrcHeight; y += 2)
+            {
+                uint32_t const uY0Src = uSrcY + y;
+                uint32_t const uY1Src = RT_MIN(uY0Src + 1, uSrcYLast);
+                uint32_t const uY0Dst = uDstY + y;
+                uint32_t const uYDstChroma = uY0Dst / 2;
+                if (uYDstChroma >= uDstChromaHeight)
+                    break;
+
+                uint8_t const *pu8SrcRow0 = paSrc + (size_t)uY0Src * uSrcStride;
+                uint8_t const *pu8SrcRow1 = paSrc + (size_t)uY1Src * uSrcStride;
+
+                for (uint32_t x = 0; x < uSrcWidth; x += 2)
+                {
+                    uint32_t const uX0Src = uSrcX + x;
+                    uint32_t const uX1Src = RT_MIN(uX0Src + 1, uSrcXLast);
+                    uint32_t const uX0Dst = uDstX + x;
+                    uint32_t const uXDstChroma = uX0Dst / 2;
+                    if (uXDstChroma >= uDstChromaWidth)
+                        break;
+
+                    uint8_t const *pu8Src00 = pu8SrcRow0 + (size_t)uX0Src * uSrcBytesPerPixel;
+                    uint8_t const *pu8Src01 = pu8SrcRow0 + (size_t)uX1Src * uSrcBytesPerPixel;
+                    uint8_t const *pu8Src10 = pu8SrcRow1 + (size_t)uX0Src * uSrcBytesPerPixel;
+                    uint8_t const *pu8Src11 = pu8SrcRow1 + (size_t)uX1Src * uSrcBytesPerPixel;
+
+                    int32_t const iBAvg = (int32_t)(  (pu8Src00[0]
+                                                      + pu8Src01[0]
+                                                      + pu8Src10[0]
+                                                      + pu8Src11[0]
+                                                      + 2) / 4);
+                    int32_t const iGAvg = (int32_t)(  (pu8Src00[1]
+                                                      + pu8Src01[1]
+                                                      + pu8Src10[1]
+                                                      + pu8Src11[1]
+                                                      + 2) / 4);
+                    int32_t const iRAvg = (int32_t)(  (pu8Src00[2]
+                                                      + pu8Src01[2]
+                                                      + pu8Src10[2]
+                                                      + pu8Src11[2]
+                                                      + 2) / 4);
+
+                    int32_t const iU = (int32_t)CALC_U(iRAvg, iGAvg, iBAvg);
+                    int32_t const iV = (int32_t)CALC_V(iRAvg, iGAvg, iBAvg);
+
+                    size_t const offDstUV = (size_t)uYDstChroma * uDstChromaWidth + uXDstChroma;
+                    pu8DstU[offDstUV] = (uint8_t)RT_MIN(RT_MAX(iU, 0), 255);
+                    pu8DstV[offDstUV] = (uint8_t)RT_MIN(RT_MAX(iV, 0), 255);
+                }
+            }
+        }
     }
 
 #undef CALC_Y
