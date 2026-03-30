@@ -701,6 +701,15 @@ private:
     <xsl:param name="dir"/>
     <xsl:param name="isref"/>
 
+    <!-- MSC /analyze: check for NULL pointers. -->
+    <xsl:if test="$isref!='yes' and $dir!='in'">
+        <xsl:text>!RT_VALID_PTR(a</xsl:text>
+        <xsl:call-template name="capitalize">
+            <xsl:with-param name="str" select="../@name"/>
+        </xsl:call-template>
+        <xsl:text>) ? 0 : </xsl:text>
+    </xsl:if>
+
     <xsl:choose>
         <xsl:when test="../@safearray='yes' and $isref!='yes'">
             <xsl:text>ComSafeArraySize(</xsl:text>
