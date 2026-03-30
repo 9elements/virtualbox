@@ -1388,6 +1388,249 @@ DECLINLINE(uint32_t) ASMCpuId_EDX(uint32_t uOperator)
 
 
 /**
+ * Performs the cpuid instruction returning eax.
+ *
+ * @param   uOperator   CPUID operation (eax).
+ * @param   uSubOp      CPUID sub-operation (ecx).
+ * @returns EAX after cpuid operation.
+ */
+#if RT_INLINE_ASM_EXTERNAL && !RT_INLINE_ASM_USES_INTRIN
+RT_ASM_DECL_PRAGMA_WATCOM(uint32_t) ASMCpuIdEx_EAX(uint32_t uOperator, uint32_t uSubOp);
+#else
+DECLINLINE(uint32_t) ASMCpuIdEx_EAX(uint32_t uOperator, uint32_t uSubOp)
+{
+    RTCCUINTREG xAX;
+# if RT_INLINE_ASM_GNU_STYLE
+#  ifdef RT_ARCH_AMD64
+    RTCCUINTREG uSpill;
+    __asm__ ("cpuid"
+             : "=a" (xAX), "=c" (uSpill)
+             : "0" (uOperator), "1" (uSubOp)
+             : "rbx", "rdx");
+#  elif (defined(PIC) || defined(__PIC__)) && defined(__i386__)
+    __asm__ ("push  %%ebx\n\t"
+             "cpuid\n\t"
+             "pop   %%ebx\n\t"
+             : "=a" (xAX), "=c" (uSubOp)
+             : "0" (uOperator), "1" (uSubOp)
+             : "edx");
+#  else
+    __asm__ ("cpuid"
+             : "=a" (xAX), "=c" (uSubOp)
+             : "0" (uOperator), "1" (uSubOp)
+             : "edx", "ebx");
+#  endif
+
+# elif RT_INLINE_ASM_USES_INTRIN
+    int aInfo[4];
+    __cpuidex(aInfo, uOperator, uSubOp);
+    xAX = aInfo[0];
+
+# else
+    __asm
+    {
+        push    ebx
+        mov     eax, [uOperator]
+        mov     ecx, [uSubOp]
+        cpuid
+        mov     [xAX], eax
+        pop     ebx
+    }
+# endif
+    return (uint32_t)xAX;
+}
+#endif
+
+
+/**
+ * Performs the cpuid instruction returning ebx.
+ *
+ * @param   uOperator   CPUID operation (eax).
+ * @param   uSubOp      CPUID sub-operation (ecx).
+ * @returns EBX after cpuid operation.
+ */
+#if RT_INLINE_ASM_EXTERNAL && !RT_INLINE_ASM_USES_INTRIN
+RT_ASM_DECL_PRAGMA_WATCOM(uint32_t) ASMCpuIdEx_EBX(uint32_t uOperator, uint32_t uSubOp);
+#else
+DECLINLINE(uint32_t) ASMCpuIdEx_EBX(uint32_t uOperator, uint32_t uSubOp)
+{
+    RTCCUINTREG xBX;
+# if RT_INLINE_ASM_GNU_STYLE
+#  ifdef RT_ARCH_AMD64
+    RTCCUINTREG uSpill1, uSpill2;
+    __asm__ ("cpuid"
+             : "=a" (uSpill1),
+               "=b" (xBX),
+               "=c" (uSpill2)
+             : "0" (uOperator), "2" (uSubOp)
+             : "rdx");
+#  elif (defined(PIC) || defined(__PIC__)) && defined(__i386__)
+    __asm__ ("push  %%ebx\n\t"
+             "cpuid\n\t"
+             "mov   %%ebx, %%edx\n\t"
+             "pop   %%ebx\n\t"
+             : "=a" (uOperator),
+               "=d" (xBX),
+               "=c" (uSubOp)
+             : "0" (uOperator), "2" (uSubOp)
+             : );
+#  else
+    __asm__ ("cpuid"
+             : "=a" (uOperator),
+               "=b" (xBX),
+               "=c" (uSubOp)
+             : "0" (uOperator), "2" (uSubOp)
+             : "edx");
+#  endif
+
+# elif RT_INLINE_ASM_USES_INTRIN
+    int aInfo[4];
+    __cpuidex(aInfo, uOperator, uSubOp);
+    xBX = aInfo[1];
+
+# else
+    __asm
+    {
+        push    ebx
+        mov     eax, [uOperator]
+        mov     ecx, [uSubOp]
+        cpuid
+        mov     [xBX], ebx
+        pop     ebx
+    }
+# endif
+    return (uint32_t)xBX;
+}
+#endif
+
+
+/**
+ * Performs the cpuid instruction returning ecx.
+ *
+ * @param   uOperator   CPUID operation (eax).
+ * @param   uSubOp      CPUID sub-operation (ecx).
+ * @returns ECX after cpuid operation.
+ */
+#if RT_INLINE_ASM_EXTERNAL && !RT_INLINE_ASM_USES_INTRIN
+RT_ASM_DECL_PRAGMA_WATCOM(uint32_t) ASMCpuIdEx_ECX(uint32_t uOperator, uint32_t uSubOp);
+#else
+DECLINLINE(uint32_t) ASMCpuIdEx_ECX(uint32_t uOperator, uint32_t uSubOp)
+{
+    RTCCUINTREG xCX;
+# if RT_INLINE_ASM_GNU_STYLE
+#  ifdef RT_ARCH_AMD64
+    RTCCUINTREG uSpill;
+    __asm__ ("cpuid"
+             : "=a" (uSpill),
+               "=c" (xCX)
+             : "0" (uOperator),
+               "1" (uSubOp)
+             : "rbx", "rdx");
+#  elif (defined(PIC) || defined(__PIC__)) && defined(__i386__)
+    __asm__ ("push  %%ebx\n\t"
+             "cpuid\n\t"
+             "pop   %%ebx\n\t"
+             : "=a" (uOperator),
+               "=c" (xCX)
+             : "0" (uOperator),
+               "1" (uSubOp)
+             : "edx");
+#  else
+    __asm__ ("cpuid"
+             : "=a" (uOperator),
+               "=c" (xCX)
+             : "0" (uOperator),
+               "1" (uSubOp)
+             : "ebx", "edx");
+
+#  endif
+
+# elif RT_INLINE_ASM_USES_INTRIN
+    int aInfo[4];
+    __cpuidex(aInfo, uOperator, uSubOp);
+    xCX = aInfo[2];
+
+# else
+    __asm
+    {
+        push    ebx
+        mov     eax, [uOperator]
+        mov     ecx, [uSubOp]
+        cpuid
+        mov     [xCX], ecx
+        pop     ebx
+    }
+# endif
+    return (uint32_t)xCX;
+}
+#endif
+
+
+/**
+ * Performs the cpuid instruction returning edx.
+ *
+ * @param   uOperator   CPUID operation (eax).
+ * @param   uSubOp      CPUID sub-operation (ecx).
+ * @returns EDX after cpuid operation.
+ */
+#if RT_INLINE_ASM_EXTERNAL && !RT_INLINE_ASM_USES_INTRIN
+RT_ASM_DECL_PRAGMA_WATCOM(uint32_t) ASMCpuIdEx_EDX(uint32_t uOperator, uint32_t uSubOp);
+#else
+DECLINLINE(uint32_t) ASMCpuIdEx_EDX(uint32_t uOperator, uint32_t uSubOp)
+{
+    RTCCUINTREG xDX;
+# if RT_INLINE_ASM_GNU_STYLE
+#  ifdef RT_ARCH_AMD64
+    RTCCUINTREG uSpill1, uSpill2;
+    __asm__ ("cpuid"
+             : "=a" (uSpill1),
+               "=c" (uSpill2),
+               "=d" (xDX)
+             : "0" (uOperator),
+               "1" (uSubOp)
+             : "rbx");
+#  elif (defined(PIC) || defined(__PIC__)) && defined(__i386__)
+    __asm__ ("push  %%ebx\n\t"
+             "cpuid\n\t"
+             "pop   %%ebx\n\t"
+             : "=a" (uOperator),
+               "=c" (uSubOp),
+               "=d" (xDX)
+             : "0" (uOperator),
+               "1" (uSubOp)
+             : );
+#  else
+    __asm__ ("cpuid"
+             : "=a" (uOperator),
+               "=c" (uSubOp),
+               "=d" (xDX)
+             : "0" (uOperator),
+               "1" (uSubOp)
+             : "ebx");
+#  endif
+
+# elif RT_INLINE_ASM_USES_INTRIN
+    int aInfo[4];
+    __cpuidex(aInfo, uOperator, uSubOp);
+    xDX = aInfo[3];
+
+# else
+    __asm
+    {
+        push    ebx
+        mov     eax, [uOperator]
+        mov     ecx, [uSubOp]
+        cpuid
+        mov     [xDX], edx
+        pop     ebx
+    }
+# endif
+    return (uint32_t)xDX;
+}
+#endif
+
+
+/**
  * Checks if the current CPU supports CPUID.
  *
  * @returns true if CPUID is supported.

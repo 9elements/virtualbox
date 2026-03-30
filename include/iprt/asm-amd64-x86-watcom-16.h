@@ -324,6 +324,74 @@
     modify exact [ax bx cx dx];
 #endif
 
+#undef      ASMCpuIdEx_EAX
+#ifdef IPRT_ASM_AMD64_X86_WATCOM_16_INSTANTIATE
+#pragma aux ASMCpuIdEx_EAX = \
+    ".586" \
+    "xchg ax, dx" \
+    "shl eax, 16" \
+    "mov ax, dx" \
+    "shl ecx, 16" \
+    "mov cx, bx" \
+    "cpuid" \
+    "mov edx, eax" \
+    "shr edx, 16" \
+    parm [ax dx] [bx cx] \
+    value [ax dx] \
+    modify exact [ax bx cx dx];
+#endif
+
+#undef      ASMCpuIdEx_EBX
+#ifdef IPRT_ASM_AMD64_X86_WATCOM_16_INSTANTIATE
+#pragma aux ASMCpuIdEx_EBX = \
+    ".586" \
+    "xchg ax, dx" \
+    "shl eax, 16" \
+    "mov ax, dx" \
+    "shl ecx, 16" \
+    "mov cx, bx" \
+    "cpuid" \
+    "mov ax, bx" \
+    "shr ebx, 16" \
+    parm [ax dx] [bx cx] \
+    value [ax bx] \
+    modify exact [ax bx cx dx];
+#endif
+
+#undef      ASMCpuIdEx_ECX
+#ifdef IPRT_ASM_AMD64_X86_WATCOM_16_INSTANTIATE
+#pragma aux ASMCpuIdEx_ECX = \
+    ".586" \
+    "xchg ax, dx" \
+    "shl eax, 16" \
+    "mov ax, dx" \
+    "shl ecx, 16" \
+    "mov cx, bx" \
+    "cpuid" \
+    "mov ax, cx" \
+    "shr ecx, 16" \
+    parm [ax dx] [bx cx] \
+    value [ax cx] \
+    modify exact [ax bx cx dx];
+#endif
+
+#undef      ASMCpuIdEx_EDX
+#ifdef IPRT_ASM_AMD64_X86_WATCOM_16_INSTANTIATE
+#pragma aux ASMCpuIdEx_EDX = \
+    ".586" \
+    "xchg ax, dx" \
+    "shl eax, 16" \
+    "mov ax, dx" \
+    "shl ecx, 16" \
+    "mov cx, bx" \
+    "cpuid" \
+    "mov ax, dx" \
+    "shr edx, 16" \
+    parm [ax dx] [bx cx] \
+    value [ax dx] \
+    modify exact [ax bx cx dx];
+#endif
+
 /* ASMHasCpuId: MSC inline in main source file. */
 /* ASMGetApicId: Implemented externally, lazy bird. */
 
