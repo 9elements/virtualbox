@@ -1472,8 +1472,7 @@ DECLINLINE(uint32_t) ASMCpuIdEx_EBX(uint32_t uOperator, uint32_t uSubOp)
              : "=a" (uOperator),
                "=d" (xBX),
                "=c" (uSubOp)
-             : "0" (uOperator), "2" (uSubOp)
-             : );
+             : "0" (uOperator), "2" (uSubOp));
 #  else
     __asm__ ("cpuid"
              : "=a" (uOperator),
@@ -1597,8 +1596,7 @@ DECLINLINE(uint32_t) ASMCpuIdEx_EDX(uint32_t uOperator, uint32_t uSubOp)
                "=c" (uSubOp),
                "=d" (xDX)
              : "0" (uOperator),
-               "1" (uSubOp)
-             : );
+               "1" (uSubOp));
 #  else
     __asm__ ("cpuid"
              : "=a" (uOperator),
