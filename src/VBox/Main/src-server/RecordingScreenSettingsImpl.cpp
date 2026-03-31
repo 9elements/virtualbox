@@ -1,4 +1,4 @@
-/* $Id: RecordingScreenSettingsImpl.cpp 113339 2026-03-11 12:51:45Z knut.osmundsen@oracle.com $ */
+/* $Id: RecordingScreenSettingsImpl.cpp 113694 2026-03-31 09:27:50Z andreas.loeffler@oracle.com $ */
 /** @file
  *
  * VirtualBox COM class implementation - Recording settings of one virtual screen.
@@ -1033,7 +1033,7 @@ HRESULT RecordingScreenSettings::getVideoScalingMode(RecordingVideoScalingMode_T
 
     AutoReadLock alock(this COMMA_LOCKVAL_SRC_POS);
 
-    *aMode = RecordingVideoScalingMode_None; /** @todo Implement this. */
+    *aMode = m->bd->Video.enmScalingMode;
 
     return S_OK;
 }
@@ -1048,10 +1048,17 @@ HRESULT RecordingScreenSettings::setVideoScalingMode(RecordingVideoScalingMode_T
 
     AutoWriteLock alock(this COMMA_LOCKVAL_SRC_POS);
 
-    /** @todo Implement this. */
-    RT_NOREF(aMode);
+    if (m->bd->Video.enmScalingMode != aMode)
+    {
+        m->bd.backup();
+        m->bd->Video.enmScalingMode = aMode;
 
-    return E_NOTIMPL;
+        alock.release();
+
+        m->pParent->i_onSettingsChanged();
+    }
+
+    return S_OK;
 }
 
 /**
