@@ -6243,8 +6243,7 @@
         The image will be cropped when the source is bigger than the target size.</desc>
     </const>
     <const name="NearestNeighbor"       value="1">
-      <desc>Performs scaling via nearest-neighbor interpolation.
-        Not yet implemented.</desc>
+      <desc>Performs scaling via nearest-neighbor interpolation.</desc>
     </const>
     <const name="Bilinear"              value="2">
       <desc>Performs scaling via bilinear interpolation.

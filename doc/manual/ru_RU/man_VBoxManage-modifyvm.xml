@@ -30,7 +30,7 @@
 ]>
 <refentry id="vboxmanage-modifyvm" lang="en">
   <refentryinfo>
-    <pubdate>$Date: 2026-01-11 20:29:08 +0100 (Sun, 11 Jan 2026) $</pubdate>
+    <pubdate>$Date: 2026-03-31 11:34:19 +0200 (Tue, 31 Mar 2026) $</pubdate>
     <title>VBoxManage modifyvm</title>
   </refentryinfo>
 
@@ -505,6 +505,10 @@ actually is ready for users. -->
       <arg>--recording-video-fps=<replaceable>кадров-в-сек</replaceable></arg>
       <arg>--recording-video-rate=<replaceable>rate</replaceable></arg>
       <arg>--recording-video-res=<replaceable>ширина</replaceable> <replaceable>высота</replaceable></arg>
+      <arg>--recording-video-scaling-mode=<group choice="plain">
+          <arg choice="plain">none</arg>
+          <arg choice="plain">nearestneighbor</arg>
+      </group></arg>
     </cmdsynopsis>
 
     <cmdsynopsis id="synopsis-vboxmanage-modifyvm-vrde">
@@ -2089,6 +2093,12 @@ it unless this changes. -->
           <listitem><para>
               Задает разрешение записанного видео (ширина и высота)
               в пикселах.
+            </para></listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><option>--recording-video-scaling-mode=none | nearestneighbor</option></term>
+          <listitem><para>
+              Определяет режим масштабирования видео.
             </para></listitem>
         </varlistentry>
       </variablelist>

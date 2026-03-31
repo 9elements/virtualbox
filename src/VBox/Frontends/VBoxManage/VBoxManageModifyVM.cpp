@@ -1,4 +1,4 @@
-/* $Id: VBoxManageModifyVM.cpp 113452 2026-03-18 09:22:21Z alexander.eichner@oracle.com $ */
+/* $Id: VBoxManageModifyVM.cpp 113696 2026-03-31 09:34:19Z andreas.loeffler@oracle.com $ */
 /** @file
  * VBoxManage - Implementation of modifyvm command.
  */
@@ -46,6 +46,10 @@
 #include <VBox/log.h>
 #include "VBoxManage.h"
 #include "VBoxManageUtils.h"
+
+#ifdef VBOX_WITH_RECORDING
+# include "RecordingUtils.h"
+#endif
 
 DECLARE_TRANSLATION_CONTEXT(ModifyVM);
 
@@ -225,6 +229,7 @@ enum
     MODIFYVM_RECORDING_VIDEO_RES,
     MODIFYVM_RECORDING_VIDEO_RATE,
     MODIFYVM_RECORDING_VIDEO_FPS,
+    MODIFYVM_RECORDING_VIDEO_SCALING_MODE,
     MODIFYVM_RECORDING_MAXTIME,
     MODIFYVM_RECORDING_MAXSIZE,
     MODIFYVM_RECORDING_OPTIONS,
@@ -465,9 +470,13 @@ static const RTGETOPTDEF g_aModifyVMOptions[] =
     OPT2("--recording-opts",                "--recordingopts",          MODIFYVM_RECORDING_OPTIONS,         RTGETOPT_REQ_STRING),
     OPT2("--recording-options",             "--recordingoptions",       MODIFYVM_RECORDING_OPTIONS,         RTGETOPT_REQ_STRING),
     OPT2("--recording-video-res",           "--recordingvideores",      MODIFYVM_RECORDING_VIDEO_RES,       RTGETOPT_REQ_STRING),
-    OPT2("--recording-video-resolution",    "--recordingvideoresolution",MODIFYVM_RECORDING_VIDEO_RES,      RTGETOPT_REQ_STRING),
+    OPT2("--recording-video-resolution",    "--recordingvideoresolution",
+                                                                        MODIFYVM_RECORDING_VIDEO_RES,       RTGETOPT_REQ_STRING),
     OPT2("--recording-video-rate",          "--recordingvideorate",     MODIFYVM_RECORDING_VIDEO_RATE,      RTGETOPT_REQ_UINT32),
     OPT2("--recording-video-fps",           "--recordingvideofps",      MODIFYVM_RECORDING_VIDEO_FPS,       RTGETOPT_REQ_UINT32),
+    OPT2("--recording-video-scaling-mode",  "--recordingvideoscalingmode",
+                                                                        MODIFYVM_RECORDING_VIDEO_SCALING_MODE,
+                                                                        RTGETOPT_REQ_STRING),
 #endif
     OPT1("--autostart-enabled",                                         MODIFYVM_AUTOSTART_ENABLED,         RTGETOPT_REQ_BOOL_ONOFF),
     OPT1("--autostart-delay",                                           MODIFYVM_AUTOSTART_DELAY,           RTGETOPT_REQ_UINT32),
@@ -3471,6 +3480,8 @@ RTEXITCODE handleModifyVM(HandlerArg *a)
                 RT_FALL_THROUGH();
             case MODIFYVM_RECORDING_VIDEO_FPS:
                 RT_FALL_THROUGH();
+            case MODIFYVM_RECORDING_VIDEO_SCALING_MODE:
+                RT_FALL_THROUGH();
             case MODIFYVM_RECORDING_MAXTIME:
                 RT_FALL_THROUGH();
             case MODIFYVM_RECORDING_MAXSIZE:
@@ -3580,6 +3591,25 @@ RTEXITCODE handleModifyVM(HandlerArg *a)
                     {
                         for (size_t i = 0; i < saRecordingScreenScreens.size(); ++i)
                             CHECK_ERROR(saRecordingScreenScreens[i], COMSETTER(VideoFPS)(ValueUnion.u32));
+                        break;
+                    }
+                    case MODIFYVM_RECORDING_VIDEO_SCALING_MODE:
+                    {
+                        RecordingVideoScalingMode_T enmMode;
+                        if (!RTStrICmp(ValueUnion.psz, "none"))
+                            enmMode = RecordingVideoScalingMode_None;
+                        else if (!RTStrICmp(ValueUnion.psz, "nearestneighbor"))
+                            enmMode = RecordingVideoScalingMode_NearestNeighbor;
+                        else
+                        {
+                            errorArgument(ModifyVM::tr("Invalid argument '%s' (valid: none, nearestneighbor)"),
+                                          ValueUnion.psz);
+                            hrc = E_FAIL;
+                        }
+
+                        if (SUCCEEDED(hrc))
+                            for (size_t i = 0; i < saRecordingScreenScreens.size(); ++i)
+                                CHECK_ERROR(saRecordingScreenScreens[i], COMSETTER(VideoScalingMode)(enmMode));
                         break;
                     }
                     case MODIFYVM_RECORDING_MAXTIME:
