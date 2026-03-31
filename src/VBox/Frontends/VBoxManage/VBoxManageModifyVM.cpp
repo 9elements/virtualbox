@@ -1,4 +1,4 @@
-/* $Id: VBoxManageModifyVM.cpp 113697 2026-03-31 09:40:13Z andreas.loeffler@oracle.com $ */
+/* $Id: VBoxManageModifyVM.cpp 113698 2026-03-31 09:47:02Z andreas.loeffler@oracle.com $ */
 /** @file
  * VBoxManage - Implementation of modifyvm command.
  */
@@ -46,10 +46,6 @@
 #include <VBox/log.h>
 #include "VBoxManage.h"
 #include "VBoxManageUtils.h"
-
-#ifdef VBOX_WITH_RECORDING
-# include "RecordingUtils.h"
-#endif
 
 DECLARE_TRANSLATION_CONTEXT(ModifyVM);
 
