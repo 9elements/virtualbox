@@ -1,4 +1,4 @@
-/* $Id: RecordingRender.h 113642 2026-03-30 10:11:57Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingRender.h 113702 2026-03-31 15:52:21Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording rendering backend abstraction.
  */
@@ -337,6 +337,7 @@ int RecordingRenderSetParms(PRECORDINGRENDERER pRenderer, PRECORDINGRENDERPARMS 
 int RecordingRenderScreenChange(PRECORDINGRENDERER pRenderer, PRECORDINGSURFACEINFO pInfo);
 int RecordingRenderComposeBegin(PRECORDINGRENDERER pRenderer);
 int RecordingRenderComposeEnd(PRECORDINGRENDERER pRenderer);
+void RecordingRenderComposeDrop(PRECORDINGRENDERER pRenderer);
 int RecordingRenderComposeAddFrame(PRECORDINGRENDERER pRenderer, PRECORDINGFRAME pFrame);
 int RecordingRenderPerform(PRECORDINGRENDERER pRenderer);
 int RecordingRenderQueryFrame(PRECORDINGRENDERER pRenderer, PRECORDINGVIDEOFRAME pFrameRendered);

@@ -1,4 +1,4 @@
-/* $Id: RecordingRender.cpp 113685 2026-03-30 14:32:57Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingRender.cpp 113702 2026-03-31 15:52:21Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording rendering implementation.
  *
@@ -425,6 +425,10 @@ static DECLCALLBACK(int) recRenderSWTextureQueryPixelData(PRECORDINGRENDERER pRe
     *ppvBuf = pFrame->pau8Buf;
     *pcbBuf = pFrame->cbBuf;
 
+#ifdef VBOX_RECORDING_DEBUG_DUMP_FRAMES
+    RecordingDbgDumpVideoFrame(pFrame, "render-sw-tex-query-pixeldata", 0);
+#endif
+
     return VINF_SUCCESS;
 }
 
@@ -434,7 +438,7 @@ static DECLCALLBACK(int) recRenderSWTextureUpdate(PRECORDINGRENDERER pRenderer, 
 {
     RT_NOREF(pRenderer);
 
-    PRECORDINGVIDEOFRAME pFrameToUpdate = (PRECORDINGVIDEOFRAME)pTexture->pvBackend;
+    PRECORDINGVIDEOFRAME pFrameToUpdate = recRenderSWTex2Frm(pTexture);
 
     /* For this software backend we already use RECORDINGVIDEOFRAME as a backend storage, so just (shallow) copy the data over. */
     memcpy(pFrameToUpdate, pFrame, sizeof(RECORDINGVIDEOFRAME));
@@ -448,10 +452,10 @@ static DECLCALLBACK(int) recRenderSWBlit(PRECORDINGRENDERER pRenderer,
                                          PRECORDINGRENDERTEXTURE pDstTexture, PRTRECT pDstRect,
                                          PCRECORDINGRENDERTEXTURE pSrcTexture, PRTRECT pSrcRect)
 {
+    RT_NOREF(pRenderer);
+
     PRECORDINGVIDEOFRAME pDstFrame = recRenderSWTex2Frm(pDstTexture);
     RECORDINGVIDEOFRAME const *pSrcFrame = recRenderSWTex2FrmC(pSrcTexture);
-
-    RT_NOREF(pRenderer);
 
     uint32_t const uSrcX = pSrcRect ? (uint32_t)RT_MAX(pSrcRect->xLeft, 0) : 0;
     uint32_t const uSrcY = pSrcRect ? (uint32_t)RT_MAX(pSrcRect->yTop,  0) : 0;
@@ -486,6 +490,10 @@ static DECLCALLBACK(int) recRenderSWBlit(PRECORDINGRENDERER pRenderer,
 
         memcpy(&pDstFrame->pau8Buf[offDst], &pSrcFrame->pau8Buf[offSrc], cbRow);
     }
+
+#ifdef VBOX_RECORDING_DEBUG_DUMP_FRAMES
+    RecordingDbgDumpVideoFrame(pDstFrame, "render-sw-blit", 0);
+#endif
 
     return VINF_SUCCESS;
 }
@@ -2324,6 +2332,8 @@ int RecordingRenderScreenChange(PRECORDINGRENDERER pRenderer,
  */
 int RecordingRenderComposeBegin(PRECORDINGRENDERER pRenderer)
 {
+    LogFlowFuncEnter();
+
     Assert(pRenderer->enmState == RECORDINGRENDERSTATE_IDLE);
     pRenderer->enmState = RECORDINGRENDERSTATE_COMPOSING;
 
@@ -2338,12 +2348,26 @@ int RecordingRenderComposeBegin(PRECORDINGRENDERER pRenderer)
  */
 int RecordingRenderComposeEnd(PRECORDINGRENDERER pRenderer)
 {
+    LogFlowFuncEnter();
+
     Assert(pRenderer->enmState == RECORDINGRENDERSTATE_COMPOSING);
     pRenderer->enmState = RECORDINGRENDERSTATE_DONE;
 
     pRenderer->msLastRenderedTS = RTTimeMilliTS();
 
     return VINF_SUCCESS;
+}
+
+/**
+ * Drops a composition pass unconditionally.
+ *
+ * @param   pRenderer           Renderer instance.
+ */
+void RecordingRenderComposeDrop(PRECORDINGRENDERER pRenderer)
+{
+    LogFlowFuncEnter();
+
+    pRenderer->enmState = RECORDINGRENDERSTATE_IDLE;
 }
 
 /**
@@ -2355,6 +2379,8 @@ int RecordingRenderComposeEnd(PRECORDINGRENDERER pRenderer)
  */
 int RecordingRenderComposeAddFrame(PRECORDINGRENDERER pRenderer, PRECORDINGFRAME pFrame)
 {
+    LogFlowFuncEnter();
+
 #ifdef VBOX_STRICT
     AssertPtrReturn(pRenderer, VERR_INVALID_POINTER);
     AssertPtrReturn(pFrame, VERR_INVALID_POINTER);
@@ -2383,11 +2409,12 @@ int RecordingRenderComposeAddFrame(PRECORDINGRENDERER pRenderer, PRECORDINGFRAME
             AssertRCBreak(vrc);
 
             RTRECT SrcRect;
-            RTRECT DstRect;
             SrcRect.xLeft   = 0;
             SrcRect.yTop    = 0;
             SrcRect.xRight  = (int32_t)pFrameSrc->Info.uWidth;
             SrcRect.yBottom = (int32_t)pFrameSrc->Info.uHeight;
+
+            RTRECT DstRect;
             DstRect.xLeft   = (int32_t)pFrameSrc->Pos.x;
             DstRect.yTop    = (int32_t)pFrameSrc->Pos.y;
             DstRect.xRight  = DstRect.xLeft + SrcRect.xRight;
@@ -2616,19 +2643,24 @@ int RecordingRenderPerform(PRECORDINGRENDERER pRenderer)
  * @returns VBox status code.
  * @param   pRenderer           Renderer instance.
  * @param   pFrame              Where to store the pixel data.
+ *                              Note! The frame flags might be updated on return.
  */
 int RecordingRenderQueryFrame(PRECORDINGRENDERER pRenderer, PRECORDINGVIDEOFRAME pFrame)
 {
-    int vrc = pRenderer->pOps->pfnTextureQueryPixelData(pRenderer, pRenderer->pTexConv,
+    PRECORDINGRENDERTEXTURE  pTexSrc = pRenderer->pTexConv;
+    AssertPtr(pTexSrc);
+
+    int vrc = pRenderer->pOps->pfnTextureQueryPixelData(pRenderer, pTexSrc,
                                                         (void **)&pFrame->pau8Buf,
                                                         &pFrame->cbBuf);
     if (RT_FAILURE(vrc))
         return vrc;
 
     /* Use pointer of the the pass 3 texture to get the final frame (original / resized / converted). */
-    pFrame->Info = *pRenderer->pTexConv->pInfo;
+    pFrame->Info = *pTexSrc->pInfo;
 
-    /* The software backend does not copy the pixel data over to pFrame but only sets the pointer to the data. */
+    /* Instead of copying the pixel data over to pFrame, backends only sets the pointer to the data.
+     * In that case the backend texture remains the owner of the pixel data and thus pFrame isn't allowed to destroy it. */
     if (pRenderer->enmBackend == RECORDINGRENDERBACKEND_SOFTWARE)
         pFrame->fFlags |= RECORDINGVIDEOFRAME_F_NO_DESTROY;
 
@@ -2644,6 +2676,12 @@ int RecordingRenderQueryFrame(PRECORDINGRENDERER pRenderer, PRECORDINGVIDEOFRAME
  */
 int RecordingRenderSetParms(PRECORDINGRENDERER pRenderer, PRECORDINGRENDERPARMS pParms)
 {
+    AssertReturn(pParms->Info.uHeight, VERR_INVALID_PARAMETER);
+    AssertReturn(pParms->Info.uWidth, VERR_INVALID_PARAMETER);
+    AssertReturn(pParms->Info.enmPixelFmt != RECORDINGPIXELFMT_UNKNOWN, VERR_INVALID_PARAMETER);
+    AssertReturn(pParms->Info.uBPP, VERR_INVALID_PARAMETER);
+    AssertReturn(pParms->Info.uBPP % 8 == 0, VERR_INVALID_PARAMETER);
+
     LogRel2(("Recording: Rendering parameters:\n"));
     LogRel2(("Recording:   - Scaling mode: %s\n", RecordingUtilsVideoScalingModeToStr(pParms->enmScalingMode)));
     LogRel2(("Recording:   - Scaling size: %u x %u\n", pParms->Info.uWidth, pParms->Info.uHeight));

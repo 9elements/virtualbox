@@ -1,4 +1,4 @@
-/* $Id: RecordingStream.cpp 113683 2026-03-30 13:57:36Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingStream.cpp 113702 2026-03-31 15:52:21Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording stream code.
  */
@@ -580,9 +580,8 @@ int RecordingStream::process(RTMSINTERVAL msTimeout)
             PRECORDINGFRAME     pFrame = RecordingFramePoolAcquireRead(&m_aFramePool[Cmd.idxPool], m_uScreenID);
             AssertPtr(pFrame);
 
-            Log3Func(("Frame %RU64: type=%s (%#x), ts=%RU64\n",
-                      pFrame->idStream, RecordingUtilsFrameTypeToStr(pFrame->enmType),
-                      pFrame->enmType, pFrame->msTimestamp));
+            Log3Func(("Frame %s (%#x), ts=%RU64\n",
+                      RecordingUtilsFrameTypeToStr(pFrame->enmType), pFrame->enmType, pFrame->msTimestamp));
 
             PRECORDINGCODEC pCodec = &m_CodecVideo; /* Only codec used right now. */
 
@@ -592,36 +591,17 @@ int RecordingStream::process(RTMSINTERVAL msTimeout)
                 case RECORDINGFRAME_TYPE_CURSOR_SHAPE:
                 case RECORDINGFRAME_TYPE_VIDEO:
                 {
+                    if (!pPkt) /* No packet but one frame only? Start a new compose cycley. */
+                        RecordingRenderComposeBegin(&m_Renderer);
+
                     /* Cursor frames must first be composed into the current image and then encoded. */
                     int vrc2 = RecordingRenderComposeAddFrame(&m_Renderer, pFrame);
                     AssertRC(vrc2);
                     if (RT_SUCCESS(vrc))
                         vrc = vrc2;
 
-                    if (!pPkt) /* No packet but one frame only? Encode immediately. */
-                    {
+                    if (!pPkt) /* No packet but one frame only? Start a new compose cycley. */
                         RecordingRenderComposeEnd(&m_Renderer);
-
-                        vrc2 = RecordingRenderPerform(&m_Renderer);
-                        AssertRC(vrc2);
-                        if (RT_SUCCESS(vrc))
-                            vrc = vrc2;
-
-                        RECORDINGFRAME FrameRendered;
-                        RT_ZERO(FrameRendered);
-                        FrameRendered.idStream    = m_uScreenID;
-                        FrameRendered.msTimestamp = pFrame->msTimestamp;
-
-                        vrc2 = RecordingRenderQueryFrame(&m_Renderer, &FrameRendered.u.Video);
-                        AssertRC(vrc2);
-                        if (RT_SUCCESS(vrc))
-                            vrc = vrc2;
-
-                        vrc2 = RecordingCodecEncode(pCodec, &FrameRendered, FrameRendered.msTimestamp, m_pCtx /* pvUser */);
-                        AssertRC(vrc2);
-                        if (RT_SUCCESS(vrc))
-                            vrc = vrc2;
-                    }
                     break;
                 }
 
@@ -645,13 +625,24 @@ int RecordingStream::process(RTMSINTERVAL msTimeout)
 
             cCmdProcessed++;
 
-            if (   (fTimedBudget && RTTimeMilliTS() - tsStartMs >= msTimeout) /* Timeout reached? */
-                || (!fTimedBudget && cCmdProcessed >= 512                     /* Fairness guard for non-timed drain mode. */))
-                break;
+            /* Command queue pressure too high? Drop the entire packet. */
+            bool          fCmdPressureTooHigh = false;
+            uint8_t const uCmdPress           = cmdQueueGetPressure();
+            if (uCmdPress >= 80)
+            {
+                uint8_t const uPoolPress = RecordingFramePoolGetPressure(&m_aFramePool[RECORDINGFRAME_TYPE_VIDEO],
+                                                                         m_uScreenID);
+                if (   uCmdPress  >= 90  /** @todo Make this configurable? */
+                    || uPoolPress >= 90)
+                {
+                    /* Keep every 4th packet to preserve temporal progress while dropping stale backlog. */
+                    cPktsDroppedForBacklog++;
+                    fCmdPressureTooHigh = (cPktsDroppedForBacklog % 4) != 0;
+                }
+            }
 
-            /*
-             * Packet processing.
-             */
+            bool fEncode = false;
+
             if (pPkt)
             {
                 pPkt->cSeen++;
@@ -659,57 +650,67 @@ int RecordingStream::process(RTMSINTERVAL msTimeout)
                 Assert(pPkt->cSeen <= pPkt->cExpected);
                 bool const fPktComplete = pPkt->cSeen >= pPkt->cExpected;
                 bool const fPktTimedOut = RTTimeMilliTS() - pPkt->tsFirstSeenMs > m_pCtx->GetSchedulingHintMs();
+                bool const fPktDrop     =    fPktTimedOut
+                                          || fPktComplete
+                                          || fCmdPressureTooHigh;
 
-                /* Packet complete? Do the encoding. */
-                if (pPkt->cSeen == pPkt->cExpected)
+                if (RT_LIKELY(fPktComplete))
                 {
                     RecordingRenderComposeEnd(&m_Renderer);
-
-                    int const vrc2 = RecordingRenderPerform(&m_Renderer);
-                    AssertRC(vrc2);
-                    if (RT_SUCCESS(vrc))
-                        vrc = vrc2;
                 }
-
-                /* Queue pressure too high? Drop packet. */
-                bool          fPktPressureTooHigh = false;
-                uint8_t const uCmdPress           = cmdQueueGetPressure();
-                if (uCmdPress >= 80)
+                else if (   fPktTimedOut
+                         || fCmdPressureTooHigh)
                 {
-                    uint8_t const uPoolPress = RecordingFramePoolGetPressure(&m_aFramePool[RECORDINGFRAME_TYPE_VIDEO],
-                                                                             m_uScreenID);
-                    if (   uCmdPress  >= 90  /** @todo Make this configurable? */
-                        || uPoolPress >= 90)
-                    {
-                        /* Keep every 4th packet to preserve temporal progress while dropping stale backlog. */
-                        cPktsDroppedForBacklog++;
-                        fPktPressureTooHigh = (cPktsDroppedForBacklog % 4) != 0;
-                    }
-                }
+                    RecordingRenderComposeDrop(&m_Renderer);
 
-                if (fPktPressureTooHigh)
-                    LogRelMax2(64, ("Recording: Warning: Stream #%u dropping packet under backlog pressure\n", m_uScreenID));
-                else if (fPktTimedOut)
-                    LogRelMax2(64, ("Recording: Warning: Stream #%u dropping packet because of timeout\n", m_uScreenID));
-
-                bool fDropPkt = false;
-                if (   fPktTimedOut
-                    || fPktPressureTooHigh)
-                {
                     STAM_COUNTER_INC(&m_STAM.cVideoFramesSkipped);
-                    fDropPkt = true;
+
+                    if (fPktTimedOut)
+                        LogRelMax2(64,("Recording: Warning: Stream #%u dropping packet %RU64 because of timeout\n",
+                                       m_uScreenID, pPkt->idPkt));
+                    else if (fCmdPressureTooHigh)
+                        LogRelMax2(64, ("Recording: Warning: Stream #%u dropping packet %RU64 under backlog pressure\n",
+                                        m_uScreenID, pPkt->idPkt));
                 }
-                else if (fPktComplete) /* Also drop if packet is complete. */
-                    fDropPkt = true;
 
-                Log3Func(("Packet %RU64: %zu/%zu -> complete=%RTbool, timed out=%RTbool -> drop=%RTbool\n",
-                          pPkt->idPkt, pPkt->cSeen, pPkt->cExpected, fPktComplete, fPktTimedOut, fDropPkt));
+                fEncode = fPktComplete;
 
-                if (fDropPkt)
+                Log3Func(("Packet %RU64: %zu/%zu -> complete=%RTbool, timed out=%RTbool -> fEncode = %RTbool\n",
+                          pPkt->idPkt, pPkt->cSeen, pPkt->cExpected, fPktComplete, fPktTimedOut, fEncode));
+
+                if (fPktDrop)
                 {
                     itPkt = m_mapPkts.erase(itPkt);
-                    cPktsProcessed++;
+                    cPktsProcessed++; /* Count for fairness guard. */
                 }
+            }
+            else if (pFrame->enmType != RECORDINGFRAME_TYPE_SCREEN_CHANGE)
+                fEncode = true;
+
+            if (fEncode)
+            {
+                int vrc2 = RecordingRenderPerform(&m_Renderer);
+                AssertRC(vrc2);
+                if (RT_SUCCESS(vrc))
+                    vrc = vrc2;
+
+                RECORDINGFRAME FrameRendered;
+                RT_ZERO(FrameRendered);
+                FrameRendered.idStream    = m_uScreenID;
+                FrameRendered.enmType     = RECORDINGFRAME_TYPE_VIDEO;
+                FrameRendered.msTimestamp = pFrame->msTimestamp;
+
+                vrc2 = RecordingRenderQueryFrame(&m_Renderer, &FrameRendered.u.Video);
+                AssertRC(vrc2);
+                if (RT_SUCCESS(vrc))
+                    vrc = vrc2;
+
+                vrc2 = RecordingCodecEncode(pCodec, &FrameRendered, FrameRendered.msTimestamp, m_pCtx /* pvUser */);
+                AssertRC(vrc2);
+                if (RT_SUCCESS(vrc))
+                    vrc = vrc2;
+
+                RecordingFrameDestroy(&FrameRendered);
             }
 
             if (   (fTimedBudget && RTTimeMilliTS() - tsStartMs >= msTimeout) /* Timeout reached? */
@@ -1925,8 +1926,10 @@ int RecordingStream::InitVideo(const ComPtr<IRecordingScreenSettings> &ScreenSet
 
         RECORDINGRENDERPARAMS RenderParms;
         RT_ZERO(RenderParms);
-        RenderParms.Info.uWidth  = uWidth;
-        RenderParms.Info.uHeight = uHeight;
+        RenderParms.Info.uWidth      = uWidth;
+        RenderParms.Info.uHeight     = uHeight;
+        RenderParms.Info.uBPP        = 32;
+        RenderParms.Info.enmPixelFmt = RECORDINGPIXELFMT_YUVI420; /* Needed for VP8, the only codec we support right now. */
 
         hrc = ScreenSettings->COMGETTER(VideoScalingMode)(&RenderParms.enmScalingMode);
         AssertComRC(hrc);
