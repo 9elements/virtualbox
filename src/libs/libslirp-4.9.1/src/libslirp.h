@@ -250,6 +250,17 @@ typedef struct SlirpConfig {
     /* MRU when receiving packets from the guest */
     /* Default: IF_MRU_DEFAULT */
     size_t if_mru;
+
+#ifdef VBOX
+    /* MTU for IPv6 */
+    /* Default: IF_MTU_DEFAULT */
+    size_t if_mtu_v6;
+
+    /* MRU for IPv6 */
+    /* Default: IF_MRU_DEFAULT */
+    size_t if_mru_v6;
+#endif
+
     /* Prohibit connecting to 127.0.0.1:* */
     bool disable_host_loopback;
     /*

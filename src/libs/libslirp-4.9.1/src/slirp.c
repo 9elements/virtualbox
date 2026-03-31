@@ -630,6 +630,14 @@ Slirp *slirp_new(const SlirpConfig *cfg, const SlirpCb *callbacks, void *opaque)
     g_return_val_if_fail(cfg->if_mtu <= IF_MTU_MAX, NULL);
     g_return_val_if_fail(cfg->if_mru >= IF_MRU_MIN || cfg->if_mru == 0, NULL);
     g_return_val_if_fail(cfg->if_mru <= IF_MRU_MAX, NULL);
+
+#ifdef VBOX
+    g_return_val_if_fail(cfg->if_mtu_v6 >= IF_MTU_V6_MIN || cfg->if_mtu_v6 == 0, NULL);
+    g_return_val_if_fail(cfg->if_mtu_v6 <= IF_MTU_MAX, NULL);
+    g_return_val_if_fail(cfg->if_mru_v6 >= IF_MRU_V6_MIN || cfg->if_mru_v6 == 0, NULL);
+    g_return_val_if_fail(cfg->if_mru_v6 <= IF_MRU_MAX, NULL);
+#endif
+
     g_return_val_if_fail(!cfg->bootfile ||
                          (strlen(cfg->bootfile) <
                           G_SIZEOF_MEMBER(struct bootp_t, bp_file)), NULL);
@@ -675,6 +683,12 @@ Slirp *slirp_new(const SlirpConfig *cfg, const SlirpCb *callbacks, void *opaque)
     }
     slirp->if_mtu = cfg->if_mtu == 0 ? IF_MTU_DEFAULT : cfg->if_mtu;
     slirp->if_mru = cfg->if_mru == 0 ? IF_MRU_DEFAULT : cfg->if_mru;
+
+#ifdef VBOX
+    slirp->if_mtu_v6 = cfg->if_mtu_v6 == 0 ? IF_MTU_DEFAULT : cfg->if_mtu_v6;
+    slirp->if_mru_v6 = cfg->if_mru_v6 == 0 ? IF_MRU_DEFAULT : cfg->if_mru_v6;
+#endif
+
     slirp->disable_host_loopback = cfg->disable_host_loopback;
     slirp->enable_emu = cfg->enable_emu;
 

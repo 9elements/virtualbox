@@ -1548,11 +1548,11 @@ int tcp_mss(struct tcpcb *tp, unsigned offer)
 
     switch (so->so_ffamily) {
     case AF_INET:
-        mss = MIN(so->slirp->if_mtu, so->slirp->if_mru) -
+        mss = MIN(so->slirp->if_mtu_v6, so->slirp->if_mru_v6) -
               sizeof(struct tcphdr) - sizeof(struct ip);
         break;
     case AF_INET6:
-        mss = MIN(so->slirp->if_mtu, so->slirp->if_mru) -
+        mss = MIN(so->slirp->if_mtu_v6, so->slirp->if_mru_v6) -
               sizeof(struct tcphdr) - sizeof(struct ip6);
         break;
     default:

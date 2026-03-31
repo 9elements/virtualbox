@@ -125,6 +125,11 @@ void m_cleanup(Slirp *slirp);
 /* Allocate an mbuf */
 struct mbuf *m_get(Slirp *);
 
+#ifdef VBOX
+/* Allocate an mbuf using IPv6 MTU */
+struct mbuf *m_get_v6(Slirp *);
+#endif
+
 /* Release an mbuf (put possibly put it in allocation cache */
 void m_free(struct mbuf *);
 

@@ -163,7 +163,7 @@ void icmp6_forward_error(struct mbuf *m, uint8_t type, uint8_t code, struct in6_
 
     rip->ip_nh = IPPROTO_ICMPV6;
     const int error_data_len = MIN(
-        m->m_len, slirp->if_mtu - (sizeof(struct ip6) + ICMP6_ERROR_MINLEN));
+        m->m_len, slirp->if_mtu_v6 - (sizeof(struct ip6) + ICMP6_ERROR_MINLEN));
     rip->ip_pl = htons(ICMP6_ERROR_MINLEN + error_data_len);
     t->m_len = sizeof(struct ip6) + ntohs(rip->ip_pl);
 
@@ -180,7 +180,7 @@ void icmp6_forward_error(struct mbuf *m, uint8_t type, uint8_t code, struct in6_
         ricmp->icmp6_err.unused = 0;
         break;
     case ICMP6_TOOBIG:
-        ricmp->icmp6_err.mtu = htonl(slirp->if_mtu);
+        ricmp->icmp6_err.mtu = htonl(slirp->if_mtu_v6);
         break;
     case ICMP6_PARAMPROB:
         /* TODO: Handle this case */
@@ -342,25 +342,42 @@ static void ndp_send_ra(Slirp *slirp)
 #ifdef VBOX
     /* VBOX: Always advertise RDNSS; use upstream IPv6 DNS servers when available, else fall back to virtual ::3. */
     struct ndpopt *opt3 = mtod(t, struct ndpopt *);
-    opt3->ndpopt_type = NDPOPT_RDNSS;
-
-    /* Compute option length: 8-byte header + 16 bytes per address. */
+    const struct in6_addr *paNameservers = slirp->aIPv6RealNameservers;
     size_t cNameservers = slirp->cIPv6RealNameservers;
-    size_t opt_len = 8 + 16 * ((cNameservers > 0 && slirp->aIPv6RealNameservers) ? cNameservers : 1);
-    opt3->ndpopt_len = (uint8_t)(opt_len / 8);
+    const size_t cbRaFixed = sizeof(struct ip6) + ICMP6_NDP_RA_MINLEN
+                           + NDPOPT_LINKLAYER_LEN + NDPOPT_PREFIXINFO_LEN;
+    const size_t cbRdnssHdr = NDPOPT_RDNSS_LEN - sizeof(struct in6_addr);
+    const size_t cNameserversMaxByOpt = (UINT8_MAX - (cbRdnssHdr / 8))
+                                      / (sizeof(struct in6_addr) / 8);
+    const size_t cNameserversMaxByPkt = (slirp->if_mtu_v6 > cbRaFixed + cbRdnssHdr)
+                                      ? ((size_t)slirp->if_mtu_v6 - cbRaFixed - cbRdnssHdr)
+                                        / sizeof(struct in6_addr)
+                                      : 0;
 
-    opt3->ndpopt_rdnss.reserved = 0;
-    opt3->ndpopt_rdnss.lifetime = htonl(2 * NDP_MaxRtrAdvInterval);
+    // TODO move this to where it's supposed to be
+    LogRel(("ip6_icmp: MTU is too small to hold RDNSS options! Behavior may be unexpected.\n"));
 
-    /* Copy one or more resolver IPv6 addresses right after the header field. */
-    uint8_t *pAddr = (uint8_t *)&opt3->ndpopt_rdnss.addr;
-    if (cNameservers > 0 && slirp->aIPv6RealNameservers)
-        memcpy(pAddr, slirp->aIPv6RealNameservers, 16 * cNameservers);
+    if (cNameservers == 0 || !paNameservers)
+    {
+        paNameservers = &slirp->vnameserver_addr6;
+        cNameservers = 1;
+    }
     else
-        memcpy(pAddr, &slirp->vnameserver_addr6, 16);
+        cNameservers = MIN(cNameservers, MIN(cNameserversMaxByOpt, cNameserversMaxByPkt));
 
-    t->m_data += opt_len;
-    pl_size += opt_len;
+    if (cNameservers > 0) {
+        size_t cbThisOpt = cbRdnssHdr + cNameservers * sizeof(struct in6_addr);
+
+        opt3->ndpopt_type = NDPOPT_RDNSS;
+        opt3->ndpopt_len = (uint8_t)(cbThisOpt / 8);
+        opt3->ndpopt_rdnss.reserved = 0;
+        opt3->ndpopt_rdnss.lifetime = htonl(2 * NDP_MaxRtrAdvInterval);
+        memcpy(&opt3->ndpopt_rdnss.addr, paNameservers,
+               cNameservers * sizeof(struct in6_addr));
+
+        t->m_data += cbThisOpt;
+        pl_size += cbThisOpt;
+    }
 #else
     /* Prefix information (NDP option) */
     if (get_dns6_addr(&addr, &scope_id) >= 0) {

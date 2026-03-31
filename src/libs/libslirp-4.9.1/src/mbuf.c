@@ -116,6 +116,48 @@ struct mbuf *m_get(Slirp *slirp)
     return m;
 }
 
+#ifdef VBOX
+/*
+ * Same thing as m_get() but using IPv6 MTU.
+ *
+ * TODO: It's a bit gross to duplicate code, but we want the
+ * separated function calls.
+ */
+struct mbuf *m_get_v6(Slirp *slirp)
+{
+    register struct mbuf *m;
+    int flags = 0;
+
+    DEBUG_CALL("m_get_v6");
+
+    if (MBUF_DEBUG || slirp->m_freelist.qh_link == &slirp->m_freelist) {
+        m = g_malloc(SLIRP_MSIZE(slirp->if_mtu_v6));
+        slirp->mbuf_alloced++;
+        if (MBUF_DEBUG || slirp->mbuf_alloced > MBUF_THRESH)
+            flags = M_DOFREE;
+        m->slirp = slirp;
+    } else {
+        m = (struct mbuf *)slirp->m_freelist.qh_link;
+        slirp_remque(m);
+    }
+
+    /* Insert it in the used list */
+    slirp_insque(m, &slirp->m_usedlist);
+    m->m_flags = (flags | M_USEDLIST);
+
+    /* Initialise it */
+    m->m_size = SLIRP_MSIZE(slirp->if_mtu_v6) - offsetof(struct mbuf, m_dat);
+    m->m_data = m->m_dat;
+    m->m_len = 0;
+    m->m_nextpkt = NULL;
+    m->m_prevpkt = NULL;
+    m->resolution_requested = false;
+    m->expiration_date = (uint64_t)-1;
+    DEBUG_ARG("m = %p", m);
+    return m;
+}
+#endif
+
 void m_free(struct mbuf *m)
 {
     DEBUG_CALL("m_free");

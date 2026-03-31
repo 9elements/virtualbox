@@ -159,6 +159,11 @@ struct Slirp {
     int if_mtu;
     int if_mru;
 
+#ifdef VBOX
+    int if_mtu_v6;
+    int if_mru_v6;
+#endif
+
     bool disable_host_loopback;
 
     uint32_t mfr_id;

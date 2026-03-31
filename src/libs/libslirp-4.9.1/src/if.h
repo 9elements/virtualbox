@@ -12,12 +12,23 @@
 #define IF_NOCIDCOMP 0x08 /* CID compression */
 
 #define IF_MTU_DEFAULT 1500
+
+#ifdef VBOX
+#define IF_MTU_MIN 1280
+#else
 #define IF_MTU_MIN 68
+#endif
+
 #define IF_MTU_MAX 65521
 #define IF_MRU_DEFAULT 1500
 #define IF_MRU_MIN 68
 #define IF_MRU_MAX 65521
 #define IF_COMP IF_AUTOCOMP /* Flags for compression */
+
+#ifdef VBOX
+# define IF_MTU_V6_MIN 1280
+# define IF_MRU_V6_MIN 1280
+#endif
 
 /* 2 for alignment, 14 for ethernet */
 #define IF_MAXLINKHDR (2 + ETH_HLEN)
