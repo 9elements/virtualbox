@@ -1,4 +1,4 @@
-/* $Id: VBoxManageModifyVM.cpp 113696 2026-03-31 09:34:19Z andreas.loeffler@oracle.com $ */
+/* $Id: VBoxManageModifyVM.cpp 113697 2026-03-31 09:40:13Z andreas.loeffler@oracle.com $ */
 /** @file
  * VBoxManage - Implementation of modifyvm command.
  */
@@ -3595,7 +3595,7 @@ RTEXITCODE handleModifyVM(HandlerArg *a)
                     }
                     case MODIFYVM_RECORDING_VIDEO_SCALING_MODE:
                     {
-                        RecordingVideoScalingMode_T enmMode;
+                        RecordingVideoScalingMode_T enmMode = RecordingVideoScalingMode_None /* Shut up MSVC */;
                         if (!RTStrICmp(ValueUnion.psz, "none"))
                             enmMode = RecordingVideoScalingMode_None;
                         else if (!RTStrICmp(ValueUnion.psz, "nearestneighbor"))
