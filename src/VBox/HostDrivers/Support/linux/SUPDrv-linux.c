@@ -1,4 +1,4 @@
-/* $Id: SUPDrv-linux.c 113691 2026-03-30 23:18:37Z knut.osmundsen@oracle.com $ */
+/* $Id: SUPDrv-linux.c 113700 2026-03-31 13:50:46Z knut.osmundsen@oracle.com $ */
 /** @file
  * VBoxDrv - The VirtualBox Support Driver - Linux specifics.
  */
@@ -502,7 +502,7 @@ static int __init supdrvLinuxInitKvmSymbols(PRTDBGKRNLINFO phKrnlInfo)
                 {
                     uint64_t const fSupCet = ASMRdMsr(MSR_IA32_S_CET);
 printk("vboxdrv: debug: MSR_IA32_S_CET=%#lx\n", (unsigned long)fSupCet); /* TEMPORARY! */
-                    ASMWrMsr(MSR_IA32_S_CET, fSupCet | MSR_IA32_CET_ENDBR_EN);
+                    ASMWrMsr(MSR_IA32_S_CET, fSupCet & ~MSR_IA32_CET_ENDBR_EN);
                     pModule = pfnFindModule(pszModName);
                     ASMWrMsr(MSR_IA32_S_CET, fSupCet);
                 }
