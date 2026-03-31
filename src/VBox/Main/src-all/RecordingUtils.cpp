@@ -1,4 +1,4 @@
-/* $Id: RecordingUtils.cpp 113663 2026-03-30 11:23:48Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingUtils.cpp 113695 2026-03-31 09:30:05Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording utility code.
  */
@@ -533,9 +533,6 @@ const char *RecordingUtilsVideoCodecToStr(RecordingVideoCodec_T enmCodec)
  *
  * @returns Recording video scaling mode as a string.
  * @param   enmMode             Video scaling mode to convert.
- *
- * @note    Warning! Do not change these values unless you know what you're doing.
- *                   Those values are being used for serializing the settings.
  */
 const char *RecordingUtilsVideoScalingModeToStr(RecordingVideoScalingMode_T enmMode)
 {
