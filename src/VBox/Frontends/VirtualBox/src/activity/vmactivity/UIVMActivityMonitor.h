@@ -1,4 +1,4 @@
-/* $Id: UIVMActivityMonitor.h 113581 2026-03-26 09:01:36Z serkan.bayraktar@oracle.com $ */
+/* $Id: UIVMActivityMonitor.h 113693 2026-03-31 08:32:01Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVMActivityMonitor class declaration.
  */
@@ -129,13 +129,16 @@ public:
     void setUnitString(const QString strUnitString);
     void setMaximumQueueSize(int iSize);
 
+    quint64 average(int dataSeriesIndex);
+
 private:
 
-    void updateMax();
+    void updateMaxAndAverage();
 
     QString m_strUnit;
     QString m_strDataSeriesName[DATA_SERIES_SIZE];
     quint64 m_iMaximum;
+    quint64 m_iAverage[DATA_SERIES_SIZE];
     QQueue<quint64> m_data[DATA_SERIES_SIZE];
     /** We assume m_data[0] and m_data[1] have a common label array. */
     QQueue<QString> m_labels;
@@ -220,24 +223,31 @@ protected:
       * @{ */
         /** CPU info label strings. */
         QString m_strCPUInfoLabelTitle;
-        QString m_strCPUInfoLabelGuest;
-        QString  m_strCPUInfoLabelVMM;
+        QString m_strCPUInfoLabelGuestCurrent;
+        QString m_strCPUInfoLabelGuestAverage;
+        QString  m_strCPUInfoLabelVMMCurrent;
+        QString  m_strCPUInfoLabelVMMAverage;
         /** RAM usage info label strings. */
         QString m_strRAMInfoLabelTitle;
         QString m_strRAMInfoLabelTotal;
         QString m_strRAMInfoLabelFree;
-        QString m_strRAMInfoLabelUsed;
+        QString m_strRAMInfoLabelUsedCurrent;
+        QString m_strRAMInfoLabelUsedAverage;
         /** Net traffic info label strings. */
-        QString m_strNetworkInfoLabelReceived;
-        QString m_strNetworkInfoLabelTransmitted;
-        QString m_strNetworkInfoLabelReceivedTotal;
-        QString m_strNetworkInfoLabelTransmittedTotal;
+        QString m_strNetworkInfoLabelReceiveCurrent;
+        QString m_strNetworkInfoLabelTransmitCurrent;
+        QString m_strNetworkInfoLabelReceiveTotal;
+        QString m_strNetworkInfoLabelTransmitTotal;
+        QString m_strNetworkInfoLabelReceiveAverage;
+        QString m_strNetworkInfoLabelTransmitAverage;
         /** Disk IO info label strings. */
         QString m_strDiskIOInfoLabelTitle;
-        QString m_strDiskIOInfoLabelWritten;
-        QString m_strDiskIOInfoLabelRead;
-        QString m_strDiskIOInfoLabelWrittenTotal;
+        QString m_strDiskIOInfoLabelWriteCurrent;
+        QString m_strDiskIOInfoLabelReadCurrent;
+        QString m_strDiskIOInfoLabelWriteTotal;
         QString m_strDiskIOInfoLabelReadTotal;
+        QString m_strDiskIOInfoLabelWriteAverage;
+        QString m_strDiskIOInfoLabelReadAverage;
         /** Misc. strings. */
         QString m_strPauseButtonPauseToolTip;
         QString m_strPauseButtonResumeToolTip;
@@ -337,10 +347,12 @@ private:
     QString m_strVMExitLabelTotal;
     QString m_strNetworkInfoLabelTitle;
     QString m_strUSBInfoLabelTitle;
-    QString m_strUSBInfoLabelReceived;
-    QString m_strUSBInfoLabelTransmitted;
-    QString m_strUSBInfoLabelReceivedTotal;
-    QString m_strUSBInfoLabelTransmittedTotal;
+    QString m_strUSBInfoLabelReceiveCurrent;
+    QString m_strUSBInfoLabelTransmitCurrent;
+    QString m_strUSBInfoLabelReceiveTotal;
+    QString m_strUSBInfoLabelTransmitTotal;
+    QString m_strUSBInfoLabelReceiveAverage;
+    QString m_strUSBInfoLabelTransmitAverage;
     ComObjPtr<UIMainEventListenerImpl> m_pQtConsoleListener;
     CEventListener m_comConsoleListener;
 };
