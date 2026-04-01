@@ -1,4 +1,4 @@
-/* $Id: bs3-cpu-instr-4.c32 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: bs3-cpu-instr-4.c32 113703 2026-04-01 00:24:16Z bela.lubkin@oracle.com $ */
 /** @file
  * BS3Kit - bs3-cpu-instr-4 & bs3-cpu-instr-5 - SSE, AVX FPU instructions, C code template.
  */
@@ -2410,10 +2410,12 @@ DECLINLINE(uint32_t) bs3CpuInstrX_SimpleRand(void)
  * activities which are not skipped!)  Note this is only an average;
  * the actual skips are random.
  *
- * You can also modify bs3CpuInstrX_SkipIt() to focus on specific sub-tests,
+ * The following is no longer true, as the arg(s) for BS3_SKIPIT() were
+ * re-purposed, and no known use had ever been made of this feature: << You
+ * can also modify bs3CpuInstrX_SkipIt() to focus on specific sub-tests,
  * using its (currently ignored) `bRing, iCfg, iTest, iVal, iVariant' args
  * (to enable this: turn on `#define BS3_SKIPIT_DO_ARGS': which costs about
- * 3% performance).
+ * 3% performance). >>
  *
  * Note!  For testing the native recompiler, configure the VM to invoke
  * native recompilation quickly with:
@@ -2422,14 +2424,10 @@ DECLINLINE(uint32_t) bs3CpuInstrX_SimpleRand(void)
  *     VBoxManage setextradata vmname VBoxInternal/Devices/VMMDev/0/Config/TestingThresholdNativeRecompiler 2
  *     VBoxManage setextradata vmname VBoxInternal/IEM/NativeRecompileAtUsedCount 1
  */
-#define BS3_SKIPIT_AVG_SKIP           0
+/* This default provides a good balance of test coverage & speed */
+/* Set to 0 to force excruciatingly slow test of every single combination */
+#define BS3_SKIPIT_AVG_SKIP        2347
 #define BS3_SKIPIT_REPORT_COUNT 1000000
-#undef  BS3_SKIPIT_DO_ARGS
-
-#ifdef DEBUG_ramshankar
-# undef  BS3_SKIPIT_AVG_SKIP
-# define BS3_SKIPIT_AVG_SKIP         66
-#endif
 
 static unsigned g_cSeen, g_cSkipped;
 
@@ -2439,16 +2437,13 @@ static void bs3CpuInstrX_ShowTallies(bool always)
         Bs3TestPrintf("Micro-tests %d: tested %d / skipped %d\n", g_cSeen, g_cSeen - g_cSkipped, g_cSkipped);
 }
 
-# ifdef BS3_SKIPIT_DO_ARGS
-#  define BS3_SKIPIT(bRing, iCfg, iTest, iVal, iVariant) bs3CpuInstrX_SkipIt(bRing, iCfg, iTest, iVal, iVariant)
-static bool bs3CpuInstrX_SkipIt(uint8_t bRing, unsigned iCfg, unsigned iTest, unsigned iVal, unsigned iVariant)
-# else
-#  define BS3_SKIPIT(bRing, iCfg, iTest, iVal, iVariant) bs3CpuInstrX_SkipIt()
-static bool bs3CpuInstrX_SkipIt(void)
-# endif
+#define BS3_SKIPIT(cToSkip, cToCount) bs3CpuInstrX_SkipIt(cToSkip, cToCount)
+
+static bool bs3CpuInstrX_SkipIt(uint32_t cToSkip, uint32_t cToCount)
 {
     static unsigned s_uTimes = 0;
     bool fSkip;
+    uint32_t cForward;
 
     if (bs3CpuInstrX_SkipDueToFails())
         return true;
@@ -2456,12 +2451,16 @@ static bool bs3CpuInstrX_SkipIt(void)
     /* Cache calls to the relatively expensive random routine */
     if (!s_uTimes)
         s_uTimes = bs3CpuInstrX_SimpleRand() % (BS3_SKIPIT_AVG_SKIP * 2 + 1) + 1;
-    fSkip = --s_uTimes > 0;
+    fSkip = s_uTimes > cToSkip;
+    cForward = fSkip ? cToSkip : cToCount;
+    s_uTimes -= cForward;
+    g_cSeen += cForward;
     if (fSkip)
-        ++g_cSkipped;
+        g_cSkipped += cToSkip;
 
-    if (++g_cSeen % BS3_SKIPIT_REPORT_COUNT == 0)
-        bs3CpuInstrX_ShowTallies(false);
+    if ((g_cSeen - cForward) / BS3_SKIPIT_REPORT_COUNT !=
+         g_cSeen / BS3_SKIPIT_REPORT_COUNT)
+            bs3CpuInstrX_ShowTallies(false);
     return fSkip;
 }
 
@@ -2827,7 +2826,7 @@ static void bs3CpuInstr4_WorkerTestType1_Inner(uint8_t bMode, PBS3CPUINSTR4_TEST
      */
     for (iMaskType = 0; iMaskType < RT_ELEMENTS(s_apszMaskType); iMaskType++)
     {
-        if (BS3_SKIPIT(0, 0, 0, pTestCtx->iVal, iMaskType))
+        if (BS3_SKIPIT(1, 1))
             continue;
 
         switch (iMaskType)
@@ -3213,6 +3212,14 @@ static uint8_t bs3CpuInstr4_WorkerTestType1_P(uint8_t bMode, unsigned cTests, BS
                             char szTestIdStr[TESTID_MAXSIZE];
                             BS3CPUINSTR4_TEST1_CTX_T TestCtx;
 
+                            /* Inner() does 7 iterations */
+                            if (BS3_SKIPIT(7 * (cValues - iVal), 0))
+                            {
+                                cRecompRuns += cValues - iVal;
+                                idTestStep += cValues - iVal;
+                                break;
+                            }
+
                             /*
                              * If the hardware does not support DAZ bit skip test values that set it.
                              */
@@ -3291,7 +3298,7 @@ static uint8_t bs3CpuInstr4_WorkerTestType1(uint8_t bMode, unsigned cTests, BS3C
 # undef  BS3_MXCSR_PE_FUZZY          /* most or all mentions of BS3_MXCSR_PE_FUZZY represent cases where */
 # define BS3_MXCSR_PE_FUZZY 0        /*    IEM behavior disagrees with hardware; they need investigation */
 # define TODO_RCP_IEM                /* approximate reciprocal instructions: IEM results are too precise */
-# define TODO_RSQRT_IEM              /* approximate reciprocal square root instructions: IEM results are too precise */
+# define TODO_RSQRT_IEM              /* approximate recip-sqrt instructions: IEM results are too precise */
 # define TODO_DPP_IEM                /* dot product instructions: IEM raises wrong exceptions and returns wrong NaN patterns */
 #endif /* TODO_EXPOSE_IEM_ERRATA */
 
@@ -23741,7 +23748,7 @@ BS3_DECL_FAR(uint8_t) bs3CpuInstr4_v_cvtpd2dq(uint8_t bMode)
         { BS3_INSTR4_ALL(vcvtpd2dq_XMM1_FSxBX),   X86_XCPT_AC, RM_MEM, T_AVX_128, XMM1, FSxBX, NOREG, 0, PASS_TEST_ARRAY(s_aValuesX) },
 
         { BS3_INSTR4_ALL(vcvtpd2dq_XMM1_YMM2),    255,         RM_REG, T_AVX_256, XMM1, YMM2,  NOREG, 0, PASS_TEST_ARRAY(s_aValuesY) },
-        { BS3_INSTR4_ALL(vcvtpd2dq_XMM1_FSxBX_Y), X86_XCPT_AC, RM_MEM, T_AVX_256, XMM1, FSxBX, NOREG, 0, PASS_TEST_ARRAY(s_aValuesY) },
+        { BS3_INSTR4_ALL(vcvtpd2dq_XMM1_FSxBX_Y), X86_XCPT_AC, RM_MEM256, T_AVX_256, XMM1, FSxBX, NOREG, 0, PASS_TEST_ARRAY(s_aValuesY) },
 
         { BS3_INSTR4_ALL(cvtpd2dq_XMM1_XMM1),     255,         RM_REG, T_SSE2,    XMM1, XMM1,  NOREG, 0, PASS_TEST_ARRAY(s_aValuesX) },
         { BS3_INSTR4_ALL(vcvtpd2dq_XMM1_XMM1),    255,         RM_REG, T_AVX_128, XMM1, XMM1,  NOREG, 0, PASS_TEST_ARRAY(s_aValuesX) },
@@ -23754,7 +23761,7 @@ BS3_DECL_FAR(uint8_t) bs3CpuInstr4_v_cvtpd2dq(uint8_t bMode)
         { BS3_INSTR4_C64(vcvtpd2dq_XMM8_FSxBX),   X86_XCPT_AC, RM_MEM, T_AVX_128, XMM8, FSxBX, NOREG, 0, PASS_TEST_ARRAY(s_aValuesX) },
 
         { BS3_INSTR4_C64(vcvtpd2dq_XMM8_YMM9),    255,         RM_REG, T_AVX_256, XMM8, YMM9,  NOREG, 0, PASS_TEST_ARRAY(s_aValuesY) },
-        { BS3_INSTR4_C64(vcvtpd2dq_XMM8_FSxBX_Y), X86_XCPT_AC, RM_MEM, T_AVX_256, XMM8, FSxBX, NOREG, 0, PASS_TEST_ARRAY(s_aValuesY) },
+        { BS3_INSTR4_C64(vcvtpd2dq_XMM8_FSxBX_Y), X86_XCPT_AC, RM_MEM256, T_AVX_256, XMM8, FSxBX, NOREG, 0, PASS_TEST_ARRAY(s_aValuesY) },
 
         { BS3_INSTR4_C64(cvtpd2dq_XMM8_XMM8),     255,         RM_REG, T_SSE2,    XMM8, XMM8,  NOREG, 0, PASS_TEST_ARRAY(s_aValuesX) },
         { BS3_INSTR4_C64(vcvtpd2dq_XMM8_XMM8),    255,         RM_REG, T_AVX_128, XMM8, XMM8,  NOREG, 0, PASS_TEST_ARRAY(s_aValuesX) },
@@ -23984,7 +23991,7 @@ BS3_DECL_FAR(uint8_t) bs3CpuInstr4_v_cvttpd2dq(uint8_t bMode)
         { BS3_INSTR4_ALL(vcvttpd2dq_XMM1_FSxBX),   X86_XCPT_AC, RM_MEM, T_AVX_128, XMM1, FSxBX, NOREG, 0, PASS_TEST_ARRAY(s_aValuesX) },
 
         { BS3_INSTR4_ALL(vcvttpd2dq_XMM1_YMM2),    255,         RM_REG, T_AVX_256, XMM1, YMM2,  NOREG, 0, PASS_TEST_ARRAY(s_aValuesY) },
-        { BS3_INSTR4_ALL(vcvttpd2dq_XMM1_FSxBX_Y), X86_XCPT_AC, RM_MEM, T_AVX_256, XMM1, FSxBX, NOREG, 0, PASS_TEST_ARRAY(s_aValuesY) },
+        { BS3_INSTR4_ALL(vcvttpd2dq_XMM1_FSxBX_Y), X86_XCPT_AC, RM_MEM256, T_AVX_256, XMM1, FSxBX, NOREG, 0, PASS_TEST_ARRAY(s_aValuesY) },
 
         { BS3_INSTR4_ALL(cvttpd2dq_XMM1_XMM1),     255,         RM_REG, T_SSE2,    XMM1, XMM1,  NOREG, 0, PASS_TEST_ARRAY(s_aValuesX) },
         { BS3_INSTR4_ALL(vcvttpd2dq_XMM1_XMM1),    255,         RM_REG, T_AVX_128, XMM1, XMM1,  NOREG, 0, PASS_TEST_ARRAY(s_aValuesX) },
@@ -23997,7 +24004,7 @@ BS3_DECL_FAR(uint8_t) bs3CpuInstr4_v_cvttpd2dq(uint8_t bMode)
         { BS3_INSTR4_C64(vcvttpd2dq_XMM8_FSxBX),   X86_XCPT_AC, RM_MEM, T_AVX_128, XMM8, FSxBX, NOREG, 0, PASS_TEST_ARRAY(s_aValuesX) },
 
         { BS3_INSTR4_C64(vcvttpd2dq_XMM8_YMM9),    255,         RM_REG, T_AVX_256, XMM8, YMM9,  NOREG, 0, PASS_TEST_ARRAY(s_aValuesY) },
-        { BS3_INSTR4_C64(vcvttpd2dq_XMM8_FSxBX_Y), X86_XCPT_AC, RM_MEM, T_AVX_256, XMM8, FSxBX, NOREG, 0, PASS_TEST_ARRAY(s_aValuesY) },
+        { BS3_INSTR4_C64(vcvttpd2dq_XMM8_FSxBX_Y), X86_XCPT_AC, RM_MEM256, T_AVX_256, XMM8, FSxBX, NOREG, 0, PASS_TEST_ARRAY(s_aValuesY) },
 
         { BS3_INSTR4_C64(cvttpd2dq_XMM8_XMM8),     255,         RM_REG, T_SSE2,    XMM8, XMM8,  NOREG, 0, PASS_TEST_ARRAY(s_aValuesX) },
         { BS3_INSTR4_C64(vcvttpd2dq_XMM8_XMM8),    255,         RM_REG, T_AVX_128, XMM8, XMM8,  NOREG, 0, PASS_TEST_ARRAY(s_aValuesX) },
@@ -24259,7 +24266,7 @@ BS3_DECL_FAR(uint8_t) bs3CpuInstr4_v_cvtpd2ps(uint8_t bMode)
         { BS3_INSTR4_ALL(vcvtpd2ps_XMM1_FSxBX_O), 255, RM_MEM, T_AVX_128, XMM1, NOREG, FSxBX, 0, PASS_TEST_ARRAY(s_aValuesX) },
 
         { BS3_INSTR4_ALL(vcvtpd2ps_XMM1_YMM2),    255, RM_REG, T_AVX_256, XMM1, NOREG, YMM2,  0, PASS_TEST_ARRAY(s_aValuesY) },
-        { BS3_INSTR4_ALL(vcvtpd2ps_XMM1_FSxBX_Y), 255, RM_MEM, T_AVX_256, XMM1, NOREG, FSxBX, 0, PASS_TEST_ARRAY(s_aValuesY) },
+        { BS3_INSTR4_ALL(vcvtpd2ps_XMM1_FSxBX_Y), 255, RM_MEM256, T_AVX_256, XMM1, NOREG, FSxBX, 0, PASS_TEST_ARRAY(s_aValuesY) },
 
         { BS3_INSTR4_ALL(cvtpd2ps_XMM1_XMM1),     255, RM_REG, T_SSE2,    XMM1, NOREG, XMM1,  0, PASS_TEST_ARRAY(s_aValuesX) },
         { BS3_INSTR4_ALL(vcvtpd2ps_XMM1_XMM1),    255, RM_REG, T_AVX_128, XMM1, NOREG, XMM1,  0, PASS_TEST_ARRAY(s_aValuesX) },
@@ -24272,7 +24279,7 @@ BS3_DECL_FAR(uint8_t) bs3CpuInstr4_v_cvtpd2ps(uint8_t bMode)
         { BS3_INSTR4_C64(vcvtpd2ps_XMM8_FSxBX_O), 255, RM_MEM, T_AVX_128, XMM8, NOREG, FSxBX, 0, PASS_TEST_ARRAY(s_aValuesX) },
 
         { BS3_INSTR4_C64(vcvtpd2ps_XMM8_YMM9),    255, RM_REG, T_AVX_256, XMM8, NOREG, YMM9,  0, PASS_TEST_ARRAY(s_aValuesY) },
-        { BS3_INSTR4_C64(vcvtpd2ps_XMM8_FSxBX_Y), 255, RM_MEM, T_AVX_256, XMM8, NOREG, FSxBX, 0, PASS_TEST_ARRAY(s_aValuesY) },
+        { BS3_INSTR4_C64(vcvtpd2ps_XMM8_FSxBX_Y), 255, RM_MEM256, T_AVX_256, XMM8, NOREG, FSxBX, 0, PASS_TEST_ARRAY(s_aValuesY) },
 
         { BS3_INSTR4_C64(cvtpd2ps_XMM8_XMM8),     255, RM_REG, T_SSE2,    XMM8, NOREG, XMM8,  0, PASS_TEST_ARRAY(s_aValuesX) },
         { BS3_INSTR4_C64(vcvtpd2ps_XMM8_XMM8),    255, RM_REG, T_AVX_128, XMM8, NOREG, XMM8,  0, PASS_TEST_ARRAY(s_aValuesX) },
