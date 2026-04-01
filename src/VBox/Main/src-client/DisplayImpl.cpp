@@ -1,4 +1,4 @@
-/* $Id: DisplayImpl.cpp 113684 2026-03-30 14:10:26Z andreas.loeffler@oracle.com $ */
+/* $Id: DisplayImpl.cpp 113704 2026-04-01 09:12:23Z andreas.loeffler@oracle.com $ */
 /** @file
  * VirtualBox COM class implementation
  */
@@ -2225,7 +2225,7 @@ int Display::i_recordingScreenChanged(unsigned uScreenId, const DISPLAYFBINFO *p
                 {
                     /** @todo Is this necessary for every screen change? This should be consistent across a recording session. */
                     int vrc2 = mpDrv->pUpPort->pfnCreateOutputTargetAsync(mpDrv->pUpPort, uScreenId,
-                                                                          PDMDISPLAYOUTPUTTARGETFORMAT_I420,
+                                                                          PDMDISPLAYOUTPUTTARGETFORMAT_YUVI420,
                                                                           ulVideoWidth, ulVideoHeight,
                                                                           PDM_DISPLAY_OUTPUT_TARGET_FIXED_SIZE,
                                                                           Recording.au64VideoOutputTargetToken[uScreenId]);

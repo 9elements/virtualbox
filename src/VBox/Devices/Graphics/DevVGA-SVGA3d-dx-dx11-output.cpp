@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA3d-dx-dx11-output.cpp 113512 2026-03-23 14:59:09Z vitali.pelenjow@oracle.com $ */
+/* $Id: DevVGA-SVGA3d-dx-dx11-output.cpp 113704 2026-04-01 09:12:23Z andreas.loeffler@oracle.com $ */
 /** @file
  * DevSVGA - D3D11 backend graphics output utilities
  */
@@ -526,7 +526,7 @@ static DECLCALLBACK(int) dxOutputTargetReadback_I420(VMSVGAOUTPUTTARGET *pOutput
 {
     DXOUTPUTTARGET_I420 *pHwOutputTarget = (DXOUTPUTTARGET_I420 *)pOutputTarget->pHwOutputTarget;
 
-    AssertReturn(pOutputTarget->desc.enmFormat == PDMDISPLAYOUTPUTTARGETFORMAT_I420,
+    AssertReturn(pOutputTarget->desc.enmFormat == PDMDISPLAYOUTPUTTARGETFORMAT_YUVI420,
                  VERR_INVALID_STATE);
     AssertReturn(   pHwOutputTarget->enmPlaneFormat == DXGI_FORMAT_R8_UNORM
                  || pHwOutputTarget->enmPlaneFormat == DXGI_FORMAT_R16_UNORM,
@@ -604,7 +604,7 @@ int dxHwOutputTargetCreate(VMSVGAOUTPUTTARGET *pOutputTarget,
             pDesc = &desc_B8G8R8X8_I;
             break;
 
-        case PDMDISPLAYOUTPUTTARGETFORMAT_I420:
+        case PDMDISPLAYOUTPUTTARGETFORMAT_YUVI420:
             pDesc = &desc_I420;
             break;
 
