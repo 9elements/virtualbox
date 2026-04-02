@@ -128,14 +128,21 @@ for f in $FILES_VBOXSF_BIN; do
 done
 
 # vboxvideo (VirtualBox guest kernel module for drm support)
-mkdir $PATH_OUT/vboxvideo || exit 1
-for f in $FILES_VBOXVIDEO_DRM_NOBIN; do
-    install -D -m 0644 `echo $f|cut -d'=' -f1` "$PATH_OUT/vboxvideo/`echo $f|cut -d'>' -f2`"
-done
-for f in $FILES_VBOXVIDEO_DRM_BIN; do
-    install -D -m 0755 `echo $f|cut -d'=' -f1` "$PATH_OUT/vboxvideo/`echo $f|cut -d'>' -f2`"
-done
-sed -f $PATH_VBOXVIDEO/indent.sed -i $PATH_OUT/vboxvideo/*.[ch]
+
+# We deprecate vboxvideo for Linux kernel 7.0 and newer.
+KERN_MAJ=$(uname -r | cut -d . -f1)
+if [ -n "$KERN_MAJ" -a "$KERN_MAJ" -ge 7 ]; then
+    echo "Skip vboxvideo build for kernel $KERN_MAJ.X series"
+else
+    mkdir $PATH_OUT/vboxvideo || exit 1
+    for f in $FILES_VBOXVIDEO_DRM_NOBIN; do
+        install -D -m 0644 `echo $f|cut -d'=' -f1` "$PATH_OUT/vboxvideo/`echo $f|cut -d'>' -f2`"
+    done
+    for f in $FILES_VBOXVIDEO_DRM_BIN; do
+        install -D -m 0755 `echo $f|cut -d'=' -f1` "$PATH_OUT/vboxvideo/`echo $f|cut -d'>' -f2`"
+    done
+    sed -f $PATH_VBOXVIDEO/indent.sed -i $PATH_OUT/vboxvideo/*.[ch]
+fi
 
 # convenience Makefile
 install -D -m 0644 $PATH_LINUX/Makefile "$PATH_OUT/Makefile"
