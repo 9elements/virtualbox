@@ -1,4 +1,4 @@
-/* $Id: UIVMActivityMonitor.cpp 113714 2026-04-02 13:07:55Z serkan.bayraktar@oracle.com $ */
+/* $Id: UIVMActivityMonitor.cpp 113715 2026-04-02 13:08:29Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVMActivityMonitor class implementation.
  */
@@ -81,6 +81,7 @@ static QColor dimColor(const QColor &originalColor)
     newColor.setAlphaF(newColor.alphaF() * 0.6);
     return newColor;
 }
+
 
 /*********************************************************************************************************************************
 *   UIInfoLabelContainer definition.                                                                                             *
