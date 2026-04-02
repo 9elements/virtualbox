@@ -1,4 +1,4 @@
-/* $Id: vbox_mode.c 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: vbox_mode.c 113717 2026-04-02 15:11:55Z vadim.galitsyn@oracle.com $ */
 /** @file
  * VirtualBox Additions Linux kernel video driver
  */
@@ -660,7 +660,7 @@ static int vbox_get_modes(struct drm_connector *connector)
     return num_modes;
 }
 
-#if RTLNX_VER_MIN(6,15,0) || RTLNX_RHEL_RANGE(9,7, 9,99) || RTLNX_RHEL_RANGE(10,2, 10,99)
+#if RTLNX_VER_MIN(6,15,0) || RTLNX_RHEL_RANGE(9,7, 9,99) || RTLNX_RHEL_RANGE(10,1, 10,99)
 static enum drm_mode_status vbox_mode_valid(struct drm_connector *connector, const struct drm_display_mode *mode)
 #elif RTLNX_VER_MIN(3,14,0) || RTLNX_RHEL_MAJ_PREREQ(7,1)
 static enum drm_mode_status vbox_mode_valid(struct drm_connector *connector, struct drm_display_mode *mode)
