@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 113276 2026-03-06 17:00:44Z vadim.galitsyn@oracle.com $
+# $Id: Makefile.kmk 113724 2026-04-02 17:07:01Z vadim.galitsyn@oracle.com $
 ## @file
 # Makefile for the linux guest additions base directory.
 #
@@ -360,7 +360,7 @@ OTHER_CLEAN += \
 # We deprecated module starting from kernel 7.0, so only build
 # it for earlier versions.
 #
-KERN_MAJ = $(shell uname -r | cut -d . -f1)
+KERN_MAJ = $(word 1,$(subst ., ,$(KERN_VER)))
 $(if-expr $(KERN_MAJ) < 7,$(evalcall2 VBOX_LINUX_KMOD_TEST_BUILD_RULE_FN,vboxvideo-src,,),)
 
 
