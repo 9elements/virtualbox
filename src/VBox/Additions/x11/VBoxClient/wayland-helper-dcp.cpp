@@ -1,4 +1,4 @@
-/* $Id: wayland-helper-dcp.cpp 113726 2026-04-02 17:09:18Z vadim.galitsyn@oracle.com $ */
+/* $Id: wayland-helper-dcp.cpp 113727 2026-04-02 17:10:24Z vadim.galitsyn@oracle.com $ */
 /** @file
  * Guest Additions - Data Control Protocol (DCP) helper for Wayland.
  *
@@ -27,6 +27,8 @@
  *
  * SPDX-License-Identifier: GPL-3.0-only
  */
+
+#include <errno.h>
 
 #include <iprt/env.h>
 #include <iprt/assert.h>
@@ -270,7 +272,7 @@ RTDECL(int) vbcl_wayland_hlp_dcp_read_wl_fd(int fd, void **ppvBuf, size_t *pcbBu
      * Wayland buffer content (actual size of pvDst). */
     size_t cbGrowingBuffer = 0;
     /* Number of bytes read from Wayland fd per attempt. */
-    size_t cbRead = 0;
+    ssize_t cbRead = 0;
 
     /* Start with allocating one chunk and grow buffer later if needed. */
     cbGrowingBuffer = VBOX_WAYLAND_BUFFER_CHUNK_INC_SIZE + 1 /* '\0' */;
@@ -310,15 +312,21 @@ RTDECL(int) vbcl_wayland_hlp_dcp_read_wl_fd(int fd, void **ppvBuf, size_t *pcbBu
 
                 /* Read all data from fd until EOF. */
                 cbRead = read(fd, (void *)((uint8_t *)pvDst + cbDst), VBOX_WAYLAND_BUFFER_CHUNK_SIZE);
-                if (cbRead > 0)
+                if (cbRead < 0)
                 {
-                    LogRel(("Wayland: read chunk of %u bytes from Wayland\n", cbRead));
-                    cbDst += cbRead;
+                    rc = RTErrConvertFromErrno(errno);
+                    RTMemFree(pvDst);
+                    break;
+                }
+                else if (cbRead > 0)
+                {
+                    VBClLogVerbose(5, "Wayland: read chunk of %d bytes from Wayland\n", cbRead);
+                    cbDst += (size_t)cbRead;
                 }
                 else
                 {
                     /* EOF has been reached. */
-                    LogRel(("Wayland: read %u bytes from Wayland\n", cbDst));
+                    VBClLogVerbose(5, "Wayland: read %u bytes from Wayland\n", cbDst);
 
                     if (cbDst > 0)
                     {
@@ -338,6 +346,7 @@ RTDECL(int) vbcl_wayland_hlp_dcp_read_wl_fd(int fd, void **ppvBuf, size_t *pcbBu
             else
             {
                 rc = VERR_TIMEOUT;
+                RTMemFree(pvDst);
                 break;
             }
         }
@@ -359,37 +368,68 @@ RTDECL(int) vbcl_wayland_hlp_dcp_write_wl_fd(int fd, void *pvBuf, size_t cbBuf)
     struct timeval tv;
     fd_set wfds;
 
+    size_t cbWritten = 0;
+
     int rc = VINF_SUCCESS;
 
-    tv.tv_sec  = 0;
-    tv.tv_usec = VBCL_WAYLAND_IO_TIMEOUT_MS * 1000;
-
-    FD_ZERO(&wfds);
-    FD_SET(fd, &wfds);
-
-    /* Wait until data is available. */
-    if (select(fd + 1, NULL, &wfds, NULL, &tv) > 0)
+    while (1)
     {
-        if (FD_ISSET(fd, &wfds))
+        tv.tv_sec  = 0;
+        tv.tv_usec = VBCL_WAYLAND_IO_TIMEOUT_MS * 1000;
+
+        FD_ZERO(&wfds);
+        FD_SET(fd, &wfds);
+
+        /* Wait until data is available. */
+        if (select(fd + 1, NULL, &wfds, NULL, &tv) > 0)
         {
-            ssize_t cbWritten = write(fd, pvBuf, cbBuf);
-            if (cbWritten != (ssize_t)cbBuf)
+            if (FD_ISSET(fd, &wfds))
             {
-                VBClLogError("cannot write clipboard data, written %d out of %d bytes\n",
-                             cbWritten, cbBuf);
-                rc = VERR_PIPE_NOT_CONNECTED;
+                ssize_t cbTmp = write(fd, (void *)((uint8_t *)pvBuf + cbWritten), cbBuf - (size_t)cbWritten);
+                if (cbTmp < 0)
+                {
+                    rc = RTErrConvertFromErrno(errno);
+                    break;
+                }
+                else if (cbTmp > 0)
+                {
+                    VBClLogVerbose(6, "Wayland: wrote chunk of %d bytes to Wayland\n", cbTmp);
+                    cbWritten += (size_t)cbTmp;
+
+                    /* Are we complete? */
+                    if (cbWritten == cbBuf)
+                    {
+                        VBClLogVerbose(5, "Wayland: wrote %u bytes to Wayland\n", cbWritten);
+                        break;
+                    }
+                }
+                else
+                {
+                    if (cbWritten != cbBuf)
+                    {
+                        VBClLogVerbose(5, "Wayland: wrote %u bytes (out of %u) to Wayland (partial write)\n",
+                                       cbWritten, cbBuf);
+                        rc = VERR_WRITE_ERROR;
+                    }
+                    else
+                        VBClLogVerbose(5, "Wayland: zero write detected\n");
+
+                    break;
+                }
             }
             else
-                VBClLogVerbose(5, "written %u bytes to Wayland clipboard\n", cbWritten);
+            {
+                VBClLogError("cannot write fd\n");
+                rc = VERR_PIPE_NOT_CONNECTED;
+                break;
+            }
         }
         else
         {
-            VBClLogError("cannot write fd\n");
             rc = VERR_TIMEOUT;
+            break;
         }
     }
-    else
-        rc = VERR_TIMEOUT;
 
     return rc;
 }
@@ -712,6 +752,7 @@ static int vbcl_wayland_hlp_dcp_receive_offer(
         wl_display_flush(pCtx->pDisplay);
 
         rc = vbcl_wayland_hlp_dcp_read_wl_fd(aFds[0], &pvBuf, &cbBuf);
+        close(aFds[0]);
         if (RT_SUCCESS(rc))
         {
             void *pvBufOut = NULL;
@@ -914,11 +955,12 @@ static void vbcl_wayland_hlp_dcp_data_device_selection(
 static void vbcl_wayland_hlp_dcp_data_device_finished(
     void *pvUser, struct zwlr_data_control_device_v1 *pDevice)
 {
-    RT_NOREF(pvUser);
+    vbox_wl_dcp_ctx_t *pCtx = (vbox_wl_dcp_ctx_t *)pvUser;
 
     VBCL_LOG_CALLBACK;
 
     zwlr_data_control_device_v1_destroy(pDevice);
+    pCtx->pDataDevice = NULL;
 }
 
 /**
@@ -1556,7 +1598,7 @@ static DECLCALLBACK(int) vbcl_wayland_hlp_dcp_clip_gh_read_join_cb(
     if (RT_SUCCESS(rc))
     {
         void *pvData;
-        size_t cbData;
+        size_t cbData = 0;
 
         /* Take data from cache. */
         rc = VBoxMimeConvGetCacheById(*puFmt, &pvData, &cbData);
