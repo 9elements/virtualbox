@@ -1,4 +1,4 @@
-/* $Id: RecordingRender.h 113702 2026-03-31 15:52:21Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingRender.h 113708 2026-04-02 09:19:01Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording rendering backend abstraction.
  */
@@ -59,7 +59,10 @@ typedef enum RECORDINGRENDERBACKEND
     /** Pure software backend. */
     RECORDINGRENDERBACKEND_SOFTWARE   = 1,
     /** SDL-based backend. */
-    RECORDINGRENDERBACKEND_SDL        = 2
+    RECORDINGRENDERBACKEND_SDL        = 2,
+    /** Output-target backend.
+     *  Currently only used by hardware-accelerated VMSVGA3D. */
+    RECORDINGRENDERBACKEND_OUTTGT     = 3
 } RECORDINGRENDERBACKEND;
 
 /**
@@ -98,7 +101,7 @@ typedef RECORDINGRENDERTEXTURE const *PCRECORDINGRENDERTEXTURE;
 /**
  * Renderer-owned parameters for resize / conversion.
  */
-typedef struct RECORDINGRENDERPARAMS
+typedef struct RECORDINGRENDERPARMS
 {
     /** Surface properties of the renderer output. */
     RECORDINGSURFACEINFO   Info;
@@ -111,11 +114,11 @@ typedef struct RECORDINGRENDERPARAMS
     /** Crop/center Y origin offset (in pixels).
      *  Set to 0 for most scaling modes. */
     int32_t                iOriginY;
-} RECORDINGRENDERPARAMS;
+} RECORDINGRENDERPARMS;
 /** Pointer to renderer parameters. */
-typedef RECORDINGRENDERPARAMS *PRECORDINGRENDERPARMS;
+typedef RECORDINGRENDERPARMS *PRECORDINGRENDERPARMS;
 /** Pointer to const renderer parameters. */
-typedef RECORDINGRENDERPARAMS const *PCRECORDINGRENDERPARAMS;
+typedef RECORDINGRENDERPARMS const *PCRECORDINGRENDERPARAMS;
 
 typedef const struct RECORDINGRENDERER *PCRECORDINGRENDERER;
 
@@ -140,8 +143,10 @@ typedef struct RECORDINGRENDEROPS
      *
      * @returns VBox status code.
      * @param   pRenderer           Renderer instance.
+     * @param   pvBackend           Pointer to opaque data for the backend's initialization function.
+     *                              Optional and might be NULL.
      */
-    DECLCALLBACKMEMBER(int, pfnInit, (PRECORDINGRENDERER pRenderer));
+    DECLCALLBACKMEMBER(int, pfnInit, (PRECORDINGRENDERER pRenderer, const void *pvBackend));
 
     /**
      * Destroys backend specific state.
@@ -291,7 +296,7 @@ typedef struct RECORDINGRENDERER
     /** The current render state. */
     RECORDINGRENDERSTATE      enmState;
     /** Render parameters. */
-    RECORDINGRENDERPARAMS     Parms;
+    RECORDINGRENDERPARMS     Parms;
     /** Front buffer texture.
      *  Always matches the VM screen's framebuffer size. */
     RECORDINGRENDERTEXTURE    texFront;
@@ -330,6 +335,7 @@ typedef struct RECORDINGRENDERER
 typedef RECORDINGRENDERER *PRECORDINGRENDERER;
 
 int RecordingRenderInit(PRECORDINGRENDERER pRenderer, RECORDINGRENDERBACKEND enmBackend);
+int RecordingRenderInitEx(PRECORDINGRENDERER pRenderer, RECORDINGRENDERBACKEND enmBackend, const void *pvBackend);
 void RecordingRenderDestroy(PRECORDINGRENDERER pRenderer);
 RECORDINGRENDERBACKEND RecordingRenderGetBackend(PRECORDINGRENDERER pRenderer);
 uint64_t RecordingRenderGetCaps(PCRECORDINGRENDERER pRenderer);

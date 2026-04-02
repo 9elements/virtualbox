@@ -1,4 +1,4 @@
-/* $Id: RecordingUtils.cpp 113695 2026-03-31 09:30:05Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingUtils.cpp 113708 2026-04-02 09:19:01Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording utility code.
  */
@@ -83,6 +83,7 @@ const char *RecordingUtilsRenderBackendToStr(RECORDINGRENDERBACKEND enmBackend)
         case RECORDINGRENDERBACKEND_AUTO:     return "auto";
         case RECORDINGRENDERBACKEND_SOFTWARE: return "software";
         case RECORDINGRENDERBACKEND_SDL:      return "sdl";
+        case RECORDINGRENDERBACKEND_OUTTGT:   return "h/w accelerated vmsvga3d";
         default:                              break;
     }
 

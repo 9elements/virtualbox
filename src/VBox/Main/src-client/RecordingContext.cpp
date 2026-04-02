@@ -1,4 +1,4 @@
-/* $Id: RecordingContext.cpp 113683 2026-03-30 13:57:36Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingContext.cpp 113708 2026-04-02 09:19:01Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording context code.
  */
@@ -627,8 +627,6 @@ int RecordingContextImpl::progressNotifyComplete(HRESULT hrc /* = S_OK */, IVirt
  */
 int RecordingContextImpl::SetVideoOutputTargetDesc(uint32_t idScreen, PDMDISPLAYOUTPUTTARGETDESC const *pDesc)
 {
-    Assert(idScreen == pDesc->idScreen);
-
     RecordingStream *pStream = getStreamInternal(idScreen);
     if (pStream)
         return pStream->SetVideoOutputTargetDesc(pDesc);

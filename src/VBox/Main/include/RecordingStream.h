@@ -1,4 +1,4 @@
-/* $Id: RecordingStream.h 113683 2026-03-30 13:57:36Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingStream.h 113708 2026-04-02 09:19:01Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording stream code header.
  */
@@ -141,6 +141,8 @@ protected:
 
     int iterateInternal(uint64_t msTimestamp);
 
+    void cmdQueueLock(void);
+    void cmdQueueUnlock(void);
     int cmdQueueAddFrame(PRECORDINGFRAME pFrame, PRECORDINGFRAMEPOOL pPool, RECORDINGCMD *pCmd);
     int cmdQueueAddFrame(PRECORDINGFRAME pFrame, PRECORDINGFRAMEPOOL pPool);
     uint8_t cmdQueueGetPressure(void) const;
@@ -284,6 +286,13 @@ protected:
 #endif /* VBOX_WITH_STATISTICS */
     /** Video codec instance data to use. */
     RECORDINGCODEC      m_CodecVideo;
+    /** Critical section to protect the renderer instance.
+     *  Required when swichting the renderer on the fly. */
+    RTCRITSECT          m_RenderCritSect;
+    /** Renderer parameters.
+     *  To be (re-)used when switching renderer on the fly. */
+    RECORDINGRENDERPARMS
+                        m_RenderParms;
     /** Renderer used for this stream's video codec. */
     RECORDINGRENDERER   m_Renderer;
     /** Stream-owned scratch frame used when renderer prepares codec-specific input format. */
@@ -336,7 +345,11 @@ protected:
     public:
 #endif
     RECORDINGFRAMEPOOL  m_aFramePool[RECORDINGFRAME_TYPE_MAX];
-    /** The command pool.
+    /** Critical section for protecting the command buffer.
+     *  Needed in order to protect from races when the recording stream will be served from
+     *  different threads (i.e. EMT + VMSVGA FIFO). */
+    RTCRITSECT          m_CmdCritSect;
+    /** The command buffer.
      *  It holds RECORDINGCMD entries to know which pool / timestamp / group to process next. */
     PRTCIRCBUF          m_pCmdCircBuf;
     /** Next packet ID.

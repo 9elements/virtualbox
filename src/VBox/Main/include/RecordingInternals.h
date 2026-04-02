@@ -1,4 +1,4 @@
-/* $Id: RecordingInternals.h 113642 2026-03-30 10:11:57Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingInternals.h 113708 2026-04-02 09:19:01Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording internals header.
  */
@@ -67,8 +67,10 @@
 #define VBOX_RECORDING_VORBIS_HZ_MAX             48000   /**< Maximum sample rate (in Hz) Vorbis can handle. */
 #define VBOX_RECORDING_VORBIS_FRAME_MS_DEFAULT   20      /**< Default Vorbis frame size (in ms). */
 
-#ifdef DEBUG_andy
+#ifdef DEBUG_andy_disabled
+# define VBOX_RECORDING_DEBUG_DUMP_FRAMES
 # define VBOX_WITH_RECORDING_STATS
+# define VBOX_RECORDING_DEBUG_TILES
 #endif
 
 #ifdef DEBUG_DISABLED

@@ -1,4 +1,4 @@
-/* $Id: RecordingRender.cpp 113702 2026-03-31 15:52:21Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingRender.cpp 113708 2026-04-02 09:19:01Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording rendering implementation.
  *
@@ -351,9 +351,9 @@ int RecordingRenderSWFrameResizeCropCenter(RECORDINGVIDEOFRAME const *pDstFrame,
 #endif
 
 /** @copydoc RECORDINGRENDEROPS::pfnInit */
-static DECLCALLBACK(int) recRenderSWInit(PRECORDINGRENDERER pRenderer)
+static DECLCALLBACK(int) recRenderSWInit(PRECORDINGRENDERER pRenderer, const void *pvBackend)
 {
-    RT_NOREF(pRenderer);
+    RT_NOREF(pRenderer, pvBackend);
     return VINF_SUCCESS;
 }
 
@@ -439,6 +439,7 @@ static DECLCALLBACK(int) recRenderSWTextureUpdate(PRECORDINGRENDERER pRenderer, 
     RT_NOREF(pRenderer);
 
     PRECORDINGVIDEOFRAME pFrameToUpdate = recRenderSWTex2Frm(pTexture);
+    AssertPtr(pFrameToUpdate);
 
     /* For this software backend we already use RECORDINGVIDEOFRAME as a backend storage, so just (shallow) copy the data over. */
     memcpy(pFrameToUpdate, pFrame, sizeof(RECORDINGVIDEOFRAME));
@@ -952,6 +953,177 @@ static const RECORDINGRENDEROPS g_RecordingRenderOpsSoftware =
     recRenderSWBlend,
     recRenderSWResize,
     recRenderSWConvert
+};
+
+
+/*********************************************************************************************************************************
+ * Output target renderer backend                                                                                                *
+ ********************************************************************************************************************************/
+
+/**
+ * Output target backend private state.
+ */
+typedef struct RECORDINGRENDEROUTTGT
+{
+    /** Copy of output target description from Main to use. */
+    PDMDISPLAYOUTPUTTARGETDESC TgtDesc;
+    /** Surface information of the output target description.
+     *  Used when the renderer queries the pixel data. */
+    RECORDINGSURFACEINFO       SurfaceInfo;
+} RECORDINGRENDEROUTTGT;
+/** Pointer to output target backend private state. */
+typedef RECORDINGRENDEROUTTGT *PRECORDINGRENDEROUTTGT;
+/** Pointer to const output target backend private state. */
+typedef RECORDINGRENDEROUTTGT const *PCRECORDINGRENDEROUTTGT;
+
+/** @copydoc RECORDINGRENDEROPS::pfnProbe */
+static DECLCALLBACK(int) recRenderOutTgtProbe(PCRECORDINGRENDERER pRenderer)
+{
+    RT_NOREF(pRenderer);
+    return VINF_SUCCESS;
+}
+
+/** @copydoc RECORDINGRENDEROPS::pfnInit */
+static DECLCALLBACK(int) recRenderOutTgtInit(PRECORDINGRENDERER pRenderer, const void *pvBackend)
+{
+    AssertPtr(pvBackend);
+
+    PRECORDINGRENDEROUTTGT pOutTgt = (PRECORDINGRENDEROUTTGT)RTMemAllocZ(sizeof(RECORDINGRENDEROUTTGT));
+    AssertPtrReturn(pOutTgt, VERR_NO_MEMORY);
+
+    memcpy(&pOutTgt->TgtDesc, pvBackend, sizeof(PDMDISPLAYOUTPUTTARGETDESC));
+
+    pOutTgt->SurfaceInfo.enmPixelFmt   = pOutTgt->TgtDesc.enmFormat == PDMDISPLAYOUTPUTTARGETFORMAT_YUVI420
+                                       ? RECORDINGPIXELFMT_YUVI420 : RECORDINGPIXELFMT_UNKNOWN;
+    pOutTgt->SurfaceInfo.uBPP          = 32;
+    pOutTgt->SurfaceInfo.uWidth        = pOutTgt->TgtDesc.cWidth;
+    pOutTgt->SurfaceInfo.uHeight       = pOutTgt->TgtDesc.cHeight;
+    pOutTgt->SurfaceInfo.uBytesPerLine = 0; /* Unused */
+
+    /* Attach backend state early so all failure paths can use one cleanup routine. */
+    pRenderer->pvBackend = pOutTgt;
+
+    return VINF_SUCCESS;
+}
+
+/** @copydoc RECORDINGRENDEROPS::pfnDestroy */
+static DECLCALLBACK(void) recRenderOutTgtDestroy(PRECORDINGRENDERER pRenderer)
+{
+    PRECORDINGRENDEROUTTGT pOutTgt = (PRECORDINGRENDEROUTTGT)pRenderer->pvBackend;
+    if (!pOutTgt)
+        return;
+
+    RTMemFree(pOutTgt);
+    pRenderer->pvBackend = NULL;
+}
+
+/** @copydoc RECORDINGRENDEROPS::pfnQueryCaps */
+static DECLCALLBACK(uint64_t) recRenderOutTgtQueryCaps(PCRECORDINGRENDERER pRenderer)
+{
+    RT_NOREF(pRenderer);
+    return RECORDINGRENDERCAP_F_NONE;
+}
+
+/** @copydoc RECORDINGRENDEROPS::pfnTextureCreate */
+static DECLCALLBACK(int) recRenderOutTgtTextureCreate(PRECORDINGRENDERER pRenderer, PRECORDINGRENDERTEXTURE pTexture,
+                                                      PRECORDINGSURFACEINFO pInfo)
+{
+    RT_NOREF(pRenderer, pTexture, pInfo);
+    return VINF_SUCCESS;
+}
+
+/** @copydoc RECORDINGRENDEROPS::pfnTextureDestroy */
+static DECLCALLBACK(void) recRenderOutTgtTextureDestroy(PRECORDINGRENDERER pRenderer, PRECORDINGRENDERTEXTURE pTexture)
+{
+    RT_NOREF(pRenderer, pTexture);
+}
+
+/** @copydoc RECORDINGRENDEROPS::pfnTextureClear */
+static DECLCALLBACK(void) recRenderOutTgtTextureClear(PRECORDINGRENDERER pRenderer, PRECORDINGRENDERTEXTURE pTexture)
+{
+    RT_NOREF(pRenderer, pTexture);
+}
+
+/** @copydoc RECORDINGRENDEROPS::pfnTextureQueryPixelData */
+static DECLCALLBACK(int) recRenderOutTgtTextureQueryPixelData(PRECORDINGRENDERER pRenderer, PRECORDINGRENDERTEXTURE pTexture,
+                                                              void **ppvBuf, size_t *pcbBuf)
+{
+    RT_NOREF(pTexture);
+
+    PRECORDINGRENDEROUTTGT pOutTgt = (PRECORDINGRENDEROUTTGT)pRenderer->pvBackend;
+    AssertPtr(pOutTgt);
+
+    *ppvBuf = pOutTgt->TgtDesc.pvOutputBuffer;
+    *pcbBuf = pOutTgt->TgtDesc.cbOutputBuffer;
+
+    pTexture->pInfo = &pOutTgt->SurfaceInfo;
+
+    return VINF_SUCCESS;
+}
+
+/** @copydoc RECORDINGRENDEROPS::pfnTextureUpdate */
+static DECLCALLBACK(int) recRenderOutTgtTextureUpdate(PRECORDINGRENDERER pRenderer, PRECORDINGRENDERTEXTURE pTexture,
+                                                      PRECORDINGVIDEOFRAME pFrame)
+{
+    RT_NOREF(pRenderer, pTexture, pFrame);
+    return VINF_SUCCESS;
+}
+
+/** @copydoc RECORDINGRENDEROPS::pfnBlit */
+static DECLCALLBACK(int) recRenderOutTgtBlit(PRECORDINGRENDERER pRenderer,
+                                             PRECORDINGRENDERTEXTURE pDstTexture, PRTRECT pDstRect,
+                                             PCRECORDINGRENDERTEXTURE pSrcTexture, PRTRECT pSrcRect)
+{
+    RT_NOREF(pRenderer, pDstTexture, pDstRect, pSrcTexture, pSrcRect);
+    return VINF_SUCCESS;
+}
+
+/** @copydoc RECORDINGRENDEROPS::pfnBlend */
+static DECLCALLBACK(int) recRenderOutTgtBlend(PRECORDINGRENDERER pRenderer,
+                                              PRECORDINGRENDERTEXTURE pDstTexture, PRTRECT pDstRect,
+                                              PRECORDINGRENDERTEXTURE pSrcTexture, PRTRECT pSrcRect)
+{
+    RT_NOREF(pRenderer, pDstTexture, pDstRect, pSrcTexture, pSrcRect);
+    return VINF_SUCCESS;
+}
+
+/** @copydoc RECORDINGRENDEROPS::pfnResize */
+static DECLCALLBACK(int) recRenderOutTgtResize(PRECORDINGRENDERER pRenderer,
+                                               PRECORDINGRENDERTEXTURE pDstTexture,
+                                               PCRECORDINGRENDERTEXTURE pSrcTexture,
+                                               PRECORDINGRENDERRESIZEPARMS pResizeParms)
+{
+    RT_NOREF(pRenderer, pDstTexture, pSrcTexture, pResizeParms);
+    return VINF_SUCCESS;
+}
+
+/** @copydoc RECORDINGRENDEROPS::pfnConvert */
+static DECLCALLBACK(int) recRenderOutTgtConvert(PRECORDINGRENDERER pRenderer,
+                                                PRECORDINGRENDERTEXTURE pDstTexture,
+                                                PCRECORDINGRENDERTEXTURE pSrcTexture)
+{
+    RT_NOREF(pRenderer, pDstTexture, pSrcTexture);
+    return VINF_SUCCESS;
+}
+
+/**
+ * Output-target renderer operations table.
+ */
+static const RECORDINGRENDEROPS g_RecordingRenderOpsOutTgt =
+{
+    recRenderOutTgtProbe,
+    recRenderOutTgtInit,
+    recRenderOutTgtDestroy,
+    recRenderOutTgtQueryCaps,
+    recRenderOutTgtTextureCreate,
+    recRenderOutTgtTextureDestroy,
+    recRenderOutTgtTextureClear,
+    recRenderOutTgtTextureQueryPixelData,
+    recRenderOutTgtTextureUpdate,
+    recRenderOutTgtBlit,
+    recRenderOutTgtBlend,
+    recRenderOutTgtResize,
+    recRenderOutTgtConvert
 };
 
 
@@ -1938,14 +2110,11 @@ static DECLCALLBACK(int) recRenderSDLConvert(PRECORDINGRENDERER pRenderer,
     return rcUpdate == 0 ? VINF_SUCCESS : VERR_RECORDING_BACKEND_ERROR;
 }
 
-/**
- * SDL backend init callback.
- *
- * @returns VBox status code.
- * @param   pRenderer           Renderer instance.
- */
-static DECLCALLBACK(int) recRenderSDLInit(PRECORDINGRENDERER pRenderer)
+/** @copydoc RECORDINGRENDEROPS::pfnInit */
+static DECLCALLBACK(int) recRenderSDLInit(PRECORDINGRENDERER pRenderer, void *pvBackend)
 {
+    RT_NOREF(pvBackend);
+
     PRECORDINGRENDERSDL pSDL = (PRECORDINGRENDERSDL)RTMemAllocZ(sizeof(RECORDINGRENDERSDL));
     AssertPtrReturn(pSDL, VERR_NO_MEMORY);
 
@@ -2090,6 +2259,11 @@ static int recordingRenderBackendSelect(PRECORDINGRENDERER pRenderer, RECORDINGR
             pRenderer->pOps       = &g_RecordingRenderOpsSoftware;
             break;
 
+        case RECORDINGRENDERBACKEND_OUTTGT:
+            pRenderer->enmBackend = RECORDINGRENDERBACKEND_OUTTGT;
+            pRenderer->pOps       = &g_RecordingRenderOpsOutTgt;
+            break;
+
         default:
             return VERR_NOT_SUPPORTED;
     }
@@ -2138,8 +2312,10 @@ static int recRenderInitCommon(PRECORDINGRENDERER pRenderer)
  * @returns VBox status code.
  * @param   pRenderer           Renderer instance.
  * @param   enmBackend          Preferred backend.
+ * @param   pvBackend           Opaque data pointer to pass to the backend's initialization function.
+ *                              Optional and might be NULL.
  */
-int RecordingRenderInit(PRECORDINGRENDERER pRenderer, RECORDINGRENDERBACKEND enmBackend)
+int RecordingRenderInitEx(PRECORDINGRENDERER pRenderer, RECORDINGRENDERBACKEND enmBackend, const void *pvBackend)
 {
     AssertPtrReturn(pRenderer, VERR_INVALID_POINTER);
 
@@ -2171,7 +2347,7 @@ int RecordingRenderInit(PRECORDINGRENDERER pRenderer, RECORDINGRENDERBACKEND enm
     {
         LogRel2(("Recording: Initializing backend '%s' ...\n", RecordingUtilsRenderBackendToStr(pRenderer->enmBackend)));
 
-        vrc = pRenderer->pOps->pfnInit(pRenderer);
+        vrc = pRenderer->pOps->pfnInit(pRenderer, pvBackend);
         if (RT_FAILURE(vrc))
         {
             LogRel(("Recording: Rendering backend '%s' init failed (%Rrc), falling back to software backend\n",
@@ -2205,7 +2381,7 @@ int RecordingRenderInit(PRECORDINGRENDERER pRenderer, RECORDINGRENDERBACKEND enm
 
         if (pRenderer->pOps->pfnInit)
         {
-            vrc = pRenderer->pOps->pfnInit(pRenderer);
+            vrc = pRenderer->pOps->pfnInit(pRenderer, pvBackend);
             AssertRCReturn(vrc, vrc);
         }
     }
@@ -2221,6 +2397,11 @@ int RecordingRenderInit(PRECORDINGRENDERER pRenderer, RECORDINGRENDERBACKEND enm
     return recRenderInitCommon(pRenderer);
 }
 
+int RecordingRenderInit(PRECORDINGRENDERER pRenderer, RECORDINGRENDERBACKEND enmBackend)
+{
+    return RecordingRenderInitEx(pRenderer, enmBackend, NULL /* pvBackend */);
+}
+
 /**
  * Destroys a rendering backend.
  *
@@ -2233,18 +2414,12 @@ void RecordingRenderDestroy(PRECORDINGRENDERER pRenderer)
 
     pRenderer->pOps->pfnTextureDestroy(pRenderer, &pRenderer->texFront);
     pRenderer->pOps->pfnTextureDestroy(pRenderer, &pRenderer->texBack);
+    pRenderer->pOps->pfnTextureDestroy(pRenderer, &pRenderer->texScaled);
+    pRenderer->pOps->pfnTextureDestroy(pRenderer, &pRenderer->texConv);
     pRenderer->pOps->pfnTextureDestroy(pRenderer, &pRenderer->texVideo);
     pRenderer->pOps->pfnTextureDestroy(pRenderer, &pRenderer->texCursor);
 
-    pRenderer->pOps->pfnTextureDestroy(pRenderer, &pRenderer->texScaled);
-    pRenderer->pOps->pfnTextureDestroy(pRenderer, &pRenderer->texConv);
-
-    pRenderer->pTexComposite = NULL;
-    pRenderer->pTexScaled = NULL;
-    pRenderer->pTexConv = NULL;
-
-    if (   pRenderer->pOps
-        && pRenderer->pOps->pfnDestroy)
+    if (pRenderer->pOps->pfnDestroy)
         pRenderer->pOps->pfnDestroy(pRenderer);
 
     RT_ZERO(*pRenderer);
@@ -2509,6 +2684,8 @@ int RecordingRenderComposeAddFrame(PRECORDINGRENDERER pRenderer, PRECORDINGFRAME
         case RECORDINGFRAME_TYPE_CURSOR_POS:
         {
             PRECORDINGRENDERTEXTURE pTexCursor = &pRenderer->texCursor;
+            if (!pTexCursor->pInfo) /* Some backends might not have cursor support. */
+                break;
 
             RECORDINGPOS PosNew;
             if (pFrame->enmType == RECORDINGFRAME_TYPE_CURSOR_POS)
@@ -2647,7 +2824,7 @@ int RecordingRenderPerform(PRECORDINGRENDERER pRenderer)
  */
 int RecordingRenderQueryFrame(PRECORDINGRENDERER pRenderer, PRECORDINGVIDEOFRAME pFrame)
 {
-    PRECORDINGRENDERTEXTURE  pTexSrc = pRenderer->pTexConv;
+    PRECORDINGRENDERTEXTURE pTexSrc = pRenderer->pTexConv;
     AssertPtr(pTexSrc);
 
     int vrc = pRenderer->pOps->pfnTextureQueryPixelData(pRenderer, pTexSrc,
@@ -2657,11 +2834,13 @@ int RecordingRenderQueryFrame(PRECORDINGRENDERER pRenderer, PRECORDINGVIDEOFRAME
         return vrc;
 
     /* Use pointer of the the pass 3 texture to get the final frame (original / resized / converted). */
+    AssertPtr(pTexSrc->pInfo);
     pFrame->Info = *pTexSrc->pInfo;
 
     /* Instead of copying the pixel data over to pFrame, backends only sets the pointer to the data.
      * In that case the backend texture remains the owner of the pixel data and thus pFrame isn't allowed to destroy it. */
-    if (pRenderer->enmBackend == RECORDINGRENDERBACKEND_SOFTWARE)
+    if (   pRenderer->enmBackend == RECORDINGRENDERBACKEND_SOFTWARE
+        || pRenderer->enmBackend == RECORDINGRENDERBACKEND_OUTTGT)
         pFrame->fFlags |= RECORDINGVIDEOFRAME_F_NO_DESTROY;
 
     return vrc;

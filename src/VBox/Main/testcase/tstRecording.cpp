@@ -1,4 +1,4 @@
-/* $Id: tstRecording.cpp 113642 2026-03-30 10:11:57Z andreas.loeffler@oracle.com $ */
+/* $Id: tstRecording.cpp 113708 2026-04-02 09:19:01Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording testcases.
  */
@@ -590,7 +590,7 @@ static void tstRecRenderer(RTTEST hTest)
     ScreenParms.enmPixelFmt   = RECORDINGPIXELFMT_BRGA32;
     ScreenParms.uBytesPerLine = ScreenParms.uWidth * 4;
 
-    RECORDINGRENDERPARAMS RenderParms;
+    RECORDINGRENDERPARMS RenderParms;
     RT_ZERO(RenderParms);
     RenderParms.Info = ScreenParms;
 
