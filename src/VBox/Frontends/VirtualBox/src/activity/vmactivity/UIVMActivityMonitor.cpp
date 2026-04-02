@@ -1,4 +1,4 @@
-/* $Id: UIVMActivityMonitor.cpp 113693 2026-03-31 08:32:01Z serkan.bayraktar@oracle.com $ */
+/* $Id: UIVMActivityMonitor.cpp 113714 2026-04-02 13:07:55Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVMActivityMonitor class implementation.
  */
@@ -74,6 +74,13 @@ const int g_iDecimalCount = 2;
 const int g_iBackgroundTint = 104;
 const quint64 uInvalidValueSentinel = ~0U;
 
+static QColor dimColor(const QColor &originalColor)
+{
+    QColor newColor(originalColor);
+    newColor.setHsv(newColor.hue(), newColor.saturation() * 0.7, newColor.value() * 0.8);
+    newColor.setAlphaF(newColor.alphaF() * 0.6);
+    return newColor;
+}
 
 /*********************************************************************************************************************************
 *   UIInfoLabelContainer definition.                                                                                             *
@@ -85,9 +92,11 @@ public:
 
     UIInfoLabelContainer(QWidget *pParent, int rowCount /* including title row */);
     void setTitle(const QString &strTitle);
-    void setRowText(int i, const QString &strLabel, const QString &strValue, QColor color = QColor());
+    void setRowText(int i, const QString &strLabel = QString(), const QString &strValue = QString(), QColor color = QColor());
     void setTopMargin(int iMarginTop);
     QFont labelFont() const;
+    void setRowColor(int iRowIndex, const QColor &color);
+
 private:
 
     QGridLayout *m_pGridLayout;
@@ -258,7 +267,7 @@ void UIInfoLabelContainer::setTitle(const QString &strTitle)
     m_rows[0].first->setText(strTitle);
 }
 
-void UIInfoLabelContainer::setRowText(int i, const QString &strLabel, const QString &strValue, QColor color /*= QColor()*/)
+void UIInfoLabelContainer::setRowText(int i, const QString &strLabel /*= QString()*/, const QString &strValue /* = QString() */, QColor color /*= QColor()*/)
 {
     if (!m_pGridLayout || m_rows.size() <= i || i == 0)
         return;
@@ -266,16 +275,21 @@ void UIInfoLabelContainer::setRowText(int i, const QString &strLabel, const QStr
         return;
     m_rows[i].first->setText(strLabel);
     m_rows[i].second->setText(strValue);
-    if (color.isValid())
-    {
-        QPalette pal = m_rows[i].first->palette();
-        pal.setColor(QPalette::WindowText, color);
-        m_rows[i].first->setPalette(pal);
+    setRowColor(i, color);
+}
 
-        pal = m_rows[i].second->palette();
-        pal.setColor(QPalette::WindowText, color);
-        m_rows[i].second->setPalette(pal);
-    }
+void UIInfoLabelContainer::setRowColor(int iRowIndex, const QColor &color)
+{
+    if (!color.isValid() || iRowIndex >= m_rows.size())
+        return;
+
+    QPalette pal = m_rows[iRowIndex].first->palette();
+    pal.setColor(QPalette::WindowText, color);
+    m_rows[iRowIndex].first->setPalette(pal);
+
+    pal = m_rows[iRowIndex].second->palette();
+    pal.setColor(QPalette::WindowText, color);
+    m_rows[iRowIndex].second->setPalette(pal);
 }
 
 void UIInfoLabelContainer::setTopMargin(int iMarginTop)
@@ -639,10 +653,8 @@ void UIChart::paintEvent(QPaintEvent *pEvent)
         const QQueue<quint64> *data = m_pMetric->data(k);
         QColor dataSeriesColor = m_dataSeriesColor[k];
         if (m_fPausedMode)
-        {
-            dataSeriesColor.setHsv(m_dataSeriesColor[k].hue(), m_dataSeriesColor[k].saturation() * 0.7, m_dataSeriesColor[k].value() * 0.8);
-            dataSeriesColor.setAlphaF(m_dataSeriesColor[k].alphaF() * 0.6);
-        }
+            dataSeriesColor = dimColor(dataSeriesColor);
+
         if (!m_fUseGradientLineColor)
                 painter.setPen(QPen(dataSeriesColor, fPenWidth));
         if (m_fUseAreaChart && m_fIsAreaChartAllowed)
@@ -2011,13 +2023,13 @@ void UIVMActivityMonitorLocal::updateCPUChart(ULONG iExecutingPercentage, ULONG 
             m_infoLabelContainers[Metric_Type_CPU]->setTitle(m_strCPUInfoLabelTitle);
             int iLabelRow = 1;
             m_infoLabelContainers[Metric_Type_CPU]->setRowText(iLabelRow++, m_strCPUInfoLabelGuestCurrent,
-                                                               QString("%1%2").arg(QString::number(uEx)).arg(CPUMetric.unit()), dataColor(Metric_Type_CPU, 0));
+                                                               QString("%1%2").arg(QString::number(uEx)).arg(CPUMetric.unit()));
             m_infoLabelContainers[Metric_Type_CPU]->setRowText(iLabelRow++, m_strCPUInfoLabelGuestAverage,
-                                                               QString("%1%2").arg(QString::number(CPUMetric.average(0))).arg(CPUMetric.unit()), dataColor(Metric_Type_CPU, 0));
+                                                               QString("%1%2").arg(QString::number(CPUMetric.average(0))).arg(CPUMetric.unit()));
             m_infoLabelContainers[Metric_Type_CPU]->setRowText(iLabelRow++, m_strCPUInfoLabelVMMCurrent,
-                                                               QString("%1%2").arg(QString::number(uOther)).arg(CPUMetric.unit()), dataColor(Metric_Type_CPU, 1));
+                                                               QString("%1%2").arg(QString::number(uOther)).arg(CPUMetric.unit()));
             m_infoLabelContainers[Metric_Type_CPU]->setRowText(iLabelRow++, m_strCPUInfoLabelVMMAverage,
-                                                               QString("%1%2").arg(QString::number(CPUMetric.average(1))).arg(CPUMetric.unit()), dataColor(Metric_Type_CPU, 1));
+                                                               QString("%1%2").arg(QString::number(CPUMetric.average(1))).arg(CPUMetric.unit()));
         }
         if (m_charts[Metric_Type_CPU])
             m_charts[Metric_Type_CPU]->update();
@@ -2204,10 +2216,10 @@ void UIVMActivityMonitorLocal::resetCPUInfoLabel()
     if (m_infoLabelContainers.contains(Metric_Type_CPU)  && m_infoLabelContainers[Metric_Type_CPU])
     {
         m_infoLabelContainers[Metric_Type_CPU]->setTitle(m_strCPUInfoLabelTitle);
-        m_infoLabelContainers[Metric_Type_CPU]->setRowText(1, m_strCPUInfoLabelGuestCurrent, "--", dataColor(Metric_Type_CPU, 0));
-        m_infoLabelContainers[Metric_Type_CPU]->setRowText(2, m_strCPUInfoLabelGuestAverage, "--", dataColor(Metric_Type_CPU, 0));
-        m_infoLabelContainers[Metric_Type_CPU]->setRowText(3, m_strCPUInfoLabelVMMCurrent, "--", dataColor(Metric_Type_CPU, 1));
-        m_infoLabelContainers[Metric_Type_CPU]->setRowText(4, m_strCPUInfoLabelVMMAverage, "--", dataColor(Metric_Type_CPU, 1));
+        m_infoLabelContainers[Metric_Type_CPU]->setRowText(1, m_strCPUInfoLabelGuestCurrent, "--");
+        m_infoLabelContainers[Metric_Type_CPU]->setRowText(2, m_strCPUInfoLabelGuestAverage, "--");
+        m_infoLabelContainers[Metric_Type_CPU]->setRowText(3, m_strCPUInfoLabelVMMCurrent, "--");
+        m_infoLabelContainers[Metric_Type_CPU]->setRowText(4, m_strCPUInfoLabelVMMAverage, "--");
     }
 }
 
