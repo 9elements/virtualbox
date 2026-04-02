@@ -1,4 +1,4 @@
-/* $Id: SUPDrv-linux.c 113555 2026-03-25 00:39:10Z knut.osmundsen@oracle.com $ */
+/* $Id: SUPDrv-linux.c 113707 2026-04-02 07:24:01Z knut.osmundsen@oracle.com $ */
 /** @file
  * VBoxDrv - The VirtualBox Support Driver - Linux specifics.
  */
@@ -107,6 +107,17 @@
 #define X86_EFL_AC          RT_BIT(18)
 #define X86_EFL_DF          RT_BIT(10)
 #define X86_EFL_IOPL        (RT_BIT(12) | RT_BIT(13))
+
+#define X86_CPUID_STEXT_FEATURE_EDX_CET_IBT RT_BIT_32(20)
+#ifndef MSR_IA32_S_CET
+# define MSR_IA32_S_CET                     0x6a2
+#endif
+#ifndef MSR_IA32_CET_ENDBR_EN
+# define MSR_IA32_CET_ENDBR_EN              RT_BIT_64(2)
+#endif
+#ifndef MSR_IA32_CET_SUPPRESS
+# define MSR_IA32_CET_SUPPRESS              RT_BIT_64(10)
+#endif
 
 /* To include the version number of VirtualBox into kernel backtraces: */
 #define VBoxDrvLinuxVersion RT_CONCAT3(RT_CONCAT(VBOX_VERSION_MAJOR, _), \
@@ -471,15 +482,33 @@ static int __init supdrvLinuxInitKvmSymbols(PRTDBGKRNLINFO phKrnlInfo)
              * reference to the kvm module. If we fail, we will not try to use KVM for
              * enabling/disable hardware-virtualization. This is due a a bug in the Linux
              * kernel, see @bugref{10963}.
+             *
+             * Note! find_module isn't exported, so we have to temporarily disable the
+             *       indirect branch track machinery in order to call it safely.
+             *       (Setting the SUPPORESS bit to 1 probably won't help much here, as
+             *       the call is done via __x86_indirect_thunk_xxx.)
              */
             struct module * (*pfnFindModule)(const char *) = NULL;
             bool fPutFindModule = supdrvLinuxFunction(NULL, "find_module", (PFNRT *)&pfnFindModule, phKrnlInfo);
             if (pfnFindModule)
             {
-                RTTHREADPREEMPTSTATE Preempt = RTTHREADPREEMPTSTATE_INITIALIZER; /** @todo r=bird: was this just for CR4/IBT hacking? */
+                RTTHREADPREEMPTSTATE Preempt = RTTHREADPREEMPTSTATE_INITIALIZER;
+                uint32_t             uLeaves = ASMCpuId_EAX(0);
+                struct module       *pModule;
                 RTThreadPreemptDisable(&Preempt);
-                struct module * const pModule = pfnFindModule(pszModName);
+                if (   uLeaves >= 7
+                    && RTX86IsValidStdRange(uLeaves)
+                    && (ASMCpuIdEx_EDX(7, 0) & X86_CPUID_STEXT_FEATURE_EDX_CET_IBT))
+                {
+                    uint64_t const fSupCet = ASMRdMsr(MSR_IA32_S_CET);
+                    ASMWrMsr(MSR_IA32_S_CET, fSupCet & ~MSR_IA32_CET_ENDBR_EN);
+                    pModule = pfnFindModule(pszModName);
+                    ASMWrMsr(MSR_IA32_S_CET, fSupCet);
+                }
+                else
+                    pModule = pfnFindModule(pszModName);
                 RTThreadPreemptRestore(&Preempt);
+
                 if (fPutFindModule)
                     symbol_put_addr(pfnFindModule);
 
