@@ -42,7 +42,9 @@ VBOX_QUIET    :=
 VBOX_QUIET_SH := set -x;
  endif
 
-all: vboxguest vboxsf vboxvideo
+KERN_MAJ = $(shell uname -r | cut -d . -f1)
+
+all: vboxguest vboxsf $(if $(shell [ "$(KERN_MAJ)" -lt 7 ] && echo y),vboxvideo,)
 
 vboxguest:
 	@echo "=== Building 'vboxguest' module ==="
