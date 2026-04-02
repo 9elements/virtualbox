@@ -1,4 +1,4 @@
-/* $Id: PGMAllPhys.cpp 112980 2026-02-12 20:01:00Z alexander.eichner@oracle.com $ */
+/* $Id: PGMAllPhys.cpp 113705 2026-04-02 07:10:41Z knut.osmundsen@oracle.com $ */
 /** @file
  * PGM - Page Manager and Monitor, Physical Memory Addressing.
  */
@@ -195,6 +195,106 @@ uint32_t pgmHandlerPhysicalCalcTableSizes(uint32_t *pcEntries, uint32_t *pcbTree
 }
 
 
+/**
+ * Deals with the odd sizes, making sure that the writes are as well aligned as
+ * possible.
+ */
+template<bool const a_fIsRead>
+static void pgmPhysPredictableOddSizedMemCopy(uint8_t volatile *pbDst, uint8_t volatile const *pbSrc, size_t cb)
+{
+    while (cb > 0)
+    {
+        if (cb >= 8 && ((a_fIsRead ? (uintptr_t)pbSrc : (uintptr_t)pbDst) & 7) == 0)
+        {
+            *(uint64_t volatile *)pbDst = *(uint64_t volatile const *)pbSrc;
+            pbDst += 8;
+            pbSrc += 8;
+            cb    -= 8;
+        }
+        else if (cb >= 4 && ((a_fIsRead ? (uintptr_t)pbSrc : (uintptr_t)pbDst) & 3) == 0)
+        {
+            *(uint32_t volatile *)pbDst = *(uint32_t volatile const *)pbSrc;
+            pbDst += 4;
+            pbSrc += 4;
+            cb    -= 4;
+        }
+        else if (cb >= 2 && ((a_fIsRead ? (uintptr_t)pbSrc : (uintptr_t)pbDst) & 1) == 0)
+        {
+            *(uint16_t volatile *)pbDst = *(uint16_t volatile const *)pbSrc;
+            pbDst += 2;
+            pbSrc += 2;
+            cb    -= 2;
+        }
+        else
+        {
+            *pbDst++ = *pbSrc++;
+            cb      -= 1;
+        }
+    }
+}
+
+
+/**
+ * Wraps memcpy to make the behaviour more predictable for small reads and
+ * writes.
+ *
+ * Background: memcpy(x, y, 2) could easily be split up into two interations of
+ * REP MOVSB.  This is bad if the memory is concurrently being used by someone
+ * else (i.e. guest updates it while we read it byte-by-byte).
+ */
+template <bool const a_fIsRead>
+static void pgmPhysMemCopyWrapper(void *pvDst, void const *pvSrc, size_t cb)
+{
+    if (cb > 16)
+        memcpy(pvDst, pvSrc, cb);
+    else if RT_CONSTEXPR_IF(a_fIsRead)
+        switch (cb)
+        {
+            case 1:
+                *(uint8_t *)pvDst = *(uint8_t volatile const *)pvSrc;
+                return;
+            case 2:
+                *(uint16_t *)pvDst = *(uint16_t volatile const *)pvSrc;
+                return;
+            case 4:
+                *(uint32_t *)pvDst = *(uint32_t volatile const *)pvSrc;
+                return;
+            case 8:
+                *(uint64_t *)pvDst = *(uint64_t volatile const *)pvSrc;
+                return;
+            case 16:
+                ((uint64_t *)pvDst)[0] = ((uint64_t volatile const *)pvSrc)[0];
+                ((uint64_t *)pvDst)[1] = ((uint64_t volatile const *)pvSrc)[1];
+                return;
+            default:
+                pgmPhysPredictableOddSizedMemCopy<true>((uint8_t volatile *)pvDst, (uint8_t volatile const *)pvSrc, cb);
+                return;
+        }
+    else
+        switch (cb)
+        {
+            case 1:
+                *(uint8_t volatile *)pvDst = *(uint8_t const *)pvSrc;
+                return;
+            case 2:
+                *(uint16_t volatile *)pvDst = *(uint16_t const *)pvSrc;
+                return;
+            case 4:
+                *(uint32_t volatile *)pvDst = *(uint32_t const *)pvSrc;
+                return;
+            case 8:
+                *(uint64_t volatile *)pvDst = *(uint64_t const *)pvSrc;
+                return;
+            case 16:
+                ((uint64_t volatile *)pvDst)[0] = ((uint64_t const *)pvSrc)[0];
+                ((uint64_t volatile *)pvDst)[1] = ((uint64_t const *)pvSrc)[1];
+                return;
+            default:
+                pgmPhysPredictableOddSizedMemCopy<false>((uint8_t volatile *)pvDst, (uint8_t volatile const *)pvSrc, cb);
+                return;
+        }
+}
+
 
 /*********************************************************************************************************************************
 *   Access Handlers for ROM and MMIO2                                                                                            *
@@ -376,7 +476,7 @@ pgmPhysRomWriteHandler(PVMCC pVM, PVMCPUCC pVCpu, RTGCPHYS GCPhys, void *pvPhys,
                 }
                 if (RT_SUCCESS(rc))
                 {
-                    memcpy((uint8_t *)pvDstPage + (GCPhys & GUEST_PAGE_OFFSET_MASK), pvBuf, cbBuf);
+                    pgmPhysMemCopyWrapper<false>((uint8_t *)pvDstPage + (GCPhys & GUEST_PAGE_OFFSET_MASK), pvBuf, cbBuf);
                     pRomPage->LiveSave.fWrittenTo = true;
 
                     AssertMsg(    rc == VINF_SUCCESS
@@ -4096,7 +4196,7 @@ static VBOXSTRICTRC pgmPhysReadHandler(PVMCC pVM, PPGMPAGE pPage, RTGCPHYS GCPhy
      */
     if (rcStrict == VINF_PGM_HANDLER_DO_DEFAULT)
     {
-        memcpy(pvBuf, pvSrc, cb);
+        pgmPhysMemCopyWrapper<true>(pvBuf, pvSrc, cb);
         rcStrict = VINF_SUCCESS;
     }
     pgmPhysReleaseInternalPageMappingLock(pVM, &PgMpLck);
@@ -4185,7 +4285,7 @@ VMMDECL(VBOXSTRICTRC) PGMPhysRead(PVMCC pVM, RTGCPHYS GCPhys, void *pvBuf, size_
                     int rc = pgmPhysGCPhys2CCPtrInternalReadOnly(pVM, pPage, pRam->GCPhys + off, &pvSrc, &PgMpLck);
                     if (RT_SUCCESS(rc))
                     {
-                        memcpy(pvBuf, pvSrc, cb);
+                        pgmPhysMemCopyWrapper<true>(pvBuf, pvSrc, cb);
                         pgmPhysReleaseInternalPageMappingLock(pVM, &PgMpLck);
                     }
                     else
@@ -4328,7 +4428,7 @@ static VBOXSTRICTRC pgmPhysWriteHandler(PVMCC pVM, PPGMPAGE pPage, RTGCPHYS GCPh
             if (rcStrict == VINF_PGM_HANDLER_DO_DEFAULT)
             {
                 if (pvDst)
-                    memcpy(pvDst, pvBuf, cbRange);
+                    pgmPhysMemCopyWrapper<false>(pvDst, pvBuf, cbRange);
                 rcStrict = VINF_SUCCESS;
             }
             else
@@ -4467,7 +4567,7 @@ static VBOXSTRICTRC pgmPhysWriteHandler(PVMCC pVM, PPGMPAGE pPage, RTGCPHYS GCPh
          */
         if (rcStrict2 == VINF_PGM_HANDLER_DO_DEFAULT)
         {
-            memcpy(pvDst, pvBuf, cbRange);
+            pgmPhysMemCopyWrapper<false>(pvDst, pvBuf, cbRange);
             rcStrict2 = VINF_SUCCESS;
         }
         else if (!PGM_PHYS_RW_IS_SUCCESS(rcStrict2))
@@ -4586,7 +4686,7 @@ VMMDECL(VBOXSTRICTRC) PGMPhysWrite(PVMCC pVM, RTGCPHYS GCPhys, const void *pvBuf
                     if (RT_SUCCESS(rc))
                     {
                         Assert(!PGM_PAGE_IS_BALLOONED(pPage));
-                        memcpy(pvDst, pvBuf, cb);
+                        pgmPhysMemCopyWrapper<false>(pvDst, pvBuf, cb);
                         pgmPhysReleaseInternalPageMappingLock(pVM, &PgMpLck);
                     }
                     /* Ignore writes to ballooned pages. */
@@ -4674,7 +4774,7 @@ VMMDECL(int) PGMPhysSimpleReadGCPhys(PVMCC pVM, void *pvDst, RTGCPHYS GCPhysSrc,
     size_t cbPage = GUEST_PAGE_SIZE - (GCPhysSrc & GUEST_PAGE_OFFSET_MASK);
     if (RT_LIKELY(cb <= cbPage))
     {
-        memcpy(pvDst, pvSrc, cb);
+        pgmPhysMemCopyWrapper<true>(pvDst, pvSrc, cb);
         PGMPhysReleasePageMappingLock(pVM, &Lock);
         return VINF_SUCCESS;
     }
@@ -4748,7 +4848,7 @@ VMMDECL(int) PGMPhysSimpleWriteGCPhys(PVMCC pVM, RTGCPHYS GCPhysDst, const void 
     size_t cbPage = GUEST_PAGE_SIZE - (GCPhysDst & GUEST_PAGE_OFFSET_MASK);
     if (RT_LIKELY(cb <= cbPage))
     {
-        memcpy(pvDst, pvSrc, cb);
+        pgmPhysMemCopyWrapper<false>(pvDst, pvSrc, cb);
         PGMPhysReleasePageMappingLock(pVM, &Lock);
         return VINF_SUCCESS;
     }
@@ -4834,7 +4934,7 @@ VMMDECL(int) PGMPhysSimpleReadGCPtr(PVMCPUCC pVCpu, void *pvDst, RTGCPTR GCPtrSr
     size_t cbPage = GUEST_PAGE_SIZE - ((RTGCUINTPTR)GCPtrSrc & GUEST_PAGE_OFFSET_MASK);
     if (RT_LIKELY(cb <= cbPage))
     {
-        memcpy(pvDst, pvSrc, cb);
+        pgmPhysMemCopyWrapper<true>(pvDst, pvSrc, cb);
         PGMPhysReleasePageMappingLock(pVM, &Lock);
         PGM_UNLOCK(pVM);
         return VINF_SUCCESS;
@@ -4917,7 +5017,7 @@ VMMDECL(int) PGMPhysSimpleWriteGCPtr(PVMCPUCC pVCpu, RTGCPTR GCPtrDst, const voi
     size_t cbPage = GUEST_PAGE_SIZE - ((RTGCUINTPTR)GCPtrDst & GUEST_PAGE_OFFSET_MASK);
     if (RT_LIKELY(cb <= cbPage))
     {
-        memcpy(pvDst, pvSrc, cb);
+        pgmPhysMemCopyWrapper<false>(pvDst, pvSrc, cb);
         PGMPhysReleasePageMappingLock(pVM, &Lock);
         return VINF_SUCCESS;
     }
@@ -4995,7 +5095,7 @@ VMMDECL(int) PGMPhysSimpleDirtyWriteGCPtr(PVMCPUCC pVCpu, RTGCPTR GCPtrDst, cons
     size_t cbPage = GUEST_PAGE_SIZE - ((RTGCUINTPTR)GCPtrDst & GUEST_PAGE_OFFSET_MASK);
     if (RT_LIKELY(cb <= cbPage))
     {
-        memcpy(pvDst, pvSrc, cb);
+        pgmPhysMemCopyWrapper<false>(pvDst, pvSrc, cb);
         PGMPhysReleasePageMappingLock(pVM, &Lock);
 #ifdef VBOX_VMM_TARGET_X86
         rc = PGMGstModifyPage(pVCpu, GCPtrDst, 1, X86_PTE_A | X86_PTE_D, ~(uint64_t)(X86_PTE_A | X86_PTE_D)); AssertRC(rc);
