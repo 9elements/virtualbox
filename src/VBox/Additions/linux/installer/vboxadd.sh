@@ -1,7 +1,7 @@
 #! /bin/sh
-# $Id: vboxadd.sh 113280 2026-03-06 17:08:45Z vadim.galitsyn@oracle.com $
+# $Id: vboxadd.sh 113722 2026-04-02 17:03:54Z vadim.galitsyn@oracle.com $
 ## @file
-# Linux Additions kernel module init script ($Revision: 113280 $)
+# Linux Additions kernel module init script ($Revision: 113722 $)
 #
 
 #
@@ -487,7 +487,7 @@ System is running in Secure Boot mode, however your distribution
 does not provide tools for automatic generation of keys needed for
 modules signing. Please consider to generate and enroll them manually:
 
-    sudo mkdir -p /var/lib/shim-signed/mok
+    sudo mkdir -m 0700 -p /var/lib/shim-signed/mok
     sudo openssl req -nodes -new -x509 -newkey rsa:2048 -outform DER -addext \"extendedKeyUsage=codeSigning\" -keyout $DEB_PRIV_KEY -out $DEB_PUB_KEY
     sudo mokutil --import $DEB_PUB_KEY
     sudo reboot
