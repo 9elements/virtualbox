@@ -1,4 +1,4 @@
-/* $Id: UIGlobalSession.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: UIGlobalSession.cpp 113730 2026-04-06 14:26:15Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIGlobalSession class implementation.
  */
@@ -32,6 +32,7 @@
 #include "UIGlobalSession.h"
 #include "UIGuestOSType.h"
 #include "UIMessageCenter.h"
+#include "UINotificationMessage.h"
 #include "UIVirtualBoxClientEventHandler.h"
 
 /* COM includes: */
@@ -84,11 +85,11 @@ bool UIGlobalSession::prepare()
         {
             char szHome[RTPATH_MAX] = "";
             com::GetVBoxUserHomeDirectory(szHome, sizeof(szHome));
-            msgCenter().cannotInitUserHome(QString(szHome));
+            UINotificationMessage::cannotInitUserHome(QString(szHome));
         }
         else
 #endif
-            msgCenter().cannotInitCOM(rc);
+            UINotificationMessage::cannotInitCOM(rc);
         return false;
     }
 

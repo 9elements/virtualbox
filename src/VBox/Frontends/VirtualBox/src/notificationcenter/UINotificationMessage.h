@@ -1,4 +1,4 @@
-/* $Id: UINotificationMessage.h 113635 2026-03-27 15:10:30Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationMessage.h 113730 2026-04-06 14:26:15Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationMessage declarations.
  */
@@ -96,6 +96,11 @@ public:
         static void cannotFindLanguage(const QString &strLangId, const QString &strNlsPath);
         /** Notifies about inability to load language @a strLangFile. */
         static void cannotLoadLanguage(const QString &strLangFile);
+
+        /** Notifies about inability to initialize user home. */
+        static void cannotInitUserHome(const QString &strUserHome);
+        /** Notifies about inability to initialize COM. */
+        static void cannotInitCOM(HRESULT rc);
 
         /** Notifies about inability to find help file at certain @a strLocation. */
         static void cannotFindHelpFile(const QString &strLocation);

@@ -1,4 +1,4 @@
-/* $Id: UIMessageCenter.h 113635 2026-03-27 15:10:30Z sergey.dubov@oracle.com $ */
+/* $Id: UIMessageCenter.h 113730 2026-04-06 14:26:15Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMessageCenter class declaration.
  */
@@ -200,9 +200,6 @@ public:
 
     /** @name Startup warnings.
       * @{ */
-        void cannotInitUserHome(const QString &strUserHome) const;
-        void cannotInitCOM(HRESULT rc) const;
-
         void cannotHandleRuntimeOption(const QString &strOption) const;
 
         void cannotStartSelector() const;

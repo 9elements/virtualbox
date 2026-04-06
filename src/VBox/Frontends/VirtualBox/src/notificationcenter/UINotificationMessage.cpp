@@ -1,4 +1,4 @@
-/* $Id: UINotificationMessage.cpp 113635 2026-03-27 15:10:30Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationMessage.cpp 113730 2026-04-06 14:26:15Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationMessage implementations.
  */
@@ -110,6 +110,35 @@ void UINotificationMessage::cannotLoadLanguage(const QString &strLangFile)
         QString() /* internal name */,
         QString() /* help keyword */,
         NotificationType_Warning);
+}
+
+/* static */
+void UINotificationMessage::cannotInitUserHome(const QString &strUserHome)
+{
+    createBlockingMessage(
+        QApplication::translate("UIMessageCenter", "Can't init user home ..."),
+        QApplication::translate("UIMessageCenter", "<p>Failed to initialize COM because the VirtualBox global configuration "
+                                                   "directory <b><nobr>%1</nobr></b> is not accessible. Please check the "
+                                                   "permissions of this directory and of its parent directory.</p>"
+                                                   "<p>The application will now terminate.</p>").arg(strUserHome) +
+        UIErrorString::formatErrorInfo(COMErrorInfo()),
+        QString() /* internal name */,
+        QString() /* help keyword */,
+        NotificationType_Critical);
+}
+
+/* static */
+void UINotificationMessage::cannotInitCOM(HRESULT rc)
+{
+    createBlockingMessage(
+        QApplication::translate("UIMessageCenter", "Can't init COM ..."),
+        QApplication::translate("UIMessageCenter", "<p>Failed to initialize COM or to find the VirtualBox COM server. Most "
+                                                   "likely, the VirtualBox server is not running or failed to start.</p>"
+                                                   "<p>The application will now terminate.</p>") +
+        UIErrorString::formatErrorInfo(COMErrorInfo(), rc),
+        QString() /* internal name */,
+        QString() /* help keyword */,
+        NotificationType_Critical);
 }
 
 /* static */

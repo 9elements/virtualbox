@@ -1,4 +1,4 @@
-/* $Id: UIMessageCenter.cpp 113635 2026-03-27 15:10:30Z sergey.dubov@oracle.com $ */
+/* $Id: UIMessageCenter.cpp 113730 2026-04-06 14:26:15Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMessageCenter class implementation.
  */
@@ -241,26 +241,6 @@ bool UIMessageCenter::showModalProgressDialog(CProgress &progress,
 
     /* Return result: */
     return fRc;
-}
-
-void UIMessageCenter::cannotInitUserHome(const QString &strUserHome) const
-{
-    error(0, MessageType_Critical,
-          tr("<p>Failed to initialize COM because the VirtualBox global "
-             "configuration directory <b><nobr>%1</nobr></b> is not accessible. "
-             "Please check the permissions of this directory and of its parent directory.</p>"
-             "<p>The application will now terminate.</p>")
-             .arg(strUserHome),
-          UIErrorString::formatErrorInfo(COMErrorInfo()));
-}
-
-void UIMessageCenter::cannotInitCOM(HRESULT rc) const
-{
-    error(0, MessageType_Critical,
-          tr("<p>Failed to initialize COM or to find the VirtualBox COM server. "
-             "Most likely, the VirtualBox server is not running or failed to start.</p>"
-             "<p>The application will now terminate.</p>"),
-          UIErrorString::formatErrorInfo(COMErrorInfo(), rc));
 }
 
 void UIMessageCenter::cannotHandleRuntimeOption(const QString &strOption) const
