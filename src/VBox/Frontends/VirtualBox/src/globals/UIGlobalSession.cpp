@@ -1,4 +1,4 @@
-/* $Id: UIGlobalSession.cpp 113730 2026-04-06 14:26:15Z sergey.dubov@oracle.com $ */
+/* $Id: UIGlobalSession.cpp 113731 2026-04-06 14:30:57Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIGlobalSession class implementation.
  */
@@ -97,12 +97,13 @@ bool UIGlobalSession::prepare()
     m_comVBoxClient.createInstance(CLSID_VirtualBoxClient);
     if (!m_comVBoxClient.isOk())
     {
-        msgCenter().cannotCreateVirtualBoxClient(m_comVBoxClient);
+        UINotificationMessage::cannotCreateVirtualBoxClient(m_comVBoxClient);
         return false;
     }
 
     /* Init wrappers: */
-    comWrappersReinit();
+    if (!comWrappersReinit())
+        return false;
 
     /* Watch for the VBoxSVC availability changes: */
     connect(gVBoxClientEvents, &UIVirtualBoxClientEventHandler::sigVBoxSVCAvailabilityChange,
@@ -227,7 +228,7 @@ bool UIGlobalSession::comWrappersReinit()
     m_comVBox = comVBoxClient.GetVirtualBox();
     if (!comVBoxClient.isOk())
     {
-        msgCenter().cannotAcquireVirtualBox(comVBoxClient);
+        UINotificationMessage::cannotAcquireVirtualBox(comVBoxClient);
         return false;
     }
 

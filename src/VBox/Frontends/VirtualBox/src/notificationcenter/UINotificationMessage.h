@@ -1,4 +1,4 @@
-/* $Id: UINotificationMessage.h 113730 2026-04-06 14:26:15Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationMessage.h 113731 2026-04-06 14:30:57Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationMessage declarations.
  */
@@ -337,6 +337,13 @@ public:
 
     /** @name COM general warnings.
       * @{ */
+        /** Notifies about inability to create IVirtualBoxClient.
+          * @param  comClient  Brings the object we're trying to create instance for. */
+        static void cannotCreateVirtualBoxClient(const CVirtualBoxClient &comClient);
+        /** Notifies about inability to acquire IVirtualBox.
+          * @param  comClient  Brings the client IVirtualBox get acquired from. */
+        static void cannotAcquireVirtualBox(const CVirtualBoxClient &comClient);
+
         /** Notifies about inability to acquire IVirtualBox parameter.
           * @param  comVBox  Brings the object parameter get acquired from. */
         static bool cannotAcquireVirtualBoxParameter(const CVirtualBox &comVBox,

@@ -1,4 +1,4 @@
-/* $Id: UIMessageCenter.cpp 113730 2026-04-06 14:26:15Z sergey.dubov@oracle.com $ */
+/* $Id: UIMessageCenter.cpp 113731 2026-04-06 14:30:57Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMessageCenter class implementation.
  */
@@ -297,27 +297,6 @@ bool UIMessageCenter::cannotRestoreSnapshot(const CProgress &progress,
              .arg(strSnapshotName, strMachineName),
           UIErrorString::formatErrorInfo(progress));
     return false;
-}
-
-void UIMessageCenter::cannotCreateVirtualBoxClient(const CVirtualBoxClient &comClient) const
-{
-    error(0, MessageType_Critical,
-          tr("<p>Failed to create the VirtualBoxClient COM object.</p>"
-             "<p>The application will now terminate.</p>"),
-          UIErrorString::formatErrorInfo(comClient));
-}
-
-void UIMessageCenter::cannotAcquireVirtualBox(const CVirtualBoxClient &comClient) const
-{
-    QString err = tr("<p>Failed to acquire the VirtualBox COM object.</p>"
-                     "<p>The application will now terminate.</p>");
-#if defined(VBOX_WS_NIX) || defined(VBOX_WS_MAC)
-    if (comClient.lastRC() == NS_ERROR_SOCKET_FAIL)
-        err += tr("<p>The reason for this error are most likely wrong permissions of the IPC "
-                  "daemon socket due to an installation problem. Please check the permissions of "
-                  "<font color=blue>'/tmp'</font> and <font color=blue>'/tmp/.vbox-*-ipc/'</font></p>");
-#endif
-    error(0, MessageType_Critical, err, UIErrorString::formatErrorInfo(comClient));
 }
 
 void UIMessageCenter::cannotFindMachineByName(const CVirtualBox &comVBox, const QString &strName) const

@@ -1,4 +1,4 @@
-/* $Id: UINotificationMessage.cpp 113730 2026-04-06 14:26:15Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationMessage.cpp 113731 2026-04-06 14:30:57Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationMessage implementations.
  */
@@ -69,6 +69,7 @@
 #include "CUnattended.h"
 #include "CUpdateAgent.h"
 #include "CVirtualBox.h"
+#include "CVirtualBoxClient.h"
 #include "CVRDEServer.h"
 #include "CVRDEServerInfo.h"
 #ifdef VBOX_WITH_DRAG_AND_DROP
@@ -896,6 +897,40 @@ void UINotificationMessage::warnAboutVBoxSVCUnavailable()
                                                    "Note that you can also access the above file by selecting <b>Show Log</b> "
                                                    "from the <b>Machine</b> menu of the main VirtualBox window.</p>"
                                                    "<p>Close the message to power off the machine.</p>"));
+}
+
+/* static */
+void UINotificationMessage::cannotCreateVirtualBoxClient(const CVirtualBoxClient &comClient)
+{
+    createBlockingMessage(
+        QApplication::translate("UIMessageCenter", "Can't create VirtualBox client!"),
+        QApplication::translate("UIMessageCenter", "<p>Failed to create the VirtualBoxClient COM object.</p>"
+                                                   "<p>The application will now terminate.</p>") +
+        UIErrorString::formatErrorInfo(comClient),
+        QString() /* internal name */,
+        QString() /* help keyword */,
+        NotificationType_Critical);
+}
+
+/* static */
+void UINotificationMessage::cannotAcquireVirtualBox(const CVirtualBoxClient &comClient)
+{
+    QString err = QApplication::translate("UIMessageCenter", "<p>Failed to acquire the VirtualBox COM object.</p>"
+                                                             "<p>The application will now terminate.</p>");
+#if defined(VBOX_WS_NIX) || defined(VBOX_WS_MAC)
+    if (comClient.lastRC() == NS_ERROR_SOCKET_FAIL)
+        err += QApplication::translate("UIMessageCenter", "<p>The reason for this error are most likely wrong permissions of the "
+                                                          "IPC daemon socket due to an installation problem. Please check the "
+                                                          "permissions of <font color=blue>'/tmp'</font> and "
+                                                          "<font color=blue>'/tmp/.vbox-*-ipc/'</font></p>");
+#endif
+
+    createBlockingMessage(
+        QApplication::translate("UIMessageCenter", "Can't acquire VirtualBox!"),
+        err + UIErrorString::formatErrorInfo(comClient),
+        QString() /* internal name */,
+        QString() /* help keyword */,
+        NotificationType_Critical);
 }
 
 /* static */
