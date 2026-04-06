@@ -1,4 +1,4 @@
-/* $Id: UIGlobalSession.cpp 113731 2026-04-06 14:30:57Z sergey.dubov@oracle.com $ */
+/* $Id: UIGlobalSession.cpp 113732 2026-04-06 14:36:09Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIGlobalSession class implementation.
  */
@@ -31,7 +31,6 @@
 /* GUI includes: */
 #include "UIGlobalSession.h"
 #include "UIGuestOSType.h"
-#include "UIMessageCenter.h"
 #include "UINotificationMessage.h"
 #include "UIVirtualBoxClientEventHandler.h"
 
@@ -186,7 +185,7 @@ void UIGlobalSession::sltHandleVBoxSVCAvailabilityChange(bool fAvailable)
         if (!comVBoxClient.isOk())
         {
             // The proper behavior would be to show the message and to exit the app, e.g.:
-            // msgCenter().cannotAcquireVirtualBox(m_comVBoxClient);
+            // UINotificationMessage::cannotAcquireVirtualBox(m_comVBoxClient);
             // return QApplication::quit();
             // But CVirtualBox is still NULL in current Main implementation,
             // and this call do not restart anything, so we are waiting
@@ -235,19 +234,19 @@ bool UIGlobalSession::comWrappersReinit()
     /* Acquire host: */
     CVirtualBox comVBox = virtualBox();
     m_comHost = comVBox.GetHost();
-//    if (!comVBox.isOk())
-//    {
-//        msgCenter().cannotAcquireVirtualBoxParameter(comVBoxClient);
-//        return false;
-//    }
+    if (!comVBox.isOk())
+    {
+        UINotificationMessage::cannotAcquireVirtualBoxParameter(comVBox, 0, true /* critical */);
+        return false;
+    }
 
     /* Acquire home folder: */
     m_strHomeFolder = comVBox.GetHomeFolder();
-//    if (!comVBox.isOk())
-//    {
-//        msgCenter().cannotAcquireVirtualBoxParameter(comVBoxClient);
-//        return false;
-//    }
+    if (!comVBox.isOk())
+    {
+        UINotificationMessage::cannotAcquireVirtualBoxParameter(comVBox, 0, true /* critical */);
+        return false;
+    }
 
     /* Re-initialize guest OS type database: */
     if (m_pGuestOSTypeManager)

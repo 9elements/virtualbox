@@ -1,4 +1,4 @@
-/* $Id: UINotificationMessage.h 113731 2026-04-06 14:30:57Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationMessage.h 113732 2026-04-06 14:36:09Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationMessage declarations.
  */
@@ -345,9 +345,11 @@ public:
         static void cannotAcquireVirtualBox(const CVirtualBoxClient &comClient);
 
         /** Notifies about inability to acquire IVirtualBox parameter.
-          * @param  comVBox  Brings the object parameter get acquired from. */
+          * @param  comVBox    Brings the object parameter get acquired from.
+          * @param  fCritical  Brings whether message is critical and thus bloking. */
         static bool cannotAcquireVirtualBoxParameter(const CVirtualBox &comVBox,
-                                                     QWidget *pParent = 0);
+                                                     QWidget *pParent = 0,
+                                                     bool fCritical = false);
         /** Notifies about inability to acquire IAppliance parameter.
           * @param  comVBox  Brings the object parameter get acquired from. */
         static void cannotAcquireApplianceParameter(const CAppliance &comAppliance,

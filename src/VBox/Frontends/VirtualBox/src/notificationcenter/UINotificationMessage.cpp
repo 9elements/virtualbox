@@ -1,4 +1,4 @@
-/* $Id: UINotificationMessage.cpp 113731 2026-04-06 14:30:57Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationMessage.cpp 113732 2026-04-06 14:36:09Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationMessage implementations.
  */
@@ -935,13 +935,24 @@ void UINotificationMessage::cannotAcquireVirtualBox(const CVirtualBoxClient &com
 
 /* static */
 bool UINotificationMessage::cannotAcquireVirtualBoxParameter(const CVirtualBox &comVBox,
-                                                             QWidget *pParent /* = 0 */)
+                                                             QWidget *pParent /* = 0 */,
+                                                             bool fCritical /* = false */)
 {
-    createMessage(
-        QApplication::translate("UIMessageCenter", "VirtualBox failure ..."),
-        QApplication::translate("UIMessageCenter", "Failed to acquire VirtualBox parameter.") +
-        UIErrorString::formatErrorInfo(comVBox),
-        pParent);
+    if (!fCritical)
+        createMessage(
+            QApplication::translate("UIMessageCenter", "VirtualBox failure ..."),
+            QApplication::translate("UIMessageCenter", "Failed to acquire VirtualBox parameter.") +
+            UIErrorString::formatErrorInfo(comVBox),
+            pParent);
+    else
+        createBlockingMessage(
+            QApplication::translate("UIMessageCenter", "VirtualBox failure ..."),
+            QApplication::translate("UIMessageCenter", "Failed to acquire VirtualBox parameter.") +
+            UIErrorString::formatErrorInfo(comVBox),
+            QString() /* internal name */,
+            QString() /* help keyword */,
+            NotificationType_Critical,
+            pParent);
     return false;
 }
 
