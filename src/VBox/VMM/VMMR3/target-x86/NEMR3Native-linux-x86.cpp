@@ -1,4 +1,4 @@
-/* $Id: NEMR3Native-linux-x86.cpp 113606 2026-03-27 07:25:58Z alexander.eichner@oracle.com $ */
+/* $Id: NEMR3Native-linux-x86.cpp 113739 2026-04-07 06:27:57Z alexander.eichner@oracle.com $ */
 /** @file
  * NEM - Native execution manager, native ring-3 Linux backend.
  */
@@ -1395,12 +1395,19 @@ VMM_INT_DECL(int) NEMHCQueryCpuTick(PVMCPUCC pVCpu, uint64_t *pcTicks, uint32_t 
     uBuf.Core.entries[0].index    = MSR_IA32_TSC;
     uBuf.Core.entries[0].reserved = 0;
     uBuf.Core.entries[0].data     = UINT64_MAX;
-    uBuf.Core.entries[1].index    = MSR_K8_TSC_AUX;
-    uBuf.Core.entries[1].reserved = 0;
-    uBuf.Core.entries[1].data     = UINT64_MAX;
+
+    if (   g_CpumHostFeatures.s.fRdTscP
+        && puAux)
+    {
+        uBuf.Core.entries[1].index    = MSR_K8_TSC_AUX;
+        uBuf.Core.entries[1].reserved = 0;
+        uBuf.Core.entries[1].data     = 0;
+        uBuf.Core.nmsrs = 2;
+    }
+    else
+        uBuf.Core.nmsrs = 1;
 
     uBuf.Core.pad   = 0;
-    uBuf.Core.nmsrs = 2;
     int rc = ioctl(pVCpu->nem.s.fdVCpu, KVM_GET_MSRS, &uBuf);
     AssertMsgReturn(rc == 2,
                     ("rc=%d iMsr=%d (->%#x) errno=%d\n",
