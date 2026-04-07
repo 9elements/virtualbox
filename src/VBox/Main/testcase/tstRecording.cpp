@@ -1,4 +1,4 @@
-/* $Id: tstRecording.cpp 113708 2026-04-02 09:19:01Z andreas.loeffler@oracle.com $ */
+/* $Id: tstRecording.cpp 113743 2026-04-07 09:11:31Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording testcases.
  */
@@ -711,64 +711,61 @@ static void tstRecRenderer(RTTEST hTest)
     RTTESTI_CHECK_RC_RETV(RecordingRenderComposeEnd(&Renderer), VINF_SUCCESS);
     RTTESTI_CHECK_RC_RETV(RecordingRenderPerform(&Renderer), VINF_SUCCESS);
 
-    /*
-     * Cropping / Scaling tests.
-     */
     FrameCursorPos.u.Cursor.Pos.x = 28;
     FrameCursorPos.u.Cursor.Pos.y = 18;
 
-    RenderParms.Info.enmPixelFmt = RECORDINGPIXELFMT_BRGA32; /* For making inspecting data easier. */
-    RenderParms.enmScalingMode   = RecordingVideoScalingMode_None;
-
     /*
-     * Test cropping.
+     * Cropping / Scaling tests.
      */
-    RenderParms.Info.uWidth    = 320;
-    RenderParms.Info.uHeight   = 200;
-    RTTESTI_CHECK_RC_RETV(RecordingRenderSetParms(&Renderer, &RenderParms), VINF_SUCCESS);
+    static struct SCALINGTEST
+    {
+        uint32_t                    uWidth;
+        uint32_t                    uHeight;
+        RECORDINGPIXELFMT           enmPixelFmt;
+        RecordingVideoScalingMode_T enmMode;
+    } s_aScalingTests[] =
+    {
+        /* Test cropping. */
+        { 320, 200, RECORDINGPIXELFMT_BRGA32, RecordingVideoScalingMode_None },
+        /* Test cropping. */
+        { 1024, 768, RECORDINGPIXELFMT_BRGA32, RecordingVideoScalingMode_None },
+        /* Test nearest-neighbor downscaling. */
+        { 320, 200, RECORDINGPIXELFMT_BRGA32, RecordingVideoScalingMode_NearestNeighbor },
+        /* Test nearest-neighbor fractional downscaling. */
+        { 123, 456, RECORDINGPIXELFMT_BRGA32, RecordingVideoScalingMode_NearestNeighbor },
+        /* Test nearest-neighbor upscaling. */
+        { 1600, 1200, RECORDINGPIXELFMT_BRGA32, RecordingVideoScalingMode_NearestNeighbor },
+        /* Test bilinear downscaling. */
+        { 320, 200, RECORDINGPIXELFMT_BRGA32, RecordingVideoScalingMode_Bilinear },
+        /* Test nearest-neighbor fractional downscaling. */
+        { 123, 456, RECORDINGPIXELFMT_BRGA32, RecordingVideoScalingMode_Bilinear },
+        /* Test bilinear upscaling. */
+        { 1600, 1200, RECORDINGPIXELFMT_BRGA32, RecordingVideoScalingMode_Bilinear },
+        /* Test bicubic downscaling. */
+        { 320, 200, RECORDINGPIXELFMT_BRGA32, RecordingVideoScalingMode_Bicubic },
+        /* Test bicubic fractional downscaling. */
+        { 123, 456, RECORDINGPIXELFMT_BRGA32, RecordingVideoScalingMode_Bicubic },
+        /* Test bicubic upscaling. */
+        { 1600, 1200, RECORDINGPIXELFMT_BRGA32, RecordingVideoScalingMode_Bicubic }
+    };
 
-    RTTESTI_CHECK_RC_RETV(RecordingRenderComposeBegin(&Renderer), VINF_SUCCESS);
-    RTTESTI_CHECK_RC_RETV(RecordingRenderComposeAddFrame(&Renderer, &FrameVideo), VINF_SUCCESS);
-    RTTESTI_CHECK_RC_RETV(RecordingRenderComposeAddFrame(&Renderer, &FrameCursorPos), VINF_SUCCESS);
-    RTTESTI_CHECK_RC_RETV(RecordingRenderComposeEnd(&Renderer), VINF_SUCCESS);
-    RTTESTI_CHECK_RC_RETV(RecordingRenderPerform(&Renderer), VINF_SUCCESS);
+    for (size_t t = 0; t < RT_ELEMENTS(s_aScalingTests); t++)
+    {
+        RT_ZERO(RenderParms);
+        RenderParms.Info.uWidth      = s_aScalingTests[t].uWidth;
+        RenderParms.Info.uHeight     = s_aScalingTests[t].uHeight;
+        RenderParms.Info.uBPP        = 32;
+        RenderParms.Info.enmPixelFmt = s_aScalingTests[t].enmPixelFmt;
+        RenderParms.enmScalingMode   = s_aScalingTests[t].enmMode;
 
-    /*
-     * Test centering.
-     */
-    RT_ZERO(RenderParms);
-    RenderParms.Info.uWidth    = 1024;
-    RenderParms.Info.uHeight   = 768;
-    RenderParms.enmScalingMode = RecordingVideoScalingMode_None;
-    RTTESTI_CHECK_RC_RETV(RecordingRenderSetParms(&Renderer, &RenderParms), VINF_SUCCESS);
+        RTTESTI_CHECK_RC_RETV(RecordingRenderSetParms(&Renderer, &RenderParms), VINF_SUCCESS);
 
-    RTTESTI_CHECK_RC_RETV(RecordingRenderComposeBegin(&Renderer), VINF_SUCCESS);
-    RTTESTI_CHECK_RC_RETV(RecordingRenderComposeAddFrame(&Renderer, &FrameVideo), VINF_SUCCESS);
-    RTTESTI_CHECK_RC_RETV(RecordingRenderComposeAddFrame(&Renderer, &FrameCursorPos), VINF_SUCCESS);
-    RTTESTI_CHECK_RC_RETV(RecordingRenderComposeEnd(&Renderer), VINF_SUCCESS);
-    RTTESTI_CHECK_RC_RETV(RecordingRenderPerform(&Renderer), VINF_SUCCESS);
-
-    /*
-     * Test nearest-neighbor scaling.
-     */
-    RenderParms.Info.uWidth    = 320;
-    RenderParms.Info.uHeight   = 200;
-    RenderParms.enmScalingMode = RecordingVideoScalingMode_NearestNeighbor;
-    RTTESTI_CHECK_RC_RETV(RecordingRenderSetParms(&Renderer, &RenderParms), VINF_SUCCESS);
-    RTTESTI_CHECK_RC_RETV(RecordingRenderComposeBegin(&Renderer), VINF_SUCCESS);
-    RTTESTI_CHECK_RC_RETV(RecordingRenderComposeEnd(&Renderer), VINF_SUCCESS);
-    RTTESTI_CHECK_RC(RecordingRenderPerform(&Renderer), VINF_SUCCESS);
-
-    /*
-     * Test nearest-neighbor fractional scaling.
-     */
-    RenderParms.Info.uWidth    = 123;
-    RenderParms.Info.uHeight   = 456;
-    RenderParms.enmScalingMode = RecordingVideoScalingMode_NearestNeighbor;
-    RTTESTI_CHECK_RC_RETV(RecordingRenderSetParms(&Renderer, &RenderParms), VINF_SUCCESS);
-    RTTESTI_CHECK_RC_RETV(RecordingRenderComposeBegin(&Renderer), VINF_SUCCESS);
-    RTTESTI_CHECK_RC_RETV(RecordingRenderComposeEnd(&Renderer), VINF_SUCCESS);
-    RTTESTI_CHECK_RC(RecordingRenderPerform(&Renderer), VINF_SUCCESS);
+        RTTESTI_CHECK_RC_RETV(RecordingRenderComposeBegin(&Renderer), VINF_SUCCESS);
+        RTTESTI_CHECK_RC_RETV(RecordingRenderComposeAddFrame(&Renderer, &FrameVideo), VINF_SUCCESS);
+        RTTESTI_CHECK_RC_RETV(RecordingRenderComposeAddFrame(&Renderer, &FrameCursorPos), VINF_SUCCESS);
+        RTTESTI_CHECK_RC_RETV(RecordingRenderComposeEnd(&Renderer), VINF_SUCCESS);
+        RTTESTI_CHECK_RC_RETV(RecordingRenderPerform(&Renderer), VINF_SUCCESS);
+    }
 
     /*
      * Query last rendered frame (+ dump it).
