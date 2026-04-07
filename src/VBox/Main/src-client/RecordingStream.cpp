@@ -1,4 +1,4 @@
-/* $Id: RecordingStream.cpp 113740 2026-04-07 07:41:04Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingStream.cpp 113748 2026-04-07 13:45:35Z vitali.pelenjow@oracle.com $ */
 /** @file
  * Recording stream code.
  */
@@ -291,7 +291,6 @@ int RecordingStream::SetVideoOutputTargetDesc(PDMDISPLAYOUTPUTTARGETDESC const *
                      && m_RenderParms.Info.uHeight == pDesc->cHeight
                      && pDesc->cbOutputBuffer
                      && RT_VALID_PTR(pDesc->pvOutputBuffer), VERR_INVALID_PARAMETER);
-        AssertReturn(pDesc->u64OutputTargetToken, VERR_INVALID_PARAMETER);
 
         vrc = RecordingRenderInitEx(&m_Renderer, RECORDINGRENDERBACKEND_OUTTGT, pDesc);
         if (RT_SUCCESS(vrc))

@@ -559,8 +559,8 @@ typedef enum PDMDISPLAYOUTPUTTARGETFORMAT
 {
     /** Invalid 0 entry. */
     PDMDISPLAYOUTPUTTARGETFORMAT_INVALID = 0,
-    /** A future format. */
-    PDMDISPLAYOUTPUTTARGETFORMAT_RESERVED_1,
+    /** 32 bits per pixel with the same size as the guest screen. */
+    PDMDISPLAYOUTPUTTARGETFORMAT_B8G8R8X8_I,
     /** Y plane followed by U and V planes. */
     PDMDISPLAYOUTPUTTARGETFORMAT_YUVI420,
     /** The usual 32-bit paranoia. */
@@ -582,8 +582,6 @@ typedef struct PDMDISPLAYOUTPUTTARGETDESC
     uint32_t cWidth;
     /** Height of the target. */
     uint32_t cHeight;
-    /** Unique identifier of the target (it is specified when the target is created). */
-    uint64_t u64OutputTargetToken;
     /** Pointer to a counter which is incremented each time the target is updated.
      * If the target was never updated then the counter value is 0.
      */
@@ -907,7 +905,7 @@ typedef struct PDMIDISPLAYPORT
 
 } PDMIDISPLAYPORT;
 /** PDMIDISPLAYPORT interface ID. */
-#define PDMIDISPLAYPORT_IID                     "44bcd2e3-9b01-4564-bb82-293bf169e905"
+#define PDMIDISPLAYPORT_IID                     "8fb3357e-83e5-42b2-98b4-f9d1f38f1c62"
 
 /** @name Flags for PDMIDISPLAYCONNECTOR::pfnVBVAReportCursorPosition.
  * @{ */

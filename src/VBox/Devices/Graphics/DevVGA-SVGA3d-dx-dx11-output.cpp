@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA3d-dx-dx11-output.cpp 113704 2026-04-01 09:12:23Z andreas.loeffler@oracle.com $ */
+/* $Id: DevVGA-SVGA3d-dx-dx11-output.cpp 113748 2026-04-07 13:45:35Z vitali.pelenjow@oracle.com $ */
 /** @file
  * DevSVGA - D3D11 backend graphics output utilities
  */
@@ -600,7 +600,7 @@ int dxHwOutputTargetCreate(VMSVGAOUTPUTTARGET *pOutputTarget,
 
     switch (pOutputTarget->desc.enmFormat)
     {
-        case PDMDISPLAYOUTPUTTARGETFORMAT_RESERVED_1:
+        case PDMDISPLAYOUTPUTTARGETFORMAT_B8G8R8X8_I:
             pDesc = &desc_B8G8R8X8_I;
             break;
 

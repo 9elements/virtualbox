@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA.cpp 113508 2026-03-23 14:39:12Z vitali.pelenjow@oracle.com $ */
+/* $Id: DevVGA-SVGA.cpp 113748 2026-04-07 13:45:35Z vitali.pelenjow@oracle.com $ */
 /** @file
  * VMware SVGA device.
  *
@@ -4666,12 +4666,12 @@ static void vmsvgaR3DestroyOutputTarget(PVGASTATECC pThisCC, VMSVGAOUTPUTTARGET 
 {
     PVMSVGAR3STATE const pSvgaR3State = pThisCC->svga.pSvgaR3State;
 
-    LogFunc(("OUTPUTTARGET: destroying %RU64\n", pOutputTarget->desc.u64OutputTargetToken));
+    LogFunc(("OUTPUTTARGET: destroying %RU64\n", pOutputTarget->coreOutputTarget.Key));
 
     int rc = RTCritSectEnter(&pSvgaR3State->critSectOutputTargets);
     AssertRCReturnVoid(rc);
 
-    PAVLU64NODECORE pCore = RTAvlU64Remove(&pSvgaR3State->treeOutputTargets, pOutputTarget->desc.u64OutputTargetToken);
+    PAVLU64NODECORE pCore = RTAvlU64Remove(&pSvgaR3State->treeOutputTargets, pOutputTarget->coreOutputTarget.Key);
     Assert(pCore && pCore == &pOutputTarget->coreOutputTarget); RT_NOREF(pCore);
 
     RTCritSectLeave(&pSvgaR3State->critSectOutputTargets);
@@ -4697,7 +4697,7 @@ void vmsvgaR3RetireOutputTarget(PVGASTATECC pThisCC, VMSVGAOUTPUTTARGET *pOutput
 
     PVMSVGAR3STATE const pSvgaR3State = pThisCC->svga.pSvgaR3State;
 
-    LogFunc(("OUTPUTTARGET: retiring %RU64\n", pOutputTarget->desc.u64OutputTargetToken));
+    LogFunc(("OUTPUTTARGET: retiring %RU64\n", pOutputTarget->coreOutputTarget.Key));
 
     if (ASMAtomicReadS32(&pOutputTarget->cExternalRefs) == 0)
         vmsvgaR3DestroyOutputTarget(pThisCC, pOutputTarget);
@@ -4705,7 +4705,7 @@ void vmsvgaR3RetireOutputTarget(PVGASTATECC pThisCC, VMSVGAOUTPUTTARGET *pOutput
     {
         if (pThisCC->pDrv->pfnOnOutputTargetRetired)
             pThisCC->pDrv->pfnOnOutputTargetRetired(pThisCC->pDrv, pOutputTarget->desc.idScreen,
-                                                    pOutputTarget->desc.u64OutputTargetToken);
+                                                    pOutputTarget->coreOutputTarget.Key);
         RTListAppend(&pSvgaR3State->listOutputTargetDeleting, &pOutputTarget->nodeOutputTarget);
     }
 }
@@ -4745,7 +4745,7 @@ static void vmsvgaR3OutputTargets(PVGASTATE pThis, PVGASTATECC pThisCC)
             {
                 if (pThisCC->pDrv->pfnOnOutputTargetRetired)
                     pThisCC->pDrv->pfnOnOutputTargetRetired(pThisCC->pDrv, pIter->desc.idScreen,
-                                                            pIter->desc.u64OutputTargetToken);
+                                                            pIter->coreOutputTarget.Key);
                 RTListNodeRemove(&pIter->nodeOutputTarget);
                 vmsvgaR3RetireOutputTarget(pThisCC, pIter);
             }
@@ -4785,7 +4785,7 @@ static void vmsvgaR3OutputTargets(PVGASTATE pThis, PVGASTATECC pThisCC)
 #endif
             if (pThisCC->pDrv->pfnOnOutputTargetCreated)
                 pThisCC->pDrv->pfnOnOutputTargetCreated(pThisCC->pDrv, pIter->desc.idScreen,
-                                                        pIter->desc.u64OutputTargetToken, rc);
+                                                        pIter->coreOutputTarget.Key, rc);
 
             if (RT_SUCCESS(rc))
                 RTListAppend(&pScreen->listOutputTargets, &pIter->nodeOutputTarget);
@@ -4867,7 +4867,6 @@ int vmsvgaR3CreateOutputTargetAsync(PVGASTATE pThis, PVGASTATECC pThisCC,
         pOutputTarget->desc.cWidth               = ~0U;
         pOutputTarget->desc.cHeight              = ~0U;
     }
-    pOutputTarget->desc.u64OutputTargetToken     = u64OutputTargetToken;
     pOutputTarget->desc.pu64UpdateSequenceNumber = &pOutputTarget->u64UpdateSequenceNumber;
     pOutputTarget->desc.cbOutputBuffer           = cbY + 2 * (cbY / 4);
     pOutputTarget->desc.pvOutputBuffer           = RTMemAllocZ(pOutputTarget->desc.cbOutputBuffer);
