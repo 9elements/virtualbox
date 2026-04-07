@@ -1,4 +1,4 @@
-# $Id: Makefile-header.gmk 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $
+# $Id: Makefile-header.gmk 113756 2026-04-07 20:42:53Z klaus.espenlaub@oracle.com $
 ## @file
 # VirtualBox Guest Additions kernel module Makefile, common parts.
 #
@@ -110,10 +110,10 @@ else
  endif
 endif
 
-# VBOX_KBUILD_TYPE = release|debug|profile|strict|asan
+# VBOX_KBUILD_TYPE = release|debug|profile|strict|asan|tsan
 ifdef VBOX_KBUILD_TYPE
  VBOX_KBUILD_TYPE_VAR := VBOX_KBUILD_TYPE
- ifneq ($(filter-out release profile debug strict asan,$(VBOX_KBUILD_TYPE)),)
+ ifneq ($(filter-out release profile debug strict asan tsan,$(VBOX_KBUILD_TYPE)),)
   $(warning Ignoring unknown VBOX_KBUILD_TYPE value '$(VBOX_KBUILD_TYPE)'.)
   VBOX_KBUILD_TYPE :=
  endif
@@ -121,7 +121,7 @@ else
  ifdef KBUILD_TYPE
   VBOX_KBUILD_TYPE_VAR := KBUILD_TYPE
   VBOX_KBUILD_TYPE := $(KBUILD_TYPE)
-  ifneq ($(filter-out release profile debug strict asan,$(KBUILD_TYPE)),)
+  ifneq ($(filter-out release profile debug strict asan tsan,$(KBUILD_TYPE)),)
    $(warning Ignoring unknown KBUILD_TYPE value '$(KBUILD_TYPE)'.)
    VBOX_KBUILD_TYPE :=
   endif
@@ -130,7 +130,7 @@ else
    $(warning BUILD_TYPE is deprecated, use VBOX_KBUILD_TYPE instead.)
    VBOX_KBUILD_TYPE_VAR := BUILD_TYPE
    VBOX_KBUILD_TYPE := $(BUILD_TYPE)
-   ifneq ($(filter-out release profile debug strict asan,$(BUILD_TYPE)),)
+   ifneq ($(filter-out release profile debug strict asan tsan,$(BUILD_TYPE)),)
     $(warning Ignoring unknown BUILD_TYPE value '$(BUILD_TYPE)'.)
     VBOX_KBUILD_TYPE :=
    endif
