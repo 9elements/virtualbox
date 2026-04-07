@@ -1,4 +1,4 @@
-/* $Id: IEMAllCImplSvmInstr.cpp 106320 2024-10-15 12:08:41Z klaus.espenlaub@oracle.com $ */
+/* $Id: IEMAllCImplSvmInstr.cpp 113747 2026-04-07 10:10:21Z alexander.eichner@oracle.com $ */
 /** @file
  * IEM - AMD-V (Secure Virtual Machine) instruction implementation.
  */
@@ -1589,7 +1589,8 @@ IEM_CIMPL_DEF_1(iemCImpl_Hypercall, uint16_t, uDisOpcode)
                         || rcStrict == VERR_GIM_HYPERCALLS_NOT_AVAILABLE
                         || rcStrict == VERR_GIM_NOT_ENABLED
                         || rcStrict == VERR_GIM_HYPERCALL_MEMORY_READ_FAILED
-                        || rcStrict == VERR_GIM_HYPERCALL_MEMORY_WRITE_FAILED,
+                        || rcStrict == VERR_GIM_HYPERCALL_MEMORY_WRITE_FAILED
+                        || rcStrict == VERR_GIM_INVALID_HYPERCALL_INSTR,
                         ("%Rrc\n", VBOXSTRICTRC_VAL(rcStrict)), VERR_IEM_IPE_4);
 
         /* Raise #UD on all failures. */
