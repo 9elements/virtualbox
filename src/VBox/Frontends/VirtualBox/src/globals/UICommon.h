@@ -1,4 +1,4 @@
-/* $Id: UICommon.h 113580 2026-03-25 16:05:23Z sergey.dubov@oracle.com $ */
+/* $Id: UICommon.h 113753 2026-04-07 17:41:46Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UICommon class declaration.
  */
@@ -152,7 +152,7 @@ public:
     /** @name Process arguments stuff.
      * @{ */
         /** Process application options. */
-        void processOptions();
+        bool processOptions();
         /** Process application arguments. */
         bool processArguments();
 

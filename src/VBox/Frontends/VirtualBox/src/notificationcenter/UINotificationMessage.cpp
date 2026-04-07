@@ -1,4 +1,4 @@
-/* $Id: UINotificationMessage.cpp 113752 2026-04-07 17:35:40Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationMessage.cpp 113753 2026-04-07 17:41:46Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationMessage implementations.
  */
@@ -1707,7 +1707,7 @@ void UINotificationMessage::cannotSetGroups(const CMachine &comMachine)
 }
 
 /* static */
-void UINotificationMessage::cannotFindMachineByName(const CVirtualBox &comVBox,
+bool UINotificationMessage::cannotFindMachineByName(const CVirtualBox &comVBox,
                                                     const QString &strName)
 {
     createBlockingMessage(
@@ -1717,10 +1717,11 @@ void UINotificationMessage::cannotFindMachineByName(const CVirtualBox &comVBox,
         QString() /* internal name */,
         QString() /* help keyword */,
         NotificationType_Critical);
+    return false;
 }
 
 /* static */
-void UINotificationMessage::cannotFindMachineById(const CVirtualBox &comVBox,
+bool UINotificationMessage::cannotFindMachineById(const CVirtualBox &comVBox,
                                                   const QUuid &uId)
 {
     createBlockingMessage(
@@ -1731,6 +1732,7 @@ void UINotificationMessage::cannotFindMachineById(const CVirtualBox &comVBox,
         QString() /* internal name */,
         QString() /* help keyword */,
         NotificationType_Critical);
+    return false;
 }
 
 /* static */

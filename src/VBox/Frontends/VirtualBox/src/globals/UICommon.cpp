@@ -1,4 +1,4 @@
-/* $Id: UICommon.cpp 113752 2026-04-07 17:35:40Z sergey.dubov@oracle.com $ */
+/* $Id: UICommon.cpp 113753 2026-04-07 17:41:46Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UICommon class implementation.
  */
@@ -273,7 +273,8 @@ void UICommon::prepare()
     qApp->installEventFilter(this);
 
     /* Process options: */
-    processOptions();
+    if (!processOptions())
+        return;
 
     m_fValid = true;
 
@@ -660,7 +661,7 @@ void UICommon::loadColorTheme(bool fAnyway /* = false */)
     emit sigThemeChange();
 }
 
-void UICommon::processOptions()
+bool UICommon::processOptions()
 {
     /* Temporary values to be processed later: */
     QString vmNameOrUuid;
@@ -1040,6 +1041,8 @@ void UICommon::processOptions()
     /* Apply desired visual state type: */
     if (enmVisualStateType != UIVisualStateType_Invalid && !m_uManagedVMId.isNull())
         gEDataManager->setRequestedVisualState(enmVisualStateType, m_uManagedVMId);
+
+    return true;
 }
 
 bool UICommon::processArguments()
