@@ -1,4 +1,4 @@
-/* $Id: VBoxManageModifyVM.cpp 113698 2026-03-31 09:47:02Z andreas.loeffler@oracle.com $ */
+/* $Id: VBoxManageModifyVM.cpp 113740 2026-04-07 07:41:04Z andreas.loeffler@oracle.com $ */
 /** @file
  * VBoxManage - Implementation of modifyvm command.
  */
@@ -3596,9 +3596,13 @@ RTEXITCODE handleModifyVM(HandlerArg *a)
                             enmMode = RecordingVideoScalingMode_None;
                         else if (!RTStrICmp(ValueUnion.psz, "nearestneighbor"))
                             enmMode = RecordingVideoScalingMode_NearestNeighbor;
+                        else if (!RTStrICmp(ValueUnion.psz, "bilinear"))
+                            enmMode = RecordingVideoScalingMode_Bilinear;
+                        else if (!RTStrICmp(ValueUnion.psz, "bicubic"))
+                            enmMode = RecordingVideoScalingMode_Bicubic;
                         else
                         {
-                            errorArgument(ModifyVM::tr("Invalid argument '%s' (valid: none, nearestneighbor)"),
+                            errorArgument(ModifyVM::tr("Invalid argument '%s' (valid: none, nearestneighbor, bilinear, bicubic)"),
                                           ValueUnion.psz);
                             hrc = E_FAIL;
                         }

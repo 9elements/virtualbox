@@ -1,4 +1,4 @@
-/* $Id: RecordingRender.cpp 113708 2026-04-02 09:19:01Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingRender.cpp 113740 2026-04-07 07:41:04Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording rendering implementation.
  *
@@ -109,97 +109,6 @@ DECLINLINE(RECORDINGVIDEOFRAME const *) recRenderSWTex2FrmC(PCRECORDINGRENDERTEX
 #endif
     return (RECORDINGVIDEOFRAME const *)pTexture->pvBackend;
 }
-
-#if 0 /* Unused */
-/**
- * Nearest-neighbor resize helper for BGRA32 source frames.
- *
- * @returns VBox status code.
- * @param   pSrcFrame           Source frame.
- * @param   pRenderParms        Renderer parameters.
- * @param   ppu8Tmp             Where to return allocated resized frame buffer.
- * @param   pcbTmp              Where to return size of @a *ppu8Tmp.
- * @param   pResizeInfo         Where to return source/destination resize rectangles.
- */
-DECLINLINE(int) recRenderSWFrameResizeNNeighbor(RECORDINGVIDEOFRAME const *pSrcFrame,
-                                                PRECORDINGRENDERPARMS pRenderParms,
-                                                uint8_t **ppu8Tmp, size_t *pcbTmp,
-                                                RECORDINGRENDERRESIZEPARMS *pResizeInfo)
-{
-#ifdef VBOX_STRICT /* Skip in release builds for speed reasons. */
-    AssertPtrReturn(pSrcFrame, VERR_INVALID_POINTER);
-    AssertPtrReturn(pRenderParms, VERR_INVALID_POINTER);
-    AssertPtrReturn(ppu8Tmp, VERR_INVALID_POINTER);
-    AssertPtrReturn(pcbTmp, VERR_INVALID_POINTER);
-    AssertPtrReturn(pResizeInfo, VERR_INVALID_POINTER);
-
-    if (pSrcFrame->Info.uBPP != 32)
-        return VERR_NOT_SUPPORTED;
-#endif
-
-    uint32_t const uSrcW = pSrcFrame->Info.uWidth;
-    uint32_t const uSrcH = pSrcFrame->Info.uHeight;
-    uint32_t const uDstW = pRenderParms->Info.uWidth;
-    uint32_t const uDstH = pRenderParms->Info.uHeight;
-
-#ifdef VBOX_STRICT /* Ditto. */
-    if (!uSrcW || !uSrcH || !uDstW || !uDstH)
-        return VERR_INVALID_PARAMETER;
-#endif
-
-    size_t const cbTmp = (size_t)uDstW * uDstH * 4;
-    uint8_t *pu8Tmp = (uint8_t *)RTMemAlloc(cbTmp);
-    AssertPtrReturn(pu8Tmp, VERR_NO_MEMORY);
-
-    uint32_t const cbSrcStride = pSrcFrame->Info.uBytesPerLine;
-    uint32_t const cbDstStride = uDstW * 4;
-
-    /*
-     * Map each destination pixel to nearest source pixel.
-     *
-     * Use edge-aligned endpoint mapping with rounding so that:
-     *   - the first destination pixel maps to the first source pixel,
-     *   - the last destination pixel maps to the last source pixel,
-     * while avoiding the top-left bias of plain floor(x * src / dst).
-     */
-    for (uint32_t yDst = 0; yDst < uDstH; yDst++)
-    {
-        uint32_t const ySrc = uSrcH > 1 && uDstH > 1
-                            ? (uint32_t)((((uint64_t)yDst * (uSrcH - 1)) + ((uDstH - 1) / 2)) / (uDstH - 1))
-                            : 0;
-        uint8_t const *pu8SrcLine = pSrcFrame->pau8Buf + (size_t)ySrc * cbSrcStride;
-        uint8_t       *pu8DstLine = pu8Tmp + (size_t)yDst * cbDstStride;
-
-        for (uint32_t xDst = 0; xDst < uDstW; xDst++)
-        {
-            uint32_t const xSrc = uSrcW > 1 && uDstW > 1
-                                ? (uint32_t)((((uint64_t)xDst * (uSrcW - 1)) + ((uDstW - 1) / 2)) / (uDstW - 1))
-                                : 0;
-            uint8_t const *pu8Src = pu8SrcLine + (size_t)xSrc * 4;
-            uint8_t       *pu8Dst = pu8DstLine + (size_t)xDst * 4;
-
-            pu8Dst[0] = pu8Src[0];
-            pu8Dst[1] = pu8Src[1];
-            pu8Dst[2] = pu8Src[2];
-            pu8Dst[3] = pu8Src[3];
-        }
-    }
-
-    *ppu8Tmp = pu8Tmp;
-    *pcbTmp  = cbTmp;
-
-    pResizeInfo->srcRect.xLeft   = 0;
-    pResizeInfo->srcRect.yTop    = 0;
-    pResizeInfo->srcRect.xRight  = (int32_t)uDstW;
-    pResizeInfo->srcRect.yBottom = (int32_t)uDstH;
-    pResizeInfo->dstRect.xLeft   = 0;
-    pResizeInfo->dstRect.yTop    = 0;
-    pResizeInfo->dstRect.xRight  = (int32_t)uDstW;
-    pResizeInfo->dstRect.yBottom = (int32_t)uDstH;
-
-    return VINF_SUCCESS;
-}
-#endif
 
 /**
  * Renderer-local crop/center calculation independent from codec internals.
@@ -326,6 +235,318 @@ DECLINLINE(int) recRenderSWFrameResizeNearestNeighbor(PRECORDINGVIDEOFRAME pDstF
             uint8_t const *pu8Src = pu8SrcLine + (size_t)xSrc * cbPixel;
             uint8_t       *pu8Dst = pu8DstLine + (size_t)xDst * cbPixel;
             memcpy(pu8Dst, pu8Src, cbPixel);
+        }
+    }
+
+    return VINF_SUCCESS;
+}
+
+/**
+ * Renderer-local bilinear resize independent from codec internals.
+ *
+ * @returns VBox status code.
+ * @param   pDstFrame           Destination frame that will receive the scaled region.
+ * @param   pSrcFrame           Source frame to scale from.
+ * @param   pDstRect            Destination rectangle in @a pDstFrame.
+ * @param   pSrcRect            Source rectangle in @a pSrcFrame.
+ */
+DECLINLINE(int) recRenderSWFrameResizeBilinear(PRECORDINGVIDEOFRAME pDstFrame,
+                                               RECORDINGVIDEOFRAME const *pSrcFrame,
+                                               RTRECT const *pDstRect,
+                                               RTRECT const *pSrcRect)
+{
+#ifdef VBOX_STRICT /* Skip in release builds for speed reasons. */
+    AssertPtrReturn(pDstFrame, VERR_INVALID_POINTER);
+    AssertPtrReturn(pSrcFrame, VERR_INVALID_POINTER);
+    AssertPtrReturn(pDstRect,  VERR_INVALID_POINTER);
+    AssertPtrReturn(pSrcRect,  VERR_INVALID_POINTER);
+#endif
+
+    int32_t const sx = pSrcRect->xLeft;
+    int32_t const sy = pSrcRect->yTop;
+    int32_t const sw = pSrcRect->xRight  - pSrcRect->xLeft;
+    int32_t const sh = pSrcRect->yBottom - pSrcRect->yTop;
+    int32_t const dx = pDstRect->xLeft;
+    int32_t const dy = pDstRect->yTop;
+    int32_t const dw = pDstRect->xRight  - pDstRect->xLeft;
+    int32_t const dh = pDstRect->yBottom - pDstRect->yTop;
+
+#ifdef VBOX_STRICT /* Ditto. */
+    AssertReturn(sw > 0 && sh > 0 && dw > 0 && dh > 0, VERR_INVALID_PARAMETER);
+    AssertReturn((uint32_t)(dx + dw) <= pDstFrame->Info.uWidth, VERR_INVALID_PARAMETER);
+    AssertReturn((uint32_t)(dy + dh) <= pDstFrame->Info.uHeight, VERR_INVALID_PARAMETER);
+    AssertReturn((uint32_t)(sx + sw) <= pSrcFrame->Info.uWidth, VERR_INVALID_PARAMETER);
+    AssertReturn((uint32_t)(sy + sh) <= pSrcFrame->Info.uHeight, VERR_INVALID_PARAMETER);
+#endif
+
+    uint32_t const cbPixel = RT_MAX((uint32_t)pSrcFrame->Info.uBPP / 8, 1U);
+    uint32_t const uSw = (uint32_t)sw;
+    uint32_t const uSh = (uint32_t)sh;
+    uint32_t const uDw = (uint32_t)dw;
+    uint32_t const uDh = (uint32_t)dh;
+    uint32_t const xSrcMax = (uint32_t)(sx + sw - 1);
+    uint32_t const ySrcMax = (uint32_t)(sy + sh - 1);
+
+    for (uint32_t yDst = 0; yDst < (uint32_t)dh; yDst++)
+    {
+        /*
+         * Map destination Y to source Y in Q16 fixed-point.
+         *
+         * The "<< 16" converts the integer-scaled coordinate to Q16 (16 fractional bits).
+         * In this format, 0x10000 means 1.0.
+         */
+        uint32_t const uYfp =    uSh > 1
+                              && uDh > 1
+                              ? (uint32_t)((((uint64_t)yDst * (uSh - 1)) << 16) / (uDh - 1))
+                              : 0;
+
+        /* Integer part via >> 16, fractional part via low 16 bits (mask 0xffff). */
+        uint32_t const ySrc0 = (uint32_t)sy + (uYfp >> 16);
+        uint32_t const ySrc1 = RT_MIN(ySrc0 + 1, ySrcMax);
+        /* 0xffff selects the Q16 fractional bits. */
+        uint32_t const fy    = uYfp & 0xffff;
+        /* 0x10000 is 1.0 in Q16, so this computes (1.0 - fy). */
+        uint32_t const fyInv = 0x10000 - fy;
+
+        uint8_t const *pu8SrcLine0 = pSrcFrame->pau8Buf + (size_t)ySrc0 * pSrcFrame->Info.uBytesPerLine;
+        uint8_t const *pu8SrcLine1 = pSrcFrame->pau8Buf + (size_t)ySrc1 * pSrcFrame->Info.uBytesPerLine;
+        uint8_t       *pu8DstLine  = pDstFrame->pau8Buf
+                                   + ((size_t)dy + yDst) * pDstFrame->Info.uBytesPerLine
+                                   + (size_t)dx * cbPixel;
+
+        for (uint32_t xDst = 0; xDst < (uint32_t)dw; xDst++)
+        {
+            /* Same Q16 mapping as above, now for the X axis. */
+            uint32_t const uXfp =    uSw > 1
+                                  && uDw > 1
+                                  ? (uint32_t)((((uint64_t)xDst * (uSw - 1)) << 16) / (uDw - 1))
+                                  : 0;
+
+            uint32_t const xSrc0 = (uint32_t)sx + (uXfp >> 16);
+            uint32_t const xSrc1 = RT_MIN(xSrc0 + 1, xSrcMax);
+            uint32_t const fx    = uXfp & 0xffff;
+            uint32_t const fxInv = 0x10000 - fx;
+
+            /* Bilinear weights in Q32 (Q16 * Q16). */
+            uint64_t const w00 = (uint64_t)fxInv * fyInv;
+            uint64_t const w01 = (uint64_t)fx    * fyInv;
+            uint64_t const w10 = (uint64_t)fxInv * fy;
+            uint64_t const w11 = (uint64_t)fx    * fy;
+
+            uint8_t const *pu8Src00 = pu8SrcLine0 + (size_t)xSrc0 * cbPixel;
+            uint8_t const *pu8Src01 = pu8SrcLine0 + (size_t)xSrc1 * cbPixel;
+            uint8_t const *pu8Src10 = pu8SrcLine1 + (size_t)xSrc0 * cbPixel;
+            uint8_t const *pu8Src11 = pu8SrcLine1 + (size_t)xSrc1 * cbPixel;
+            uint8_t       *pu8Dst   = pu8DstLine + (size_t)xDst * cbPixel;
+
+            for (uint32_t i = 0; i < cbPixel; i++)
+            {
+                uint64_t const uByte = (uint64_t)pu8Src00[i] * w00
+                                     + (uint64_t)pu8Src01[i] * w01
+                                     + (uint64_t)pu8Src10[i] * w10
+                                     + (uint64_t)pu8Src11[i] * w11
+                                     /* 0x80000000 = 0.5 in Q32, used as rounding bias before >> 32. */
+                                     + UINT64_C(0x80000000);
+                /* Convert byte*Q32 back to byte by dropping the 32 fractional bits. */
+                pu8Dst[i] = (uint8_t)(uByte >> 32);
+            }
+        }
+    }
+
+    return VINF_SUCCESS;
+}
+
+/**
+ * Computes Catmull-Rom cubic interpolation weights for a Q16 fraction.
+ *
+ * @param   uFrac16             Fractional part in Q16 (0..0xffff).
+ * @param   piW0                Weight for sample at -1.
+ * @param   piW1                Weight for sample at  0.
+ * @param   piW2                Weight for sample at +1.
+ * @param   piW3                Weight for sample at +2.
+ */
+DECLINLINE(void) recRenderSWFrameResizeCubicWeights(uint32_t uFrac16,
+                                                     int32_t *piW0, int32_t *piW1,
+                                                     int32_t *piW2, int32_t *piW3)
+{
+    /*
+     * uFrac16 is t in Q16 fixed-point (0..0xffff), where 0x10000 corresponds to 1.0.
+     * Build t, t^2 and t^3 in Q16 by rescaling (>> 16) after each multiplication.
+     */
+    int64_t const iT  = uFrac16;
+    int64_t const iT2 = (iT * iT) >> 16;
+    int64_t const iT3 = (iT2 * iT) >> 16;
+
+    /* Catmull-Rom basis weights in Q16 for samples at offsets -1, 0, +1, +2. */
+    int64_t const iW0 = (-iT + 2 * iT2 - iT3) / 2;
+    /* 0x10000 is 1.0 in Q16, i.e. the constant term of the center basis function. */
+    int64_t const iW1 = INT64_C(0x10000) + (-5 * iT2 + 3 * iT3) / 2;
+    int64_t const iW2 = (iT + 4 * iT2 - 3 * iT3) / 2;
+    int64_t const iW3 = (-iT2 + iT3) / 2;
+
+    *piW0 = (int32_t)iW0;
+    *piW1 = (int32_t)iW1;
+    *piW2 = (int32_t)iW2;
+    /*
+     * Re-bias the last weight so w0+w1+w2+w3 is exactly 1.0 in Q16 (0x10000),
+     * compensating integer rounding/truncation in intermediate operations.
+     */
+    *piW3 = (int32_t)(iW3 + (INT64_C(0x10000) - (iW0 + iW1 + iW2 + iW3)));
+}
+
+/**
+ * Renderer-local bicubic resize independent from codec internals.
+ *
+ * @returns VBox status code.
+ * @param   pDstFrame           Destination frame that will receive the scaled region.
+ * @param   pSrcFrame           Source frame to scale from.
+ * @param   pDstRect            Destination rectangle in @a pDstFrame.
+ * @param   pSrcRect            Source rectangle in @a pSrcFrame.
+ */
+DECLINLINE(int) recRenderSWFrameResizeBicubic(PRECORDINGVIDEOFRAME pDstFrame,
+                                              RECORDINGVIDEOFRAME const *pSrcFrame,
+                                              RTRECT const *pDstRect,
+                                              RTRECT const *pSrcRect)
+{
+#ifdef VBOX_STRICT /* Skip in release builds for speed reasons. */
+    AssertPtrReturn(pDstFrame, VERR_INVALID_POINTER);
+    AssertPtrReturn(pSrcFrame, VERR_INVALID_POINTER);
+    AssertPtrReturn(pDstRect,  VERR_INVALID_POINTER);
+    AssertPtrReturn(pSrcRect,  VERR_INVALID_POINTER);
+#endif
+
+    int32_t const sx = pSrcRect->xLeft;
+    int32_t const sy = pSrcRect->yTop;
+    int32_t const sw = pSrcRect->xRight  - pSrcRect->xLeft;
+    int32_t const sh = pSrcRect->yBottom - pSrcRect->yTop;
+    int32_t const dx = pDstRect->xLeft;
+    int32_t const dy = pDstRect->yTop;
+    int32_t const dw = pDstRect->xRight  - pDstRect->xLeft;
+    int32_t const dh = pDstRect->yBottom - pDstRect->yTop;
+
+#ifdef VBOX_STRICT /* Ditto. */
+    AssertReturn(sw > 0 && sh > 0 && dw > 0 && dh > 0, VERR_INVALID_PARAMETER);
+    AssertReturn((uint32_t)(dx + dw) <= pDstFrame->Info.uWidth, VERR_INVALID_PARAMETER);
+    AssertReturn((uint32_t)(dy + dh) <= pDstFrame->Info.uHeight, VERR_INVALID_PARAMETER);
+    AssertReturn((uint32_t)(sx + sw) <= pSrcFrame->Info.uWidth, VERR_INVALID_PARAMETER);
+    AssertReturn((uint32_t)(sy + sh) <= pSrcFrame->Info.uHeight, VERR_INVALID_PARAMETER);
+#endif
+
+    uint32_t const cbPixel = RT_MAX((uint32_t)pSrcFrame->Info.uBPP / 8, 1U);
+    uint32_t const uSw = (uint32_t)sw;
+    uint32_t const uSh = (uint32_t)sh;
+    uint32_t const uDw = (uint32_t)dw;
+    uint32_t const uDh = (uint32_t)dh;
+    uint32_t const xSrcMin = (uint32_t)sx;
+    uint32_t const ySrcMin = (uint32_t)sy;
+    uint32_t const xSrcMax = (uint32_t)(sx + sw - 1);
+    uint32_t const ySrcMax = (uint32_t)(sy + sh - 1);
+
+    for (uint32_t yDst = 0; yDst < (uint32_t)dh; yDst++)
+    {
+        /*
+         * Map destination Y to source Y in Q16 fixed-point.
+         * "<< 16" converts to Q16 (16 fractional bits), where 0x10000 means 1.0.
+         */
+        uint32_t const uYfp =    uSh > 1
+                              && uDh > 1
+                              ? (uint32_t)((((uint64_t)yDst * (uSh - 1)) << 16) / (uDh - 1))
+                              : 0;
+
+        /* Integer source coordinate from Q16 via >> 16, then clamp neighborhood to source bounds. */
+        uint32_t const ySrc1 = ySrcMin + (uYfp >> 16);
+        uint32_t const ySrc0 = ySrc1 > ySrcMin ? ySrc1 - 1 : ySrcMin;
+        uint32_t const ySrc2 = RT_MIN(ySrc1 + 1, ySrcMax);
+        uint32_t const ySrc3 = RT_MIN(ySrc1 + 2, ySrcMax);
+
+        int32_t aiWy[4];
+        /* 0xffff selects the Q16 fractional part for cubic basis evaluation. */
+        recRenderSWFrameResizeCubicWeights(uYfp & 0xffff, &aiWy[0], &aiWy[1], &aiWy[2], &aiWy[3]);
+
+        uint8_t const *apu8SrcLine[4];
+        apu8SrcLine[0] = pSrcFrame->pau8Buf + (size_t)ySrc0 * pSrcFrame->Info.uBytesPerLine;
+        apu8SrcLine[1] = pSrcFrame->pau8Buf + (size_t)ySrc1 * pSrcFrame->Info.uBytesPerLine;
+        apu8SrcLine[2] = pSrcFrame->pau8Buf + (size_t)ySrc2 * pSrcFrame->Info.uBytesPerLine;
+        apu8SrcLine[3] = pSrcFrame->pau8Buf + (size_t)ySrc3 * pSrcFrame->Info.uBytesPerLine;
+
+        uint8_t *pu8DstLine  = pDstFrame->pau8Buf
+                             + ((size_t)dy + yDst) * pDstFrame->Info.uBytesPerLine
+                             + (size_t)dx * cbPixel;
+
+        for (uint32_t xDst = 0; xDst < (uint32_t)dw; xDst++)
+        {
+            /* Same Q16 destination-to-source mapping for X. */
+            uint32_t const uXfp =    uSw > 1
+                                  && uDw > 1
+                                  ? (uint32_t)((((uint64_t)xDst * (uSw - 1)) << 16) / (uDw - 1))
+                                  : 0;
+
+            uint32_t const xSrc1 = xSrcMin + (uXfp >> 16);
+            uint32_t const xSrc0 = xSrc1 > xSrcMin ? xSrc1 - 1 : xSrcMin;
+            uint32_t const xSrc2 = RT_MIN(xSrc1 + 1, xSrcMax);
+            uint32_t const xSrc3 = RT_MIN(xSrc1 + 2, xSrcMax);
+
+            int32_t aiWx[4];
+            /* 0xffff again extracts the Q16 fractional part. */
+            recRenderSWFrameResizeCubicWeights(uXfp & 0xffff, &aiWx[0], &aiWx[1], &aiWx[2], &aiWx[3]);
+
+            /*
+             * apu8SrcPx[iy][ix] is the 4x4 source neighborhood around (xSrc1,ySrc1):
+             * rows iy=0..3 map to ySrc0..ySrc3, columns ix=0..3 map to xSrc0..xSrc3.
+             * Each entry points to the first byte of that source pixel; channel selection
+             * is done later via [i] in the accumulation loop.
+             */
+            uint8_t const *apu8SrcPx[4][4] =
+            {
+                {
+                    apu8SrcLine[0] + (size_t)xSrc0 * cbPixel,
+                    apu8SrcLine[0] + (size_t)xSrc1 * cbPixel,
+                    apu8SrcLine[0] + (size_t)xSrc2 * cbPixel,
+                    apu8SrcLine[0] + (size_t)xSrc3 * cbPixel
+                },
+                {
+                    apu8SrcLine[1] + (size_t)xSrc0 * cbPixel,
+                    apu8SrcLine[1] + (size_t)xSrc1 * cbPixel,
+                    apu8SrcLine[1] + (size_t)xSrc2 * cbPixel,
+                    apu8SrcLine[1] + (size_t)xSrc3 * cbPixel
+                },
+                {
+                    apu8SrcLine[2] + (size_t)xSrc0 * cbPixel,
+                    apu8SrcLine[2] + (size_t)xSrc1 * cbPixel,
+                    apu8SrcLine[2] + (size_t)xSrc2 * cbPixel,
+                    apu8SrcLine[2] + (size_t)xSrc3 * cbPixel
+                },
+                {
+                    apu8SrcLine[3] + (size_t)xSrc0 * cbPixel,
+                    apu8SrcLine[3] + (size_t)xSrc1 * cbPixel,
+                    apu8SrcLine[3] + (size_t)xSrc2 * cbPixel,
+                    apu8SrcLine[3] + (size_t)xSrc3 * cbPixel
+                }
+            };
+
+            uint8_t *pu8Dst = pu8DstLine + (size_t)xDst * cbPixel;
+            for (uint32_t i = 0; i < cbPixel; i++)
+            {
+                int64_t iAcc = 0;
+
+                /* Separable bicubic accumulation: sum over 4x4 neighborhood using Y and X weights (Q16*Q16 -> Q32). */
+                for (uint32_t iy = 0; iy < 4; iy++)
+                {
+                    int64_t const iWy = aiWy[iy];
+                    for (uint32_t ix = 0; ix < 4; ix++)
+                        iAcc += (int64_t)apu8SrcPx[iy][ix][i] * iWy * aiWx[ix];
+                }
+
+                int64_t iByte;
+                if (iAcc >= 0)
+                    /* 0x80000000 is 0.5 in Q32, adding it implements round-to-nearest before >> 32. */
+                    iByte = (iAcc + INT64_C(0x80000000)) >> 32;
+                else
+                    /* Mirror the same rounding behavior for negative values. */
+                    iByte = -(((-iAcc) + INT64_C(0x80000000)) >> 32);
+
+                pu8Dst[i] = (uint8_t)RT_MIN(RT_MAX(iByte, 0), 255);
+            }
         }
     }
 
@@ -592,6 +813,8 @@ static DECLCALLBACK(int) recRenderSWResize(PRECORDINGRENDERER pRenderer,
     switch (pResizeParms->enmMode)
     {
         case RecordingVideoScalingMode_NearestNeighbor:
+        case RecordingVideoScalingMode_Bilinear:
+        case RecordingVideoScalingMode_Bicubic:
         {
             dw = pRenderer->Parms.Info.uWidth;
             dh = pRenderer->Parms.Info.uHeight;
@@ -655,6 +878,22 @@ static DECLCALLBACK(int) recRenderSWResize(PRECORDINGRENDERER pRenderer,
     {
         vrc = recRenderSWFrameResizeNearestNeighbor(pDstFrame, pSrcFrame,
                                                     &pResizeParms->dstRect, &pResizeParms->srcRect);
+        AssertRC(vrc);
+        if (RT_FAILURE(vrc))
+            return vrc;
+    }
+    else if (pResizeParms->enmMode == RecordingVideoScalingMode_Bilinear)
+    {
+        vrc = recRenderSWFrameResizeBilinear(pDstFrame, pSrcFrame,
+                                             &pResizeParms->dstRect, &pResizeParms->srcRect);
+        AssertRC(vrc);
+        if (RT_FAILURE(vrc))
+            return vrc;
+    }
+    else if (pResizeParms->enmMode == RecordingVideoScalingMode_Bicubic)
+    {
+        vrc = recRenderSWFrameResizeBicubic(pDstFrame, pSrcFrame,
+                                            &pResizeParms->dstRect, &pResizeParms->srcRect);
         AssertRC(vrc);
         if (RT_FAILURE(vrc))
             return vrc;

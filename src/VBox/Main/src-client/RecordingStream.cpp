@@ -1,4 +1,4 @@
-/* $Id: RecordingStream.cpp 113708 2026-04-02 09:19:01Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingStream.cpp 113740 2026-04-07 07:41:04Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording stream code.
  */
@@ -2040,7 +2040,9 @@ int RecordingStream::InitVideo(const ComPtr<IRecordingScreenSettings> &ScreenSet
 
         /* Fend off non-supported modes. */
         if (   m_RenderParms.enmScalingMode != RecordingVideoScalingMode_None
-            && m_RenderParms.enmScalingMode != RecordingVideoScalingMode_NearestNeighbor)
+            && m_RenderParms.enmScalingMode != RecordingVideoScalingMode_NearestNeighbor
+            && m_RenderParms.enmScalingMode != RecordingVideoScalingMode_Bilinear
+            && m_RenderParms.enmScalingMode != RecordingVideoScalingMode_Bicubic)
         {
             LogRel(("Recording: Warning: Video scaling mode '%s' is not supported\n",
                     RecordingUtilsVideoScalingModeToStr(m_RenderParms.enmScalingMode)));
