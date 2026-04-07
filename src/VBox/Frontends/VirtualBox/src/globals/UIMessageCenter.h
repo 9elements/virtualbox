@@ -1,4 +1,4 @@
-/* $Id: UIMessageCenter.h 113750 2026-04-07 16:36:14Z sergey.dubov@oracle.com $ */
+/* $Id: UIMessageCenter.h 113751 2026-04-07 17:04:22Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMessageCenter class declaration.
  */
@@ -200,9 +200,6 @@ public:
 
     /** @name Startup warnings.
       * @{ */
-        void cannotStartSelector() const;
-        void cannotStartRuntime() const;
-
         bool cannotRestoreSnapshot(const CMachine &machine, const QString &strSnapshotName, const QString &strMachineName) const;
         bool cannotRestoreSnapshot(const CProgress &progress, const QString &strSnapshotName, const QString &strMachineName) const;
     /** @} */

@@ -1,4 +1,4 @@
-/* $Id: UIStarter.cpp 113063 2026-02-17 12:44:49Z sergey.dubov@oracle.com $ */
+/* $Id: UIStarter.cpp 113751 2026-04-07 17:04:22Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIStarter class implementation.
  */
@@ -32,7 +32,7 @@
 #include "UICommon.h"
 #include "UIExtraDataManager.h"
 #include "UIGlobalSession.h"
-#include "UIMessageCenter.h"
+#include "UINotificationCenter.h"
 #include "UIStarter.h"
 #ifndef VBOX_RUNTIME_UI
 # include "UINotificationMessage.h"
@@ -71,7 +71,10 @@ void UIStarter::sltStartUI()
     /* Make sure Manager UI is permitted, quit if not: */
     if (gEDataManager->guiFeatureEnabled(GUIFeatureType_NoSelector))
     {
-        msgCenter().cannotStartSelector();
+        /* Create temporary notification-center to show the message: */
+        UINotificationCenter::createTemporary();
+        UINotificationMessage::cannotStartManager();
+        UINotificationCenter::destroy();
         return QApplication::quit();
     }
 
@@ -96,7 +99,10 @@ void UIStarter::sltStartUI()
     /* Make sure Runtime UI is possible at all, quit if not: */
     if (uiCommon().managedVMUuid().isNull())
     {
-        msgCenter().cannotStartRuntime();
+        /* Create temporary notification-center to show the message: */
+        UINotificationCenter::createTemporary();
+        UINotificationMessage::cannotStartRuntime();
+        UINotificationCenter::destroy();
         return QApplication::quit();
     }
 

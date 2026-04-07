@@ -1,4 +1,4 @@
-/* $Id: UIMessageCenter.cpp 113750 2026-04-07 16:36:14Z sergey.dubov@oracle.com $ */
+/* $Id: UIMessageCenter.cpp 113751 2026-04-07 17:04:22Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMessageCenter class implementation.
  */
@@ -241,33 +241,6 @@ bool UIMessageCenter::showModalProgressDialog(CProgress &progress,
 
     /* Return result: */
     return fRc;
-}
-
-void UIMessageCenter::cannotStartSelector() const
-{
-    alert(0, MessageType_Critical,
-          tr("<p>Cannot start the VirtualBox Manager due to local restrictions.</p>"
-             "<p>The application will now terminate.</p>"));
-}
-
-void UIMessageCenter::cannotStartRuntime() const
-{
-    /* Prepare error string: */
-    const QString strError = tr("<p>You must specify a machine to start, using the command line.</p><p>%1</p>",
-                                "There will be a usage text passed as argument.");
-
-    /* Prepare Usage, it can change in future: */
-    const QString strTable = QString("<table cellspacing=0 style='white-space:pre'>%1</table>");
-    const QString strUsage = tr("<tr>"
-                                "<td>Usage: VirtualBoxVM --startvm &lt;name|UUID&gt;</td>"
-                                "</tr>"
-                                "<tr>"
-                                "<td>Starts the VirtualBox virtual machine with the given "
-                                "name or unique identifier (UUID).</td>"
-                                "</tr>");
-
-    /* Show error: */
-    alert(0, MessageType_Error, strError.arg(strTable.arg(strUsage)));
 }
 
 bool UIMessageCenter::cannotRestoreSnapshot(const CMachine &machine,

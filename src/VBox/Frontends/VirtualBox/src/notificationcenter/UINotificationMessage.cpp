@@ -1,4 +1,4 @@
-/* $Id: UINotificationMessage.cpp 113750 2026-04-07 16:36:14Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationMessage.cpp 113751 2026-04-07 17:04:22Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationMessage implementations.
  */
@@ -152,6 +152,46 @@ void UINotificationMessage::cannotHandleRuntimeOption(const QString &strOption)
         QString() /* internal name */,
         QString() /* help keyword */,
         NotificationType_Warning);
+}
+
+/* static */
+void UINotificationMessage::cannotStartManager()
+{
+    createBlockingMessage(
+        QApplication::translate("UIMessageCenter", "Can't start Manager UI ..."),
+        QApplication::translate("UIMessageCenter", "<p>Cannot start the VirtualBox Manager due to local restrictions.</p>"
+                                                   "<p>The application will now terminate.</p>"),
+        QString() /* internal name */,
+        QString() /* help keyword */,
+        NotificationType_Critical);
+}
+
+/* static */
+void UINotificationMessage::cannotStartRuntime()
+{
+    /* Prepare error string: */
+    const QString strError = QApplication::translate("UIMessageCenter", "<p>You must specify a machine to start, using the "
+                                                                        "command line.</p><p>%1</p>",
+                                                                        "There will be a usage text passed as argument.");
+
+    /* Prepare Usage, it can change in future: */
+    const QString strTable = QString("<table cellspacing=0 style='white-space:pre'>%1</table>");
+    const QString strUsage = QApplication::translate("UIMessageCenter",
+                                                     "<tr>"
+                                                     "<td>Usage: VirtualBoxVM --startvm &lt;name|UUID&gt;</td>"
+                                                     "</tr>"
+                                                     "<tr>"
+                                                     "<td>Starts the VirtualBox virtual machine with the given "
+                                                     "name or unique identifier (UUID).</td>"
+                                                     "</tr>");
+
+    /* Show error: */
+    createBlockingMessage(
+        QApplication::translate("UIMessageCenter", "Can't start Runtime UI ..."),
+        strError.arg(strTable.arg(strUsage)),
+        QString() /* internal name */,
+        QString() /* help keyword */,
+        NotificationType_Critical);
 }
 
 /* static */

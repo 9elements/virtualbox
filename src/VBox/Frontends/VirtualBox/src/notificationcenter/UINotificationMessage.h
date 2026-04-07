@@ -1,4 +1,4 @@
-/* $Id: UINotificationMessage.h 113750 2026-04-07 16:36:14Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationMessage.h 113751 2026-04-07 17:04:22Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationMessage declarations.
  */
@@ -104,6 +104,11 @@ public:
 
         /** Notifies about inability to handle Runtime UI option. */
         static void cannotHandleRuntimeOption(const QString &strOption);
+
+        /** Notifies about inability to start manager UI. */
+        static void cannotStartManager();
+        /** Notifies about inability to start runtime UI. */
+        static void cannotStartRuntime();
 
         /** Notifies about inability to find help file at certain @a strLocation. */
         static void cannotFindHelpFile(const QString &strLocation);
