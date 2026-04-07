@@ -1,4 +1,4 @@
-/* $Id: UINotificationMessage.h 113732 2026-04-06 14:36:09Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationMessage.h 113750 2026-04-07 16:36:14Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationMessage declarations.
  */
@@ -101,6 +101,9 @@ public:
         static void cannotInitUserHome(const QString &strUserHome);
         /** Notifies about inability to initialize COM. */
         static void cannotInitCOM(HRESULT rc);
+
+        /** Notifies about inability to handle Runtime UI option. */
+        static void cannotHandleRuntimeOption(const QString &strOption);
 
         /** Notifies about inability to find help file at certain @a strLocation. */
         static void cannotFindHelpFile(const QString &strLocation);

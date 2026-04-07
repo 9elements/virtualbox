@@ -1,4 +1,4 @@
-/* $Id: UICommon.cpp 113634 2026-03-27 15:03:46Z sergey.dubov@oracle.com $ */
+/* $Id: UICommon.cpp 113750 2026-04-07 16:36:14Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UICommon class implementation.
  */
@@ -935,7 +935,7 @@ void UICommon::processOptions()
 #endif /* VBOX_WITH_DEBUGGER_GUI */
 
         if (enmOptType == OptType_RuntimeUI && m_enmType != UIType_RuntimeUI)
-            msgCenter().cannotHandleRuntimeOption(pArg);
+            UINotificationMessage::cannotHandleRuntimeOption(pArg);
 
         i++;
     }

@@ -1,4 +1,4 @@
-/* $Id: UIMessageCenter.cpp 113731 2026-04-06 14:30:57Z sergey.dubov@oracle.com $ */
+/* $Id: UIMessageCenter.cpp 113750 2026-04-07 16:36:14Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMessageCenter class implementation.
  */
@@ -241,13 +241,6 @@ bool UIMessageCenter::showModalProgressDialog(CProgress &progress,
 
     /* Return result: */
     return fRc;
-}
-
-void UIMessageCenter::cannotHandleRuntimeOption(const QString &strOption) const
-{
-    alert(0, MessageType_Error,
-          tr("<b>%1</b> is an option for the VirtualBox VM runner (VirtualBoxVM) application, not the VirtualBox Manager.")
-             .arg(strOption));
 }
 
 void UIMessageCenter::cannotStartSelector() const

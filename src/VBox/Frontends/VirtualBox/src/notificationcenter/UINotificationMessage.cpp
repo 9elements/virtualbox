@@ -1,4 +1,4 @@
-/* $Id: UINotificationMessage.cpp 113732 2026-04-06 14:36:09Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationMessage.cpp 113750 2026-04-07 16:36:14Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationMessage implementations.
  */
@@ -140,6 +140,18 @@ void UINotificationMessage::cannotInitCOM(HRESULT rc)
         QString() /* internal name */,
         QString() /* help keyword */,
         NotificationType_Critical);
+}
+
+/* static */
+void UINotificationMessage::cannotHandleRuntimeOption(const QString &strOption)
+{
+    createBlockingMessage(
+        QApplication::translate("UIMessageCenter", "Incorrect option ..."),
+        QApplication::translate("UIMessageCenter", "<b>%1</b> is an option for the VirtualBox VM runner (VirtualBoxVM) "
+                                                   "application, not the VirtualBox Manager.").arg(strOption),
+        QString() /* internal name */,
+        QString() /* help keyword */,
+        NotificationType_Warning);
 }
 
 /* static */
