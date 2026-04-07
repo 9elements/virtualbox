@@ -1,4 +1,4 @@
-/* $Id: RecordingInternals.cpp 113741 2026-04-07 09:08:17Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingInternals.cpp 113744 2026-04-07 09:56:39Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording internals code.
  */
@@ -215,8 +215,9 @@ int RecordingVideoFrameCopy(PRECORDINGVIDEOFRAME pDstFrame, PRECORDINGVIDEOFRAME
 
     if (pSrcFrame->cbBuf > pDstFrame->cbBuf)
     {
-        pDstFrame->pau8Buf = (uint8_t *)RTMemRealloc(pDstFrame->pau8Buf, pSrcFrame->cbBuf);
-        AssertPtrReturn(pDstFrame->pau8Buf, VERR_NO_MEMORY);
+        uint8_t *pau8Buf   = (uint8_t *)RTMemRealloc(pDstFrame->pau8Buf, pSrcFrame->cbBuf);
+        AssertPtrReturn(pau8Buf, VERR_NO_MEMORY);
+        pDstFrame->pau8Buf = pau8Buf;
         pDstFrame->cbBuf   = pSrcFrame->cbBuf;
     }
 
