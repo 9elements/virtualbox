@@ -1,4 +1,4 @@
-/* $Id: RecordingRender.cpp 113740 2026-04-07 07:41:04Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingRender.cpp 113742 2026-04-07 09:10:53Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording rendering implementation.
  *
@@ -623,7 +623,9 @@ static DECLCALLBACK(void) recRenderSWTextureDestroy(PRECORDINGRENDERER pRenderer
 
     PRECORDINGVIDEOFRAME pFrame = (PRECORDINGVIDEOFRAME)pTexture->pvBackend;
     RecordingVideoFrameFree(pFrame);
+
     pTexture->pvBackend = NULL;
+    pTexture->pInfo     = NULL;
 }
 
 /** @copydoc RECORDINGRENDEROPS::pfnTextureClear */
@@ -660,13 +662,12 @@ static DECLCALLBACK(int) recRenderSWTextureUpdate(PRECORDINGRENDERER pRenderer, 
     RT_NOREF(pRenderer);
 
     PRECORDINGVIDEOFRAME pFrameToUpdate = recRenderSWTex2Frm(pTexture);
-    AssertPtr(pFrameToUpdate);
 
-    /* For this software backend we already use RECORDINGVIDEOFRAME as a backend storage, so just (shallow) copy the data over. */
-    memcpy(pFrameToUpdate, pFrame, sizeof(RECORDINGVIDEOFRAME));
-    pFrameToUpdate->fFlags |= RECORDINGVIDEOFRAME_F_NO_DESTROY;
+    int const vrc = RecordingVideoFrameCopy(pFrameToUpdate, pFrame);
+    if (RT_SUCCESS(vrc))
+        pTexture->pInfo = &pFrameToUpdate->Info;
 
-    return VINF_SUCCESS;
+    return vrc;
 }
 
 /** @copydoc RECORDINGRENDEROPS::pfnBlit */
