@@ -1,4 +1,4 @@
-/* $Id: RecordingInternals.h 113708 2026-04-02 09:19:01Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingInternals.h 113741 2026-04-07 09:08:17Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording internals header.
  */
@@ -687,6 +687,7 @@ void RecordingVideoFrameDestroy(PRECORDINGVIDEOFRAME pFrame);
 uint64_t RecordingFrameRefs(PRECORDINGFRAME pFrame);
 uint64_t RecordingFrameAcquire(PRECORDINGFRAME pFrame);
 uint64_t RecordingFrameRelease(PRECORDINGFRAME pFrame);
+int RecordingVideoFrameCopy(PRECORDINGVIDEOFRAME pDstFrame, PRECORDINGVIDEOFRAME pSrcFrame);
 PRECORDINGVIDEOFRAME RecordingVideoFrameDup(PRECORDINGVIDEOFRAME pFrame);
 void RecordingVideoFrameClear(PRECORDINGVIDEOFRAME pFrame);
 

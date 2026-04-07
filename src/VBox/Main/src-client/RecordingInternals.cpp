@@ -1,4 +1,4 @@
-/* $Id: RecordingInternals.cpp 113642 2026-03-30 10:11:57Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingInternals.cpp 113741 2026-04-07 09:08:17Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording internals code.
  */
@@ -197,6 +197,33 @@ void RecordingVideoFrameDestroy(PRECORDINGVIDEOFRAME pFrame)
         pFrame->pau8Buf = NULL;
         pFrame->cbBuf  = 0;
     }
+}
+
+/**
+ * Copies a recording video frame.
+ *
+ * @returns VBox status code.
+ * @param   pDstFrame           Pointer to destination video frame.
+ *                              The frame's pixel buffer might be re-allocated if too small.
+ * @param   pSrcFrame           Pointer to source video frame.
+ */
+int RecordingVideoFrameCopy(PRECORDINGVIDEOFRAME pDstFrame, PRECORDINGVIDEOFRAME pSrcFrame)
+{
+    pDstFrame->fFlags = pSrcFrame->fFlags;
+    pDstFrame->Info   = pSrcFrame->Info;
+    pDstFrame->Pos    = pSrcFrame->Pos;
+
+    if (pSrcFrame->cbBuf > pDstFrame->cbBuf)
+    {
+        pDstFrame->pau8Buf = (uint8_t *)RTMemRealloc(pDstFrame->pau8Buf, pSrcFrame->cbBuf);
+        AssertPtrReturn(pDstFrame->pau8Buf, VERR_NO_MEMORY);
+        pDstFrame->cbBuf   = pSrcFrame->cbBuf;
+    }
+
+    Assert(pDstFrame->cbBuf >= pSrcFrame->cbBuf);
+    memcpy(pDstFrame->pau8Buf, pSrcFrame->pau8Buf, pSrcFrame->cbBuf);
+
+    return VINF_SUCCESS;
 }
 
 /**
