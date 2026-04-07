@@ -1,4 +1,4 @@
-/* $Id: RecordingStream.cpp 113748 2026-04-07 13:45:35Z vitali.pelenjow@oracle.com $ */
+/* $Id: RecordingStream.cpp 113749 2026-04-07 16:13:56Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording stream code.
  */
@@ -286,11 +286,11 @@ int RecordingStream::SetVideoOutputTargetDesc(PDMDISPLAYOUTPUTTARGETDESC const *
         LogRel2(("Recording: Got output target description for screen #%RU32: %RU32x%RU32 (format %#x, seq %RU64)\n",
                  pDesc->idScreen, pDesc->cWidth, pDesc->cHeight, pDesc->enmFormat, *pDesc->pu64UpdateSequenceNumber));
 
-        AssertReturn(pDesc->idScreen == m_uScreenID, VERR_INVALID_PARAMETER);
-        AssertReturn(   m_RenderParms.Info.uWidth  == pDesc->cWidth
-                     && m_RenderParms.Info.uHeight == pDesc->cHeight
-                     && pDesc->cbOutputBuffer
-                     && RT_VALID_PTR(pDesc->pvOutputBuffer), VERR_INVALID_PARAMETER);
+        AssertReturnStmt(pDesc->idScreen == m_uScreenID, RTCritSectLeave(&m_RenderCritSect), VERR_INVALID_PARAMETER);
+        AssertReturnStmt(   m_RenderParms.Info.uWidth  == pDesc->cWidth
+                         && m_RenderParms.Info.uHeight == pDesc->cHeight
+                         && pDesc->cbOutputBuffer
+                         && RT_VALID_PTR(pDesc->pvOutputBuffer), RTCritSectLeave(&m_RenderCritSect), VERR_INVALID_PARAMETER);
 
         vrc = RecordingRenderInitEx(&m_Renderer, RECORDINGRENDERBACKEND_OUTTGT, pDesc);
         if (RT_SUCCESS(vrc))
