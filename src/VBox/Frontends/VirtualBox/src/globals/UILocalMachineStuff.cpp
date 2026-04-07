@@ -1,4 +1,4 @@
-/* $Id: UILocalMachineStuff.cpp 113262 2026-03-04 20:12:57Z sergey.dubov@oracle.com $ */
+/* $Id: UILocalMachineStuff.cpp 113752 2026-04-07 17:35:40Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UILocalMachineStuff namespace implementation.
  */
@@ -34,6 +34,7 @@
 #include "UILocalMachineStuff.h"
 #include "UILoggingDefs.h"
 #include "UIMessageCenter.h"
+#include "UINotificationMessage.h"
 #include "UITranslator.h"
 #ifdef VBOX_WS_MAC
 # include "VBoxUtils-darwin.h"
@@ -237,7 +238,7 @@ CSession UILocalMachineStuff::openSession(QUuid uId, KLockType enmLockType /* = 
         CMachine comMachine = comVBox.FindMachine(uId.toString());
         if (comMachine.isNull())
         {
-            msgCenter().cannotFindMachineById(comVBox, uId);
+            UINotificationMessage::cannotFindMachineById(comVBox, uId);
             break;
         }
 

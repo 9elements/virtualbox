@@ -1,4 +1,4 @@
-/* $Id: UINotificationMessage.h 113751 2026-04-07 17:04:22Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationMessage.h 113752 2026-04-07 17:35:40Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationMessage declarations.
  */
@@ -591,6 +591,23 @@ public:
 
     /** @name COM VirtualBox Manager warnings.
       * @{ */
+        /** Notifies about inability to find machine by name.
+          * @param  comVBox  Brings common VBox object trying to find machine.
+          * @param  strName  Brings the machine name. */
+        static void cannotFindMachineByName(const CVirtualBox &comVBox,
+                                            const QString &strName);
+        /** Notifies about inability to find machine by ID.
+          * @param  comVBox     Brings common VBox object trying to find machine.
+          * @param  uMachineId  Brings the machine ID. */
+        static void cannotFindMachineById(const CVirtualBox &comVBox,
+                                          const QUuid &uId);
+        /** Notifies about inability to find machine by ID.
+          * @param  comVBox     Brings common VBox object trying to find machine.
+          * @param  uMachineId  Brings the machine ID. */
+        static void cannotFindMachineById(const CVirtualBox &comVBox,
+                                          const QUuid &uMachineId,
+                                          QWidget *pParent);
+
         /** Notifies about inability to create appliance.
           * @param  comVBox  Brings common VBox object trying to create appliance. */
         static void cannotCreateAppliance(const CVirtualBox &comVBox, QWidget *pParent);
@@ -601,12 +618,6 @@ public:
         /** Notifies about inability to create machine.
           * @param  comVBox  Brings common VBox object trying to create machine. */
         static bool cannotCreateMachine(const CVirtualBox &comVBox, QWidget *pParent);
-        /** Notifies about inability to find machine by ID.
-          * @param  comVBox     Brings common VBox object trying to find machine.
-          * @param  uMachineId  Brings the machine ID. */
-        static void cannotFindMachineById(const CVirtualBox &comVBox,
-                                          const QUuid &uMachineId,
-                                          QWidget *pParent);
         /** Notifies about inability to open machine.
           * @param  comVBox      Brings common VBox object trying to open machine.
           * @param  strLocation  Brings the machine location. */

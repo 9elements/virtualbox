@@ -1,4 +1,4 @@
-/* $Id: UIMessageCenter.h 113751 2026-04-07 17:04:22Z sergey.dubov@oracle.com $ */
+/* $Id: UIMessageCenter.h 113752 2026-04-07 17:35:40Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMessageCenter class declaration.
  */
@@ -206,9 +206,6 @@ public:
 
     /** @name General COM warnings.
       * @{ */
-        void cannotFindMachineByName(const CVirtualBox &comVBox, const QString &strName) const;
-        void cannotFindMachineById(const CVirtualBox &comVBox, const QUuid &uId) const;
-
         void cannotOpenSession(const CSession &comSession) const;
         void cannotOpenSession(const CMachine &comMachine) const;
         void cannotOpenSession(const CProgress &comProgress, const QString &strMachineName) const;

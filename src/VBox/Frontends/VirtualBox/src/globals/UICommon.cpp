@@ -1,4 +1,4 @@
-/* $Id: UICommon.cpp 113750 2026-04-07 16:36:14Z sergey.dubov@oracle.com $ */
+/* $Id: UICommon.cpp 113752 2026-04-07 17:35:40Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UICommon class implementation.
  */
@@ -980,12 +980,12 @@ void UICommon::processOptions()
         if (!uuid.isNull())
         {
             if (comMachine.isNull() && showStartVMErrors())
-                return msgCenter().cannotFindMachineById(comVBox, uuid);
+                return UINotificationMessage::cannotFindMachineById(comVBox, uuid);
         }
         else
         {
             if (comMachine.isNull() && showStartVMErrors())
-                return msgCenter().cannotFindMachineByName(comVBox, vmNameOrUuid);
+                return UINotificationMessage::cannotFindMachineByName(comVBox, vmNameOrUuid);
         }
         m_uManagedVMId = comMachine.GetId();
 

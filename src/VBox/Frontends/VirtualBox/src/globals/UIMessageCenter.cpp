@@ -1,4 +1,4 @@
-/* $Id: UIMessageCenter.cpp 113751 2026-04-07 17:04:22Z sergey.dubov@oracle.com $ */
+/* $Id: UIMessageCenter.cpp 113752 2026-04-07 17:35:40Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMessageCenter class implementation.
  */
@@ -263,22 +263,6 @@ bool UIMessageCenter::cannotRestoreSnapshot(const CProgress &progress,
              .arg(strSnapshotName, strMachineName),
           UIErrorString::formatErrorInfo(progress));
     return false;
-}
-
-void UIMessageCenter::cannotFindMachineByName(const CVirtualBox &comVBox, const QString &strName) const
-{
-    error(0, MessageType_Error,
-          tr("There is no virtual machine named <b>%1</b>.")
-             .arg(strName),
-          UIErrorString::formatErrorInfo(comVBox));
-}
-
-void UIMessageCenter::cannotFindMachineById(const CVirtualBox &comVBox, const QUuid &uId) const
-{
-    error(0, MessageType_Error,
-          tr("There is no virtual machine with the identifier <b>%1</b>.")
-             .arg(uId.toString()),
-          UIErrorString::formatErrorInfo(comVBox));
 }
 
 void UIMessageCenter::cannotOpenSession(const CSession &comSession) const

@@ -1,4 +1,4 @@
-/* $Id: UINotificationMessage.cpp 113751 2026-04-07 17:04:22Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationMessage.cpp 113752 2026-04-07 17:35:40Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationMessage implementations.
  */
@@ -1707,6 +1707,46 @@ void UINotificationMessage::cannotSetGroups(const CMachine &comMachine)
 }
 
 /* static */
+void UINotificationMessage::cannotFindMachineByName(const CVirtualBox &comVBox,
+                                                    const QString &strName)
+{
+    createBlockingMessage(
+        QApplication::translate("UIMessageCenter", "Can't find machine!"),
+        QApplication::translate("UIMessageCenter", "There is no virtual machine named <b>%1</b>.").arg(strName) +
+        UIErrorString::formatErrorInfo(comVBox),
+        QString() /* internal name */,
+        QString() /* help keyword */,
+        NotificationType_Critical);
+}
+
+/* static */
+void UINotificationMessage::cannotFindMachineById(const CVirtualBox &comVBox,
+                                                  const QUuid &uId)
+{
+    createBlockingMessage(
+        QApplication::translate("UIMessageCenter", "Can't find machine!"),
+        QApplication::translate("UIMessageCenter", "There is no virtual machine with the identifier <b>%1</b>.")
+                                                   .arg(uId.toString()) +
+        UIErrorString::formatErrorInfo(comVBox),
+        QString() /* internal name */,
+        QString() /* help keyword */,
+        NotificationType_Critical);
+}
+
+/* static */
+void UINotificationMessage::cannotFindMachineById(const CVirtualBox &comVBox,
+                                                  const QUuid &uMachineId,
+                                                  QWidget *pParent)
+{
+    createMessage(
+        QApplication::translate("UIMessageCenter", "Can't find machine ..."),
+        QApplication::translate("UIMessageCenter", "Failed to find the machine with following ID: <nobr><b>%1</b></nobr>.")
+                                                   .arg(uMachineId.toString()) +
+        UIErrorString::formatErrorInfo(comVBox),
+        pParent);
+}
+
+/* static */
 void UINotificationMessage::cannotCreateAppliance(const CVirtualBox &comVBox,
                                                   QWidget *pParent)
 {
@@ -1740,19 +1780,6 @@ bool UINotificationMessage::cannotCreateMachine(const CVirtualBox &comVBox,
         UIErrorString::formatErrorInfo(comVBox),
         pParent);
     return false;
-}
-
-/* static */
-void UINotificationMessage::cannotFindMachineById(const CVirtualBox &comVBox,
-                                                  const QUuid &uMachineId,
-                                                  QWidget *pParent)
-{
-    createMessage(
-        QApplication::translate("UIMessageCenter", "Can't find machine ..."),
-        QApplication::translate("UIMessageCenter", "Failed to find the machine with following ID: <nobr><b>%1</b></nobr>.")
-                                                   .arg(uMachineId.toString()) +
-        UIErrorString::formatErrorInfo(comVBox),
-        pParent);
 }
 
 /* static */
