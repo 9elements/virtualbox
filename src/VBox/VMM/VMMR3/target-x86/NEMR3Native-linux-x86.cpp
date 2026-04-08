@@ -1,4 +1,4 @@
-/* $Id: NEMR3Native-linux-x86.cpp 113739 2026-04-07 06:27:57Z alexander.eichner@oracle.com $ */
+/* $Id: NEMR3Native-linux-x86.cpp 113759 2026-04-08 14:41:21Z alexander.eichner@oracle.com $ */
 /** @file
  * NEM - Native execution manager, native ring-3 Linux backend.
  */
@@ -427,15 +427,15 @@ DECLHIDDEN(int) nemR3NativeInitCompletedRing3(PVM pVM)
     /** @todo add more? */
     MSR_RANGE_END(64);
 
+    /* SVM AMD range: c001_0000 to c001_3000 */
+    MSR_RANGE_BEGIN(0xc0010000, 0xc0013000, KVM_MSR_FILTER_READ | KVM_MSR_FILTER_WRITE);
     if (pVM->cpum.ro.GuestFeatures.fSvm)
     {
-        /* SVM AMD range: c001_0000 to c001_3000 */
-        MSR_RANGE_BEGIN(0xc0010000, 0xc0013000, KVM_MSR_FILTER_READ | KVM_MSR_FILTER_WRITE);
         MSR_RANGE_ADD(MSR_K8_VM_CR);
         MSR_RANGE_ADD(MSR_K8_VM_HSAVE_PA);
         /** @todo add more? */
-        MSR_RANGE_END(64);
     }
+    MSR_RANGE_END(64);
 
     /** @todo Specify other ranges too? Like hyper-V and KVM to make sure we get
      *        the MSR requests instead of KVM. */
