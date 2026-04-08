@@ -1,4 +1,4 @@
-/* $Id: UINotificationCenter.cpp 113634 2026-03-27 15:03:46Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationCenter.cpp 113763 2026-04-08 16:27:01Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationCenter class implementation.
  */
@@ -412,7 +412,7 @@ bool UINotificationCenter::handleNow(UINotificationProgress *pProgress)
     QPointer<UINotificationProgress> guardProgress = pProgress;
     connect(pProgress, &UINotificationProgress::sigProgressFinished,
             this, &UINotificationCenter::sltHandleProgressFinished);
-    append(pProgress);
+    m_uId = append(pProgress);
 
     /* Is progress still valid? */
     if (guardProgress.isNull())
@@ -438,6 +438,9 @@ bool UINotificationCenter::handleNow(UINotificationProgress *pProgress)
 
     /* Cleanup event-loop: */
     m_pEventLoop = 0;
+
+    /* Revert values back: */
+    m_uId = QUuid();
 
     /* Return actual result: */
     return m_fLastResult;
@@ -833,10 +836,6 @@ void UINotificationCenter::sltHandleProgressFinished()
 
     /* Set the result: */
     m_fLastResult = pProgress->error().isNull();
-
-    /* Break the loop if exists: */
-    if (m_pEventLoop)
-        m_pEventLoop->exit();
 }
 
 void UINotificationCenter::prepare()
