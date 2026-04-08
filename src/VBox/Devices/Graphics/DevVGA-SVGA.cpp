@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA.cpp 113748 2026-04-07 13:45:35Z vitali.pelenjow@oracle.com $ */
+/* $Id: DevVGA-SVGA.cpp 113758 2026-04-08 13:33:47Z vitali.pelenjow@oracle.com $ */
 /** @file
  * VMware SVGA device.
  *
@@ -4791,8 +4791,8 @@ static void vmsvgaR3OutputTargets(PVGASTATE pThis, PVGASTATECC pThisCC)
                 RTListAppend(&pScreen->listOutputTargets, &pIter->nodeOutputTarget);
             else
             {
-                RTMemFree(pIter->desc.pvOutputBuffer);
-                RTMemFree(pIter);
+                /* Remove from AVL tree and deallocate memory. */
+                vmsvgaR3DestroyOutputTarget(pThisCC, pIter);
             }
         }
     }
