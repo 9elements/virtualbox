@@ -1,4 +1,4 @@
-/* $Id: UIMachine.cpp 113764 2026-04-08 16:36:50Z sergey.dubov@oracle.com $ */
+/* $Id: UIMachine.cpp 113765 2026-04-08 16:42:45Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMachine class implementation.
  */
@@ -127,13 +127,18 @@ bool UIMachine::startMachine()
         /* Create temporary notification-center: */
         UINotificationCenter::createTemporary();
 
-        /* Create temporary session: */
-        CSession comSession = openSession(KLockType_VM);
-        if (comSession.isNull())
-            return false;
+        /* Get machine ID: */
+        const QUuid uId = uiCommon().managedVMUuid();
 
-        /* Which VM we operate on? */
-        CMachine comMachine = comSession.GetMachine();
+        /* Search for corresponding machine: */
+        const CVirtualBox comVBox = gpGlobalSession->virtualBox();
+        CMachine comMachine = comVBox.FindMachine(uId.toString());
+        if (comMachine.isNull())
+        {
+            UINotificationMessage::cannotFindMachineById(comVBox, uId);
+            return false;
+        }
+
         /* Which snapshot are we restoring? */
         CSnapshot comSnapshot = uiCommon().shouldRestoreCurrentSnapshot()
                               ? comMachine.GetCurrentSnapshot()
@@ -144,22 +149,10 @@ bool UIMachine::startMachine()
             return false;
         }
 
-        /* Prepare restore-snapshot progress: */
-        CProgress comProgress = comMachine.RestoreSnapshot(comSnapshot);
-        if (!comMachine.isOk())
-            return msgCenter().cannotRestoreSnapshot(comMachine,
-                                                     comSnapshot.GetName(),
-                                                     comMachine.GetName());
-
-        /* Show the snapshot-discarding progress: */
-        msgCenter().showModalProgressDialog(comProgress, comMachine.GetName(), ":/progress_snapshot_discard_90px.png");
-        if (comProgress.GetResultCode() != 0)
-            return msgCenter().cannotRestoreSnapshot(comProgress,
-                                                     comSnapshot.GetName(),
-                                                     comMachine.GetName());
-
-        /* Unlock session finally: */
-        comSession.UnlockMachine();
+        /* Create snapshot restoring notification: */
+        UINotificationProgressSnapshotRestore *pNotification =
+            new UINotificationProgressSnapshotRestore(uiCommon().managedVMUuid(), comSnapshot);
+        gpNotificationCenter->handleNow(pNotification);
 
         /* Clear snapshot-restoring request: */
         uiCommon().clearSnapshotRestoreOptions();

@@ -1,4 +1,4 @@
-/* $Id: UIMessageCenter.cpp 113752 2026-04-07 17:35:40Z sergey.dubov@oracle.com $ */
+/* $Id: UIMessageCenter.cpp 113765 2026-04-08 16:42:45Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMessageCenter class implementation.
  */
@@ -241,28 +241,6 @@ bool UIMessageCenter::showModalProgressDialog(CProgress &progress,
 
     /* Return result: */
     return fRc;
-}
-
-bool UIMessageCenter::cannotRestoreSnapshot(const CMachine &machine,
-                                            const QString &strSnapshotName,
-                                            const QString &strMachineName) const
-{
-    error(0, MessageType_Error,
-          tr("Failed to restore the snapshot <b>%1</b> of the virtual machine <b>%2</b>.")
-             .arg(strSnapshotName, strMachineName),
-          UIErrorString::formatErrorInfo(machine));
-    return false;
-}
-
-bool UIMessageCenter::cannotRestoreSnapshot(const CProgress &progress,
-                                            const QString &strSnapshotName,
-                                            const QString &strMachineName) const
-{
-    error(0, MessageType_Error,
-          tr("Failed to restore the snapshot <b>%1</b> of the virtual machine <b>%2</b>.")
-             .arg(strSnapshotName, strMachineName),
-          UIErrorString::formatErrorInfo(progress));
-    return false;
 }
 
 void UIMessageCenter::cannotOpenSession(const CSession &comSession) const

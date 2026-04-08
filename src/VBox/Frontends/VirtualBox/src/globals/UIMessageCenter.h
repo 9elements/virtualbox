@@ -1,4 +1,4 @@
-/* $Id: UIMessageCenter.h 113752 2026-04-07 17:35:40Z sergey.dubov@oracle.com $ */
+/* $Id: UIMessageCenter.h 113765 2026-04-08 16:42:45Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMessageCenter class declaration.
  */
@@ -197,12 +197,6 @@ public:
     bool showModalProgressDialog(CProgress &comProgress, const QString &strTitle,
                                  const QString &strImage, QWidget *pParent = 0,
                                  int cMinDuration = 2000);
-
-    /** @name Startup warnings.
-      * @{ */
-        bool cannotRestoreSnapshot(const CMachine &machine, const QString &strSnapshotName, const QString &strMachineName) const;
-        bool cannotRestoreSnapshot(const CProgress &progress, const QString &strSnapshotName, const QString &strMachineName) const;
-    /** @} */
 
     /** @name General COM warnings.
       * @{ */
