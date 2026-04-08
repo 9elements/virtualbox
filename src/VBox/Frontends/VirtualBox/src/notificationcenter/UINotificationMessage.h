@@ -1,4 +1,4 @@
-/* $Id: UINotificationMessage.h 113753 2026-04-07 17:41:46Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationMessage.h 113764 2026-04-08 16:36:50Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationMessage declarations.
  */
@@ -608,6 +608,23 @@ public:
                                           const QUuid &uMachineId,
                                           QWidget *pParent);
 
+        /** Notifies about inability to find snapshot by name.
+          * @param  comMachine  Brings the machine being searched for particular snapshot.
+          * @param  strName     Brings the required snapshot name. */
+        static bool cannotFindSnapshotByName(const CMachine &comMachine,
+                                             const QString &strName);
+        /** Notifies about inability to find snapshot by name.
+          * @param  comMachine  Brings the machine being searched for particular snapshot.
+          * @param  strName     Brings the required snapshot name. */
+        static bool cannotFindSnapshotByName(const CMachine &comMachine,
+                                             const QString &strName,
+                                             QWidget *pParent);
+        /** Notifies about inability to find snapshot by ID.
+          * @param  comMachine  Brings the machine being searched for particular snapshot.
+          * @param  uId         Brings the required snapshot ID. */
+        static void cannotFindSnapshotById(const CMachine &comMachine,
+                                           const QUuid &uId);
+
         /** Notifies about inability to create appliance.
           * @param  comVBox  Brings common VBox object trying to create appliance. */
         static void cannotCreateAppliance(const CVirtualBox &comVBox, QWidget *pParent);
@@ -750,14 +767,6 @@ public:
                                        const StorageSlot &storageSlot,
                                        QWidget *pParent = 0);
 
-        /** Notifies about inability to find snapshot by ID.
-          * @param  comMachine  Brings the machine being searched for particular snapshot.
-          * @param  uId         Brings the required snapshot ID. */
-        static void cannotFindSnapshotById(const CMachine &comMachine, const QUuid &uId);
-        /** Notifies about inability to find snapshot by name.
-          * @param  comMachine  Brings the machine being searched for particular snapshot.
-          * @param  strName     Brings the required snapshot name. */
-        static bool cannotFindSnapshotByName(const CMachine &comMachine, const QString &strName, QWidget *pParent);
         /** Notifies about inability to change snapshot.
           * @param  comSnapshot      Brings the snapshot being changed.
           * @param  strSnapshotName  Brings snapshot name.

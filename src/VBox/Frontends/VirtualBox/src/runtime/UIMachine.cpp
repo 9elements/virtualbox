@@ -1,4 +1,4 @@
-/* $Id: UIMachine.cpp 112785 2026-02-02 16:38:44Z sergey.dubov@oracle.com $ */
+/* $Id: UIMachine.cpp 113764 2026-04-08 16:36:50Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMachine class implementation.
  */
@@ -124,6 +124,9 @@ bool UIMachine::startMachine()
     if (   uiCommon().shouldRestoreCurrentSnapshot()
         || !uiCommon().getSnapshotToRestore().isEmpty())
     {
+        /* Create temporary notification-center: */
+        UINotificationCenter::createTemporary();
+
         /* Create temporary session: */
         CSession comSession = openSession(KLockType_VM);
         if (comSession.isNull())
@@ -135,27 +138,34 @@ bool UIMachine::startMachine()
         CSnapshot comSnapshot = uiCommon().shouldRestoreCurrentSnapshot()
                               ? comMachine.GetCurrentSnapshot()
                               : comMachine.FindSnapshot(uiCommon().getSnapshotToRestore());
+        if (comSnapshot.isNull())
+        {
+            UINotificationMessage::cannotFindSnapshotByName(comMachine, uiCommon().getSnapshotToRestore());
+            return false;
+        }
 
         /* Prepare restore-snapshot progress: */
         CProgress comProgress = comMachine.RestoreSnapshot(comSnapshot);
         if (!comMachine.isOk())
             return msgCenter().cannotRestoreSnapshot(comMachine,
-                                                     comSnapshot.isOk() ? comSnapshot.GetName()
-                                                     /** @todo deal better with snapshot-not found issues: */
-                                                     : uiCommon().shouldRestoreCurrentSnapshot() ? "current"
-                                                     : uiCommon().getSnapshotToRestore(),
+                                                     comSnapshot.GetName(),
                                                      comMachine.GetName());
 
         /* Show the snapshot-discarding progress: */
         msgCenter().showModalProgressDialog(comProgress, comMachine.GetName(), ":/progress_snapshot_discard_90px.png");
         if (comProgress.GetResultCode() != 0)
-            return msgCenter().cannotRestoreSnapshot(comProgress, comSnapshot.GetName(), comMachine.GetName());
+            return msgCenter().cannotRestoreSnapshot(comProgress,
+                                                     comSnapshot.GetName(),
+                                                     comMachine.GetName());
 
         /* Unlock session finally: */
         comSession.UnlockMachine();
 
         /* Clear snapshot-restoring request: */
         uiCommon().clearSnapshotRestoreOptions();
+
+        /* Destroy temporary notification-center: */
+        UINotificationCenter::destroy();
     }
 
     /* For separate process we should launch VM before UI: */

@@ -1,4 +1,4 @@
-/* $Id: UINotificationMessage.cpp 113753 2026-04-07 17:41:46Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationMessage.cpp 113764 2026-04-08 16:36:50Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationMessage implementations.
  */
@@ -1749,6 +1749,42 @@ void UINotificationMessage::cannotFindMachineById(const CVirtualBox &comVBox,
 }
 
 /* static */
+bool UINotificationMessage::cannotFindSnapshotByName(const CMachine &comMachine,
+                                                     const QString &strName)
+{
+    createBlockingMessage(
+        QApplication::translate("UIMessageCenter", "Can't find snapshot!"),
+        QApplication::translate("UIMessageCenter", "Failed to find snapshot with name=<b>%1</b>.").arg(strName) +
+        UIErrorString::formatErrorInfo(comMachine),
+        QString() /* internal name */,
+        QString() /* help keyword */,
+        NotificationType_Critical);
+    return false;
+}
+
+/* static */
+bool UINotificationMessage::cannotFindSnapshotByName(const CMachine &comMachine,
+                                                     const QString &strName,
+                                                     QWidget *pParent)
+{
+    createMessage(
+        QApplication::translate("UIMessageCenter", "Can't find snapshot ..."),
+        QApplication::translate("UIMessageCenter", "Failed to find snapshot with name=<b>%1</b>.").arg(strName) +
+        UIErrorString::formatErrorInfo(comMachine),
+        pParent);
+    return false;
+}
+
+/* static */
+void UINotificationMessage::cannotFindSnapshotById(const CMachine &comMachine, const QUuid &uId)
+{
+    createMessage(
+        QApplication::translate("UIMessageCenter", "Can't find snapshot ..."),
+        QApplication::translate("UIMessageCenter", "Failed to find snapshot with ID=<b>%1</b>.").arg(uId.toString()) +
+        UIErrorString::formatErrorInfo(comMachine));
+}
+
+/* static */
 void UINotificationMessage::cannotCreateAppliance(const CVirtualBox &comVBox,
                                                   QWidget *pParent)
 {
@@ -2184,29 +2220,6 @@ bool UINotificationMessage::cannotDetachDevice(const CMachine &comMachine,
     createMessage(
         QApplication::translate("UIMessageCenter", "Can't detach device ..."),
         strMessage + UIErrorString::formatErrorInfo(comMachine),
-        pParent);
-    return false;
-}
-
-
-/* static */
-void UINotificationMessage::cannotFindSnapshotById(const CMachine &comMachine, const QUuid &uId)
-{
-    createMessage(
-        QApplication::translate("UIMessageCenter", "Can't find snapshot ..."),
-        QApplication::translate("UIMessageCenter", "Failed to find snapshot with ID=<b>%1</b>.").arg(uId.toString()) +
-        UIErrorString::formatErrorInfo(comMachine));
-}
-
-/* static */
-bool UINotificationMessage::cannotFindSnapshotByName(const CMachine &comMachine,
-                                                     const QString &strName,
-                                                     QWidget *pParent)
-{
-    createMessage(
-        QApplication::translate("UIMessageCenter", "Can't find snapshot ..."),
-        QApplication::translate("UIMessageCenter", "Failed to find snapshot with name=<b>%1</b>.").arg(strName) +
-        UIErrorString::formatErrorInfo(comMachine),
         pParent);
     return false;
 }
