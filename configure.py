@@ -11,7 +11,7 @@
 # pylint: disable=invalid-name
 # pylint: disable=multiple-statements
 # pylint: disable=line-too-long
-# $Id: configure.py 113488 2026-03-20 21:02:11Z klaus.espenlaub@oracle.com $
+# $Id: configure.py 113773 2026-04-08 19:41:52Z klaus.espenlaub@oracle.com $
 #
 # The following checks for the right (i.e. most recent) Python binary available
 # and re-starts the script using that binary (like a shell wrapper).
@@ -90,7 +90,7 @@ SPDX-License-Identifier: GPL-3.0-only
 # External Python modules or other dependencies are not allowed!
 #
 
-__revision__ = "$Revision: 113488 $"
+__revision__ = "$Revision: 113773 $"
 
 import argparse
 import collections;
@@ -835,8 +835,8 @@ def getPackageLibs(sPackageName):
         #
         if g_enmHostOS in [ BuildTarget.LINUX, BuildTarget.SOLARIS, BuildTarget.DARWIN ]:
             # Use pkg-config on Linux and macOS.
-            sCmd = f"pkg-config --libs {shlex.quote(sPackageName)}"
-            oProc = subprocess.run([ sCmd ], check = True, stdout = subprocess.PIPE, stderr = subprocess.PIPE, universal_newlines = True);
+            asCmd = [ 'pkg-config', '--libs', sPackageName ];
+            oProc = subprocess.run(asCmd, check = True, stdout = subprocess.PIPE, stderr = subprocess.PIPE, universal_newlines = True);
             if oProc \
             and oProc.returncode == 0:
                 asArg = shlex.split(oProc.stdout.strip());
@@ -907,7 +907,7 @@ def getPackageVar(sPackageName, enmPkgMgrVar : PkgMgrVar):
             # then try brew down below.
             asCmd = [ PkgMgr.PKGCFG,
                       enmPkgMgrVar[PkgMgr.PKGCFG],
-                      shlex.quote(sPackageName) ];
+                      sPackageName ];
         elif g_enmHostOS == BuildTarget.WINDOWS:
             # Detect VCPKG.
             # See: https://learn.microsoft.com/en-us/vcpkg/ + https://vcpkg.io
@@ -936,14 +936,16 @@ def getPackageVar(sPackageName, enmPkgMgrVar : PkgMgrVar):
         # If pkg-config fails on Darwin, try asking brew instead.
         if  g_enmHostOS == BuildTarget.DARWIN \
         and PkgMgr.BREW in enmPkgMgrVar:
-            asCmd = [ PkgMgr.BREW,
-                      enmPkgMgrVar[PkgMgr.BREW],
-                      sPackageName ];
-            oProc = subprocess.run(asCmd, check = False, stdout = subprocess.PIPE, stderr = subprocess.PIPE, universal_newlines = True);
-            if  oProc.returncode == 0 \
-            and oProc.stdout:
-                sRet = oProc.stdout.strip();
-                return True, sRet;
+            sCmd, _ = checkWhich(PkgMgr.BREW);
+            if sCmd:
+                asCmd = [ sCmd,
+                          enmPkgMgrVar[PkgMgr.BREW],
+                          sPackageName ];
+                oProc = subprocess.run(asCmd, check = False, stdout = subprocess.PIPE, stderr = subprocess.PIPE, universal_newlines = True);
+                if  oProc.returncode == 0 \
+                and oProc.stdout:
+                    sRet = oProc.stdout.strip();
+                    return True, sRet;
 
     except subprocess.CalledProcessError as ex:
         printVerbose(1, f'Package "{sPackageName}" invalid or not found: {ex}');
@@ -4060,7 +4062,7 @@ def main():
     #
     aOsTools = {
         BuildTarget.LINUX:   [ 'pkg-config', 'gcc', 'make', 'xsltproc' ],
-        BuildTarget.DARWIN:  [ 'clang', 'make' ],
+        BuildTarget.DARWIN:  [ 'pkg-config', 'clang', 'make', 'xsltproc' ],
         BuildTarget.WINDOWS: [ ], # Done via own callbacks in the ToolCheck class down below.
         BuildTarget.SOLARIS: [ 'pkg-config', 'gcc', 'gmake' ]
     };
