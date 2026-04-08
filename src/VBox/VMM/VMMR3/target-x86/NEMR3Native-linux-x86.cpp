@@ -1,4 +1,4 @@
-/* $Id: NEMR3Native-linux-x86.cpp 113759 2026-04-08 14:41:21Z alexander.eichner@oracle.com $ */
+/* $Id: NEMR3Native-linux-x86.cpp 113766 2026-04-08 17:43:53Z alexander.eichner@oracle.com $ */
 /** @file
  * NEM - Native execution manager, native ring-3 Linux backend.
  */
@@ -1409,7 +1409,7 @@ VMM_INT_DECL(int) NEMHCQueryCpuTick(PVMCPUCC pVCpu, uint64_t *pcTicks, uint32_t 
 
     uBuf.Core.pad   = 0;
     int rc = ioctl(pVCpu->nem.s.fdVCpu, KVM_GET_MSRS, &uBuf);
-    AssertMsgReturn(rc == 2,
+    AssertMsgReturn(rc == uBuf.Core.nmsrs,
                     ("rc=%d iMsr=%d (->%#x) errno=%d\n",
                      rc, 2, (uint32_t)rc < 2 ? uBuf.Core.entries[rc].index : 0, errno),
                     VERR_NEM_IPE_3);
