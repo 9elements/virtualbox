@@ -1,4 +1,4 @@
-/* $Id: UINotificationObjectItem.cpp 113786 2026-04-09 11:05:06Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationObjectItem.cpp 113791 2026-04-09 18:04:52Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationObjectItem class implementation.
  */
@@ -543,9 +543,9 @@ void UINotificationQuestionItem::prepareConnections()
 int UINotificationQuestionItem::widthHintForgetControl() const
 {
     int iResult = 0;
-    if (m_pCheckBoxOption && m_pCheckBoxOption-isVisible())
+    if (m_pCheckBoxOption && m_pCheckBoxOption->isVisible())
         iResult = qMax(iResult, m_pCheckBoxOption->minimumSizeHint().width());
-    if (m_pCheckBoxForget && m_pCheckBoxForget-isVisible())
+    if (m_pCheckBoxForget && m_pCheckBoxForget->isVisible())
         iResult = qMax(iResult, m_pCheckBoxForget->minimumSizeHint().width());
     return iResult;
 }
