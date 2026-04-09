@@ -1,4 +1,4 @@
-/* $Id: UIVMActivityMonitor.cpp 113715 2026-04-02 13:08:29Z serkan.bayraktar@oracle.com $ */
+/* $Id: UIVMActivityMonitor.cpp 113779 2026-04-09 08:40:31Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVMActivityMonitor class implementation.
  */
@@ -91,9 +91,18 @@ class UIInfoLabelContainer : public QWidget
     Q_OBJECT;
 public:
 
+    struct LabelRow
+    {
+        LabelRow(QLabel *pLabel0, QLabel *pLabel1)
+        : m_pLabel0(pLabel0)
+        , m_pLabel1(pLabel1){}
+        QLabel* m_pLabel0;
+        QLabel* m_pLabel1;
+    };
+
     UIInfoLabelContainer(QWidget *pParent, int rowCount /* including title row */);
     void setTitle(const QString &strTitle);
-    void setRowText(int i, const QString &strLabel = QString(), const QString &strValue = QString(), QColor color = QColor());
+    void setRowText(int i, const QString &strLabel = QString(), const QString &strValue = QString());
     void setTopMargin(int iMarginTop);
     QFont labelFont() const;
     void setRowColor(int iRowIndex, const QColor &color);
@@ -102,7 +111,7 @@ private:
 
     QGridLayout *m_pGridLayout;
     /* 0th row is for title, thus only 0th element of the pair is instantiated !! */
-    QVector<QPair<QLabel*, QLabel*> > m_rows;
+    QVector<LabelRow> m_rows;
 };
 
 
@@ -245,17 +254,17 @@ UIInfoLabelContainer::UIInfoLabelContainer(QWidget *pParent, int iRowCount)
     m_pGridLayout = new QGridLayout(this);
     m_pGridLayout->setContentsMargins(0, 0, 0, 0);
     m_pGridLayout->setSpacing(0);
-    QPair<QLabel*, QLabel*> titleRow = QPair<QLabel*, QLabel*>(new QLabel(this), nullptr);
-    m_pGridLayout->addWidget(titleRow.first, 0, 0, 1, 2, Qt::AlignCenter);
+    LabelRow titleRow(new QLabel(this), nullptr);
+    m_pGridLayout->addWidget(titleRow.m_pLabel0, 0, 0, 1, 2, Qt::AlignCenter);
     m_rows << titleRow;
-    QFont titleFont = titleRow.first->font();
+    QFont titleFont = titleRow.m_pLabel0->font();
     titleFont.setBold(true);
-    titleRow.first->setFont(titleFont);
+    titleRow.m_pLabel0->setFont(titleFont);
     for (int i = 1; i < iRowCount; ++i)
     {
-        QPair<QLabel*, QLabel*> row = QPair<QLabel*, QLabel*>(new QLabel(this), new QLabel(this));
-        m_pGridLayout->addWidget(row.first, i, 0, 1, 1, Qt::AlignLeft|Qt::AlignVCenter);
-        m_pGridLayout->addWidget(row.second, i, 1, 1, 1, Qt::AlignRight|Qt::AlignVCenter);
+        LabelRow row(new QLabel(this), new QLabel(this));
+        m_pGridLayout->addWidget(row.m_pLabel0, i, 0, 1, 1, Qt::AlignLeft|Qt::AlignVCenter);
+        m_pGridLayout->addWidget(row.m_pLabel1, i, 1, 1, 1, Qt::AlignRight|Qt::AlignVCenter);
         m_rows << row;
     }
     m_pGridLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding), iRowCount, 0, 1, 2);
@@ -263,20 +272,19 @@ UIInfoLabelContainer::UIInfoLabelContainer(QWidget *pParent, int iRowCount)
 
 void UIInfoLabelContainer::setTitle(const QString &strTitle)
 {
-    if (!m_pGridLayout || m_rows.size() == 0 || !m_rows[0].first)
+    if (!m_pGridLayout || m_rows.size() == 0 || !m_rows[0].m_pLabel0)
         return;
-    m_rows[0].first->setText(strTitle);
+    m_rows[0].m_pLabel0->setText(strTitle);
 }
 
-void UIInfoLabelContainer::setRowText(int i, const QString &strLabel /*= QString()*/, const QString &strValue /* = QString() */, QColor color /*= QColor()*/)
+void UIInfoLabelContainer::setRowText(int i, const QString &strLabel /*= QString()*/, const QString &strValue /* = QString() */)
 {
     if (!m_pGridLayout || m_rows.size() <= i || i == 0)
         return;
-    if (!m_rows[i].first || !m_rows[i].second)
+    if (!m_rows[i].m_pLabel0 || !m_rows[i].m_pLabel1)
         return;
-    m_rows[i].first->setText(strLabel);
-    m_rows[i].second->setText(strValue);
-    setRowColor(i, color);
+    m_rows[i].m_pLabel0->setText(strLabel);
+    m_rows[i].m_pLabel1->setText(strValue);
 }
 
 void UIInfoLabelContainer::setRowColor(int iRowIndex, const QColor &color)
@@ -284,13 +292,14 @@ void UIInfoLabelContainer::setRowColor(int iRowIndex, const QColor &color)
     if (!color.isValid() || iRowIndex >= m_rows.size())
         return;
 
-    QPalette pal = m_rows[iRowIndex].first->palette();
+    QPalette pal = m_rows[iRowIndex].m_pLabel0->palette();
     pal.setColor(QPalette::WindowText, color);
-    m_rows[iRowIndex].first->setPalette(pal);
+    m_rows[iRowIndex].m_pLabel0->setPalette(pal);
 
-    pal = m_rows[iRowIndex].second->palette();
+    pal = m_rows[iRowIndex].m_pLabel1->palette();
     pal.setColor(QPalette::WindowText, color);
-    m_rows[iRowIndex].second->setPalette(pal);
+    m_rows[iRowIndex].m_pLabel1->setPalette(pal);
+    update();
 }
 
 void UIInfoLabelContainer::setTopMargin(int iMarginTop)
@@ -301,8 +310,8 @@ void UIInfoLabelContainer::setTopMargin(int iMarginTop)
 
 QFont UIInfoLabelContainer::labelFont() const
 {
-    if (!m_rows.isEmpty() || m_rows[0].first)
-        return m_rows[0].first->font();
+    if (!m_rows.isEmpty() || m_rows[0].m_pLabel0)
+        return m_rows[0].m_pLabel0->font();
     return QFont();
 }
 
@@ -1270,7 +1279,7 @@ void UIVMActivityMonitor::sltRetranslateUI()
     m_iMaximumLabelLength = qMax(m_iMaximumLabelLength, m_strNetworkInfoLabelReceiveTotal.length());
     m_strNetworkInfoLabelReceiveAverage = QApplication::translate("UIVMInformationDialog", "Receive (Average)");
     m_iMaximumLabelLength = qMax(m_iMaximumLabelLength, m_strNetworkInfoLabelReceiveAverage.length());
-    m_strNetworkInfoLabelTransmitAverage = QApplication::translate("UIVMInformationDialog", "Receive (Average)");
+    m_strNetworkInfoLabelTransmitAverage = QApplication::translate("UIVMInformationDialog", "Transmit (Average)");
     m_iMaximumLabelLength = qMax(m_iMaximumLabelLength, m_strNetworkInfoLabelTransmitAverage.length());
     m_strDiskIOInfoLabelTitle = QApplication::translate("UIVMInformationDialog", "Disk IO");
     m_iMaximumLabelLength = qMax(m_iMaximumLabelLength, m_strDiskIOInfoLabelTitle.length());
@@ -1409,6 +1418,7 @@ void UIVMActivityMonitor::sltPauseToggle(bool fPause)
     for (UIChart *pChart: m_charts)
         if (pChart)
             pChart->setPauseMode(m_fPaused);
+    setInfoLabelRowColors(m_fPaused);
 }
 
 void UIVMActivityMonitor::resetRAMInfoLabel()
@@ -1416,14 +1426,10 @@ void UIVMActivityMonitor::resetRAMInfoLabel()
     if (m_infoLabelContainers.contains(Metric_Type_RAM) && m_infoLabelContainers[Metric_Type_RAM])
     {
         m_infoLabelContainers[Metric_Type_RAM]->setTitle(m_strRAMInfoLabelTitle);
-        m_infoLabelContainers[Metric_Type_RAM]->setRowText(1, m_strRAMInfoLabelTotal,
-                                                           "--", dataColor(Metric_Type_RAM, 1));
-        m_infoLabelContainers[Metric_Type_RAM]->setRowText(2, m_strRAMInfoLabelFree,
-                                                           "--", dataColor(Metric_Type_RAM, 1));
-        m_infoLabelContainers[Metric_Type_RAM]->setRowText(3, m_strRAMInfoLabelUsedCurrent,
-                                                           "--", dataColor(Metric_Type_RAM, 0));
-        m_infoLabelContainers[Metric_Type_RAM]->setRowText(4, m_strRAMInfoLabelUsedAverage,
-                                                           "--", dataColor(Metric_Type_RAM, 0));
+        m_infoLabelContainers[Metric_Type_RAM]->setRowText(1, m_strRAMInfoLabelTotal,"--");
+        m_infoLabelContainers[Metric_Type_RAM]->setRowText(2, m_strRAMInfoLabelFree, "--");
+        m_infoLabelContainers[Metric_Type_RAM]->setRowText(3, m_strRAMInfoLabelUsedCurrent, "--");
+        m_infoLabelContainers[Metric_Type_RAM]->setRowText(4, m_strRAMInfoLabelUsedAverage, "--");
     }
 }
 
@@ -1468,6 +1474,7 @@ void UIVMActivityMonitor::setDataSeriesColor(int iIndex, const QColor &color)
     foreach (UIChart *pChart, m_charts)
         if (pChart)
             pChart->setDataSeriesColor(iIndex, color);
+    setInfoLabelRowColors(m_fPaused);
 }
 
 /*********************************************************************************************************************************
@@ -1525,6 +1532,64 @@ bool UIVMActivityMonitorLocal::isMachinePaused() const
 int UIVMActivityMonitorLocal::machineState() const
 {
     return static_cast<int>(m_comMachine.GetState());
+}
+
+void UIVMActivityMonitorLocal::setInfoLabelRowColors(bool fPaused)
+{
+    if (m_infoLabelContainers.contains(Metric_Type_CPU))
+    {
+        QColor dataColor0 = fPaused ? dimColor(dataColor(Metric_Type_CPU, 0)) : dataColor(Metric_Type_CPU, 0);
+        QColor dataColor1 = fPaused ? dimColor(dataColor(Metric_Type_CPU, 1)) : dataColor(Metric_Type_CPU, 1);
+        m_infoLabelContainers[Metric_Type_CPU]->setRowColor(1, dataColor0);
+        m_infoLabelContainers[Metric_Type_CPU]->setRowColor(2, dataColor0);
+        m_infoLabelContainers[Metric_Type_CPU]->setRowColor(3, dataColor1);
+        m_infoLabelContainers[Metric_Type_CPU]->setRowColor(4, dataColor1);
+    }
+
+    if (m_infoLabelContainers.contains(Metric_Type_RAM))
+    {
+        QColor dataColor0 = fPaused ? dimColor(dataColor(Metric_Type_RAM, 0)) : dataColor(Metric_Type_RAM, 0);
+        QColor dataColor1 = fPaused ? dimColor(dataColor(Metric_Type_RAM, 1)) : dataColor(Metric_Type_RAM, 1);
+        m_infoLabelContainers[Metric_Type_RAM]->setRowColor(2, dataColor0);
+        m_infoLabelContainers[Metric_Type_RAM]->setRowColor(3, dataColor1);
+        m_infoLabelContainers[Metric_Type_RAM]->setRowColor(4, dataColor1);
+    }
+
+    if (m_infoLabelContainers.contains(Metric_Type_Network_InOut))
+    {
+        QColor dataColor0 = fPaused ? dimColor(dataColor(Metric_Type_Network_InOut, 0)) : dataColor(Metric_Type_Network_InOut, 0);
+        QColor dataColor1 = fPaused ? dimColor(dataColor(Metric_Type_Network_InOut, 1)) : dataColor(Metric_Type_Network_InOut, 1);
+        m_infoLabelContainers[Metric_Type_Network_InOut]->setRowColor(1, dataColor0);
+        m_infoLabelContainers[Metric_Type_Network_InOut]->setRowColor(2, dataColor0);
+        m_infoLabelContainers[Metric_Type_Network_InOut]->setRowColor(3, dataColor0);
+        m_infoLabelContainers[Metric_Type_Network_InOut]->setRowColor(4, dataColor1);
+        m_infoLabelContainers[Metric_Type_Network_InOut]->setRowColor(5, dataColor1);
+        m_infoLabelContainers[Metric_Type_Network_InOut]->setRowColor(6, dataColor1);
+    }
+
+    if (m_infoLabelContainers.contains(Metric_Type_Disk_InOut))
+    {
+        QColor dataColor0 = fPaused ? dimColor(dataColor(Metric_Type_Disk_InOut, 0)) : dataColor(Metric_Type_Disk_InOut, 0);
+        QColor dataColor1 = fPaused ? dimColor(dataColor(Metric_Type_Disk_InOut, 1)) : dataColor(Metric_Type_Disk_InOut, 1);
+        m_infoLabelContainers[Metric_Type_Disk_InOut]->setRowColor(1, dataColor0);
+        m_infoLabelContainers[Metric_Type_Disk_InOut]->setRowColor(2, dataColor0);
+        m_infoLabelContainers[Metric_Type_Disk_InOut]->setRowColor(3, dataColor0);
+        m_infoLabelContainers[Metric_Type_Disk_InOut]->setRowColor(4, dataColor1);
+        m_infoLabelContainers[Metric_Type_Disk_InOut]->setRowColor(5, dataColor1);
+        m_infoLabelContainers[Metric_Type_Disk_InOut]->setRowColor(6, dataColor1);
+    }
+
+    if (m_infoLabelContainers.contains(Metric_Type_USB_InOut))
+    {
+        QColor dataColor0 = fPaused ? dimColor(dataColor(Metric_Type_USB_InOut, 0)) : dataColor(Metric_Type_USB_InOut, 0);
+        QColor dataColor1 = fPaused ? dimColor(dataColor(Metric_Type_USB_InOut, 1)) : dataColor(Metric_Type_USB_InOut, 1);
+        m_infoLabelContainers[Metric_Type_USB_InOut]->setRowColor(1, dataColor0);
+        m_infoLabelContainers[Metric_Type_USB_InOut]->setRowColor(2, dataColor0);
+        m_infoLabelContainers[Metric_Type_USB_InOut]->setRowColor(3, dataColor0);
+        m_infoLabelContainers[Metric_Type_USB_InOut]->setRowColor(4, dataColor1);
+        m_infoLabelContainers[Metric_Type_USB_InOut]->setRowColor(5, dataColor1);
+        m_infoLabelContainers[Metric_Type_USB_InOut]->setRowColor(6, dataColor1);
+    }
 }
 
 void UIVMActivityMonitorLocal::sltRetranslateUI()
@@ -1996,9 +2061,9 @@ void UIVMActivityMonitorLocal::updateVMExitMetric(quint64 uTotalVMExits)
         {
             m_infoLabelContainers[Metric_Type_VM_Exits]->setTitle(m_strVMExitInfoLabelTitle);
             m_infoLabelContainers[Metric_Type_VM_Exits]->setRowText(1, m_strVMExitLabelCurrent,
-                                                                    QString("%1 %2").arg(UITranslator::addMetricSuffixToNumber(iRate)).arg(VMExitMetric.unit()), dataColor(Metric_Type_CPU, 0));
+                                                                    QString("%1 %2").arg(UITranslator::addMetricSuffixToNumber(iRate)).arg(VMExitMetric.unit()));
             m_infoLabelContainers[Metric_Type_VM_Exits]->setRowText(2, m_strVMExitLabelTotal,
-                                                                    QString("%1 %2").arg(UITranslator::addMetricSuffixToNumber(uTotalVMExits)).arg(VMExitMetric.unit()), dataColor(Metric_Type_CPU, 1));
+                                                                    QString("%1 %2").arg(UITranslator::addMetricSuffixToNumber(uTotalVMExits)).arg(VMExitMetric.unit()));
         }
         if (m_charts[Metric_Type_VM_Exits])
             m_charts[Metric_Type_VM_Exits]->update();
@@ -2050,13 +2115,13 @@ void UIVMActivityMonitorLocal::updateRAMGraphsAndMetric(quint64 iTotalRAM, quint
             m_infoLabelContainers[Metric_Type_RAM]->setTitle(m_strRAMInfoLabelTitle);
             int iLabelRow = 1;
             m_infoLabelContainers[Metric_Type_RAM]->setRowText(iLabelRow++, m_strRAMInfoLabelTotal,
-                                                               UITranslator::formatSize(_1K * iTotalRAM, g_iDecimalCount), dataColor(Metric_Type_RAM, 0));
+                                                               UITranslator::formatSize(_1K * iTotalRAM, g_iDecimalCount));
             m_infoLabelContainers[Metric_Type_RAM]->setRowText(iLabelRow++, m_strRAMInfoLabelFree,
-                                                               UITranslator::formatSize(_1K * (iFreeRAM), g_iDecimalCount), dataColor(Metric_Type_RAM, 0));
+                                                               UITranslator::formatSize(_1K * (iFreeRAM), g_iDecimalCount));
             m_infoLabelContainers[Metric_Type_RAM]->setRowText(iLabelRow++, m_strRAMInfoLabelUsedCurrent,
-                                                               UITranslator::formatSize(_1K * (iTotalRAM - iFreeRAM), g_iDecimalCount), dataColor(Metric_Type_RAM, 1));
+                                                               UITranslator::formatSize(_1K * (iTotalRAM - iFreeRAM), g_iDecimalCount));
             m_infoLabelContainers[Metric_Type_RAM]->setRowText(iLabelRow++, m_strRAMInfoLabelUsedAverage,
-                                                               UITranslator::formatSize(_1K * (RAMMetric.average(1)), g_iDecimalCount), dataColor(Metric_Type_RAM, 1));
+                                                               UITranslator::formatSize(_1K * (RAMMetric.average(1)), g_iDecimalCount));
         }
         if (m_charts[Metric_Type_RAM])
             m_charts[Metric_Type_RAM]->update();
@@ -2088,23 +2153,17 @@ void UIVMActivityMonitorLocal::updateNetworkChart(quint64 uReceiveTotal, quint64
             m_infoLabelContainers[Metric_Type_Network_InOut]->setTitle(m_strNetworkInfoLabelTitle);
             int iLabelRow = 1;
             m_infoLabelContainers[Metric_Type_Network_InOut]->setRowText(iLabelRow++, m_strNetworkInfoLabelReceiveCurrent,
-                                                                         UITranslator::formatSize(uReceiveRate, g_iDecimalCount),
-                                                                         dataColor(Metric_Type_Network_InOut, 0));
+                                                                         UITranslator::formatSize(uReceiveRate, g_iDecimalCount));
             m_infoLabelContainers[Metric_Type_Network_InOut]->setRowText(iLabelRow++, m_strNetworkInfoLabelReceiveAverage,
-                                                                         UITranslator::formatSize(NetMetric.average(0), g_iDecimalCount),
-                                                                         dataColor(Metric_Type_Network_InOut, 0));
+                                                                         UITranslator::formatSize(NetMetric.average(0), g_iDecimalCount));
             m_infoLabelContainers[Metric_Type_Network_InOut]->setRowText(iLabelRow++, m_strNetworkInfoLabelReceiveTotal,
-                                                                         UITranslator::formatSize(uReceiveTotal, g_iDecimalCount),
-                                                                         dataColor(Metric_Type_Network_InOut, 0));
+                                                                         UITranslator::formatSize(uReceiveTotal, g_iDecimalCount));
             m_infoLabelContainers[Metric_Type_Network_InOut]->setRowText(iLabelRow++, m_strNetworkInfoLabelTransmitCurrent,
-                                                                         UITranslator::formatSize(uTransmitRate, g_iDecimalCount),
-                                                                         dataColor(Metric_Type_Network_InOut, 1));
+                                                                         UITranslator::formatSize(uTransmitRate, g_iDecimalCount));
             m_infoLabelContainers[Metric_Type_Network_InOut]->setRowText(iLabelRow++, m_strNetworkInfoLabelTransmitAverage,
-                                                                         UITranslator::formatSize(NetMetric.average(1), g_iDecimalCount),
-                                                                         dataColor(Metric_Type_Network_InOut, 1));
+                                                                         UITranslator::formatSize(NetMetric.average(1), g_iDecimalCount));
             m_infoLabelContainers[Metric_Type_Network_InOut]->setRowText(iLabelRow++, m_strNetworkInfoLabelTransmitTotal,
-                                                                         UITranslator::formatSize(uTransmitTotal, g_iDecimalCount),
-                                                                         dataColor(Metric_Type_Network_InOut, 1));
+                                                                         UITranslator::formatSize(uTransmitTotal, g_iDecimalCount));
         }
         if (m_charts[Metric_Type_Network_InOut])
             m_charts[Metric_Type_Network_InOut]->update();
@@ -2136,23 +2195,17 @@ void UIVMActivityMonitorLocal::updateUSBChart(quint64 uReceiveTotal, quint64 uTr
             m_infoLabelContainers[Metric_Type_USB_InOut]->setTitle(m_strUSBInfoLabelTitle);
             int iLabelRow = 1;
             m_infoLabelContainers[Metric_Type_USB_InOut]->setRowText(iLabelRow++, m_strUSBInfoLabelReceiveCurrent,
-                                                                     UITranslator::formatSize(uReceiveRate, g_iDecimalCount),
-                                                                     dataColor(Metric_Type_USB_InOut, 0));
+                                                                     UITranslator::formatSize(uReceiveRate, g_iDecimalCount));
             m_infoLabelContainers[Metric_Type_USB_InOut]->setRowText(iLabelRow++, m_strUSBInfoLabelReceiveAverage,
-                                                                     UITranslator::formatSize(USBMetric.average(0), g_iDecimalCount),
-                                                                     dataColor(Metric_Type_USB_InOut, 0));
+                                                                     UITranslator::formatSize(USBMetric.average(0), g_iDecimalCount));
             m_infoLabelContainers[Metric_Type_USB_InOut]->setRowText(iLabelRow++, m_strUSBInfoLabelReceiveTotal,
-                                                                     UITranslator::formatSize(uReceiveTotal, g_iDecimalCount),
-                                                                     dataColor(Metric_Type_USB_InOut, 0));
+                                                                     UITranslator::formatSize(uReceiveTotal, g_iDecimalCount));
             m_infoLabelContainers[Metric_Type_USB_InOut]->setRowText(iLabelRow++, m_strUSBInfoLabelTransmitCurrent,
-                                                                     UITranslator::formatSize(uTransmitRate, g_iDecimalCount),
-                                                                     dataColor(Metric_Type_USB_InOut, 1));
+                                                                     UITranslator::formatSize(uTransmitRate, g_iDecimalCount));
             m_infoLabelContainers[Metric_Type_USB_InOut]->setRowText(iLabelRow++, m_strUSBInfoLabelTransmitAverage,
-                                                                     UITranslator::formatSize(USBMetric.average(1), g_iDecimalCount),
-                                                                     dataColor(Metric_Type_USB_InOut, 1));
+                                                                     UITranslator::formatSize(USBMetric.average(1), g_iDecimalCount));
             m_infoLabelContainers[Metric_Type_USB_InOut]->setRowText(iLabelRow++, m_strUSBInfoLabelTransmitTotal,
-                                                                     UITranslator::formatSize(uTransmitTotal, g_iDecimalCount),
-                                                                     dataColor(Metric_Type_USB_InOut, 1));
+                                                                     UITranslator::formatSize(uTransmitTotal, g_iDecimalCount));
         }
         if (m_charts[Metric_Type_USB_InOut])
             m_charts[Metric_Type_USB_InOut]->update();
@@ -2183,17 +2236,17 @@ void UIVMActivityMonitorLocal::updateDiskIOChart(quint64 uDiskIOTotalWritten, qu
             m_infoLabelContainers[Metric_Type_Disk_InOut]->setTitle(m_strDiskIOInfoLabelTitle);
             int iLabelRow = 1;
             m_infoLabelContainers[Metric_Type_Disk_InOut]->setRowText(iLabelRow++, m_strDiskIOInfoLabelReadCurrent,
-                                                                      UITranslator::formatSize(uReadRate, g_iDecimalCount), dataColor(Metric_Type_Network_InOut, 0));
+                                                                      UITranslator::formatSize(uReadRate, g_iDecimalCount));
             m_infoLabelContainers[Metric_Type_Disk_InOut]->setRowText(iLabelRow++, m_strDiskIOInfoLabelReadAverage,
-                                                                      UITranslator::formatSize(diskMetric.average(0), g_iDecimalCount), dataColor(Metric_Type_Network_InOut, 0));
+                                                                      UITranslator::formatSize(diskMetric.average(0), g_iDecimalCount));
             m_infoLabelContainers[Metric_Type_Disk_InOut]->setRowText(iLabelRow++, m_strDiskIOInfoLabelReadTotal,
-                                                                      UITranslator::formatSize((quint64)uDiskIOTotalRead, g_iDecimalCount), dataColor(Metric_Type_Network_InOut, 0));
+                                                                      UITranslator::formatSize((quint64)uDiskIOTotalRead, g_iDecimalCount));
             m_infoLabelContainers[Metric_Type_Disk_InOut]->setRowText(iLabelRow++, m_strDiskIOInfoLabelWriteCurrent,
-                                                                      UITranslator::formatSize(uWriteRate, g_iDecimalCount), dataColor(Metric_Type_Network_InOut, 1));
+                                                                      UITranslator::formatSize(uWriteRate, g_iDecimalCount));
             m_infoLabelContainers[Metric_Type_Disk_InOut]->setRowText(iLabelRow++, m_strDiskIOInfoLabelWriteAverage,
-                                                                      UITranslator::formatSize(diskMetric.average(1), g_iDecimalCount), dataColor(Metric_Type_Network_InOut, 1));
+                                                                      UITranslator::formatSize(diskMetric.average(1), g_iDecimalCount));
             m_infoLabelContainers[Metric_Type_Disk_InOut]->setRowText(iLabelRow++, m_strDiskIOInfoLabelWriteTotal,
-                                                                      UITranslator::formatSize((quint64)uDiskIOTotalWritten, g_iDecimalCount), dataColor(Metric_Type_Network_InOut, 1));
+                                                                      UITranslator::formatSize((quint64)uDiskIOTotalWritten, g_iDecimalCount));
         }
         if (m_charts[Metric_Type_Disk_InOut])
             m_charts[Metric_Type_Disk_InOut]->update();
@@ -2205,10 +2258,8 @@ void UIVMActivityMonitorLocal::resetVMExitInfoLabel()
     if (m_infoLabelContainers.contains(Metric_Type_VM_Exits) && m_infoLabelContainers[Metric_Type_VM_Exits])
     {
         m_infoLabelContainers[Metric_Type_VM_Exits]->setTitle(m_strVMExitInfoLabelTitle);
-        m_infoLabelContainers[Metric_Type_VM_Exits]->setRowText(1, m_strVMExitLabelCurrent,
-                                                                "--", dataColor(Metric_Type_CPU, 0));
-        m_infoLabelContainers[Metric_Type_VM_Exits]->setRowText(2, m_strVMExitLabelTotal,
-                                                                "--", dataColor(Metric_Type_CPU, 1));
+        m_infoLabelContainers[Metric_Type_VM_Exits]->setRowText(1, m_strVMExitLabelCurrent, "--");
+        m_infoLabelContainers[Metric_Type_VM_Exits]->setRowText(2, m_strVMExitLabelTotal, "--");
     }
 }
 
@@ -2229,18 +2280,12 @@ void UIVMActivityMonitorLocal::resetNetworkInfoLabel()
     if (m_infoLabelContainers.contains(Metric_Type_Network_InOut)  && m_infoLabelContainers[Metric_Type_Network_InOut])
     {
         m_infoLabelContainers[Metric_Type_Network_InOut]->setTitle(m_strNetworkInfoLabelTitle);
-        m_infoLabelContainers[Metric_Type_Network_InOut]->setRowText(1, m_strNetworkInfoLabelReceiveCurrent,
-            "--", dataColor(Metric_Type_Network_InOut, 0));
-        m_infoLabelContainers[Metric_Type_Network_InOut]->setRowText(2, m_strNetworkInfoLabelReceiveAverage,
-            "--", dataColor(Metric_Type_Network_InOut, 0));
-        m_infoLabelContainers[Metric_Type_Network_InOut]->setRowText(3, m_strNetworkInfoLabelReceiveTotal,
-            "--", dataColor(Metric_Type_Network_InOut, 0));
-        m_infoLabelContainers[Metric_Type_Network_InOut]->setRowText(4, m_strNetworkInfoLabelTransmitCurrent,
-            "--", dataColor(Metric_Type_Network_InOut, 1));
-        m_infoLabelContainers[Metric_Type_Network_InOut]->setRowText(5, m_strNetworkInfoLabelTransmitAverage,
-            "--", dataColor(Metric_Type_Network_InOut, 1));
-        m_infoLabelContainers[Metric_Type_Network_InOut]->setRowText(6, m_strNetworkInfoLabelTransmitTotal,
-            "--", dataColor(Metric_Type_Network_InOut, 1));
+        m_infoLabelContainers[Metric_Type_Network_InOut]->setRowText(1, m_strNetworkInfoLabelReceiveCurrent, "--");
+        m_infoLabelContainers[Metric_Type_Network_InOut]->setRowText(2, m_strNetworkInfoLabelReceiveAverage, "--");
+        m_infoLabelContainers[Metric_Type_Network_InOut]->setRowText(3, m_strNetworkInfoLabelReceiveTotal, "--");
+        m_infoLabelContainers[Metric_Type_Network_InOut]->setRowText(4, m_strNetworkInfoLabelTransmitCurrent, "--");
+        m_infoLabelContainers[Metric_Type_Network_InOut]->setRowText(5, m_strNetworkInfoLabelTransmitAverage, "--");
+        m_infoLabelContainers[Metric_Type_Network_InOut]->setRowText(6, m_strNetworkInfoLabelTransmitTotal, "--");
     }
 }
 
@@ -2249,18 +2294,12 @@ void UIVMActivityMonitorLocal::resetUSBInfoLabel()
     if (m_infoLabelContainers.contains(Metric_Type_Network_InOut) && m_infoLabelContainers[Metric_Type_Network_InOut])
     {
         m_infoLabelContainers[Metric_Type_USB_InOut]->setTitle(m_strUSBInfoLabelTitle);
-        m_infoLabelContainers[Metric_Type_USB_InOut]->setRowText(1, m_strUSBInfoLabelReceiveCurrent,
-                                                                 "--", dataColor(Metric_Type_USB_InOut, 0));
-        m_infoLabelContainers[Metric_Type_USB_InOut]->setRowText(1, m_strUSBInfoLabelReceiveAverage,
-                                                                 "--", dataColor(Metric_Type_USB_InOut, 0));
-        m_infoLabelContainers[Metric_Type_USB_InOut]->setRowText(2, m_strUSBInfoLabelReceiveTotal,
-                                                                 "--", dataColor(Metric_Type_USB_InOut, 0));
-        m_infoLabelContainers[Metric_Type_USB_InOut]->setRowText(3, m_strUSBInfoLabelTransmitCurrent,
-                                                                 "--", dataColor(Metric_Type_USB_InOut, 1));
-        m_infoLabelContainers[Metric_Type_USB_InOut]->setRowText(3, m_strUSBInfoLabelTransmitAverage,
-                                                                 "--", dataColor(Metric_Type_USB_InOut, 1));
-        m_infoLabelContainers[Metric_Type_USB_InOut]->setRowText(4, m_strUSBInfoLabelTransmitTotal,
-                                                                 "--", dataColor(Metric_Type_USB_InOut, 1));
+        m_infoLabelContainers[Metric_Type_USB_InOut]->setRowText(1, m_strUSBInfoLabelReceiveCurrent, "--");
+        m_infoLabelContainers[Metric_Type_USB_InOut]->setRowText(1, m_strUSBInfoLabelReceiveAverage, "--");
+        m_infoLabelContainers[Metric_Type_USB_InOut]->setRowText(2, m_strUSBInfoLabelReceiveTotal, "--");
+        m_infoLabelContainers[Metric_Type_USB_InOut]->setRowText(3, m_strUSBInfoLabelTransmitCurrent, "--");
+        m_infoLabelContainers[Metric_Type_USB_InOut]->setRowText(3, m_strUSBInfoLabelTransmitAverage, "--");
+        m_infoLabelContainers[Metric_Type_USB_InOut]->setRowText(4, m_strUSBInfoLabelTransmitTotal, "--");
     }
 }
 
@@ -2269,18 +2308,12 @@ void UIVMActivityMonitorLocal::resetDiskIOInfoLabel()
     if (m_infoLabelContainers.contains(Metric_Type_Network_InOut) && m_infoLabelContainers[Metric_Type_Network_InOut])
     {
         m_infoLabelContainers[Metric_Type_Disk_InOut]->setTitle(m_strDiskIOInfoLabelTitle);
-        m_infoLabelContainers[Metric_Type_Disk_InOut]->setRowText(1, m_strDiskIOInfoLabelReadCurrent,
-                                                                  "--", dataColor(Metric_Type_Network_InOut, 0));
-        m_infoLabelContainers[Metric_Type_Disk_InOut]->setRowText(2, m_strDiskIOInfoLabelReadAverage,
-                                                                  "--", dataColor(Metric_Type_Network_InOut, 0));
-        m_infoLabelContainers[Metric_Type_Disk_InOut]->setRowText(3, m_strDiskIOInfoLabelReadTotal,
-                                                                  "--", dataColor(Metric_Type_Network_InOut, 0));
-        m_infoLabelContainers[Metric_Type_Disk_InOut]->setRowText(4, m_strDiskIOInfoLabelWriteCurrent,
-                                                                  "--", dataColor(Metric_Type_Network_InOut, 1));
-        m_infoLabelContainers[Metric_Type_Disk_InOut]->setRowText(5, m_strDiskIOInfoLabelWriteAverage,
-                                                                  "--", dataColor(Metric_Type_Network_InOut, 1));
-        m_infoLabelContainers[Metric_Type_Disk_InOut]->setRowText(6, m_strDiskIOInfoLabelWriteTotal,
-                                                                  "--", dataColor(Metric_Type_Network_InOut, 1));
+        m_infoLabelContainers[Metric_Type_Disk_InOut]->setRowText(1, m_strDiskIOInfoLabelReadCurrent, "--");
+        m_infoLabelContainers[Metric_Type_Disk_InOut]->setRowText(2, m_strDiskIOInfoLabelReadAverage, "--");
+        m_infoLabelContainers[Metric_Type_Disk_InOut]->setRowText(3, m_strDiskIOInfoLabelReadTotal, "--");
+        m_infoLabelContainers[Metric_Type_Disk_InOut]->setRowText(4, m_strDiskIOInfoLabelWriteCurrent, "--");
+        m_infoLabelContainers[Metric_Type_Disk_InOut]->setRowText(5, m_strDiskIOInfoLabelWriteAverage, "--");
+        m_infoLabelContainers[Metric_Type_Disk_InOut]->setRowText(6, m_strDiskIOInfoLabelWriteTotal, "--");
     }
 }
 
@@ -2593,7 +2626,7 @@ void UIVMActivityMonitorCloud::updateCPUChart(quint64 iLoadPercentage, const QSt
         {
             m_infoLabelContainers[Metric_Type_CPU]->setTitle(m_strCPUInfoLabelTitle);
             m_infoLabelContainers[Metric_Type_CPU]->setRowText(1, m_strCPUInfoLabelGuestCurrent,
-                                                               QString("%1%2").arg(QString::number(iLoadPercentage)).arg(CPUMetric.unit()), dataColor(Metric_Type_CPU, 0));
+                                                               QString("%1%2").arg(QString::number(iLoadPercentage)).arg(CPUMetric.unit()));
         }
         if (m_charts[Metric_Type_CPU])
             m_charts[Metric_Type_CPU]->update();
@@ -2610,8 +2643,7 @@ void UIVMActivityMonitorCloud::updateNetworkInChart(quint64 uReceiveRate, const 
         {
             m_infoLabelContainers[Metric_Type_Network_In]->setTitle(m_strNetworkInInfoLabelTitle);
             m_infoLabelContainers[Metric_Type_Network_In]->setRowText(1, m_strNetworkInfoLabelReceiveCurrent,
-                                                                      UITranslator::formatSize(uReceiveRate, g_iDecimalCount),
-                                                                      dataColor(Metric_Type_Network_In, 0));
+                                                                      UITranslator::formatSize(uReceiveRate, g_iDecimalCount));
         }
         if (m_charts[Metric_Type_Network_In])
             m_charts[Metric_Type_Network_In]->update();
@@ -2628,8 +2660,7 @@ void UIVMActivityMonitorCloud::updateNetworkOutChart(quint64 uTransmitRate, cons
         {
             m_infoLabelContainers[Metric_Type_Network_Out]->setTitle(m_strNetworkOutInfoLabelTitle);
             m_infoLabelContainers[Metric_Type_Network_Out]->setRowText(1, m_strNetworkInfoLabelTransmitCurrent,
-                                                                       UITranslator::formatSize(uTransmitRate, g_iDecimalCount),
-                                                                       dataColor(Metric_Type_Network_Out, 0));
+                                                                       UITranslator::formatSize(uTransmitRate, g_iDecimalCount));
         }
         m_charts[Metric_Type_Network_Out]->update();
     }
@@ -2646,8 +2677,7 @@ void UIVMActivityMonitorCloud::updateDiskIOWrittenChart(quint64 uWriteRate, cons
         {
             m_infoLabelContainers[Metric_Type_Disk_In]->setTitle(m_strDiskIOInfoLabelTitle);
             m_infoLabelContainers[Metric_Type_Disk_In]->setRowText(1, m_strDiskIOInfoLabelWriteCurrent,
-                                                                   UITranslator::formatSize(uWriteRate, g_iDecimalCount),
-                                                                   dataColor(Metric_Type_Disk_In, 0));
+                                                                   UITranslator::formatSize(uWriteRate, g_iDecimalCount));
         }
         if (m_charts[Metric_Type_Disk_In])
             m_charts[Metric_Type_Disk_In]->update();
@@ -2666,8 +2696,7 @@ void UIVMActivityMonitorCloud::updateDiskIOReadChart(quint64 uReadRate, const QS
 
             m_infoLabelContainers[Metric_Type_Disk_Out]->setTitle(m_strDiskIOInfoLabelTitle);
             m_infoLabelContainers[Metric_Type_Disk_Out]->setRowText(1, m_strDiskIOInfoLabelReadCurrent,
-                                                                    UITranslator::formatSize(uReadRate, g_iDecimalCount),
-                                                                    dataColor(Metric_Type_Disk_Out, 0));
+                                                                    UITranslator::formatSize(uReadRate, g_iDecimalCount));
         }
         if (m_charts[Metric_Type_Disk_Out])
             m_charts[Metric_Type_Disk_Out]->update();
@@ -2685,14 +2714,11 @@ void UIVMActivityMonitorCloud::updateRAMChart(quint64 iUsedRAM, const QString &s
         {
             m_infoLabelContainers[Metric_Type_RAM]->setTitle(m_strRAMInfoLabelTitle);
             m_infoLabelContainers[Metric_Type_RAM]->setRowText(1, m_strRAMInfoLabelTotal,
-                                                               UITranslator::formatSize(_1K * m_uTotalRAM, g_iDecimalCount),
-                                                               dataColor(Metric_Type_RAM, 0));
+                                                               UITranslator::formatSize(_1K * m_uTotalRAM, g_iDecimalCount));
             m_infoLabelContainers[Metric_Type_RAM]->setRowText(2, m_strRAMInfoLabelFree,
-                                                               UITranslator::formatSize(_1K * (m_uTotalRAM - iUsedRAM), g_iDecimalCount),
-                                                               dataColor(Metric_Type_RAM, 1));
+                                                               UITranslator::formatSize(_1K * (m_uTotalRAM - iUsedRAM), g_iDecimalCount));
             m_infoLabelContainers[Metric_Type_RAM]->setRowText(3, m_strRAMInfoLabelUsedCurrent,
-                                                               UITranslator::formatSize(_1K * iUsedRAM, g_iDecimalCount),
-                                                               dataColor(Metric_Type_RAM, 0));
+                                                               UITranslator::formatSize(_1K * iUsedRAM, g_iDecimalCount));
         }
         if (m_charts[Metric_Type_RAM])
             m_charts[Metric_Type_RAM]->update();
@@ -2793,8 +2819,7 @@ void UIVMActivityMonitorCloud::resetCPUInfoLabel()
     if (m_infoLabelContainers.contains(Metric_Type_CPU) && m_infoLabelContainers[Metric_Type_CPU])
     {
         m_infoLabelContainers[Metric_Type_CPU]->setTitle(m_strCPUInfoLabelTitle);
-        m_infoLabelContainers[Metric_Type_CPU]->setRowText(1, m_strCPUInfoLabelGuestCurrent,
-                                                           "--", dataColor(Metric_Type_CPU, 0));
+        m_infoLabelContainers[Metric_Type_CPU]->setRowText(1, m_strCPUInfoLabelGuestCurrent, "--");
     }
 }
 
@@ -2803,9 +2828,7 @@ void UIVMActivityMonitorCloud::resetNetworkInInfoLabel()
     if (m_infoLabelContainers.contains(Metric_Type_Network_In)  && m_infoLabelContainers[Metric_Type_Network_In])
     {
         m_infoLabelContainers[Metric_Type_Network_In]->setTitle(m_strNetworkInInfoLabelTitle);
-        m_infoLabelContainers[Metric_Type_Network_In]->setRowText(1, m_strNetworkInfoLabelReceiveCurrent,
-                                                                  "--",
-                                                                  dataColor(Metric_Type_Network_In, 0));
+        m_infoLabelContainers[Metric_Type_Network_In]->setRowText(1, m_strNetworkInfoLabelReceiveCurrent, "--");
     }
 }
 
@@ -2814,9 +2837,7 @@ void UIVMActivityMonitorCloud::resetNetworkOutInfoLabel()
     if (m_infoLabelContainers.contains(Metric_Type_Network_Out)  && m_infoLabelContainers[Metric_Type_Network_Out])
     {
         m_infoLabelContainers[Metric_Type_Network_Out]->setTitle(m_strNetworkOutInfoLabelTitle);
-        m_infoLabelContainers[Metric_Type_Network_Out]->setRowText(1, m_strNetworkInfoLabelTransmitCurrent,
-                                                                   "--",
-                                                                   dataColor(Metric_Type_Network_Out, 0));
+        m_infoLabelContainers[Metric_Type_Network_Out]->setRowText(1, m_strNetworkInfoLabelTransmitCurrent, "--");
     }
 }
 
@@ -2825,9 +2846,7 @@ void UIVMActivityMonitorCloud::resetDiskIOWrittenInfoLabel()
     if (m_infoLabelContainers.contains(Metric_Type_Disk_In)  && m_infoLabelContainers[Metric_Type_Disk_In])
     {
         m_infoLabelContainers[Metric_Type_Disk_In]->setTitle(m_strDiskIOInfoLabelTitle);
-        m_infoLabelContainers[Metric_Type_Disk_In]->setRowText(1, m_strDiskIOInfoLabelWriteCurrent,
-                                                               "--",
-                                                               dataColor(Metric_Type_Disk_In, 0));
+        m_infoLabelContainers[Metric_Type_Disk_In]->setRowText(1, m_strDiskIOInfoLabelWriteCurrent, "--");
     }
 }
 
@@ -2836,9 +2855,7 @@ void UIVMActivityMonitorCloud::resetDiskIOReadInfoLabel()
     if (m_infoLabelContainers.contains(Metric_Type_Disk_Out)  && m_infoLabelContainers[Metric_Type_Disk_Out])
     {
         m_infoLabelContainers[Metric_Type_Disk_Out]->setTitle(m_strDiskIOInfoLabelTitle);
-        m_infoLabelContainers[Metric_Type_Disk_Out]->setRowText(1, m_strDiskIOInfoLabelReadCurrent,
-                                                                "--",
-                                                                dataColor(Metric_Type_Disk_Out, 0));
+        m_infoLabelContainers[Metric_Type_Disk_Out]->setRowText(1, m_strDiskIOInfoLabelReadCurrent, "--");
     }
 }
 
@@ -2855,4 +2872,8 @@ QString UIVMActivityMonitorCloud::formatCloudTimeStamp(const QString &strInput)
     return dateTime.time().toString("HH:mm");
 }
 
+void UIVMActivityMonitorCloud::setInfoLabelRowColors(bool /*fPaused*/)
+{
+
+}
 #include "UIVMActivityMonitor.moc"

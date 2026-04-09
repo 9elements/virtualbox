@@ -1,4 +1,4 @@
-/* $Id: UIVMActivityMonitor.h 113693 2026-03-31 08:32:01Z serkan.bayraktar@oracle.com $ */
+/* $Id: UIVMActivityMonitor.h 113779 2026-04-09 08:40:31Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVMActivityMonitor class declaration.
  */
@@ -186,6 +186,7 @@ protected slots:
 protected:
 
     virtual void obtainDataAndUpdate() = 0;
+    virtual void setInfoLabelRowColors(bool fPaused) = 0;
     virtual QString defaultMachineFolder() const = 0;
     virtual void reset() = 0;
     virtual void start() = 0;
@@ -303,6 +304,7 @@ protected:
     virtual bool isMachineRunning() const RT_OVERRIDE;
     virtual bool isMachinePaused() const RT_OVERRIDE;
     virtual int  machineState() const RT_OVERRIDE;
+    virtual void setInfoLabelRowColors(bool fPaused) RT_OVERRIDE;
 
 private slots:
 
@@ -392,6 +394,8 @@ private:
     virtual void reset() RT_OVERRIDE;
     virtual void start() RT_OVERRIDE;
     virtual void prepareWidgets() RT_OVERRIDE;
+    virtual void setInfoLabelRowColors(bool fPaused) RT_OVERRIDE;
+
     /** @name The following functions update corresponding metric charts and labels with new values
       * @{ */
         void updateCPUChart(quint64 iLoadPercentage, const QString &strLabel);
