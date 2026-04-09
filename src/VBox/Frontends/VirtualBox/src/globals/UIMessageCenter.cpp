@@ -1,4 +1,4 @@
-/* $Id: UIMessageCenter.cpp 113765 2026-04-08 16:42:45Z sergey.dubov@oracle.com $ */
+/* $Id: UIMessageCenter.cpp 113782 2026-04-09 10:12:24Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMessageCenter class implementation.
  */
@@ -267,7 +267,7 @@ void UIMessageCenter::cannotOpenSession(const CProgress &comProgress, const QStr
 }
 
 bool UIMessageCenter::cannotRemountMedium(const CMachine &machine, const UIMedium &medium, bool fMount,
-                                          bool fRetry, QWidget *pParent /* = 0 */) const
+                                          QWidget *pParent /* = 0 */) const
 {
     /* Compose the message: */
     QString strMessage;
@@ -279,15 +279,13 @@ bool UIMessageCenter::cannotRemountMedium(const CMachine &machine, const UIMediu
             {
                 strMessage = tr("<p>Unable to insert the virtual optical disk "
                                 "<nobr><b>%1</b></nobr> into the machine <b>%2</b>.</p>");
-                if (fRetry)
-                    strMessage += tr("<p>Would you like to try to force insertion of this disk?</p>");
+                strMessage += tr("<p>Would you like to try to force insertion of this disk?</p>");
             }
             else
             {
                 strMessage = tr("<p>Unable to eject the virtual optical disk "
                                 "<nobr><b>%1</b></nobr> from the machine <b>%2</b>.</p>");
-                if (fRetry)
-                    strMessage += tr("<p>Would you like to try to force ejection of this disk?</p>");
+                strMessage += tr("<p>Would you like to try to force ejection of this disk?</p>");
             }
             break;
         }
@@ -297,15 +295,13 @@ bool UIMessageCenter::cannotRemountMedium(const CMachine &machine, const UIMediu
             {
                 strMessage = tr("<p>Unable to insert the virtual floppy disk "
                                 "<nobr><b>%1</b></nobr> into the machine <b>%2</b>.</p>");
-                if (fRetry)
-                    strMessage += tr("<p>Would you like to try to force insertion of this disk?</p>");
+                strMessage += tr("<p>Would you like to try to force insertion of this disk?</p>");
             }
             else
             {
                 strMessage = tr("<p>Unable to eject the virtual floppy disk "
                                 "<nobr><b>%1</b></nobr> from the machine <b>%2</b>.</p>");
-                if (fRetry)
-                    strMessage += tr("<p>Would you like to try to force ejection of this disk?</p>");
+                strMessage += tr("<p>Would you like to try to force ejection of this disk?</p>");
             }
             break;
         }
@@ -313,17 +309,14 @@ bool UIMessageCenter::cannotRemountMedium(const CMachine &machine, const UIMediu
             break;
     }
     /* Show the messsage: */
-    if (fRetry)
-        return errorWithQuestion(pParent, MessageType_Question,
-                                 strMessage.arg(medium.isHostDrive() ? medium.name() : medium.location(),
-                                                CMachine(machine).GetName()),
-                                 UIErrorString::formatErrorInfo(machine),
-                                 0 /* Auto Confirm ID */,
-                                 tr("Force Unmount"));
-    error(pParent, MessageType_Error,
-          strMessage.arg(medium.isHostDrive() ? medium.name() : medium.location(), CMachine(machine).GetName()),
-          UIErrorString::formatErrorInfo(machine));
-    return false;
+    return errorWithQuestion(pParent, MessageType_Question,
+                             strMessage.arg(medium.isHostDrive() ? medium.name() : medium.location(),
+                                            CMachine(machine).GetName()),
+                             UIErrorString::formatErrorInfo(machine),
+                             0 /* Auto Confirm ID */,
+                               fMount
+                             ? tr("Force Mount")
+                             : tr("Force Unmount"));
 }
 
 void UIMessageCenter::sltShowHelpWebDialog()

@@ -1,4 +1,4 @@
-/* $Id: UISession.cpp 113267 2026-03-05 10:14:03Z sergey.dubov@oracle.com $ */
+/* $Id: UISession.cpp 113782 2026-04-09 10:12:24Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UISession class implementation.
  */
@@ -993,10 +993,7 @@ bool UISession::mountBootMedium(const QUuid &uMediumId)
                                comMedium, false /* force */);
         fSuccess = comMachine.isOk();
         if (!fSuccess)
-        {
-            QWidget *pParent = windowManager().realParentWindow(activeMachineWindow());
-            msgCenter().cannotRemountMedium(machine(), guiMedium, true /* mount? */, false /* retry? */, pParent);
-        }
+            UINotificationMessage::cannotRemountMedium(machine(), guiMedium, true /* mount? */);
         else
             fSuccess = saveSettings();
     }
@@ -2910,10 +2907,7 @@ bool UISession::mountAdHocImage(KDeviceType enmDeviceType, UIMediumDeviceType en
 
     /* Show error message if necessary: */
     if (!machine().isOk())
-    {
-        msgCenter().cannotRemountMedium(machine(), guiMedium, true /* mount? */, false /* retry? */, activeMachineWindow());
-        return false;
-    }
+        return UINotificationMessage::cannotRemountMedium(machine(), guiMedium, true /* mount? */);
 
     /* Save machine settings: */
     if (!saveSettings())

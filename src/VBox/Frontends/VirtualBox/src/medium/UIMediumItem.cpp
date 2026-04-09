@@ -1,4 +1,4 @@
-/* $Id: UIMediumItem.cpp 113267 2026-03-05 10:14:03Z sergey.dubov@oracle.com $ */
+/* $Id: UIMediumItem.cpp 113782 2026-04-09 10:12:24Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMediumItem class implementation.
  */
@@ -37,7 +37,6 @@
 #include "UIIconPool.h"
 #include "UILocalMachineStuff.h"
 #include "UIMediumItem.h"
-#include "UIMessageCenter.h"
 #include "UINotificationCenter.h"
 #include "UITranslator.h"
 
@@ -558,11 +557,7 @@ bool UIMediumItemCD::releaseFrom(CMachine comMachine)
         /* Try to unmount device: */
         comMachine.MountMedium(attachment.GetController(), attachment.GetPort(), attachment.GetDevice(), CMedium(), false /* force */);
         if (!comMachine.isOk())
-        {
-            /* Return failure: */
-            msgCenter().cannotRemountMedium(comMachine, medium(), false /* mount? */, false /* retry? */, treeWidget());
-            return false;
-        }
+            return UINotificationMessage::cannotRemountMedium(comMachine, medium(), false /* mount? */, treeWidget());
         else
             fAtLeastOneRelease = true;
     }
@@ -620,11 +615,7 @@ bool UIMediumItemFD::releaseFrom(CMachine comMachine)
         /* Try to unmount device: */
         comMachine.MountMedium(attachment.GetController(), attachment.GetPort(), attachment.GetDevice(), CMedium(), false /* force */);
         if (!comMachine.isOk())
-        {
-            /* Return failure: */
-            msgCenter().cannotRemountMedium(comMachine, medium(), false /* mount? */, false /* retry? */, treeWidget());
-            return false;
-        }
+            return UINotificationMessage::cannotRemountMedium(comMachine, medium(), false /* mount? */, treeWidget());
         else
             fAtLeastOneRelease = true;
     }

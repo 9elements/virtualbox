@@ -1,4 +1,4 @@
-/* $Id: UINotificationMessage.cpp 113764 2026-04-08 16:36:50Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationMessage.cpp 113782 2026-04-09 10:12:24Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationMessage implementations.
  */
@@ -1648,6 +1648,54 @@ bool UINotificationMessage::cannotOpenMedium(const CVirtualBox &comVBox,
         QApplication::translate("UIMessageCenter", "Failed to open the disk image file <nobr><b>%1</b></nobr>.")
                                                    .arg(strLocation) +
         UIErrorString::formatErrorInfo(comVBox),
+        pParent);
+    return false;
+}
+
+/* static */
+bool UINotificationMessage::cannotRemountMedium(const CMachine &comMachine, const UIMedium &guiMedium, bool fMount,
+                                                QWidget *pParent /* = 0 */)
+{
+    /* Compose the message: */
+    QString strMessage;
+    switch (guiMedium.type())
+    {
+        case UIMediumDeviceType_DVD:
+        {
+            if (fMount)
+                strMessage = QApplication::translate("UIMessageCenter", "<p>Unable to insert the virtual optical disk "
+                                                                        "<nobr><b>%1</b></nobr> into the machine <b>%2</b>.</p>");
+            else
+                strMessage = QApplication::translate("UIMessageCenter", "<p>Unable to eject the virtual optical disk "
+                                                                        "<nobr><b>%1</b></nobr> from the machine <b>%2</b>.</p>");
+            break;
+        }
+        case UIMediumDeviceType_Floppy:
+        {
+            if (fMount)
+                strMessage = QApplication::translate("UIMessageCenter", "<p>Unable to insert the virtual floppy disk "
+                                                                        "<nobr><b>%1</b></nobr> into the machine <b>%2</b>.</p>");
+            else
+                strMessage = QApplication::translate("UIMessageCenter", "<p>Unable to eject the virtual floppy disk "
+                                                                        "<nobr><b>%1</b></nobr> from the machine <b>%2</b>.</p>");
+            break;
+        }
+        default:
+            break;
+    }
+    /* Show the messsage: */
+    createMessage(
+          fMount
+        ? QApplication::translate("UIMessageCenter", "Can't mount medium ...")
+        : QApplication::translate("UIMessageCenter", "Can't unmount medium ..."),
+          strMessage.arg(  guiMedium.isHostDrive()
+                         ? guiMedium.name()
+                         : guiMedium.location(),
+                         CMachine(comMachine).GetName()) +
+        UIErrorString::formatErrorInfo(comMachine),
+        QString() /* internal name */,
+        QString() /* help keyword */,
+        NotificationType_Unknown,
         pParent);
     return false;
 }

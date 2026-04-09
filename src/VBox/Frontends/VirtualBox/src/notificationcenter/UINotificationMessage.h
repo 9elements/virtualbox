@@ -1,4 +1,4 @@
-/* $Id: UINotificationMessage.h 113764 2026-04-08 16:36:50Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationMessage.h 113782 2026-04-09 10:12:24Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationMessage declarations.
  */
@@ -36,7 +36,7 @@
 
 /* GUI includes: */
 #include "UILibraryDefs.h"
-#include "UIMediumDefs.h"
+#include "UIMedium.h"
 #include "UINotificationObject.h"
 
 /* Forward declarations: */
@@ -565,11 +565,18 @@ public:
         /** Notifies about inability to access USB subsystem.
           * @param  comObject  Brings the machine USB subsystem accessed for. */
         static void cannotAccessUSBSubsystem(const CMachine &comMachine, QWidget *pParent);
+
         /** Notifies about inability to open medium.
           * @param  comVBox      Brings common VBox object trying to open medium.
           * @param  strLocation  Brings the medium location. */
         static bool cannotOpenMedium(const CVirtualBox &comVBox, const QString &strLocation,
                                      QWidget *pParent = 0);
+        /** Notifies about inability to open medium.
+          * @param  comMachine  Brings the machine trying to remount medium.
+          * @param  guiMedium   Brings the medium machine is trying to remount.
+          * @param  fMount      Brings whether the action was to mount (true) or unmount (false). */
+        static bool cannotRemountMedium(const CMachine &comMachine, const UIMedium &guiMedium, bool fMount,
+                                        QWidget *pParent = 0);
 
         /** Notifies about inability to pause machine.
           * @param  comConsole  Brings console trying to pause machine. */
