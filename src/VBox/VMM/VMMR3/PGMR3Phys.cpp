@@ -1,4 +1,4 @@
-/* $Id: PGMR3Phys.cpp 112438 2026-01-13 09:00:11Z knut.osmundsen@oracle.com $ */
+/* $Id: PGMR3Phys.cpp 113790 2026-04-09 11:43:39Z aleksey.ilyushin@oracle.com $ */
 /** @file
  * PGM - Page Manager and Monitor, Physical Memory Addressing.
  */
@@ -178,7 +178,7 @@ VMMR3DECL(int) PGMR3PhysReadExternal(PVM pVM, RTGCPHYS GCPhys, void *pvBuf, size
                 int rc = pgmPhysGCPhys2CCPtrInternalReadOnly(pVM, pPage, pRam->GCPhys + off, &pvSrc, &PgMpLck);
                 if (RT_SUCCESS(rc))
                 {
-                    memcpy(pvBuf, pvSrc, cb);
+                    pgmPhysMemCopyWrapper<true>(pvBuf, pvSrc, cb);
                     pgmPhysReleaseInternalPageMappingLock(pVM, &PgMpLck);
                 }
                 else
@@ -321,7 +321,7 @@ VMMDECL(int) PGMR3PhysWriteExternal(PVM pVM, RTGCPHYS GCPhys, const void *pvBuf,
                 int rc = pgmPhysGCPhys2CCPtrInternal(pVM, pPage, pRam->GCPhys + off, &pvDst, &PgMpLck);
                 if (RT_SUCCESS(rc))
                 {
-                    memcpy(pvDst, pvBuf, cb);
+                    pgmPhysMemCopyWrapper<false>(pvDst, pvBuf, cb);
                     pgmPhysReleaseInternalPageMappingLock(pVM, &PgMpLck);
                 }
                 else
