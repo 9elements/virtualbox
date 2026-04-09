@@ -1,4 +1,4 @@
-/* $Id: RecordingCodec.cpp 113636 2026-03-27 15:49:15Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingCodec.cpp 113780 2026-04-09 09:08:27Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording codec wrapper.
  */
@@ -228,6 +228,8 @@ static DECLCALLBACK(int) recordingCodecVPXFinalize(PRECORDINGCODEC pCodec)
     recordingCodecLock(pCodec);
 
     int vrc = recordingCodecVPXEncodeWorker(pCodec, NULL /* pImage */, pCodec->State.tsLastWrittenMs + 1);
+    if (vrc == VERR_NO_DATA) /* No data was available anymore to process, don't propagate to caller. */
+        vrc = VINF_SUCCESS;
 
     recordingCodecUnlock(pCodec);
 
