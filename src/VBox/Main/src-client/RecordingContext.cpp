@@ -1,4 +1,4 @@
-/* $Id: RecordingContext.cpp 113708 2026-04-02 09:19:01Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingContext.cpp 113774 2026-04-09 07:01:38Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording context code.
  */
@@ -182,49 +182,85 @@ void RecordingCursorState::Destroy(void)
 int RecordingCursorState::CreateOrUpdate(bool fAlpha, uint32_t xHot, uint32_t yHot,
                                          uint32_t uWidth, uint32_t uHeight, const uint8_t *pu8Shape, size_t cbShape)
 {
-    int vrc;
+    AssertReturn(uWidth, VERR_INVALID_PARAMETER);
+    AssertReturn(uHeight, VERR_INVALID_PARAMETER);
 
-    uint32_t fFlags = RECORDINGVIDEOFRAME_F_VISIBLE;
+    uint32_t fFrameFlags  = RECORDINGVIDEOFRAME_F_VISIBLE;
+    uint32_t fCursorFlags = VBOX_RECORDING_CURSOR_F_VISIBLE;
 
-    const uint8_t uBPP = 32; /* Seems to be fixed. */
-
-    /* Shape data can contain an AND mask prefix; skip it when present. */
-    uint32_t const cbAndMask  = ((uWidth + 7) / 8 * uHeight + 3) & ~3;
-    uint32_t const cbPixelMin = uWidth * uHeight * (uBPP / 8);
-    uint32_t       offShape   = 0;
-    if (cbShape >= cbAndMask + cbPixelMin)
+    const uint8_t  uBPP      = 32; /* Fixed for now. */
+    uint32_t const cbAndLine = RT_ALIGN_32((uWidth + 7) / 8, 4);
+    uint32_t const cbAndMask = cbAndLine * uHeight;
+    uint32_t const cbPixel   = uWidth * uHeight * (uBPP / 8);
+    uint32_t       offShape  = 0;
+    if (cbShape >= cbAndMask + cbPixel)
         offShape = cbAndMask;
-    AssertReturn(cbShape >= offShape + cbPixelMin, VERR_INVALID_PARAMETER);
+    AssertReturn(cbShape >= offShape + cbPixel, VERR_INVALID_PARAMETER);
 
     if (fAlpha)
-        fFlags |= RECORDINGVIDEOFRAME_F_BLIT_ALPHA;
+    {
+        fFrameFlags  |= RECORDINGVIDEOFRAME_F_BLIT_ALPHA;
+        fCursorFlags |= VBOX_RECORDING_CURSOR_F_ALPHA;
+    }
 
-    m_xHot = RT_MIN(xHot, uWidth  ? uWidth  - 1 : 0);
-    m_yHot = RT_MIN(yHot, uHeight ? uHeight - 1 : 0);
+    m_xHot = RT_MIN(xHot, uWidth  - 1);
+    m_yHot = RT_MIN(yHot, uHeight - 1);
 
-    /* Cursor shape size has become bigger? Reallocate. */
-    if (cbShape > m_Shape.cbBuf)
+    bool const fReInit =    m_Shape.cbBuf < cbPixel
+                         || m_Shape.Info.uWidth      != uWidth
+                         || m_Shape.Info.uHeight     != uHeight
+                         || m_Shape.Info.uBPP        != uBPP
+                         || m_Shape.Info.enmPixelFmt != RECORDINGPIXELFMT_BRGA32;
+    if (fReInit)
     {
         RecordingVideoFrameDestroy(&m_Shape);
-        vrc = RecordingVideoFrameInit(&m_Shape, fFlags, uWidth, uHeight, 0 /* posX */, 0 /* posY */,
-                                      uBPP, RECORDINGPIXELFMT_BRGA32);
+
+        int const vrc = RecordingVideoFrameInit(&m_Shape, fFrameFlags,
+                                                uWidth, uHeight,
+                                                0 /* posX */, 0 /* posY */,
+                                                uBPP, RECORDINGPIXELFMT_BRGA32);
+        if (RT_FAILURE(vrc))
+            return vrc;
     }
-    else /* Otherwise just zero out first. */
-    {
+    else
         RecordingVideoFrameClear(&m_Shape);
-        vrc = VINF_SUCCESS;
+
+    m_fFlags       = fCursorFlags;
+    m_Shape.fFlags = fFrameFlags;
+
+    memcpy(m_Shape.pau8Buf, &pu8Shape[offShape], cbPixel);
+
+    if (!fAlpha)
+    {
+        /* No per-pixel alpha in shape data: derive alpha from the optional AND mask. */
+        if (offShape)
+        {
+            for (uint32_t y = 0; y < uHeight; y++)
+            {
+                uint8_t const *pu8And = &pu8Shape[(size_t)y * cbAndLine];
+                uint8_t       *pu8Dst = &m_Shape.pau8Buf[(size_t)y * uWidth * 4];
+                for (uint32_t x = 0; x < uWidth; x++)
+                {
+                    bool const fTransparent = RT_BOOL(pu8And[x >> 3] & RT_BIT(7 - (x & 7)));
+                    pu8Dst[x * 4 + 3] = fTransparent ? 0 : 0xff;
+                }
+            }
+        }
+        else
+        {
+            for (uint32_t y = 0; y < uHeight; y++)
+            {
+                uint8_t *pu8Dst = &m_Shape.pau8Buf[(size_t)y * uWidth * 4];
+                for (uint32_t x = 0; x < uWidth; x++)
+                    pu8Dst[x * 4 + 3] = 0xff;
+            }
+        }
     }
 
-// BUGBUG
-    RT_NOREF(pu8Shape);
-    // if (RT_SUCCESS(vrc))
-    //     vrc = RecordingVideoFrameBlitRaw(&m_Shape, 0, 0, &pu8Shape[offShape], cbShape - offShape, 0, 0, uWidth, uHeight, uWidth * 4 /* BPP */, uBPP,
-    //                                      m_Shape.Info.enmPixelFmt);
-#if 0
-    RecordingUtilsDbgDumpVideoFrameEx(&m_Shape, "/tmp/recording", "cursor-update");
+#ifdef VBOX_RECORDING_DEBUG_DUMP_FRAMES
+    RecordingUtilsDbgDumpVideoFrameEx(&m_Shape, NULL, "cursor-state-update");
 #endif
-
-    return vrc;
+    return VINF_SUCCESS;
 }
 
 /**
