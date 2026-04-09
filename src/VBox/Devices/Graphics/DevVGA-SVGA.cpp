@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA.cpp 113758 2026-04-08 13:33:47Z vitali.pelenjow@oracle.com $ */
+/* $Id: DevVGA-SVGA.cpp 113789 2026-04-09 11:43:31Z vitali.pelenjow@oracle.com $ */
 /** @file
  * VMware SVGA device.
  *
@@ -6904,6 +6904,7 @@ static int vmsvgaR3LoadExecFifo(PCPDMDEVHLPR3 pHlp, PVGASTATE pThis, PVGASTATECC
                 VMSVGASCREENOBJECT *pScreen = &pSVGAState->aScreens[screen.idScreen];
                 *pScreen = screen;
                 pScreen->fModified = true;
+                RTListInit(&pScreen->listOutputTargets);
 
                 if (uVersion >= VGA_SAVEDSTATE_VERSION_VMSVGA_DX)
                 {
