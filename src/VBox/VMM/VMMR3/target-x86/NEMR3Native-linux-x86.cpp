@@ -1,4 +1,4 @@
-/* $Id: NEMR3Native-linux-x86.cpp 113767 2026-04-08 17:52:03Z alexander.eichner@oracle.com $ */
+/* $Id: NEMR3Native-linux-x86.cpp 113775 2026-04-09 07:18:31Z alexander.eichner@oracle.com $ */
 /** @file
  * NEM - Native execution manager, native ring-3 Linux backend.
  */
@@ -86,6 +86,20 @@ static int nemR3LnxInitSetupVm(PVM pVM, PRTERRINFO pErrInfo)
     int rcLnx = ioctl(pVM->nem.s.fdVm, KVM_ENABLE_CAP, &CapEn);
     if (rcLnx == -1)
         return RTErrInfoSetF(pErrInfo, VERR_NEM_VM_CREATE_FAILED, "Failed to enable KVM_CAP_X86_USER_SPACE_MSR failed: %u", errno);
+
+    /*
+     * Check for KVM_CAP_X86_BUS_LOCK_EXIT and enable it if existing.
+     */
+    rcLnx = ioctl(pVM->nem.s.fdKvm, KVM_CHECK_EXTENSION, KVM_CAP_X86_BUS_LOCK_EXIT);
+    if (   rcLnx > 0
+        && (rcLnx & KVM_BUS_LOCK_DETECTION_EXIT))
+    {
+        LogRel(("NEM: Enabling KVM_CAP_X86_BUS_LOCK_EXIT"));
+        RT_ZERO(CapEn);
+        CapEn.cap     = KVM_CAP_X86_BUS_LOCK_EXIT;
+        CapEn.args[0] = KVM_BUS_LOCK_DETECTION_EXIT;
+        rcLnx = ioctl(pVM->nem.s.fdVm, KVM_ENABLE_CAP, &CapEn);
+    }
 
     /*
      * If the APIC is enabled and KVM_CAP_SPLIT_IRQCHIP is supported we'll use KVM's APIC emulation
@@ -2090,6 +2104,10 @@ static VBOXSTRICTRC nemHCLnxHandleExit(PVMCC pVM, PVMCPUCC pVCpu, struct kvm_run
 {
     STAM_REL_COUNTER_INC(&pVCpu->nem.s.StatExitTotal);
 
+    /* See explanation for KVM_EXIT_X86_BUS_LOCK below. */
+    if (pRun->flags & KVM_RUN_X86_BUS_LOCK)
+        RTThreadYield();
+
     if (pVM->nem.s.fKvmApic)
         PDMApicImportState(pVCpu);
 
@@ -2203,9 +2221,23 @@ static VBOXSTRICTRC nemHCLnxHandleExit(PVMCC pVM, PVMCPUCC pVCpu, struct kvm_run
             break;
         case KVM_EXIT_X86_BUS_LOCK:
             STAM_REL_COUNTER_INC(&pVCpu->nem.s.StatExitBusLock);
-            AssertFailed();
-            break;
-
+            /*
+             * The implementation of bus lock detection on KVM differs between AMD and Intel:
+             *    Due to differences in the underlying hardware implementation, the vCPU’s RIP at the time of exit
+             *    diverges between Intel and AMD. On Intel hosts, RIP points at the next instruction, i.e. the exit
+             *    is trap-like. On AMD hosts, RIP points at the offending instruction, i.e. the exit is fault-like.
+             *    (from https://www.kernel.org/doc/html/latest/virt/kvm/api.html).
+             *
+             * While we could emulate the instruction on AMD it is not necessary because upon entry KVM will set the
+             * VMCB to allow execution of the instruction causing the bus lock before triggering another exit.
+             * On Intel the instruction has executed already so we could only rate limit the number of instructions
+             * the guest execute which can cause those exits.
+             *
+             * Also KVM_RUN_X86_BUS_LOCK might be set in the run structure when another primary exit is given, so we
+             * check it above before handling the exits and currently just yield the EMT to rate limit the number of
+             * instructions potentially being executed to prevent a denial of service.
+             */
+            return VINF_SUCCESS;
 
         case KVM_EXIT_SHUTDOWN:
             AssertFailed();
