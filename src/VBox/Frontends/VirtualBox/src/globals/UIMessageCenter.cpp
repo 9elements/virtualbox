@@ -1,4 +1,4 @@
-/* $Id: UIMessageCenter.cpp 113782 2026-04-09 10:12:24Z sergey.dubov@oracle.com $ */
+/* $Id: UIMessageCenter.cpp 113785 2026-04-09 11:04:06Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMessageCenter class implementation.
  */
@@ -264,59 +264,6 @@ void UIMessageCenter::cannotOpenSession(const CProgress &comProgress, const QStr
           tr("Failed to open a session for the virtual machine <b>%1</b>.")
              .arg(strMachineName),
           UIErrorString::formatErrorInfo(comProgress));
-}
-
-bool UIMessageCenter::cannotRemountMedium(const CMachine &machine, const UIMedium &medium, bool fMount,
-                                          QWidget *pParent /* = 0 */) const
-{
-    /* Compose the message: */
-    QString strMessage;
-    switch (medium.type())
-    {
-        case UIMediumDeviceType_DVD:
-        {
-            if (fMount)
-            {
-                strMessage = tr("<p>Unable to insert the virtual optical disk "
-                                "<nobr><b>%1</b></nobr> into the machine <b>%2</b>.</p>");
-                strMessage += tr("<p>Would you like to try to force insertion of this disk?</p>");
-            }
-            else
-            {
-                strMessage = tr("<p>Unable to eject the virtual optical disk "
-                                "<nobr><b>%1</b></nobr> from the machine <b>%2</b>.</p>");
-                strMessage += tr("<p>Would you like to try to force ejection of this disk?</p>");
-            }
-            break;
-        }
-        case UIMediumDeviceType_Floppy:
-        {
-            if (fMount)
-            {
-                strMessage = tr("<p>Unable to insert the virtual floppy disk "
-                                "<nobr><b>%1</b></nobr> into the machine <b>%2</b>.</p>");
-                strMessage += tr("<p>Would you like to try to force insertion of this disk?</p>");
-            }
-            else
-            {
-                strMessage = tr("<p>Unable to eject the virtual floppy disk "
-                                "<nobr><b>%1</b></nobr> from the machine <b>%2</b>.</p>");
-                strMessage += tr("<p>Would you like to try to force ejection of this disk?</p>");
-            }
-            break;
-        }
-        default:
-            break;
-    }
-    /* Show the messsage: */
-    return errorWithQuestion(pParent, MessageType_Question,
-                             strMessage.arg(medium.isHostDrive() ? medium.name() : medium.location(),
-                                            CMachine(machine).GetName()),
-                             UIErrorString::formatErrorInfo(machine),
-                             0 /* Auto Confirm ID */,
-                               fMount
-                             ? tr("Force Mount")
-                             : tr("Force Unmount"));
 }
 
 void UIMessageCenter::sltShowHelpWebDialog()

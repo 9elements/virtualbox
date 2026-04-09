@@ -1,4 +1,4 @@
-/* $Id: UINotificationQuestion.cpp 113611 2026-03-27 09:45:17Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationQuestion.cpp 113785 2026-04-09 11:04:06Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationQuestion implementations.
  */
@@ -31,6 +31,7 @@
 
 /* GUI includes: */
 #include "UICommon.h"
+#include "UIErrorString.h"
 #include "UIExtraDataManager.h"
 #include "UIHostComboEditor.h"
 #include "UIMedium.h"
@@ -518,6 +519,73 @@ bool UINotificationQuestion::confirmRemoveExtensionPack(const QString &strPackNa
         QStringList() << QString() /* cancel button text */
                       << QApplication::translate("UIMessageCenter", "Remove", "extension pack") /* ok button text */,
         false /* ok button by default? */,
+        pParent);
+}
+
+/* static */
+bool UINotificationQuestion::confirmMediumRemount(const CMachine &comMachine,
+                                                  const UIMedium &guiMedium,
+                                                  bool fMount,
+                                                  QWidget *pParent /* = 0 */)
+{
+    /* Compose the message: */
+    QString strMessage;
+    switch (guiMedium.type())
+    {
+        case UIMediumDeviceType_DVD:
+        {
+            if (fMount)
+            {
+                strMessage = QApplication::translate("UIMessageCenter", "<p>Unable to insert the virtual optical disk "
+                                                                        "<nobr><b>%1</b></nobr> into the machine <b>%2</b>.</p>");
+                strMessage += QApplication::translate("UIMessageCenter", "<p>Would you like to try to force "
+                                                                         "insertion of this disk?</p>");
+            }
+            else
+            {
+                strMessage = QApplication::translate("UIMessageCenter", "<p>Unable to eject the virtual optical disk "
+                                                                        "<nobr><b>%1</b></nobr> from the machine <b>%2</b>.</p>");
+                strMessage += QApplication::translate("UIMessageCenter", "<p>Would you like to try to force "
+                                                                         "ejection of this disk?</p>");
+            }
+            break;
+        }
+        case UIMediumDeviceType_Floppy:
+        {
+            if (fMount)
+            {
+                strMessage = QApplication::translate("UIMessageCenter", "<p>Unable to insert the virtual floppy disk "
+                                                                        "<nobr><b>%1</b></nobr> into the machine <b>%2</b>.</p>");
+                strMessage += QApplication::translate("UIMessageCenter", "<p>Would you like to try to force "
+                                                                         "insertion of this disk?</p>");
+            }
+            else
+            {
+                strMessage = QApplication::translate("UIMessageCenter", "<p>Unable to eject the virtual floppy disk "
+                                                                        "<nobr><b>%1</b></nobr> from the machine <b>%2</b>.</p>");
+                strMessage += QApplication::translate("UIMessageCenter", "<p>Would you like to try to force "
+                                                                         "ejection of this disk?</p>");
+            }
+            break;
+        }
+        default:
+            break;
+    }
+    /* Show the messsage: */
+    return createBlockingQuestion(
+          fMount
+        ? QApplication::translate("UIMessageCenter", "Mount medium?")
+        : QApplication::translate("UIMessageCenter", "Unmount medium?"),
+        strMessage.arg(  guiMedium.isHostDrive()
+                       ? guiMedium.name()
+                       : guiMedium.location(),
+                       CMachine(comMachine).GetName()) +
+        UIErrorString::formatErrorInfo(comMachine),
+        QStringList() << QString() /* cancel button text */
+                      << (  fMount
+                          ? QApplication::translate("UIMessageCenter", "Mount", "medium") /* ok button text */
+                          : QApplication::translate("UIMessageCenter", "Unmount", "medium") /* ok button text */),
+        true /* ok button by default? */,
         pParent);
 }
 

@@ -1,4 +1,4 @@
-/* $Id: UINotificationQuestion.h 113536 2026-03-24 12:55:20Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationQuestion.h 113785 2026-04-09 11:04:06Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationQuestion declarations.
  */
@@ -165,6 +165,12 @@ public:
 
     /** @name VirtualBox Manager / Media Manager warnings.
       * @{ */
+        /** Confirms medium remounting. */
+        static bool confirmMediumRemount(const CMachine &comMachine,
+                                         const UIMedium &guiMedium,
+                                         bool fMount,
+                                         QWidget *pParent = 0);
+
         /** Confirms medium releasing. */
         static bool confirmMediumRelease(const UIMedium &guiMedium,
                                          bool fInduced,

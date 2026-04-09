@@ -1,4 +1,4 @@
-/* $Id: UIMessageCenter.h 113782 2026-04-09 10:12:24Z sergey.dubov@oracle.com $ */
+/* $Id: UIMessageCenter.h 113785 2026-04-09 11:04:06Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMessageCenter class declaration.
  */
@@ -203,9 +203,6 @@ public:
         void cannotOpenSession(const CSession &comSession) const;
         void cannotOpenSession(const CMachine &comMachine) const;
         void cannotOpenSession(const CProgress &comProgress, const QString &strMachineName) const;
-
-        bool cannotRemountMedium(const CMachine &machine, const UIMedium &medium, bool fMount,
-                                 QWidget *pParent = 0) const;
     /** @} */
 
 public slots:

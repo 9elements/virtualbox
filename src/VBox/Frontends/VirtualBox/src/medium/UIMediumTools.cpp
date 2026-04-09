@@ -1,4 +1,4 @@
-/* $Id: UIMediumTools.cpp 113782 2026-04-09 10:12:24Z sergey.dubov@oracle.com $ */
+/* $Id: UIMediumTools.cpp 113785 2026-04-09 11:04:06Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMediumTools class implementation.
  */
@@ -40,9 +40,9 @@
 #include "UIMediumEnumerator.h"
 #include "UIMediumSelector.h"
 #include "UIMediumTools.h"
-#include "UIMessageCenter.h"
 #include "UIModalWindowManager.h"
 #include "UINotificationMessage.h"
+#include "UINotificationQuestion.h"
 #include "UIVisoCreator.h"
 #include "UIWizardNewVD.h"
 
@@ -661,7 +661,7 @@ void UIMediumTools::updateMachineStorage(const CMachine &comConstMachine,
         if (!fWasMounted)
         {
             /* Ask for force remounting: */
-            if (msgCenter().cannotRemountMedium(comMachine, gpMediumEnumerator->medium(uActualID), fMount))
+            if (UINotificationQuestion::confirmMediumRemount(comMachine, gpMediumEnumerator->medium(uActualID), fMount))
             {
                 /* Force remounting: */
                 comMachine.MountMedium(target.name, target.port, target.device, comMedium, true /* force? */);
