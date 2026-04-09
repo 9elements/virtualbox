@@ -1,4 +1,4 @@
-/* $Id: SUPDrv-linux.c 113712 2026-04-02 12:05:39Z knut.osmundsen@oracle.com $ */
+/* $Id: SUPDrv-linux.c 113778 2026-04-09 07:44:45Z alexander.eichner@oracle.com $ */
 /** @file
  * VBoxDrv - The VirtualBox Support Driver - Linux specifics.
  */
@@ -83,6 +83,12 @@
 #  include <linux/kvm_host.h>
 #  define SUPDRV_LINUX_HAS_KVM_HWVIRT_API
 # endif
+#endif
+#if RTLNX_VER_MIN(5,13,0)
+# include <linux/vtime.h>
+#else
+# define vtime_account_guest_enter() do { } while(0)
+# define vtime_account_guest_exit()  do { } while(0)
 #endif
 
 
@@ -915,14 +921,22 @@ static int VBoxDrvLinuxIOCtl(struct inode *pInode, struct file *pFilp, unsigned 
 #ifdef HAVE_UNLOCKED_IOCTL
     if (RT_LIKELY(   (unsigned int)(uCmd - SUP_IOCTL_FAST_DO_FIRST) < (unsigned int)32
                   && pSession->fUnrestricted))
+    {
+        vtime_account_guest_enter();
         rc = supdrvIOCtlFast(uCmd - SUP_IOCTL_FAST_DO_FIRST, ulArg, &g_DevExt, pSession);
+        vtime_account_guest_exit();
+    }
     else
         rc = VBoxDrvLinuxIOCtlSlow(pFilp, uCmd, ulArg, pSession);
 #else   /* !HAVE_UNLOCKED_IOCTL */
     unlock_kernel();
     if (RT_LIKELY(   (unsigned int)(uCmd - SUP_IOCTL_FAST_DO_FIRST) < (unsigned int)32
                   && pSession->fUnrestricted))
+    {
+        vtime_account_guest_enter();
         rc = supdrvIOCtlFast(uCmd - SUP_IOCTL_FAST_DO_FIRST, ulArg, &g_DevExt, pSession);
+        vtime_account_guest_exit();
+    }
     else
         rc = VBoxDrvLinuxIOCtlSlow(pFilp, uCmd, ulArg, pSession);
     lock_kernel();
