@@ -1,4 +1,4 @@
-/* $Id: DevSB16.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: DevSB16.cpp 113795 2026-04-10 08:30:16Z andreas.loeffler@oracle.com $ */
 /** @file
  * DevSB16 - VBox SB16 Audio Controller.
  */
@@ -1944,11 +1944,11 @@ static void sb16RemoveDrv(PPDMDEVINS pDevIns, PSB16STATE pThis, PSB16DRIVER pDrv
 static int sb16StreamDoDmaOutput(PSB16STATE pThis, PSB16STREAM pStream, int uDmaChan, uint32_t offDma, uint32_t cbDma,
                                  uint32_t cbToRead, uint32_t *pcbRead)
 {
+    sb16StreamLock(pStream);
+
     uint32_t cbFree = (uint32_t)RTCircBufFree(pStream->State.pCircBuf);
     //Assert(cbToRead <= cbFree); /** @todo Add statistics for overflows. */
     cbToRead = RT_MIN(cbToRead, cbFree);
-
-    sb16StreamLock(pStream);
 
     uint32_t cbReadTotal = 0;
     while (cbToRead)
@@ -2288,6 +2288,10 @@ static int sb16StreamOpen(PPDMDEVINS pDevIns, PSB16STATE pThis, PSB16STREAM pStr
      *       Otherwise do *not* reset the stream's circular buffer here, as the audio mixer still relies on
      *       previously announced DMA data (via AudioMixerSinkDrainAndStop()) and processes it asynchronously.
      *       Resetting the buffer here will cause a race condition.  See @bugref{10354}. */
+    bool fRecreateDmaBuf = false;
+
+    sb16StreamLock(pStream);
+
     if (pStream->State.StatDmaBufSize != cbCircBuf)
     {
         Log3Func(("Re-creating ring buffer (%#RX32 -> %#RX32)\n", pStream->State.StatDmaBufSize, cbCircBuf));
@@ -2300,9 +2304,18 @@ static int sb16StreamOpen(PPDMDEVINS pDevIns, PSB16STATE pThis, PSB16STREAM pStr
         }
 
         rc = RTCircBufCreate(&pStream->State.pCircBuf, cbCircBuf);
-        AssertRCReturn(rc, rc);
-        pStream->State.StatDmaBufSize = (uint32_t)RTCircBufSize(pStream->State.pCircBuf);
+        if (RT_SUCCESS(rc))
+        {
+            pStream->State.StatDmaBufSize = (uint32_t)RTCircBufSize(pStream->State.pCircBuf);
+            fRecreateDmaBuf = true;
+        }
+    }
 
+    sb16StreamUnlock(pStream);
+    AssertRCReturn(rc, rc);
+
+    if (fRecreateDmaBuf)
+    {
         /* Set scheduling hint. */
         pStream->Cfg.Device.cMsSchedulingHint = RT_MS_1SEC / RT_MIN(pStream->uTimerHz, 1);
 
