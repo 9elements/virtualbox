@@ -1,4 +1,4 @@
-/* $Id: DevNVMe.cpp 112490 2026-01-13 13:53:47Z knut.osmundsen@oracle.com $ */
+/* $Id: DevNVMe.cpp 113808 2026-04-10 10:23:10Z alexander.eichner@oracle.com $ */
 /** @file
  * DevNVMe - Non Volatile Memory express (previous name: NVMHCI)
  */
@@ -61,9 +61,11 @@
 *   Defined Constants And Macros                                                                                                 *
 *********************************************************************************************************************************/
 /** The current saved state version. */
-#define NVME_SAVED_STATE_VERSION          2
+#define NVME_SAVED_STATE_VERSION                     3
+/** The saved state version before the NVMEIOREQ::cbPrp field was made 64-bit. */
+#define NVME_SAVED_STATE_VERSION_PRE_PRP_SIZE_64BIT  2
 /** The saved state version before the controller memory buffer feature was introduced. */
-#define NVME_SAVED_STATE_VERSION_PRE_CMB  1
+#define NVME_SAVED_STATE_VERSION_PRE_CMB             1
 
 /** @name Valid ranges for certain configuration values.
  * @{ */
@@ -1701,20 +1703,20 @@ typedef struct NVMEIOREQ
     PDMMEDIAEXIOREQ                 hIoReq;
     /** The namespace the request is for. */
     PNVMENAMESPACE                  pNamespace;
-    /** Command identifier of the command. */
-    uint16_t                        u16Cid;
     /** Associated submission queue. */
     PNVMEQUEUESUBM                  pQueueSubm;
     /** First PRP pointer. */
     NVMEPRP                         Prp1;
     /** Second PRP pointer. */
     NVMEPRP                         Prp2;
-    /** Complete size of the PRP buffer. */
-    uint32_t                        cbPrp;
-    /** Flag when the buffer is mapped. */
-    bool                            fMapped;
     /** Page lock when the buffer is mapped. */
     PGMPAGEMAPLOCK                  PgLck;
+    /** Complete size of the PRP buffer. */
+    size_t                          cbPrp;
+    /** Command identifier of the command. */
+    uint16_t                        u16Cid;
+    /** Flag when the buffer is mapped. */
+    bool                            fMapped;
 } NVMEIOREQ;
 
 /**
@@ -2598,6 +2600,7 @@ static VBOXSTRICTRC HcCtrlCfg_w(PPDMDEVINS pDevIns, PNVME pThis, uint32_t iReg, 
 
     if (   pThis->uShutdwnNotifierLast != NVME_CC_SHN_NO_NOTIFICATION
         && enmStateOld != NVMESTATE_FAULT
+        && enmStateOld != NVMESTATE_SHUTDOWN_PROCESSING
         && enmStateOld != NVMESTATE_SHUTDOWN_COMPLETE)
     {
         bool fXchg = false;
@@ -5030,7 +5033,7 @@ static int nvmeR3CmdAdminProcess(PPDMDEVINS pDevIns, PNVME pThis, PNVMECC pThisC
  */
 static PNVMEIOREQ nvmeR3IoReqAlloc(PNVMENAMESPACE pNamespace,
                                    uint16_t u16Cid, PNVMEQUEUESUBM pQueueSubm,
-                                   NVMEPRP Prp1, NVMEPRP Prp2, uint32_t cbPrp)
+                                   NVMEPRP Prp1, NVMEPRP Prp2, size_t cbPrp)
 {
     PNVMEIOREQ pIoReq = NULL;
     PDMMEDIAEXIOREQ hIoReq = NULL;
@@ -5234,7 +5237,7 @@ static int nvmeR3CmdNvmProcess(PPDMDEVINS pDevIns, PNVME pThis, PNVMECC pThisCC,
 
     pIoReq = nvmeR3IoReqAlloc(pNamespace, pCmdNvm->u.Field.Hdr.u16Cid, pQueueSubm,
                               pCmdNvm->u.Field.DataPtr.Prp.Prp1, pCmdNvm->u.Field.DataPtr.Prp.Prp2,
-                              (uint32_t)cbReq);
+                              cbReq);
     if (pIoReq)
         nvmeR3IoReqSubmit(pDevIns, pThis, pThisCC, pNamespace, pIoReq, enmType, u64OffsetStart, cbReq);
     else
@@ -6442,7 +6445,7 @@ static DECLCALLBACK(int) nvmeR3SaveExec(PPDMDEVINS pDevIns, PSSMHANDLE pSSM)
                     pHlp->pfnSSMPutU16(pSSM, pNvmeIoReq->pQueueSubm->Hdr.u16Id);
                     pHlp->pfnSSMPutU64(pSSM, pNvmeIoReq->Prp1);
                     pHlp->pfnSSMPutU64(pSSM, pNvmeIoReq->Prp2);
-                    pHlp->pfnSSMPutU32(pSSM, pNvmeIoReq->cbPrp);
+                    pHlp->pfnSSMPutU64(pSSM, pNvmeIoReq->cbPrp);
 
                     rc = pNamespace->pDrvMediaEx->pfnIoReqSuspendedSave(pNamespace->pDrvMediaEx, pSSM, pNvmeIoReq->hIoReq);
                     if (RT_FAILURE(rc))
@@ -6730,7 +6733,7 @@ static DECLCALLBACK(int) nvmeR3LoadExec(PPDMDEVINS pDevIns, PSSMHANDLE pSSM, uin
                 {
                     uint16_t u16Cid, u16QueueSubmId;
                     NVMEPRP  Prp1, Prp2;
-                    uint32_t cbPrp;
+                    uint64_t cbPrp;
                     PNVMEQUEUESUBM pQueueSubm = NULL;
 
                     /* Restore data first. */
@@ -6738,7 +6741,15 @@ static DECLCALLBACK(int) nvmeR3LoadExec(PPDMDEVINS pDevIns, PSSMHANDLE pSSM, uin
                     pHlp->pfnSSMGetU16(pSSM, &u16QueueSubmId);
                     pHlp->pfnSSMGetU64(pSSM, &Prp1);
                     pHlp->pfnSSMGetU64(pSSM, &Prp2);
-                    rc = pHlp->pfnSSMGetU32(pSSM, &cbPrp);
+
+                    if (uVersion > NVME_SAVED_STATE_VERSION_PRE_PRP_SIZE_64BIT)
+                        rc = pHlp->pfnSSMGetU64(pSSM, &cbPrp);
+                    else
+                    {
+                        uint32_t cbPrp32 = 0;
+                        rc = pHlp->pfnSSMGetU32(pSSM, &cbPrp32);
+                        cbPrp = cbPrp32;
+                    }
                     AssertRCReturn(rc, rc);
 
                     if (   u16QueueSubmId >= pThis->cQueuesSubmMax
