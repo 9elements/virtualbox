@@ -1,4 +1,4 @@
-/* $Id: UIVMActivityMonitor.cpp 113810 2026-04-10 10:50:30Z serkan.bayraktar@oracle.com $ */
+/* $Id: UIVMActivityMonitor.cpp 113812 2026-04-10 14:34:02Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVMActivityMonitor class implementation.
  */
@@ -1451,7 +1451,28 @@ void UIVMActivityMonitor::setInfoLabelWidth()
         const QFontMetrics labelFontMetric(pContainer->font());
         const int iWidth = m_iMaximumLabelLength * labelFontMetric.horizontalAdvance('X');
         foreach (UIInfoLabelContainer *pContainer, m_infoLabelContainers)
-            pContainer->setFixedWidth(iWidth);
+            if (pContainer)
+                pContainer->setFixedWidth(iWidth);
+    }
+}
+
+void UIVMActivityMonitor::setInfoLabelContainerHeight()
+{
+    int iMaxHeight = 0;
+    for (UIInfoLabelContainer *pContainer : m_infoLabelContainers)
+    {
+        if (!pContainer)
+            continue;
+        int iHeight = pContainer->height();
+        if (iHeight <= 0)
+            iHeight = pContainer->sizeHint().height();
+        iMaxHeight = qMax(iMaxHeight, iHeight);
+    }
+    for (UIInfoLabelContainer *pContainer : m_infoLabelContainers)
+    {
+        if (!pContainer)
+            continue;
+        pContainer->setFixedHeight(iMaxHeight);
     }
 }
 
@@ -1467,6 +1488,11 @@ void UIVMActivityMonitor::setDataSeriesColor(int iIndex, const QColor &color)
     setInfoLabelRowColors(m_fPaused);
 }
 
+void UIVMActivityMonitor::showEvent(QShowEvent *pEvent)
+{
+    QWidget::showEvent(pEvent);
+    setInfoLabelContainerHeight();
+}
 /*********************************************************************************************************************************
  *   UIVMActivityMonitorLocal definition.                                                                         *
  *********************************************************************************************************************************/
@@ -1847,6 +1873,7 @@ void UIVMActivityMonitorLocal::reset()
 
 void UIVMActivityMonitorLocal::prepareWidgets()
 {
+    AssertReturnVoid(m_infoLabelContainers.size() == Metric_Type_Max);
     if (m_metrics.size() < Metric_Type_Max || m_charts.size() < Metric_Type_Max)
         return;
     UIVMActivityMonitor::prepareWidgets();
@@ -1888,7 +1915,7 @@ void UIVMActivityMonitorLocal::prepareWidgets()
         tempPal.setColor(QPalette::Window, tempPal.color(QPalette::Window).lighter(g_iBackgroundTint));
         pLabelContainer->setPalette(tempPal);
         pLabelContainer->setAutoFillBackground(true);
-        m_infoLabelContainers.insert(enmType, pLabelContainer);
+        m_infoLabelContainers[enmType] = pLabelContainer;
         pChartLayout->addWidget(pLabelContainer);
         m_charts[enmType] = new UIChart(this, m_pActionPool, m_iMaximumQueueSize);
         m_charts[enmType]->setMetric(m_metrics[enmType]);
@@ -2576,7 +2603,6 @@ void UIVMActivityMonitorCloud::reset()
     resetNetworkOutInfoLabel();
     resetDiskIOWrittenInfoLabel();
     resetDiskIOReadInfoLabel();
-
     update();
 }
 
@@ -2757,7 +2783,7 @@ void UIVMActivityMonitorCloud::prepareWidgets()
         tempPal.setColor(QPalette::Window, tempPal.color(QPalette::Window).lighter(g_iBackgroundTint));
         pLabelContainer->setPalette(tempPal);
         pLabelContainer->setAutoFillBackground(true);
-        m_infoLabelContainers.insert(enmType, pLabelContainer);
+        m_infoLabelContainers[enmType] = pLabelContainer;
         pChartLayout->addWidget(pLabelContainer);
         m_charts[enmType] = new UIChart(this, m_pActionPool, m_iMaximumQueueSize);
         m_charts[enmType]->setMetric(m_metrics[enmType]);

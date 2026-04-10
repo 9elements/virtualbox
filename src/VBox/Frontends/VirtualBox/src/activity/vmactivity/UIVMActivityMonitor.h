@@ -1,4 +1,4 @@
-/* $Id: UIVMActivityMonitor.h 113810 2026-04-10 10:50:30Z serkan.bayraktar@oracle.com $ */
+/* $Id: UIVMActivityMonitor.h 113812 2026-04-10 14:34:02Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVMActivityMonitor class declaration.
  */
@@ -202,6 +202,8 @@ protected:
 
     virtual void prepareWidgets();
     void setInfoLabelWidth();
+    void setInfoLabelContainerHeight();
+    virtual void showEvent(QShowEvent *pEvent) RT_OVERRIDE;
 
     bool                    m_fPaused;
     QVBoxLayout            *m_pContainerLayout;
