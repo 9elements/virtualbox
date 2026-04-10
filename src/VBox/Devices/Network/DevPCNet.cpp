@@ -1,4 +1,4 @@
-/* $Id: DevPCNet.cpp 113436 2026-03-16 18:36:43Z klaus.espenlaub@oracle.com $ */
+/* $Id: DevPCNet.cpp 113801 2026-04-10 09:37:23Z michal.necasek@oracle.com $ */
 /** @file
  * DevPCNet - AMD PCnet-PCI II / PCnet-FAST III (Am79C970A / Am79C973) Ethernet Controller Emulation.
  *
@@ -1757,7 +1757,7 @@ static void pcnetReceiveNoSync(PPDMDEVINS pDevIns, PPCNETSTATE pThis, PPCNETSTAT
             PCRTNETETHERHDR pEth = (PCRTNETETHERHDR)buf;
             bool fStrip = false;
             size_t len_802_3;
-            uint8_t   *src = &pThis->abRecvBuf[8];
+            uint8_t   *src = pThis->abRecvBuf;
             RTGCPHYS32 crda = CSR_CRDA(pThis);
             RTGCPHYS32 next_crda;
             RMD        rmd, next_rmd;
@@ -1981,7 +1981,8 @@ DECLINLINE(int) pcnetXmitAllocBuf(PPCNETSTATE pThis, PPCNETSTATECC pThisCC, size
     {
         pSgLoop->fFlags      = PDMSCATTERGATHER_FLAGS_MAGIC | PDMSCATTERGATHER_FLAGS_OWNER_1;
         pSgLoop->cbUsed      = 0;
-        pSgLoop->cbAvailable = sizeof(pThis->abLoopBuf);
+        AssertCompile(sizeof(pThis->abLoopBuf) > 4);
+        pSgLoop->cbAvailable = sizeof(pThis->abLoopBuf) - 4;    /* leave room for FCS */
         pSgLoop->pvAllocator = pThis;
         pSgLoop->pvUser      = NULL;
         pSgLoop->cSegs       = 1;
