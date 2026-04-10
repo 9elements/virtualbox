@@ -1,4 +1,4 @@
-/* $Id: UIVMActivityMonitor.h 113779 2026-04-09 08:40:31Z serkan.bayraktar@oracle.com $ */
+/* $Id: UIVMActivityMonitor.h 113797 2026-04-10 08:51:54Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVMActivityMonitor class declaration.
  */
@@ -357,6 +357,7 @@ private:
     QString m_strUSBInfoLabelTransmitAverage;
     ComObjPtr<UIMainEventListenerImpl> m_pQtConsoleListener;
     CEventListener m_comConsoleListener;
+    ULONG m_iGuestCPUCount;
 };
 
 class  SHARED_LIBRARY_STUFF UIVMActivityMonitorCloud : public UIVMActivityMonitor

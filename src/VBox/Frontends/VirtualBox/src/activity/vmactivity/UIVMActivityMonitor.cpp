@@ -1,4 +1,4 @@
-/* $Id: UIVMActivityMonitor.cpp 113781 2026-04-09 09:40:19Z serkan.bayraktar@oracle.com $ */
+/* $Id: UIVMActivityMonitor.cpp 113797 2026-04-10 08:51:54Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVMActivityMonitor class implementation.
  */
@@ -242,7 +242,8 @@ private:
 *********************************************************************************************************************************/
 
 UIInfoLabelContainer::UIInfoLabelContainer(QWidget *pParent, int iRowCount)
-    : QWidget(pParent), m_pGridLayout(nullptr)
+    : QWidget(pParent)
+    , m_pGridLayout(nullptr)
 {
     iRowCount = qMax(1, iRowCount);
     m_pGridLayout = new QGridLayout(this);
@@ -314,7 +315,23 @@ QFont UIInfoLabelContainer::labelFont() const
  *********************************************************************************************************************************/
 
 UIChart::UIChart(QWidget *pParent, UIActionPool *pActionPool, int iMaximumQueueSize)
-    : QWidget(pParent), m_pMetric(nullptr), m_size(QSize(50, 50)), m_iOverlayAlpha(80), m_fPixelPerDataPoint(0.f), m_iDataIndexUnderCursor(-1), m_fIsPieChartAllowed(false), m_fShowPieChart(true), m_fUseGradientLineColor(false), m_fUseAreaChart(true), m_fIsAvailable(true), m_fIsAreaChartAllowed(false), m_fDrawCurenValueIndicators(true), m_iRightMarginCharWidth(10), m_iMaximumQueueSize(iMaximumQueueSize), m_pMouseOverLabel(0), m_pActionPool(pActionPool), m_fPausedMode(false)
+    : QWidget(pParent), m_pMetric(nullptr)
+    , m_size(QSize(50, 50))
+    , m_iOverlayAlpha(80)
+    , m_fPixelPerDataPoint(0.f)
+    , m_iDataIndexUnderCursor(-1)
+    , m_fIsPieChartAllowed(false)
+    , m_fShowPieChart(true)
+    , m_fUseGradientLineColor(false)
+    , m_fUseAreaChart(true)
+    , m_fIsAvailable(true)
+    , m_fIsAreaChartAllowed(false)
+    , m_fDrawCurenValueIndicators(true)
+    , m_iRightMarginCharWidth(10)
+    , m_iMaximumQueueSize(iMaximumQueueSize)
+    , m_pMouseOverLabel(0)
+    , m_pActionPool(pActionPool)
+    , m_fPausedMode(false)
 {
     QPalette tempPal = palette();
     tempPal.setColor(QPalette::Window, tempPal.color(QPalette::Window).lighter(g_iBackgroundTint));
@@ -983,7 +1000,11 @@ void UIChart::sltSetUseAreaChart(bool fUseAreaChart)
 *   UIMetric implementation.                                                                                                     *
 *********************************************************************************************************************************/
 UIMetric::UIMetric()
-    : m_iMaximum(0), m_fRequiresGuestAdditions(false), m_fIsInitialized(false), m_fAutoUpdateMaximum(false), m_iMaximumQueueSize(0)
+    : m_iMaximum(0)
+    , m_fRequiresGuestAdditions(false)
+    , m_fIsInitialized(false)
+    , m_fAutoUpdateMaximum(false)
+    , m_iMaximumQueueSize(0)
 {
     m_iTotal[0] = 0;
     m_iTotal[1] = 0;
@@ -1194,7 +1215,19 @@ bool UIMetric::autoUpdateMaximum() const
  *********************************************************************************************************************************/
 
 UIVMActivityMonitor::UIVMActivityMonitor(EmbedTo enmEmbedding, QWidget *pParent, UIActionPool *pActionPool, int iMaximumQueueSize)
-    : QWidget(pParent), m_fPaused(false), m_pContainerLayout(0), m_pPauseButton(0), m_pPauseAction(0), m_pTimer(0), m_iTimeStep(0), m_metrics(QVector<UIMetric>(Metric_Type_Max, UIMetric())), m_charts(QVector<UIChart *>(Metric_Type_Max, nullptr)), m_iMaximumQueueSize(iMaximumQueueSize), m_pActionPool(pActionPool), m_pMainLayout(0), m_enmEmbedding(enmEmbedding)
+    : QWidget(pParent)
+    , m_fPaused(false)
+    , m_pContainerLayout(0)
+    , m_pPauseButton(0)
+    , m_pPauseAction(0)
+    , m_pTimer(0)
+    , m_iTimeStep(0)
+    , m_metrics(QVector<UIMetric>(Metric_Type_Max, UIMetric()))
+    , m_charts(QVector<UIChart *>(Metric_Type_Max, nullptr))
+    , m_iMaximumQueueSize(iMaximumQueueSize)
+    , m_pActionPool(pActionPool)
+    , m_pMainLayout(0)
+    , m_enmEmbedding(enmEmbedding)
 {
     uiCommon().setHelpKeyword(this, "tk_vm-activity-session-information" /* help keyword */);
     setContextMenuPolicy(Qt::CustomContextMenu);
@@ -1443,7 +1476,10 @@ void UIVMActivityMonitor::setDataSeriesColor(int iIndex, const QColor &color)
 
 UIVMActivityMonitorLocal::UIVMActivityMonitorLocal(EmbedTo enmEmbedding, QWidget *pParent,
                                                    const CMachine &machine, UIActionPool *pActionPool)
-    : UIVMActivityMonitor(enmEmbedding, pParent, pActionPool, 120 /* iMaximumQueueSize */), m_fGuestAdditionsAvailable(false), m_fCOMPerformanceCollectorConfigured(false)
+    : UIVMActivityMonitor(enmEmbedding, pParent, pActionPool, 120 /* iMaximumQueueSize */)
+    , m_fGuestAdditionsAvailable(false)
+    , m_fCOMPerformanceCollectorConfigured(false)
+    , m_iGuestCPUCount(0)
 {
     prepareMetrics();
     prepareWidgets();
@@ -1599,6 +1635,8 @@ void UIVMActivityMonitorLocal::setMachine(const CMachine &comMachine)
         openSession();
         start();
     }
+    if (m_comMachine.isOk())
+        m_iGuestCPUCount = comMachine.GetCPUCount();
 }
 
 QString UIVMActivityMonitorLocal::machineName() const
@@ -2040,7 +2078,10 @@ void UIVMActivityMonitorLocal::updateCPUChart(ULONG iExecutingPercentage, ULONG 
     {
         if (m_infoLabelContainers.contains(Metric_Type_CPU) && m_infoLabelContainers[Metric_Type_CPU])
         {
-            m_infoLabelContainers[Metric_Type_CPU]->setTitle(m_strCPUInfoLabelTitle);
+            if (m_iGuestCPUCount != 0)
+                m_infoLabelContainers[Metric_Type_CPU]->setTitle(QString("%1 (%2 VCPUs)").arg(m_strCPUInfoLabelTitle).arg(QString::number(m_iGuestCPUCount)));
+            else
+                m_infoLabelContainers[Metric_Type_CPU]->setTitle(m_strCPUInfoLabelTitle);
             int iLabelRow = 1;
             m_infoLabelContainers[Metric_Type_CPU]->setRowText(iLabelRow++, m_strCPUInfoLabelGuestCurrent,
                                                                QString("%1%2").arg(QString::number(uEx)).arg(CPUMetric.unit()));
@@ -2278,7 +2319,9 @@ void UIVMActivityMonitorLocal::resetDiskIOInfoLabel()
 
 UIVMActivityMonitorCloud::UIVMActivityMonitorCloud(EmbedTo enmEmbedding, QWidget *pParent,
                                                    const CCloudMachine &machine, UIActionPool *pActionPool)
-    : UIVMActivityMonitor(enmEmbedding, pParent, pActionPool, 60 /* iMaximumQueueSize */), m_pMachineStateUpdateTimer(0), m_enmMachineState(KCloudMachineState_Invalid)
+    : UIVMActivityMonitor(enmEmbedding, pParent, pActionPool, 60 /* iMaximumQueueSize */)
+    , m_pMachineStateUpdateTimer(0)
+    , m_enmMachineState(KCloudMachineState_Invalid)
 {
     m_metricTypeDict[KMetricType_CpuUtilization] = Metric_Type_CPU;
     m_metricTypeDict[KMetricType_MemoryUtilization] = Metric_Type_RAM;
