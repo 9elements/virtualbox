@@ -1,4 +1,4 @@
-/* $Id: DevNVMe.cpp 113083 2026-02-19 11:28:35Z alexander.eichner@oracle.com $ */
+/* $Id: DevNVMe.cpp 113793 2026-04-10 06:53:29Z alexander.eichner@oracle.com $ */
 /** @file
  * DevNVMe - Non Volatile Memory express (previous name: NVMHCI)
  */
@@ -1701,20 +1701,20 @@ typedef struct NVMEIOREQ
     PDMMEDIAEXIOREQ                 hIoReq;
     /** The namespace the request is for. */
     PNVMENAMESPACE                  pNamespace;
-    /** Command identifier of the command. */
-    uint16_t                        u16Cid;
     /** Associated submission queue. */
     PNVMEQUEUESUBM                  pQueueSubm;
     /** First PRP pointer. */
     NVMEPRP                         Prp1;
     /** Second PRP pointer. */
     NVMEPRP                         Prp2;
-    /** Complete size of the PRP buffer. */
-    uint32_t                        cbPrp;
-    /** Flag when the buffer is mapped. */
-    bool                            fMapped;
     /** Page lock when the buffer is mapped. */
     PGMPAGEMAPLOCK                  PgLck;
+    /** Complete size of the PRP buffer. */
+    size_t                          cbPrp;
+    /** Command identifier of the command. */
+    uint16_t                        u16Cid;
+    /** Flag when the buffer is mapped. */
+    bool                            fMapped;
 } NVMEIOREQ;
 
 /**
@@ -2598,6 +2598,7 @@ static VBOXSTRICTRC HcCtrlCfg_w(PPDMDEVINS pDevIns, PNVME pThis, uint32_t iReg, 
 
     if (   pThis->uShutdwnNotifierLast != NVME_CC_SHN_NO_NOTIFICATION
         && enmStateOld != NVMESTATE_FAULT
+        && enmStateOld != NVMESTATE_SHUTDOWN_PROCESSING
         && enmStateOld != NVMESTATE_SHUTDOWN_COMPLETE)
     {
         bool fXchg = false;
@@ -5030,7 +5031,7 @@ static int nvmeR3CmdAdminProcess(PPDMDEVINS pDevIns, PNVME pThis, PNVMECC pThisC
  */
 static PNVMEIOREQ nvmeR3IoReqAlloc(PNVMENAMESPACE pNamespace,
                                    uint16_t u16Cid, PNVMEQUEUESUBM pQueueSubm,
-                                   NVMEPRP Prp1, NVMEPRP Prp2, uint32_t cbPrp)
+                                   NVMEPRP Prp1, NVMEPRP Prp2, size_t cbPrp)
 {
     PNVMEIOREQ pIoReq = NULL;
     PDMMEDIAEXIOREQ hIoReq = NULL;
@@ -5234,7 +5235,7 @@ static int nvmeR3CmdNvmProcess(PPDMDEVINS pDevIns, PNVME pThis, PNVMECC pThisCC,
 
     pIoReq = nvmeR3IoReqAlloc(pNamespace, pCmdNvm->u.Field.Hdr.u16Cid, pQueueSubm,
                               pCmdNvm->u.Field.DataPtr.Prp.Prp1, pCmdNvm->u.Field.DataPtr.Prp.Prp2,
-                              (uint32_t)cbReq);
+                              cbReq);
     if (pIoReq)
         nvmeR3IoReqSubmit(pDevIns, pThis, pThisCC, pNamespace, pIoReq, enmType, u64OffsetStart, cbReq);
     else
