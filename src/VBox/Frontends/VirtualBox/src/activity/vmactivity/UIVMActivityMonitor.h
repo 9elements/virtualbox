@@ -1,4 +1,4 @@
-/* $Id: UIVMActivityMonitor.h 113797 2026-04-10 08:51:54Z serkan.bayraktar@oracle.com $ */
+/* $Id: UIVMActivityMonitor.h 113810 2026-04-10 10:50:30Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVMActivityMonitor class declaration.
  */
@@ -218,7 +218,7 @@ protected:
         QVector<CUnknown> m_objectList;
     /** @} */
     QVector<UIChart*>  m_charts;
-    QMap<Metric_Type, UIInfoLabelContainer*>  m_infoLabelContainers;
+    QVector<UIInfoLabelContainer*>  m_infoLabelContainers;
 
     /** @name Cached translated strings.
       * @{ */
