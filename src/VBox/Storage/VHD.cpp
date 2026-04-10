@@ -1,4 +1,4 @@
-/* $Id: VHD.cpp 106320 2024-10-15 12:08:41Z klaus.espenlaub@oracle.com $ */
+/* $Id: VHD.cpp 113816 2026-04-10 18:53:51Z klaus.espenlaub@oracle.com $ */
 /** @file
  * VHD Disk image, Core Code.
  */
@@ -767,11 +767,20 @@ static int vhdLoadDynamicDisk(PVHDIMAGE pImage, uint64_t uDynamicDiskHeaderOffse
     AssertMsg(!(pImage->cbDataBlock % VHD_SECTOR_SIZE), ("%s: Data block size is not a multiple of %!\n", __FUNCTION__, VHD_SECTOR_SIZE));
 
     /*
+     * Bail out if the data block size is unreasonably small or large.
+     */
+    if (   !pImage->cbDataBlock
+        || pImage->cbDataBlock % VHD_SECTOR_SIZE
+        || pImage->cbDataBlock < VHD_SECTOR_SIZE * VHD_SECTOR_SIZE /* 7/8th of the BAT wasted is unreasonable */
+        || pImage->cbDataBlock > VHD_BLOCK_SIZE * VHD_SECTOR_SIZE /* 1GB blocks are unreasonable */)
+        return VERR_VD_VHD_INVALID_HEADER;
+    /*
      * Bail out if the number of BAT entries exceeds the number of sectors for a maximum image.
      * Lower the number of sectors in the BAT as a few sectors are already occupied by the footers
      * and headers.
      */
-    if (pImage->cBlockAllocationTableEntries > (VHD_MAX_SECTORS - 2))
+    if (   !pImage->cBlockAllocationTableEntries
+        || (uint64_t)pImage->cBlockAllocationTableEntries * pImage->cbDataBlock / VHD_SECTOR_SIZE > VHD_MAX_SECTORS - 2)
         return VERR_VD_VHD_INVALID_HEADER;
 
     pImage->cSectorsPerDataBlock = pImage->cbDataBlock / VHD_SECTOR_SIZE;
