@@ -1,4 +1,4 @@
-/* $Id: DevNVMe.cpp 113793 2026-04-10 06:53:29Z alexander.eichner@oracle.com $ */
+/* $Id: DevNVMe.cpp 113794 2026-04-10 07:11:34Z alexander.eichner@oracle.com $ */
 /** @file
  * DevNVMe - Non Volatile Memory express (previous name: NVMHCI)
  */
@@ -61,9 +61,11 @@
 *   Defined Constants And Macros                                                                                                 *
 *********************************************************************************************************************************/
 /** The current saved state version. */
-#define NVME_SAVED_STATE_VERSION          2
+#define NVME_SAVED_STATE_VERSION                     3
+/** The saved state version before the NVMEIOREQ::cbPrp field was made 64-bit. */
+#define NVME_SAVED_STATE_VERSION_PRE_PRP_SIZE_64BIT  2
 /** The saved state version before the controller memory buffer feature was introduced. */
-#define NVME_SAVED_STATE_VERSION_PRE_CMB  1
+#define NVME_SAVED_STATE_VERSION_PRE_CMB             1
 
 /** @name Valid ranges for certain configuration values.
  * @{ */
@@ -6443,7 +6445,7 @@ static DECLCALLBACK(int) nvmeR3SaveExec(PPDMDEVINS pDevIns, PSSMHANDLE pSSM)
                     pHlp->pfnSSMPutU16(pSSM, pNvmeIoReq->pQueueSubm->Hdr.u16Id);
                     pHlp->pfnSSMPutU64(pSSM, pNvmeIoReq->Prp1);
                     pHlp->pfnSSMPutU64(pSSM, pNvmeIoReq->Prp2);
-                    pHlp->pfnSSMPutU32(pSSM, pNvmeIoReq->cbPrp);
+                    pHlp->pfnSSMPutU64(pSSM, pNvmeIoReq->cbPrp);
 
                     rc = pNamespace->pDrvMediaEx->pfnIoReqSuspendedSave(pNamespace->pDrvMediaEx, pSSM, pNvmeIoReq->hIoReq);
                     if (RT_FAILURE(rc))
@@ -6731,7 +6733,7 @@ static DECLCALLBACK(int) nvmeR3LoadExec(PPDMDEVINS pDevIns, PSSMHANDLE pSSM, uin
                 {
                     uint16_t u16Cid, u16QueueSubmId;
                     NVMEPRP  Prp1, Prp2;
-                    uint32_t cbPrp;
+                    uint64_t cbPrp;
                     PNVMEQUEUESUBM pQueueSubm = NULL;
 
                     /* Restore data first. */
@@ -6739,7 +6741,15 @@ static DECLCALLBACK(int) nvmeR3LoadExec(PPDMDEVINS pDevIns, PSSMHANDLE pSSM, uin
                     pHlp->pfnSSMGetU16(pSSM, &u16QueueSubmId);
                     pHlp->pfnSSMGetU64(pSSM, &Prp1);
                     pHlp->pfnSSMGetU64(pSSM, &Prp2);
-                    rc = pHlp->pfnSSMGetU32(pSSM, &cbPrp);
+
+                    if (uVersion > NVME_SAVED_STATE_VERSION_PRE_PRP_SIZE_64BIT)
+                        rc = pHlp->pfnSSMGetU64(pSSM, &cbPrp);
+                    else
+                    {
+                        uint32_t cbPrp32 = 0;
+                        rc = pHlp->pfnSSMGetU32(pSSM, &cbPrp32);
+                        cbPrp = cbPrp32;
+                    }
                     AssertRCReturn(rc, rc);
 
                     if (   u16QueueSubmId >= pThis->cQueuesSubmMax
