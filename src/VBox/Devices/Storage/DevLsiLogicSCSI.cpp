@@ -1,4 +1,4 @@
-/* $Id: DevLsiLogicSCSI.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: DevLsiLogicSCSI.cpp 113804 2026-04-10 09:44:38Z michal.necasek@oracle.com $ */
 /** @file
  * DevLsiLogicSCSI - LsiLogic LSI53c1030 SCSI controller.
  */
@@ -2283,8 +2283,8 @@ static void lsilogicR3ReqComplete(PPDMDEVINS pDevIns, PLSILOGICSCSI pThis, PLSIL
 static int lsilogicR3ProcessSCSIIORequest(PPDMDEVINS pDevIns, PLSILOGICSCSI pThis, PLSILOGICSCSICC pThisCC,
                                           RTGCPHYS GCPhysMessageFrameAddr, PMptRequestUnion pGuestReq)
 {
-    MptReplyUnion IOCReply;
-    int rc = VINF_SUCCESS;
+    uint16_t    u16IOCStatus = 0;
+    int         rc = VINF_SUCCESS;
 
 # ifdef LOG_ENABLED
     lsilogicR3DumpSCSIIORequest(&pGuestReq->SCSIIO);
@@ -2344,21 +2344,21 @@ static int lsilogicR3ProcessSCSIIORequest(PPDMDEVINS pDevIns, PLSILOGICSCSI pThi
                 return VINF_SUCCESS;
             }
             else
-                IOCReply.SCSIIOError.u16IOCStatus = MPT_SCSI_IO_ERROR_IOCSTATUS_DEVICE_NOT_THERE;
+                u16IOCStatus = MPT_SCSI_IO_ERROR_IOCSTATUS_DEVICE_NOT_THERE;
         }
         else
         {
             /* Device is not present report SCSI selection timeout. */
-            IOCReply.SCSIIOError.u16IOCStatus = MPT_SCSI_IO_ERROR_IOCSTATUS_DEVICE_NOT_THERE;
+            u16IOCStatus = MPT_SCSI_IO_ERROR_IOCSTATUS_DEVICE_NOT_THERE;
         }
     }
     else
     {
         /* Report out of bounds target ID or bus. */
         if (pGuestReq->SCSIIO.u8Bus != 0)
-            IOCReply.SCSIIOError.u16IOCStatus = MPT_SCSI_IO_ERROR_IOCSTATUS_INVALID_BUS;
+            u16IOCStatus = MPT_SCSI_IO_ERROR_IOCSTATUS_INVALID_BUS;
         else
-            IOCReply.SCSIIOError.u16IOCStatus = MPT_SCSI_IO_ERROR_IOCSTATUS_INVALID_TARGETID;
+            u16IOCStatus = MPT_SCSI_IO_ERROR_IOCSTATUS_INVALID_TARGETID;
     }
 
     static int g_cLogged = 0;
@@ -2376,6 +2376,9 @@ static int lsilogicR3ProcessSCSIIORequest(PPDMDEVINS pDevIns, PLSILOGICSCSI pThi
     }
 
     /* The rest is equal to both errors. */
+    MptReplyUnion IOCReply;
+    RT_ZERO(IOCReply);
+    IOCReply.SCSIIOError.u16IOCStatus        = u16IOCStatus;
     IOCReply.SCSIIOError.u8TargetID          = pGuestReq->SCSIIO.u8TargetID;
     IOCReply.SCSIIOError.u8Bus               = pGuestReq->SCSIIO.u8Bus;
     IOCReply.SCSIIOError.u8MessageLength     = sizeof(MptSCSIIOErrorReply) / 4;
