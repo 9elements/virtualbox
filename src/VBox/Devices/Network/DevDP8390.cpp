@@ -1,4 +1,4 @@
-/* $Id: DevDP8390.cpp 112672 2026-01-22 15:36:05Z michal.necasek@oracle.com $ */
+/* $Id: DevDP8390.cpp 113798 2026-04-10 09:18:54Z michal.necasek@oracle.com $ */
 /** @file
  * DevDP8390 - National Semiconductor DP8390-based Ethernet Adapter Emulation.
  */
@@ -749,6 +749,12 @@ typedef struct DP_PG1 {
 AssertCompile(sizeof(DP_PG1) == 16);
 
 /** DP8390 FIFO. Not all of the state is explicitly accessible. */
+/* The hardware FIFO is 16 bytes. However, it can only be safely
+ * accessed in loopback mode, where it is split into 8 bytes for
+ * receive and 8 bytes for transmit. The behavior of the receive
+ * FIFO is documented, the transmit FIFO is not. It is unclear
+ * if more than 8 bytes can be accessed by software at all.
+ */
 typedef struct DP_FIFO {
     uint8_t     rp;             /* Read pointer. */
     uint8_t     wp;             /* Write pointer. */
@@ -3661,9 +3667,8 @@ dp8390CoreIOPortWrite(PPDMDEVINS pDevIns, void *pvUser, RTIOPORT Port, uint32_t 
         case 2:
             /* Manually split word access. */
             rc = dp8390CoreWrite(pDevIns, pThis, reg + 0, RT_LOBYTE(RT_LOWORD(u32)));
-            if (!RT_SUCCESS(rc))
-                break;
-            rc = dp8390CoreWrite(pDevIns, pThis, reg + 1, RT_HIBYTE(RT_LOWORD(u32)));
+            if (RT_SUCCESS(rc) && (reg < 0xf))
+                rc = dp8390CoreWrite(pDevIns, pThis, reg + 1, RT_HIBYTE(RT_LOWORD(u32)));
             break;
         default:
             rc = PDMDevHlpDBGFStop(pDevIns, RT_SRC_POS,
