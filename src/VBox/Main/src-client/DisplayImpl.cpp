@@ -1,4 +1,4 @@
-/* $Id: DisplayImpl.cpp 113813 2026-04-10 17:03:01Z andreas.loeffler@oracle.com $ */
+/* $Id: DisplayImpl.cpp 113814 2026-04-10 17:12:18Z andreas.loeffler@oracle.com $ */
 /** @file
  * VirtualBox COM class implementation
  */
@@ -2237,7 +2237,7 @@ int Display::i_recordingScreenChanged(unsigned uScreenId, const DISPLAYFBINFO *p
                                                                                 ulVideoWidth, ulVideoHeight,
                                                                                 PDM_DISPLAY_OUTPUT_TARGET_FIXED_SIZE,
                                                                                 u64VideoOutputTargetToken);
-                    Assert(vrc2 == VERR_NOT_SUPPORTED || RT_SUCCESS(vrc2));
+                    Assert(vrc2 == VERR_NOT_SUPPORTED || RT_SUCCESS(vrc2)); RT_NOREF(vrc2);
                     /* Note: Assign output target token to stream in i_handleOnOutputTargetCreated(). */
                 }
             }
