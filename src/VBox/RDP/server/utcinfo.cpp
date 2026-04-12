@@ -1,4 +1,4 @@
-/* $Id: utcinfo.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: utcinfo.cpp 113819 2026-04-12 20:41:54Z vitali.pelenjow@oracle.com $ */
 /** @file
  * VBox Remote Desktop Protocol.
  */
@@ -646,6 +646,7 @@ void UTCINFOClient::processInput(uint32_t u32Event, const void *pvData, uint32_t
                         if (cbLeft < cbInfo)
                         {
                             UTCINFOLOG(("cbLeft < UTCINFO_CLIENT_INFO[%s]!!!\n", g_apszClientInfoNames[idx]));
+                            rc = VERR_IO_BAD_LENGTH;
                             break;
                         }
 
@@ -660,6 +661,7 @@ void UTCINFOClient::processInput(uint32_t u32Event, const void *pvData, uint32_t
                         if (cbLeft < cbInfo)
                         {
                             UTCINFOLOG(("cbLeft < UTCINFO_CLIENT_INFO + Info[%s]!!!\n", g_apszClientInfoNames[idx]));
+                            rc = VERR_IO_BAD_LENGTH;
                             break;
                         }
 
@@ -671,6 +673,7 @@ void UTCINFOClient::processInput(uint32_t u32Event, const void *pvData, uint32_t
                             || pClientLocationInfo->au16ClientLocationInfo[pClientLocationInfo->u16ClientLocationInfoLength / 2 - 1] != 0)
                         {
                             UTCINFOLOG(("UTCINFO::ClientInfo failed at %s verification\n", g_apszClientInfoNames[idx]));
+                            rc = VERR_IO_BAD_LENGTH;
                             break;
                         }
 
@@ -717,6 +720,7 @@ void UTCINFOClient::processInput(uint32_t u32Event, const void *pvData, uint32_t
                 default:
                 {
                     UTCINFOLOG(("wrong MessageId!!!\n"));
+                    rc = VERR_INVALID_FUNCTION;
                 } break;
             }
         } break;
