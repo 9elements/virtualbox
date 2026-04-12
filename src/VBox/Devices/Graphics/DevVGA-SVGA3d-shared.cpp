@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA3d-shared.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: DevVGA-SVGA3d-shared.cpp 113825 2026-04-12 21:32:25Z vitali.pelenjow@oracle.com $ */
 /** @file
  * DevVMWare - VMWare SVGA device
  */
@@ -333,7 +333,7 @@ void vmsvga3dSurfaceMipBufferSize(SVGA3dSurfaceFormat format, SVGA3dSize mipmapS
     uint32_t const cyBlocks = vmsvga3dClampedAddDiv(mipmapSize.height, desc->block_size.height - 1, desc->block_size.height);
     uint32_t const czBlocks = vmsvga3dClampedAddDiv(mipmapSize.depth, desc->block_size.depth - 1, desc->block_size.depth);
 
-    uint32_t const cbPitch = cxBlocks * desc->pitch_bytes_per_block;
+    uint32_t const cbPitch = clamped_umul32(cxBlocks, desc->pitch_bytes_per_block);
 
     uint32_t cbSurfacePlane = clamped_umul32(cxBlocks, cyBlocks);
     cbSurfacePlane = clamped_umul32(cbSurfacePlane, desc->bytes_per_block);
