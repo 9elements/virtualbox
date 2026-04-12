@@ -1,4 +1,4 @@
-/* $Id: DevVGA_VBVA.cpp 106320 2024-10-15 12:08:41Z klaus.espenlaub@oracle.com $ */
+/* $Id: DevVGA_VBVA.cpp 113824 2026-04-12 21:12:29Z vitali.pelenjow@oracle.com $ */
 /** @file
  * VirtualBox Video Acceleration (VBVA).
  */
@@ -743,7 +743,7 @@ static int vbvaMousePointerShape(PVGASTATECC pThisCC, VBVACONTEXT *pCtx,
         static const uint32_t s_cxMax = 2048; //used to be: 8192;
         static const uint32_t s_cyMax = 2048; //used to be: 8192;
         ASSERT_GUEST_MSG_RETURN(   SafeShape.u32Width  <= s_cxMax
-                                || SafeShape.u32Height <= s_cyMax,
+                                && SafeShape.u32Height <= s_cyMax,
                                 ("Too large: %ux%u, max %ux%x\n", SafeShape.u32Width, SafeShape.u32Height, s_cxMax, s_cyMax),
                                 VERR_INVALID_PARAMETER);
 
