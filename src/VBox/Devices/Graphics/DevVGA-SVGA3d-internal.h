@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA3d-internal.h 112602 2026-01-15 12:09:32Z vitali.pelenjow@oracle.com $ */
+/* $Id: DevVGA-SVGA3d-internal.h 113826 2026-04-12 21:37:29Z vitali.pelenjow@oracle.com $ */
 /** @file
  * DevVMWare - VMWare SVGA device - 3D part, internal header.
  */
@@ -1431,6 +1431,14 @@ void vmsvga3dSurfaceMapInit(VMSVGA3D_MAPPED_SURFACE *pMap, VMSVGA3D_SURFACE_MAP 
         (ptr) = 0; \
     } \
 } while (0)
+
+DECLINLINE(uint32_t) vmsvga3dClampedUMul32(uint32_t a, uint32_t b)
+{
+    uint64_t const u64Tmp = (uint64_t)a * (uint64_t)b;
+    if (RT_LIKELY(u64Tmp <= UINT64_C(0xFFFFFFFF)))
+        return (uint32_t)u64Tmp;
+    return UINT32_C(0xFFFFFFFF);
+}
 
 #if defined(VMSVGA3D_DIRECT3D)
 HRESULT D3D9UpdateTexture(PVMSVGA3DCONTEXT pContext,

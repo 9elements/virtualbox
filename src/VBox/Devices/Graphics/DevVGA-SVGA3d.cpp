@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA3d.cpp 113248 2026-03-04 12:43:56Z vitali.pelenjow@oracle.com $ */
+/* $Id: DevVGA-SVGA3d.cpp 113826 2026-04-12 21:37:29Z vitali.pelenjow@oracle.com $ */
 /** @file
  * DevSVGA3d - VMWare SVGA device, 3D parts - Common core code.
  */
@@ -275,7 +275,7 @@ int vmsvga3dSurfaceDefine(PVGASTATECC pThisCC, uint32_t sid, SVGA3dSurfaceAllFla
             pMipmapLevel->mipmapSize     = mipmapSize;
             pMipmapLevel->cBlocksX       = cBlocksX;
             pMipmapLevel->cBlocksY       = cBlocksY;
-            pMipmapLevel->cBlocks        = cBlocksX * cBlocksY * mipmapSize.depth;
+            pMipmapLevel->cBlocks        = vmsvga3dClampedUMul32(cBlocksX, vmsvga3dClampedUMul32(cBlocksY, mipmapSize.depth));
             pMipmapLevel->cbSurfacePitch = cbSurfacePitch;
             pMipmapLevel->cbSurfacePlane = cbSurfacePlane;
             pMipmapLevel->cbSurface      = cbSurface;
