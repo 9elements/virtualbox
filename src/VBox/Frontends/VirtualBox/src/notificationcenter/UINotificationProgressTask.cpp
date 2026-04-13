@@ -1,4 +1,4 @@
-/* $Id: UINotificationProgressTask.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: UINotificationProgressTask.cpp 113833 2026-04-13 12:00:59Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationProgressTask class implementation.
  */
@@ -47,7 +47,7 @@ CProgress UINotificationProgressTask::createProgress()
     /* Call to sub-class to create progress-wrapper: */
     COMResult comResult;
     CProgress comProgress = m_pParent->createProgress(comResult);
-    if (!comResult.isOk())
+    if (!comResult.isOk() || comProgress.isNull())
     {
         m_strErrorMessage = UIErrorString::formatErrorInfo(comResult);
         return CProgress();
