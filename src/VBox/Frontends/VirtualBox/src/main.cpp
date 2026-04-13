@@ -1,4 +1,4 @@
-/* $Id: main.cpp 113580 2026-03-25 16:05:23Z sergey.dubov@oracle.com $ */
+/* $Id: main.cpp 113836 2026-04-13 12:18:19Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - The main() function.
  */
@@ -591,9 +591,6 @@ extern "C" DECLEXPORT(int) TrustedMain(int argc, char **argv, char ** /*envp*/)
         {
             /* Exit if UICommon is not valid: */
             if (!uiCommon().isValid())
-                break;
-            /* Exit if UICommon pre-processed arguments: */
-            if (uiCommon().processArguments())
                 break;
 
             // WORKAROUND:

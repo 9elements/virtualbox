@@ -1,4 +1,4 @@
-/* $Id: UICommon.cpp 113753 2026-04-07 17:41:46Z sergey.dubov@oracle.com $ */
+/* $Id: UICommon.cpp 113836 2026-04-13 12:18:19Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UICommon class implementation.
  */
@@ -274,6 +274,9 @@ void UICommon::prepare()
 
     /* Process options: */
     if (!processOptions())
+        return;
+    /* Exit if arguments pre-processed: */
+    if (processArguments())
         return;
 
     m_fValid = true;
