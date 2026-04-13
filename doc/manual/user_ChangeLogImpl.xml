@@ -117,7 +117,7 @@ Rules for adding a changelog entry to make them look more uniform:
       </listitem>
 
       <listitem>
-        <para>Linux Guests: Deprecated vboxvideo kernel module for kernels 7.0 and newer; please consider
+        <para>Linux Guest Additions: Deprecated vboxvideo kernel module for kernels 7.0 and newer; please consider
           using VMSVGA graphics or vboxvideo module which comes with Linux kernel or provided by your Linux
           distribution if guest running kernel 7.0+; vboxvideo will still be available for older kernels</para>
       </listitem>
