@@ -1,4 +1,4 @@
-/* $Id: VirtioCore.cpp 113592 2026-03-26 13:07:27Z aleksey.ilyushin@oracle.com $ */
+/* $Id: VirtioCore.cpp 113837 2026-04-13 12:27:33Z alexander.eichner@oracle.com $ */
 
 /** @file
  * VirtioCore - Virtio Core (PCI, feature & config mgt, queue mgt & proxy, notification mgt)
@@ -1147,12 +1147,22 @@ DECLHIDDEN(int) virtioCoreR3VirtqAvailBufGet(PPDMDEVINS pDevIns, PVIRTIOCORE pVi
         if (desc.fFlags & VIRTQ_DESC_F_WRITE)
         {
             Log6Func(("%s IN  idx=%-4u seg=%-3u addr=%RGp cb=%u\n", pVirtq->szName, uDescIdx, cSegsIn, desc.GCPhysBuf, desc.cb));
+            if (cbIn + desc.cb < cbIn)
+            {
+                LogRelMax(64, ("Input segment size overflow (cbIn=%u Seg.cb=%u).\n", cbIn, desc.cb));
+                break;
+            }
             cbIn += desc.cb;
             pSeg = &paSegsIn[cSegsIn++];
         }
         else
         {
             Log6Func(("%s OUT desc_idx=%-4u seg=%-3u addr=%RGp cb=%u\n", pVirtq->szName, uDescIdx, cSegsOut, desc.GCPhysBuf, desc.cb));
+            if (cbOut + desc.cb < cbOut)
+            {
+                LogRelMax(64, ("Output segment size overflow (cbOut=%u Seg.cb=%u).\n", cbOut, desc.cb));
+                break;
+            }
             cbOut += desc.cb;
             pSeg = &paSegsOut[cSegsOut++];
 #ifdef DEEP_DEBUG
