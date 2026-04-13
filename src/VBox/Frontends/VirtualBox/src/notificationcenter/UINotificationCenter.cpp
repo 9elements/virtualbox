@@ -1,4 +1,4 @@
-/* $Id: UINotificationCenter.cpp 113834 2026-04-13 12:09:24Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationCenter.cpp 113835 2026-04-13 12:14:32Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationCenter class implementation.
  */
@@ -401,6 +401,11 @@ int UINotificationCenter::showBlocking(UINotificationQuestion *pQuestion)
 
 bool UINotificationCenter::handleNow(UINotificationProgress *pProgress)
 {
+    /* Make sure parent exists and shown: */
+    AssertPtrReturn(parent(), 0);
+    if (!parentWidget()->isVisible())
+        parentWidget()->show();
+
     /* Check for the recursive run: */
     AssertMsgReturn(!m_pEventLoop, ("UINotificationCenter::handleNow() is called recursively!\n"), false);
 
