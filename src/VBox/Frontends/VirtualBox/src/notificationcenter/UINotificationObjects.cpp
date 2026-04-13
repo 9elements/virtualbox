@@ -1,4 +1,4 @@
-/* $Id: UINotificationObjects.cpp 113849 2026-04-13 13:52:25Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationObjects.cpp 113850 2026-04-13 13:55:49Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationObjects implementations.
  */
@@ -440,8 +440,22 @@ CProgress UINotificationProgressMachinePowerUp::createProgress(COMResult &comRes
             strType = "";
             break;
         case UILaunchMode_Separate:
-            strType = "separate";
+        {
+            switch (uiCommon().uiType())
+            {
+                /* For Manager UI: */
+                case UIType_ManagerUI:
+                    strType = "separate";
+                    break;
+                /* For Runtime UI: */
+                case UIType_RuntimeUI:
+                    strType = uiCommon().isSeparateProcess() ? "headless" : "separate";
+                    break;
+                default:
+                    break;
+            }
             break;
+        }
         case UILaunchMode_Headless:
             strType = "headless";
             break;
