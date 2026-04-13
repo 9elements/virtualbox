@@ -1,4 +1,4 @@
-/* $Id: UIVMActivityOverviewWidget.cpp 113262 2026-03-04 20:12:57Z sergey.dubov@oracle.com $ */
+/* $Id: UIVMActivityOverviewWidget.cpp 113854 2026-04-13 14:13:47Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVMActivityOverviewWidget class implementation.
  */
@@ -884,7 +884,7 @@ bool UIVMActivityOverviewItemLocal::isWithGuestAdditions()
 
 void UIVMActivityOverviewItemLocal::resetDebugger()
 {
-    m_comSession = openSession(m_VMuid, KLockType_Shared);
+    m_comSession = openExistingSession(m_VMuid);
     if (!m_comSession.isNull())
     {
         CConsole comConsole = m_comSession.GetConsole();

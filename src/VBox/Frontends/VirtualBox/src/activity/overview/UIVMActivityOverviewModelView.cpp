@@ -1,4 +1,4 @@
-/* $Id: UIVMActivityOverviewModelView.cpp 113262 2026-03-04 20:12:57Z sergey.dubov@oracle.com $ */
+/* $Id: UIVMActivityOverviewModelView.cpp 113854 2026-04-13 14:13:47Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVMActivityOverviewModelView class implementation.
  */
@@ -311,7 +311,7 @@ QString UIVMActivityOverviewRowLocal::machineStateString() const
 
 void UIVMActivityOverviewRowLocal::resetDebugger()
 {
-    m_comSession = openSession(m_uMachineId, KLockType_Shared);
+    m_comSession = openExistingSession(m_uMachineId);
     if (!m_comSession.isNull())
     {
         CConsole comConsole = m_comSession.GetConsole();
