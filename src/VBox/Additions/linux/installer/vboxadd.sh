@@ -1,7 +1,7 @@
 #! /bin/sh
-# $Id: vboxadd.sh 113722 2026-04-02 17:03:54Z vadim.galitsyn@oracle.com $
+# $Id: vboxadd.sh 113831 2026-04-13 09:18:54Z vadim.galitsyn@oracle.com $
 ## @file
-# Linux Additions kernel module init script ($Revision: 113722 $)
+# Linux Additions kernel module init script ($Revision: 113831 $)
 #
 
 #
@@ -1079,30 +1079,34 @@ check_status_kernel()
         false
     fi
 
-    if [ -n "$have_vboxvideo_build" ]; then
-        # Module vboxvideo is optional and expected to be loaded only when VM is
-        # running VBoxVGA or VBoxSVGA graphics.
-        if [ $? -eq 0 ]; then
-            gpu_vendor=$(lspci | grep 'VGA compatible controller' | cut -d ' ' -f 5 2>/dev/null)
+    if [ $? -eq 0 ]; then
+        if [ -n "$have_vboxvideo_build" ]; then
+            # Module vboxvideo is optional and expected to be loaded only when VM is
+            # running VBoxVGA or VBoxSVGA graphics.
+            if [ $? -eq 0 ]; then
+                gpu_vendor=$(lspci | grep 'VGA compatible controller' | cut -d ' ' -f 5 2>/dev/null)
 
-            # vboxvideo is not installed for kernels 3.10.x and older.
-            have_vboxvideo=
-            if [ "$(printf '%s\n%s\n' "3.10" "$(uname -r)" | sort -Vr | head -1)" = "$(uname -r)" ]; then
-                have_vboxvideo="1"
-            fi
+                # vboxvideo is not installed for kernels 3.10.x and older.
+                have_vboxvideo=
+                if [ "$(printf '%s\n%s\n' "3.10" "$(uname -r)" | sort -Vr | head -1)" = "$(uname -r)" ]; then
+                    have_vboxvideo="1"
+                fi
 
-            if [ -n "$have_vboxvideo" -a "$gpu_vendor" = "InnoTek" ]; then
-                check_running_module "vboxvideo"
+                if [ -n "$have_vboxvideo" -a "$gpu_vendor" = "InnoTek" ]; then
+                    check_running_module "vboxvideo"
+                else
+                    # Do not spoil $?.
+                    true
+                fi
             else
-                # Do not spoil $?.
-                true
+                false
             fi
         else
-            false
+            # Do not spoil $?.
+            true
         fi
     else
-        # Do not spoil $?.
-        true
+        false
     fi
 }
 
