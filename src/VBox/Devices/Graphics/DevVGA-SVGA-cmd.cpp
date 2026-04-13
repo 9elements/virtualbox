@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA-cmd.cpp 113569 2026-03-25 09:19:55Z andreas.loeffler@oracle.com $ */
+/* $Id: DevVGA-SVGA-cmd.cpp 113841 2026-04-13 13:02:56Z dmitrii.grigorev@oracle.com $ */
 /** @file
  * VMware SVGA device - implementation of VMSVGA commands.
  */
@@ -5934,22 +5934,26 @@ int vmsvgaR3Process3dCmd(PVGASTATE pThis, PVGASTATECC pThisCC, uint32_t idDXCont
         VMSVGAFIFO_CHECK_3D_CMD_MIN_SIZE_BREAK(sizeof(*pCmd));
         STAM_REL_COUNTER_INC(&pSvgaR3State->StatR3Cmd3dDrawPrimitives);
 
-        ASSERT_GUEST_STMT_BREAK(pCmd->numRanges <= SVGA3D_MAX_DRAW_PRIMITIVE_RANGES, rcParse = VERR_INVALID_PARAMETER);
-        ASSERT_GUEST_STMT_BREAK(pCmd->numVertexDecls <= SVGA3D_MAX_VERTEX_ARRAYS, rcParse = VERR_INVALID_PARAMETER);
-        uint32_t const cbRangesAndVertexDecls = pCmd->numVertexDecls * sizeof(SVGA3dVertexDecl)
-                                              + pCmd->numRanges * sizeof(SVGA3dPrimitiveRange);
+        uint32_t numVertexDecls = pCmd->numVertexDecls;
+        uint32_t numRanges = pCmd->numRanges;
+        RT_UNTRUSTED_NONVOLATILE_COPY_FENCE();
+
+        ASSERT_GUEST_STMT_BREAK(numRanges <= SVGA3D_MAX_DRAW_PRIMITIVE_RANGES, rcParse = VERR_INVALID_PARAMETER);
+        ASSERT_GUEST_STMT_BREAK(numVertexDecls <= SVGA3D_MAX_VERTEX_ARRAYS, rcParse = VERR_INVALID_PARAMETER);
+        uint32_t const cbRangesAndVertexDecls = numVertexDecls * sizeof(SVGA3dVertexDecl)
+                                              + numRanges * sizeof(SVGA3dPrimitiveRange);
         ASSERT_GUEST_STMT_BREAK(cbRangesAndVertexDecls <= cbCmd - sizeof(*pCmd), rcParse = VERR_INVALID_PARAMETER);
 
         uint32_t const cVertexDivisor = (cbCmd - sizeof(*pCmd) - cbRangesAndVertexDecls) / sizeof(uint32_t);
-        ASSERT_GUEST_STMT_BREAK(!cVertexDivisor || cVertexDivisor == pCmd->numVertexDecls, rcParse = VERR_INVALID_PARAMETER);
+        ASSERT_GUEST_STMT_BREAK(!cVertexDivisor || cVertexDivisor == numVertexDecls, rcParse = VERR_INVALID_PARAMETER);
         RT_UNTRUSTED_VALIDATED_FENCE();
 
         SVGA3dVertexDecl     *pVertexDecl    = (SVGA3dVertexDecl *)(pCmd + 1);
-        SVGA3dPrimitiveRange *pNumRange      = (SVGA3dPrimitiveRange *)&pVertexDecl[pCmd->numVertexDecls];
-        SVGA3dVertexDivisor  *pVertexDivisor = cVertexDivisor ? (SVGA3dVertexDivisor *)&pNumRange[pCmd->numRanges] : NULL;
+        SVGA3dPrimitiveRange *pNumRange      = (SVGA3dPrimitiveRange *)&pVertexDecl[numVertexDecls];
+        SVGA3dVertexDivisor  *pVertexDivisor = cVertexDivisor ? (SVGA3dVertexDivisor *)&pNumRange[numRanges] : NULL;
 
         STAM_PROFILE_START(&pSvgaR3State->StatR3Cmd3dDrawPrimitivesProf, a);
-        vmsvga3dDrawPrimitives(pThisCC, pCmd->cid, pCmd->numVertexDecls, pVertexDecl, pCmd->numRanges,
+        vmsvga3dDrawPrimitives(pThisCC, pCmd->cid, numVertexDecls, pVertexDecl, numRanges,
                                pNumRange, cVertexDivisor, pVertexDivisor);
         STAM_PROFILE_STOP(&pSvgaR3State->StatR3Cmd3dDrawPrimitivesProf, a);
         break;
