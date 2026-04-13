@@ -1,4 +1,4 @@
-/* $Id: UINotificationCenter.cpp 113763 2026-04-08 16:27:01Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationCenter.cpp 113834 2026-04-13 12:09:24Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UINotificationCenter class implementation.
  */
@@ -416,9 +416,6 @@ bool UINotificationCenter::handleNow(UINotificationProgress *pProgress)
 
     /* Is progress still valid? */
     if (guardProgress.isNull())
-        return m_fLastResult;
-    /* Is progress still running? */
-    if (guardProgress->isDone())
         return m_fLastResult;
 
     /* Create a local event-loop: */
