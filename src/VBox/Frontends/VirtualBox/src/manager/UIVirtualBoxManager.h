@@ -1,4 +1,4 @@
-/* $Id: UIVirtualBoxManager.h 112957 2026-02-11 15:18:35Z sergey.dubov@oracle.com $ */
+/* $Id: UIVirtualBoxManager.h 113853 2026-04-13 14:04:08Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVirtualBoxManager class declaration.
  */
@@ -417,11 +417,6 @@ private:
         /** Opens Import Appliance wizard.
           * @param strFileName can bring the name of file to import appliance from. */
         void openImportApplianceWizard(const QString &strFileName = QString());
-
-        /** Launches certain @a comMachine in specified @a enmLaunchMode. */
-        static void launchMachine(CMachine &comMachine, UILaunchMode enmLaunchMode = UILaunchMode_Default);
-        /** Launches certain @a comMachine. */
-        static void launchMachine(CCloudMachine &comMachine);
 
         /** Creates an unattended installer and uses it to install guest os to newly created vm. */
         void startUnattendedInstall(const CUnattended &comUnattended, bool fStartHeadless, const QString &strMachineId);

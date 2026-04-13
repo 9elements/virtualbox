@@ -1,4 +1,4 @@
-/* $Id: UILocalMachineStuff.cpp 113752 2026-04-07 17:35:40Z sergey.dubov@oracle.com $ */
+/* $Id: UILocalMachineStuff.cpp 113853 2026-04-13 14:04:08Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UILocalMachineStuff namespace implementation.
  */
@@ -34,7 +34,7 @@
 #include "UILocalMachineStuff.h"
 #include "UILoggingDefs.h"
 #include "UIMessageCenter.h"
-#include "UINotificationMessage.h"
+#include "UINotificationCenter.h"
 #include "UITranslator.h"
 #ifdef VBOX_WS_MAC
 # include "VBoxUtils-darwin.h"
@@ -134,80 +134,19 @@ bool UILocalMachineStuff::launchMachine(CMachine &comMachine, UILaunchMode enmLa
     if (enmLaunchMode != UILaunchMode_Separate)
     {
         /* Make sure machine-state is one of required: */
-        const KMachineState enmState = comMachine.GetState(); NOREF(enmState);
+        const KMachineState enmState = comMachine.GetState(); Q_UNUSED(enmState);
         AssertMsg(   enmState == KMachineState_PoweredOff
                   || enmState == KMachineState_Saved
                   || enmState == KMachineState_Teleported
                   || enmState == KMachineState_Aborted
                   || enmState == KMachineState_AbortedSaved
-                  , ("Machine must be PoweredOff/Saved/Teleported/Aborted (%d)", enmState));
+                  , ("Machine must be PoweredOff/Saved/Teleported/Aborted/AbortedSaved (%d)", enmState));
     }
 
-    /* Create empty session instance: */
-    CSession comSession;
-    comSession.createInstance(CLSID_Session);
-    if (comSession.isNull())
-    {
-        msgCenter().cannotOpenSession(comSession);
-        return false;
-    }
-
-    /* Configure environment: */
-    QVector<QString> astrEnv;
-#ifdef VBOX_WS_WIN
-    /* Allow started VM process to be foreground window: */
-    AllowSetForegroundWindow(ASFW_ANY);
-#endif
-#ifdef VBOX_WS_NIX
-    /* Make sure VM process will start on the same
-     * display as window this wrapper is called from: */
-    const char *pDisplay = RTEnvGet("DISPLAY");
-    if (pDisplay)
-        astrEnv.append(QString("DISPLAY=%1").arg(pDisplay));
-    const char *pXauth = RTEnvGet("XAUTHORITY");
-    if (pXauth)
-        astrEnv.append(QString("XAUTHORITY=%1").arg(pXauth));
-#endif
-    QString strType;
-    switch (enmLaunchMode)
-    {
-        case UILaunchMode_Default:  strType = ""; break;
-        case UILaunchMode_Separate: strType = uiCommon().isSeparateProcess() ? "headless" : "separate"; break;
-        case UILaunchMode_Headless: strType = "headless"; break;
-        default: AssertFailedReturn(false);
-    }
-
-    /* Prepare "VM spawning" progress: */
-    CProgress comProgress = comMachine.LaunchVMProcess(comSession, strType, astrEnv);
-    if (!comMachine.isOk())
-    {
-        /* If the VM is started separately and the VM process is already running, then it is OK. */
-        if (enmLaunchMode == UILaunchMode_Separate)
-        {
-            const KMachineState enmState = comMachine.GetState();
-            if (   enmState >= KMachineState_FirstOnline
-                && enmState <= KMachineState_LastOnline)
-            {
-                /* Already running: */
-                return true;
-            }
-        }
-
-        msgCenter().cannotOpenSession(comMachine);
-        return false;
-    }
-
-    /* Show "VM spawning" progress: */
-    msgCenter().showModalProgressDialog(comProgress, comMachine.GetName(),
-                                        ":/progress_start_90px.png", 0, 0);
-    if (!comProgress.isOk() || comProgress.GetResultCode() != 0)
-        msgCenter().cannotOpenSession(comProgress, comMachine.GetName());
-
-    /* Unlock machine, close session: */
-    comSession.UnlockMachine();
-
-    /* True finally: */
-    return true;
+    /* Powering VM up: */
+    UINotificationProgressMachinePowerUp *pNotification =
+        new UINotificationProgressMachinePowerUp(comMachine, enmLaunchMode);
+    return gpNotificationCenter->handleNow(pNotification);
 }
 
 CSession UILocalMachineStuff::openSession(QUuid uId, KLockType enmLockType /* = KLockType_Write */)

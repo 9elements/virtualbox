@@ -1,4 +1,4 @@
-/* $Id: UIVirtualBoxManager.cpp 113267 2026-03-05 10:14:03Z sergey.dubov@oracle.com $ */
+/* $Id: UIVirtualBoxManager.cpp 113853 2026-04-13 14:04:08Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVirtualBoxManager class implementation.
  */
@@ -3019,46 +3019,6 @@ void UIVirtualBoxManager::openImportApplianceWizard(const QString &strFileName /
 
     /* Open Import Appliance Wizard: */
     sltOpenWizard(WizardType_ImportAppliance);
-}
-
-/* static */
-void UIVirtualBoxManager::launchMachine(CMachine &comMachine,
-                                        UILaunchMode enmLaunchMode /* = UILaunchMode_Default */)
-{
-    /* Switch to machine window(s) if possible: */
-    if (   comMachine.GetSessionState() == KSessionState_Locked // precondition for CanShowConsoleWindow()
-        && comMachine.CanShowConsoleWindow())
-    {
-        switchToMachine(comMachine);
-        return;
-    }
-
-    /* Not for separate UI (which can connect to machine in any state): */
-    if (enmLaunchMode != UILaunchMode_Separate)
-    {
-        /* Make sure machine-state is one of required: */
-        const KMachineState enmState = comMachine.GetState(); Q_UNUSED(enmState);
-        AssertMsg(   enmState == KMachineState_PoweredOff
-                  || enmState == KMachineState_Saved
-                  || enmState == KMachineState_Teleported
-                  || enmState == KMachineState_Aborted
-                  || enmState == KMachineState_AbortedSaved
-                  , ("Machine must be PoweredOff/Saved/Teleported/Aborted (%d)", enmState));
-    }
-
-    /* Powering VM up: */
-    UINotificationProgressMachinePowerUp *pNotification =
-        new UINotificationProgressMachinePowerUp(comMachine, enmLaunchMode);
-    gpNotificationCenter->append(pNotification);
-}
-
-/* static */
-void UIVirtualBoxManager::launchMachine(CCloudMachine &comMachine)
-{
-    /* Powering cloud VM up: */
-    UINotificationProgressCloudMachinePowerUp *pNotification =
-        new UINotificationProgressCloudMachinePowerUp(comMachine);
-    gpNotificationCenter->append(pNotification);
 }
 
 void UIVirtualBoxManager::startUnattendedInstall(const CUnattended &comUnattendedRef,

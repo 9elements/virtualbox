@@ -1,4 +1,4 @@
-/* $Id: UICloudNetworkingStuff.cpp 112853 2026-02-06 13:04:48Z sergey.dubov@oracle.com $ */
+/* $Id: UICloudNetworkingStuff.cpp 113853 2026-04-13 14:04:08Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UICloudNetworkingStuff namespace implementation.
  */
@@ -658,4 +658,12 @@ void UICloudNetworkingStuff::createCloudMachineClone(const QString &strProviderS
             new UINotificationProgressCloudMachineClone(comCloudClient, comCloudMachine, strCloneName);
         pCenter->append(pNotification);
     }
+}
+
+void UICloudNetworkingStuff::launchMachine(CCloudMachine &comMachine)
+{
+    /* Powering cloud VM up: */
+    UINotificationProgressCloudMachinePowerUp *pNotification =
+        new UINotificationProgressCloudMachinePowerUp(comMachine);
+    gpNotificationCenter->append(pNotification);
 }

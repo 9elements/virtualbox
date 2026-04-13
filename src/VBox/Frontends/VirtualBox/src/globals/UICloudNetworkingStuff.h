@@ -1,4 +1,4 @@
-/* $Id: UICloudNetworkingStuff.h 112853 2026-02-06 13:04:48Z sergey.dubov@oracle.com $ */
+/* $Id: UICloudNetworkingStuff.h 113853 2026-04-13 14:04:08Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UICloudNetworkingStuff namespace declaration.
  */
@@ -196,6 +196,9 @@ namespace UICloudNetworkingStuff
                                                       const CCloudMachine &comCloudMachine,
                                                       const QString &strCloneName,
                                                       QWidget *pParent);
+
+    /** Launches certain @a comMachine. */
+    SHARED_LIBRARY_STUFF void launchMachine(CCloudMachine &comMachine);
 }
 
 /* Using across any module who included us: */
