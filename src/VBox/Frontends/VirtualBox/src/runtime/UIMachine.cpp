@@ -1,4 +1,4 @@
-/* $Id: UIMachine.cpp 113851 2026-04-13 13:58:26Z sergey.dubov@oracle.com $ */
+/* $Id: UIMachine.cpp 113852 2026-04-13 14:01:00Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMachine class implementation.
  */
@@ -171,9 +171,13 @@ bool UIMachine::startMachine()
         CMachine machine = gpGlobalSession->virtualBox().FindMachine(uiCommon().managedVMUuid().toString());
         AssertMsgReturn(!machine.isNull(), ("UICommon::managedVMUuid() should have filter that case before!\n"), false);
 
-        /* Try to launch corresponding machine: */
-        if (!launchMachine(machine, UILaunchMode_Separate))
-            return false;
+        /* Try to launch corresponding machine only if
+         * VM process isn't already running, checking state: */
+        const KMachineState enmState = machine.GetState();
+        if (   enmState < KMachineState_FirstOnline
+            || enmState > KMachineState_LastOnline)
+            if (!launchMachine(machine, UILaunchMode_Separate))
+                return false;
 
         /* Destroy temporary notification-center: */
         UINotificationCenter::destroy();
