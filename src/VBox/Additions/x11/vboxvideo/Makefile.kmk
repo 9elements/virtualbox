@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 113842 2026-04-13 13:14:29Z dmitrii.grigorev@oracle.com $
+# $Id: Makefile.kmk 113845 2026-04-13 13:31:50Z dmitrii.grigorev@oracle.com $
 ## @file
 # Sub-Makefile for the VBox Linux Additions X.org graphics driver.
 #
@@ -455,7 +455,7 @@ ifdef VBOX_WITH_TESTCASES
 	$$(QUIET)$$(APPEND) -t "$$@" "done"
      endef
 
-     #$(foreach ver, _70 _71 _13 _14 _15 _16 _17 _18 _19 _110 _111 _112 _113 _114 _115 _116 _117 _118, $(eval $(def_vboxvideo_test)))
+     $(foreach ver, _70 _71 _13 _14 _15 _16 _17 _18 _19 _110 _111 _112 _113 _114 _115 _116 _117 _118, $(eval $(def_vboxvideo_test)))
 
     endif # ! VBOX_ONLY_SDK
    endif # eq ($(KBUILD_HOST_ARCH),$(KBUILD_TARGET_ARCH))
