@@ -63,7 +63,7 @@ static DECLCALLBACK(int) vbConvertUtf8ToUtf16(void *pvBufIn, int cbBufIn, void *
         if (RT_SUCCESS(rc))
         {
             *ppvBufOut = pvDst;
-            *pcbBufOut = cwDst * sizeof(RTUTF16);
+            *pcbBufOut = (cwDst + 1) * sizeof(RTUTF16);
         }
         else
             LogRel(("Data Converter: unable to convert input UTF8 string into VBox format, rc=%Rrc\n", rc));
@@ -139,7 +139,7 @@ static DECLCALLBACK(int) vbConvertLatin1ToUtf16(void *pvBufIn, int cbBufIn, void
     if (RT_SUCCESS(rc))
     {
         *ppvBufOut = pvDst;
-        *pcbBufOut = cwDst * sizeof(RTUTF16);
+        *pcbBufOut = (cwDst + 1) * sizeof(RTUTF16);
     }
     else
         LogRel(("Data Converter: unable to convert input Latin1 string into VBox format, rc=%Rrc\n", rc));
