@@ -1,4 +1,4 @@
-/* $Id: DevPCNet.cpp 113803 2026-04-10 09:40:41Z michal.necasek@oracle.com $ */
+/* $Id: DevPCNet.cpp 113848 2026-04-13 13:49:56Z aleksey.ilyushin@oracle.com $ */
 /** @file
  * DevPCNet - AMD PCnet-PCI II / PCnet-FAST III (Am79C970A / Am79C973) Ethernet Controller Emulation.
  *
@@ -1200,7 +1200,9 @@ static int ladr_match(PPCNETSTATE pThis, const uint8_t *buf, size_t size)
  */
 DECLINLINE(RTGCPHYS32) pcnetRdraAddr(PPCNETSTATE pThis, int idx)
 {
-    return pThis->GCRDRA + ((CSR_RCVRL(pThis) - idx) << pThis->iLog2DescSize);
+    uint16_t uRingLen = CSR_RCVRL(pThis);
+    uint16_t uIndex   = uRingLen - idx;   /* PCNet uses reverse indexing */
+    return pThis->GCRDRA + ((uIndex % uRingLen) << pThis->iLog2DescSize);
 }
 
 /**
@@ -1208,7 +1210,9 @@ DECLINLINE(RTGCPHYS32) pcnetRdraAddr(PPCNETSTATE pThis, int idx)
  */
 DECLINLINE(RTGCPHYS32) pcnetTdraAddr(PPCNETSTATE pThis, int idx)
 {
-    return pThis->GCTDRA + ((CSR_XMTRL(pThis) - idx) << pThis->iLog2DescSize);
+    uint16_t uRingLen = CSR_XMTRL(pThis);
+    uint16_t uIndex   = uRingLen - idx;   /* PCNet uses reverse indexing */
+    return pThis->GCTDRA + ((uIndex % uRingLen) << pThis->iLog2DescSize);
 }
 
 
@@ -2932,8 +2936,8 @@ static VBOXSTRICTRC pcnetCSRWriteU16(PPDMDEVINS pDevIns, PPCNETSTATE pThis, PPCN
                 return rc;
             }
             Log(("#%d: WRITE CSR%d, %#06x (hacked %#06x) (alt init)\n", PCNET_INST_NR,
-                 u32RAP, val, 1 + ~(uint16_t)val));
-            val = 1 + ~(uint16_t)val;
+                 u32RAP, val, (uint16_t)(val ? 1 + ~(uint16_t)val : 512)));
+            val = val ? 1 + ~(uint16_t)val : 512;   /* Do not allow zero-length rings. */
 
             /*
              * HACK ALERT! Set the counter registers too.
