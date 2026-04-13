@@ -73,7 +73,7 @@ Rules for adding a changelog entry to make them look more uniform:
                            So, we use chapter and xpointer="xpointer(/chapter/)" with xi:include. -->
   <sect1>
 
-    <title>Version X.Y.Z (date tbd)</title>
+    <title>Version 7.1.18 (date tbd)</title>
 
     <para>This is a maintenance release. The following items were fixed or
       added:</para>
@@ -81,8 +81,58 @@ Rules for adding a changelog entry to make them look more uniform:
     <itemizedlist>
 
       <listitem>
+        <para>VMM: Fixed issue which caused a Guru Meditation with VERR_IEM_IPE_4 if the guest
+          was trying to execute the wrong hypercall instruction but injected a UD exception
+          instead (github:gh-616)</para>
+      </listitem>
+
+      <listitem>
+        <para>NAT Network: Fixed issue when internal DNS server could not be reached</para>
+      </listitem>
+
+      <listitem>
+        <para>Main: Fixed crash on FreeBSD 16.0 shutdown with multiple devices
+          attached to LSI Logic SAS controller (github:gh-538)</para>
+      </listitem>
+
+      <listitem>
         <para>IPRT: Merged Github pull request 503 (fix: infinite loop in vsscanf whitespace processing).
           github-merge-author: lachlanharrisdev</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux Host: Added initial support for kernels 6.19 and 7.0 (github:gh-467, github:gh-623)</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux Host and Guest: Added additional fixes for RHEL 10.1 and 10.2 kernels (github:gh-455)</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux Host and Guest: Added support for UEK9 kernel on Oracle Linux 9</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux Guests: Deprecated vboxvideo kernel module for kernels 7.0 and newer; please consider
+          using VMSVGA graphics or vboxvideo module which comes with Linux kernel or provided by your Linux
+          distribution if guest running kernel 7.0+; vboxvideo will still be available for older kernels</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux Guest: Added improvements to make 'rcvboxad setup' and Additions installation process faster</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux Guest: Added support for guest time accounting (github:gh-2)</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux Guest Additions: Fixed issue when last character was not pasted into Windows
+          host clipboard when copying from Wayland guest (bug:22339)</para>
+      </listitem>
+
+      <listitem>
+        <para>UEFI: Added DBX Variable (github:gh-133)</para>
       </listitem>
 
     </itemizedlist>
