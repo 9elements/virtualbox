@@ -1,4 +1,4 @@
-/* $Id: UINotificationObjects.cpp 113213 2026-03-03 07:36:58Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationObjects.cpp 113849 2026-04-13 13:52:25Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationObjects implementations.
  */
@@ -436,25 +436,21 @@ CProgress UINotificationProgressMachinePowerUp::createProgress(COMResult &comRes
     QString strType;
     switch (m_enmLaunchMode)
     {
-        case UILaunchMode_Default:  strType = ""; break;
-        case UILaunchMode_Separate: strType = "separate"; break;
-        case UILaunchMode_Headless: strType = "headless"; break;
-        default: AssertFailedReturn(CProgress());
+        case UILaunchMode_Default:
+            strType = "";
+            break;
+        case UILaunchMode_Separate:
+            strType = "separate";
+            break;
+        case UILaunchMode_Headless:
+            strType = "headless";
+            break;
+        default:
+            AssertFailedReturn(CProgress());
     }
 
     /* Initialize progress-wrapper: */
     CProgress comProgress = m_comMachine.LaunchVMProcess(m_comSession, strType, astrEnv);
-//    /* If the VM is started separately and the VM process is already running, then it is OK. */
-//    if (m_enmLaunchMode == UILaunchMode_Separate)
-//    {
-//        const KMachineState enmState = comMachine.GetState();
-//        if (   enmState >= KMachineState_FirstOnline
-//            && enmState <= KMachineState_LastOnline)
-//        {
-//            /* Already running: */
-//            return;
-//        }
-//    }
     /* Store COM result: */
     comResult = m_comMachine;
     /* Return progress-wrapper: */
