@@ -1,4 +1,4 @@
-/* $Id: UIMachine.cpp 113765 2026-04-08 16:42:45Z sergey.dubov@oracle.com $ */
+/* $Id: UIMachine.cpp 113851 2026-04-13 13:58:26Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMachine class implementation.
  */
@@ -164,6 +164,9 @@ bool UIMachine::startMachine()
     /* For separate process we should launch VM before UI: */
     if (uiCommon().isSeparateProcess())
     {
+        /* Create temporary notification-center: */
+        UINotificationCenter::createTemporary();
+
         /* Get corresponding machine: */
         CMachine machine = gpGlobalSession->virtualBox().FindMachine(uiCommon().managedVMUuid().toString());
         AssertMsgReturn(!machine.isNull(), ("UICommon::managedVMUuid() should have filter that case before!\n"), false);
@@ -171,6 +174,9 @@ bool UIMachine::startMachine()
         /* Try to launch corresponding machine: */
         if (!launchMachine(machine, UILaunchMode_Separate))
             return false;
+
+        /* Destroy temporary notification-center: */
+        UINotificationCenter::destroy();
     }
 
     /* Try to create machine UI: */
