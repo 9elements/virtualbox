@@ -113,13 +113,13 @@ Rules for adding a changelog entry to make them look more uniform:
       </listitem>
 
       <listitem>
-        <para>Linux Guests: Deprecated vboxvideo kernel module for kernels 7.0 and newer; please consider
-          using VMSVGA graphics or vboxvideo module which comes with Linux kernel or provided by your Linux
-          distribution if guest running kernel 7.0+; vboxvideo will still be available for older kernels</para>
+        <para>Linux Host and Guest: Added improvements to make 'rcvboxdrv/rcvboxad setup' and installation process faster</para>
       </listitem>
 
       <listitem>
-        <para>Linux Guest: Added improvements to make 'rcvboxad setup' and Additions installation process faster</para>
+        <para>Linux Guests: Deprecated vboxvideo kernel module for kernels 7.0 and newer; please consider
+          using VMSVGA graphics or vboxvideo module which comes with Linux kernel or provided by your Linux
+          distribution if guest running kernel 7.0+; vboxvideo will still be available for older kernels</para>
       </listitem>
 
       <listitem>
