@@ -1,4 +1,4 @@
-/* $Id: DevQemuFwCfg.cpp 111420 2025-10-15 15:25:55Z alexander.eichner@oracle.com $ */
+/* $Id: DevQemuFwCfg.cpp 113866 2026-04-14 18:57:31Z klaus.espenlaub@oracle.com $ */
 /** @file
  * DevQemuFwCfg - QEMU firmware configuration compatible device.
  */
@@ -714,6 +714,7 @@ static DECLCALLBACK(int) qemuFwCfgR3ReadFileDir(PDEVQEMUFWCFG pThis, PCQEMUFWCFG
         AssertReturn(idxEntry < pThis->cCfgFiles, VERR_INTERNAL_ERROR);
 
         off %= sizeof(pThis->u.CfgFile);
+        cbToRead = RT_MAX(sizeof(pThis->u.CfgFile) - off);
         cbToRead = RT_MIN(cbToRead, sizeof(pThis->u.CfgFile));
 
         /* Setup the config file item. */
