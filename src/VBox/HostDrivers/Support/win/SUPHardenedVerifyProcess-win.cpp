@@ -1,4 +1,4 @@
-/* $Id: SUPHardenedVerifyProcess-win.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: SUPHardenedVerifyProcess-win.cpp 113870 2026-04-14 23:59:26Z knut.osmundsen@oracle.com $ */
 /** @file
  * VirtualBox Support Library/Driver - Hardened Process Verification, Windows.
  */
@@ -85,6 +85,19 @@ AssertCompile(PAGE_SIZE == _4K);
 /*********************************************************************************************************************************
 *   Structures and Typedefs                                                                                                      *
 *********************************************************************************************************************************/
+/** Known image IDs. */
+typedef enum SUPHNTVPIMAGEID
+{
+    kSupHNtVpImageId_Invalid = 0,
+    kSupHNtVpImageId_NtDll,
+    kSupHNtVpImageId_Kernel32,
+    kSupHNtVpImageId_KernelBase,
+    kSupHNtVpImageId_AppHelp,
+    kSupHNtVpImageId_AppSetSchema,
+    kSupHNtVpImageId_Executable,
+    kSupHNtVpImageId_Other
+} SUPHNTVPIMAGEID;
+
 /**
  * Virtual address space region.
  */
@@ -113,6 +126,8 @@ typedef struct SUPHNTVPIMAGE
 #ifndef VBOX_WITH_MINIMAL_HARDENING
     /** The name from the allowed lists. */
     const char     *pszName;
+    /** Image ID for easy identification. */
+    SUPHNTVPIMAGEID enmImageId;
 #endif
     /** Name structure for NtQueryVirtualMemory/MemorySectionName. */
     struct
@@ -196,8 +211,9 @@ typedef struct SUPHNTVPSTATE
     uint8_t                 abMemory[_4K];
     /** File compare scratch buffer.*/
     uint8_t                 abFile[_4K];
-    /** Section headers for use when comparing file and loaded image. */
-    IMAGE_SECTION_HEADER    aSecHdrs[16];
+    /** Section headers for use when comparing file and loaded image.
+     * @note NTDLL.DLL from W11/26200 has 15...  */
+    IMAGE_SECTION_HEADER    aSecHdrs[24];
     /** Pointer to the error info. */
     PRTERRINFO              pErrInfo;
 } SUPHNTVPSTATE;
@@ -212,31 +228,31 @@ typedef SUPHNTVPSTATE *PSUPHNTVPSTATE;
  * System DLLs allowed to be loaded into the process.
  * @remarks supHardNtVpCheckDlls assumes these are lower case.
  */
-static const char *g_apszSupNtVpAllowedDlls[] =
+static struct { const char *pszName; SUPHNTVPIMAGEID enmImageId; } const g_aSupNtVpAllowedDlls[] =
 {
-    "ntdll.dll",
-    "kernel32.dll",
-    "kernelbase.dll",
-    "apphelp.dll",
-    "apisetschema.dll",
+    { "ntdll.dll",              kSupHNtVpImageId_NtDll },
+    { "kernel32.dll",           kSupHNtVpImageId_Kernel32 },
+    { "kernelbase.dll",         kSupHNtVpImageId_KernelBase },
+    { "apphelp.dll",            kSupHNtVpImageId_AppHelp },
+    { "apisetschema.dll",       kSupHNtVpImageId_AppSetSchema },
 #ifdef VBOX_PERMIT_VERIFIER_DLL
-    "verifier.dll",
+    { "verifier.dll",           kSupHNtVpImageId_Other },
 #endif
 #ifdef VBOX_PERMIT_MORE
 # define VBOX_PERMIT_MORE_FIRST_IDX 5
-    "sfc.dll",
-    "sfc_os.dll",
-    "user32.dll",
-    "acres.dll",
-    "acgenral.dll",
+    { "sfc.dll",                kSupHNtVpImageId_Other },
+    { "sfc_os.dll",             kSupHNtVpImageId_Other },
+    { "user32.dll",             kSupHNtVpImageId_Other },
+    { "acres.dll",              kSupHNtVpImageId_Other },
+    { "acgenral.dll",           kSupHNtVpImageId_Other },
 #endif
 #ifdef VBOX_PERMIT_VISUAL_STUDIO_PROFILING
-    "psapi.dll",
-    "msvcrt.dll",
-    "advapi32.dll",
-    "sechost.dll",
-    "rpcrt4.dll",
-    "SamplingRuntime.dll",
+    { "psapi.dll",              kSupHNtVpImageId_Other },
+    { "msvcrt.dll",             kSupHNtVpImageId_Other },
+    { "advapi32.dll",           kSupHNtVpImageId_Other },
+    { "sechost.dll",            kSupHNtVpImageId_Other },
+    { "rpcrt4.dll",             kSupHNtVpImageId_Other },
+    { "SamplingRuntime.dll",    kSupHNtVpImageId_Other },
 #endif
 };
 
@@ -296,7 +312,7 @@ PFNNTQUERYVIRTUALMEMORY g_pfnNtQueryVirtualMemory = NULL;
 /** The number of valid entries in the loader cache. */
 static uint32_t                 g_cSupNtVpLdrCacheEntries = 0;
 /** The loader cache entries. */
-static SUPHNTLDRCACHEENTRY      g_aSupNtVpLdrCacheEntries[RT_ELEMENTS(g_apszSupNtVpAllowedDlls) + 1 + 3];
+static SUPHNTLDRCACHEENTRY      g_aSupNtVpLdrCacheEntries[RT_ELEMENTS(g_aSupNtVpAllowedDlls) + 1 + 3];
 #endif
 
 
@@ -797,7 +813,6 @@ static DECLCALLBACK(int) supHardNtVpGetImport(RTLDRMOD hLdrMod, const char *pszM
  */
 static int supHardNtVpVerifyImageMemoryCompare(PSUPHNTVPSTATE pThis, PSUPHNTVPIMAGE pImage)
 {
-
     /*
      * Read and find the file headers.
      */
@@ -994,7 +1009,7 @@ static int supHardNtVpVerifyImageMemoryCompare(PSUPHNTVPSTATE pThis, PSUPHNTVPIM
     uint32_t         cSkipAreas = 0;
     SUPHNTVPSKIPAREA aSkipAreas[7];
 #ifndef VBOX_WITH_MINIMAL_HARDENING
-    if (pImage->fNtCreateSectionPatch)
+    if (pImage->enmImageId == kSupHNtVpImageId_NtDll)
     {
         RTLDRADDR uValue;
         if (pThis->enmKind == SUPHARDNTVPKIND_VERIFY_ONLY)
@@ -1037,12 +1052,30 @@ static int supHardNtVpVerifyImageMemoryCompare(PSUPHNTVPSTATE pThis, PSUPHNTVPIM
         aSkipAreas[cSkipAreas++].cb = HC_ARCH_BITS == 64 ? 13 : 12;
 # endif
 
-        /* LdrSystemDllInitBlock is filled in by the kernel. It mainly contains addresses of 32-bit ntdll method for wow64. */
+        /* LdrSystemDllInitBlock is filled in by the kernel. It mainly contains addresses of 32-bit ntdll method for wow64.
+           Lately, it also includes CET and other compatibility stuff.  It keeps growing... */
         rc = RTLdrGetSymbolEx(pImage->pCacheEntry->hLdrMod, pbBits, 0, UINT32_MAX, "LdrSystemDllInitBlock", &uValue);
         if (RT_SUCCESS(rc))
         {
+            uint32_t cbMax;
+            if (g_uNtVerCombined < SUP_MAKE_NT_VER_SIMPLE(6,2))
+                cbMax = 0x60 + 32;
+            else if (g_uNtVerCombined < SUP_MAKE_NT_VER_SIMPLE(6,3))
+                cbMax = 0x70 + 32;
+            else if (g_uNtVerCombined <= SUP_MAKE_NT_VER_COMBINED(10, 0, 14393, 15, 15))
+                cbMax = 0x80 + 32;
+            else if (g_uNtVerCombined <= SUP_MAKE_NT_VER_COMBINED(10, 0, 15063, 15, 15))
+                cbMax = 0xd0 + 64;
+            else if (g_uNtVerCombined <= SUP_MAKE_NT_VER_COMBINED(10, 0, 18362, 15, 15))
+                cbMax = 0xe0 + 64;
+            else if (g_uNtVerCombined <= SUP_MAKE_NT_VER_COMBINED(10, 0, 19041, 15, 15))
+                cbMax = 0xf0 + 64;
+            else if (g_uNtVerCombined <= SUP_MAKE_NT_VER_COMBINED(10, 0, 26200, 15, 15))
+                cbMax = 0x128 + 64;
+            else
+                cbMax = 0x400;
             aSkipAreas[cSkipAreas].uRva = (uint32_t)uValue;
-            aSkipAreas[cSkipAreas++].cb = RT_MAX(pbBits[(uint32_t)uValue], 0x50);
+            aSkipAreas[cSkipAreas++].cb = RT_MAX(*(uint32_t const *)&pbBits[(uint32_t)uValue], cbMax);
         }
 
         Assert(cSkipAreas <= RT_ELEMENTS(aSkipAreas));
@@ -1449,12 +1482,14 @@ static int supHardNtVpNewImage(PSUPHNTVPSTATE pThis, PSUPHNTVPIMAGE pImage, PMEM
     /*
      * Match it against known DLLs.
      */
-    pImage->pszName = NULL;
-    for (uint32_t i = 0; i < RT_ELEMENTS(g_apszSupNtVpAllowedDlls); i++)
-        if (supHardNtVpAreNamesEqual(g_apszSupNtVpAllowedDlls[i], pwszFilename))
+    pImage->pszName    = NULL;
+    pImage->enmImageId = kSupHNtVpImageId_Invalid;
+    for (uint32_t i = 0; i < RT_ELEMENTS(g_aSupNtVpAllowedDlls); i++)
+        if (supHardNtVpAreNamesEqual(g_aSupNtVpAllowedDlls[i].pszName, pwszFilename))
         {
-            pImage->pszName = g_apszSupNtVpAllowedDlls[i];
-            pImage->fDll    = true;
+            pImage->pszName    = g_aSupNtVpAllowedDlls[i].pszName;
+            pImage->enmImageId = g_aSupNtVpAllowedDlls[i].enmImageId;
+            pImage->fDll       = true;
 
 # ifndef VBOX_PERMIT_VISUAL_STUDIO_PROFILING
             /* The directory name must match the one we've got for System32. */
@@ -1490,9 +1525,10 @@ static int supHardNtVpNewImage(PSUPHNTVPSTATE pThis, PSUPHNTVPIMAGE pImage, PMEM
             if (supHardNtVpAreNamesEqual(g_apszSupNtVpAllowedVmExes[i], pwszFilename))
             {
 #ifndef VBOX_WITH_MINIMAL_HARDENING
-                pImage->pszName = g_apszSupNtVpAllowedVmExes[i];
+                pImage->pszName     = g_apszSupNtVpAllowedVmExes[i];
+                pImage->enmImageId  = kSupHNtVpImageId_Executable;
 #endif
-                pImage->fDll    = false;
+                pImage->fDll        = false;
                 break;
             }
     }
@@ -1586,9 +1622,9 @@ static int supHardNtVpNewImage(PSUPHNTVPSTATE pThis, PSUPHNTVPIMAGE pImage, PMEM
     pImage->aRegions[0].fProt   = pMemInfo->Protect;
 
 #ifndef VBOX_WITH_MINIMAL_HARDENING
-    if (suplibHardenedStrCmp(pImage->pszName, "ntdll.dll") == 0)
+    if (pImage->enmImageId == kSupHNtVpImageId_NtDll)
         pImage->fNtCreateSectionPatch = true;
-    else if (suplibHardenedStrCmp(pImage->pszName, "apisetschema.dll") == 0)
+    else if (pImage->enmImageId == kSupHNtVpImageId_AppSetSchema)
         pImage->fApiSetSchemaOnlySection1 = true; /** @todo Check the ApiSetMap field in the PEB. */
 # ifdef VBOX_PERMIT_MORE
     else if (suplibHardenedStrCmp(pImage->pszName, "acres.dll") == 0)
@@ -2254,7 +2290,7 @@ DECLHIDDEN(void) supR3HardenedWinFlushLoaderCache(void)
  *
  * @returns Pointer to the cache entry if found, NULL if not.
  * @param   pszName             The name (from g_apszSupNtVpAllowedVmExes or
- *                              g_apszSupNtVpAllowedDlls).
+ *                              g_aSupNtVpAllowedDlls).
  */
 static PSUPHNTLDRCACHEENTRY supHardNtLdrCacheLookupEntry(const char *pszName)
 {
@@ -2365,7 +2401,7 @@ static int supHardNtLdrCacheNewEntry(PSUPHNTLDRCACHEENTRY pEntry, const char *ps
  *
  * @returns VBox status code.
  * @param   pszName             The DLL name.  Must be one from the
- *                              g_apszSupNtVpAllowedDlls array.
+ *                              g_aSupNtVpAllowedDlls array.
  * @param   ppEntry             Where to return the entry we've opened/found.
  * @param   pErrInfo            Optional buffer where to return additional error
  *                              information.
@@ -2376,12 +2412,12 @@ DECLHIDDEN(int) supHardNtLdrCacheOpen(const char *pszName, PSUPHNTLDRCACHEENTRY 
      * Locate the dll.
      */
     uint32_t i = 0;
-    while (   i < RT_ELEMENTS(g_apszSupNtVpAllowedDlls)
-           && strcmp(pszName, g_apszSupNtVpAllowedDlls[i]))
+    while (   i < RT_ELEMENTS(g_aSupNtVpAllowedDlls)
+           && strcmp(pszName, g_aSupNtVpAllowedDlls[i].pszName))
         i++;
-    if (i >= RT_ELEMENTS(g_apszSupNtVpAllowedDlls))
+    if (i >= RT_ELEMENTS(g_aSupNtVpAllowedDlls))
         return VERR_FILE_NOT_FOUND;
-    pszName = g_apszSupNtVpAllowedDlls[i];
+    pszName = g_aSupNtVpAllowedDlls[i].pszName;
 
     /*
      * Try the cache.
@@ -2624,7 +2660,7 @@ static int supHardNtVpCheckDlls(PSUPHNTVPSTATE pThis)
 
     /*
      * Check that both ntdll and kernel32 are present.
-     * ASSUMES the entries in g_apszSupNtVpAllowedDlls are all lower case.
+     * ASSUMES the entries in g_aSupNtVpAllowedDlls are all lower case.
      */
     uint32_t iNtDll    = UINT32_MAX;
     uint32_t iKernel32 = UINT32_MAX;
