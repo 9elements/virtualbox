@@ -1,4 +1,4 @@
-/* $Id: APICR3Nem-linux-x86.cpp 112819 2026-02-04 14:42:49Z alexander.eichner@oracle.com $ */
+/* $Id: APICR3Nem-linux-x86.cpp 113859 2026-04-14 11:43:54Z alexander.eichner@oracle.com $ */
 /** @file
  * APIC - Advanced Programmable Interrupt Controller - NEM KVM backend.
  */
@@ -295,7 +295,7 @@ static DECLCALLBACK(int) apicR3KvmGetTimerFreq(PVMCC pVM, uint64_t *pu64Value)
     PKVMAPIC pKvmApic = VM_TO_KVMAPIC(pVM);
 
     int rcLnx = ioctl(pKvmApic->iFdVm, KVM_CHECK_EXTENSION, KVM_CAP_X86_APIC_BUS_CYCLES_NS);
-    if (rcLnx == -1)
+    if (rcLnx <= 0)
     {
         LogRel(("APIC/KVM: Querying KVM_CAP_X86_APIC_BUS_CYCLES_NS failed, assuming default of 1GHz"));
         *pu64Value = 1000000000;
