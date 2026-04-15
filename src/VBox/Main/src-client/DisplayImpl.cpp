@@ -1,4 +1,4 @@
-/* $Id: DisplayImpl.cpp 113814 2026-04-10 17:12:18Z andreas.loeffler@oracle.com $ */
+/* $Id: DisplayImpl.cpp 113887 2026-04-15 11:58:37Z andreas.loeffler@oracle.com $ */
 /** @file
  * VirtualBox COM class implementation
  */
@@ -2290,6 +2290,35 @@ int Display::i_recordingScreenUpdate(unsigned uScreenId, uint8_t *pauFramebuffer
         || !pauFramebuffer)
         return VINF_SUCCESS;
 
+    /*
+     * Output target activation can race with restore/startup.
+     *
+     * Newly created output targets start with sequence #0 and their YUVI420
+     * backing buffer is still uninitialized from the guest rendering
+     * perspective. Activating that path too early can produce green frames
+     * after restore. Keep recording on the framebuffer path until we observe
+     * the first output-target update sequence, then switch.
+     */
+    if (   mpDrv
+        && mpDrv->pUpPort
+        && Recording.au64VideoOutputTargetToken[uScreenId]
+        && Recording.uVideoOutputTargetSeq == 0)
+    {
+        PDMDISPLAYOUTPUTTARGETDESC Desc;
+        int const vrcDesc = mpDrv->pUpPort->pfnOutputTargetDesc(mpDrv->pUpPort,
+                                                                 Recording.au64VideoOutputTargetToken[uScreenId],
+                                                                 &Desc);
+        if (RT_SUCCESS(vrcDesc))
+        {
+            uint64_t const uSeq = *Desc.pu64UpdateSequenceNumber;
+            if (uSeq > 0)
+            {
+                Recording.pCtx->SetVideoOutputTargetDesc(uScreenId, &Desc);
+                Recording.uVideoOutputTargetSeq = uSeq;
+            }
+        }
+     }
+
 #ifdef VBOX_STRICT /* Skipped in release build for speed reasons. */
     AssertReturn   (uBytesPerLine,  VERR_INVALID_PARAMETER);
     AssertReturn   (w,              VERR_INVALID_PARAMETER);
@@ -3325,22 +3354,42 @@ void Display::i_handleOnOutputTargetCreated(uint32_t uScreenId, uint64_t u64Outp
     RT_NOREF(uScreenId);
     if (RT_SUCCESS(vrcCreated))
     {
-        PDMDISPLAYOUTPUTTARGETDESC desc;
-        int vrc = mpDrv->pUpPort->pfnOutputTargetDesc(mpDrv->pUpPort, u64OutputTargetToken, &desc);
+        PDMDISPLAYOUTPUTTARGETDESC Desc;
+        int vrc = mpDrv->pUpPort->pfnOutputTargetDesc(mpDrv->pUpPort, u64OutputTargetToken, &Desc);
         if (RT_SUCCESS(vrc))
         {
             if (Recording.pCtx)
-                Recording.pCtx->SetVideoOutputTargetDesc(uScreenId, &desc);
+            {
+                /* Keep the token for deferred activation in i_recordingScreenUpdate(). */
+                Recording.au64VideoOutputTargetToken[uScreenId] = u64OutputTargetToken;
+
+                /* Only propagate the output target description to recording if we got a valid
+                 * update sequence number (> 0). */
+                uint64_t const uSeq = *Desc.pu64UpdateSequenceNumber;
+                if (uSeq > 0)
+                {
+                    vrc = Recording.pCtx->SetVideoOutputTargetDesc(uScreenId, &Desc);
+                    if (RT_SUCCESS(vrc))
+                        Recording.uVideoOutputTargetSeq = uSeq;
+                }
+                else
+                {
+                    Log3Func(("Output target creation deferred for screen #%RU32 (token %#RX64, seq %RU64)\n",
+                               uScreenId, u64OutputTargetToken, uSeq));
+                    vrc = VINF_SUCCESS;
+                }
+            }
             else
                 vrc = VERR_INVALID_STATE;
         }
 
         Log3Func(("Output target got desc: %#x (%Rrc)\n", u64OutputTargetToken, vrc));
 
-        if (RT_SUCCESS(vrc))
-            Recording.au64VideoOutputTargetToken[uScreenId] = u64OutputTargetToken;
-        else
+        if (RT_FAILURE(vrc))
+        {
+            Recording.au64VideoOutputTargetToken[uScreenId] = 0;
             mpDrv->pUpPort->pfnReleaseOutputTarget(mpDrv->pUpPort, u64OutputTargetToken);
+        }
     }
 #else
     RT_NOREF(uScreenId, u64OutputTargetToken, vrcCreated);

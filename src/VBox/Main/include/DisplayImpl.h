@@ -1,4 +1,4 @@
-/* $Id: DisplayImpl.h 113683 2026-03-30 13:57:36Z andreas.loeffler@oracle.com $ */
+/* $Id: DisplayImpl.h 113887 2026-04-15 11:58:37Z andreas.loeffler@oracle.com $ */
 /** @file
  * VirtualBox COM class implementation
  */
@@ -422,7 +422,8 @@ private:
     struct Recording
     {
         Recording()
-            : pCtx(NULL) { RT_ZERO(au64VideoOutputTargetToken); }
+            : pCtx(NULL)
+            , uVideoOutputTargetSeq(0) { RT_ZERO(au64VideoOutputTargetToken); }
 
         /** Recording context. Constant across lifetime.
          *  Might be NULL if not being used. */
@@ -432,6 +433,10 @@ private:
          *  Required for getting and setting output target descriptions for
          *  hardware accelerated (3D) scaling + conversion support. See @bugref{9297}. */
         uint64_t au64VideoOutputTargetToken[SchemaDefs::MaxGuestMonitors];
+        /** Output target sequence number. Used for all screens.
+         *  Needed in order to handle the target output activation when restoring / starting up.
+         *  Set to 0 on initialization. */
+        uint64_t uVideoOutputTargetSeq;
     } Recording;
 #endif
 
