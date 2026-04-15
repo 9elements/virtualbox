@@ -1,4 +1,4 @@
-/* $Id: UIMessageCenter.h 113785 2026-04-09 11:04:06Z sergey.dubov@oracle.com $ */
+/* $Id: UIMessageCenter.h 113885 2026-04-15 11:35:55Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMessageCenter class declaration.
  */
@@ -197,13 +197,6 @@ public:
     bool showModalProgressDialog(CProgress &comProgress, const QString &strTitle,
                                  const QString &strImage, QWidget *pParent = 0,
                                  int cMinDuration = 2000);
-
-    /** @name General COM warnings.
-      * @{ */
-        void cannotOpenSession(const CSession &comSession) const;
-        void cannotOpenSession(const CMachine &comMachine) const;
-        void cannotOpenSession(const CProgress &comProgress, const QString &strMachineName) const;
-    /** @} */
 
 public slots:
 

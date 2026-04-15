@@ -1,4 +1,4 @@
-/* $Id: UIMessageCenter.cpp 113785 2026-04-09 11:04:06Z sergey.dubov@oracle.com $ */
+/* $Id: UIMessageCenter.cpp 113885 2026-04-15 11:35:55Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMessageCenter class implementation.
  */
@@ -241,29 +241,6 @@ bool UIMessageCenter::showModalProgressDialog(CProgress &progress,
 
     /* Return result: */
     return fRc;
-}
-
-void UIMessageCenter::cannotOpenSession(const CSession &comSession) const
-{
-    error(0, MessageType_Error,
-          tr("Failed to create a new session."),
-          UIErrorString::formatErrorInfo(comSession));
-}
-
-void UIMessageCenter::cannotOpenSession(const CMachine &comMachine) const
-{
-    error(0, MessageType_Error,
-          tr("Failed to open a session for the virtual machine <b>%1</b>.")
-             .arg(CMachine(comMachine).GetName()),
-          UIErrorString::formatErrorInfo(comMachine));
-}
-
-void UIMessageCenter::cannotOpenSession(const CProgress &comProgress, const QString &strMachineName) const
-{
-    error(0, MessageType_Error,
-          tr("Failed to open a session for the virtual machine <b>%1</b>.")
-             .arg(strMachineName),
-          UIErrorString::formatErrorInfo(comProgress));
 }
 
 void UIMessageCenter::sltShowHelpWebDialog()

@@ -1,4 +1,4 @@
-/* $Id: UINotificationMessage.h 113884 2026-04-15 11:28:52Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationMessage.h 113885 2026-04-15 11:35:55Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationMessage declarations.
  */
@@ -351,6 +351,13 @@ public:
         /** Notifies about inability to acquire IVirtualBox.
           * @param  comClient  Brings the client IVirtualBox get acquired from. */
         static void cannotAcquireVirtualBox(const CVirtualBoxClient &comClient);
+
+        /** Notifies about inability to open session.
+          * @param  comSession  Brings the object error can be acquired from. */
+        static void cannotOpenSession(const CSession &comSession, QWidget *pParent = 0);
+        /** Notifies about inability to open session.
+          * @param  comMachine  Brings the object error can be acquired from. */
+        static void cannotOpenSession(const CMachine &comMachine, QWidget *pParent = 0);
 
         /** Notifies about inability to acquire IVirtualBox parameter.
           * @param  comVBox    Brings the object parameter get acquired from.

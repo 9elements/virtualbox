@@ -1,4 +1,4 @@
-/* $Id: UINotificationMessage.cpp 113884 2026-04-15 11:28:52Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationMessage.cpp 113885 2026-04-15 11:35:55Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationMessage implementations.
  */
@@ -983,6 +983,33 @@ void UINotificationMessage::cannotAcquireVirtualBox(const CVirtualBoxClient &com
         QString() /* internal name */,
         QString() /* help keyword */,
         NotificationType_Critical);
+}
+
+/* static */
+void UINotificationMessage::cannotOpenSession(const CSession &comSession, QWidget *pParent /* = 0 */)
+{
+    createBlockingMessage(
+        QApplication::translate("UIMessageCenter", "Can't open session!"),
+        QApplication::translate("UIMessageCenter", "Failed to create a new session.") +
+        UIErrorString::formatErrorInfo(comSession),
+        QString() /* internal name */,
+        QString() /* help keyword */,
+        NotificationType_Critical,
+        pParent);
+}
+
+/* static */
+void UINotificationMessage::cannotOpenSession(const CMachine &comMachine, QWidget *pParent /* = 0 */)
+{
+    createBlockingMessage(
+        QApplication::translate("UIMessageCenter", "Can't open session!"),
+        QApplication::translate("UIMessageCenter", "Failed to open a session for the virtual machine <b>%1</b>.")
+                                                   .arg(CMachine(comMachine).GetName()) +
+        UIErrorString::formatErrorInfo(comMachine),
+        QString() /* internal name */,
+        QString() /* help keyword */,
+        NotificationType_Critical,
+        pParent);
 }
 
 /* static */

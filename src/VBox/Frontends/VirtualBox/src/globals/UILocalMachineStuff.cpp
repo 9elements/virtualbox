@@ -1,4 +1,4 @@
-/* $Id: UILocalMachineStuff.cpp 113853 2026-04-13 14:04:08Z sergey.dubov@oracle.com $ */
+/* $Id: UILocalMachineStuff.cpp 113885 2026-04-15 11:35:55Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UILocalMachineStuff namespace implementation.
  */
@@ -33,7 +33,6 @@
 #include "UIGlobalSession.h"
 #include "UILocalMachineStuff.h"
 #include "UILoggingDefs.h"
-#include "UIMessageCenter.h"
 #include "UINotificationCenter.h"
 #include "UITranslator.h"
 #ifdef VBOX_WS_MAC
@@ -149,7 +148,8 @@ bool UILocalMachineStuff::launchMachine(CMachine &comMachine, UILaunchMode enmLa
     return gpNotificationCenter->handleNow(pNotification);
 }
 
-CSession UILocalMachineStuff::openSession(QUuid uId, KLockType enmLockType /* = KLockType_Write */)
+CSession UILocalMachineStuff::openSession(QUuid uId,
+                                          KLockType enmLockType /* = KLockType_Write */)
 {
     /* Prepare session: */
     CSession comSession;
@@ -168,7 +168,7 @@ CSession UILocalMachineStuff::openSession(QUuid uId, KLockType enmLockType /* = 
         comSession.createInstance(CLSID_Session);
         if (comSession.isNull())
         {
-            msgCenter().cannotOpenSession(comSession);
+            UINotificationMessage::cannotOpenSession(comSession);
             break;
         }
 
@@ -188,7 +188,7 @@ CSession UILocalMachineStuff::openSession(QUuid uId, KLockType enmLockType /* = 
         comMachine.LockMachine(comSession, enmLockType);
         if (!comMachine.isOk())
         {
-            msgCenter().cannotOpenSession(comMachine);
+            UINotificationMessage::cannotOpenSession(comMachine);
             break;
         }
 
