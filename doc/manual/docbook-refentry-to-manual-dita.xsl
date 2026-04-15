@@ -881,7 +881,14 @@
   <xsl:if test="$sLeadSeps != ''">
     <xsl:element name="sep">
       <xsl:attribute name="rev"><xsl:value-of select="concat(local-name(.), '-leadseps')"/></xsl:attribute>
-      <xsl:value-of select="$sLeadSeps"/>
+      <xsl:choose>
+        <xsl:when test="$sLeadSeps = ' '">
+          <xsl:text>&#160;</xsl:text>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="$sLeadSeps"/>
+        </xsl:otherwise>
+      </xsl:choose>
     </xsl:element>
   </xsl:if>
 
@@ -1195,4 +1202,3 @@ Unsupported children: <!-- -->
 </xsl:template>
 
 </xsl:stylesheet>
-
