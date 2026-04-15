@@ -1,4 +1,4 @@
-/* $Id: SUPDrv-win.cpp 113496 2026-03-22 22:23:27Z knut.osmundsen@oracle.com $ */
+/* $Id: SUPDrv-win.cpp 113872 2026-04-15 00:00:01Z knut.osmundsen@oracle.com $ */
 /** @file
  * VBoxDrv - The VirtualBox Support Driver - Windows NT specifics.
  */
@@ -3970,6 +3970,13 @@ static bool supdrvNtProtectIsWhitelistedDebugger(PEPROCESS pProcess)
         if (RTStrICmp(pszImageFile, "drwtsn32.exe") == 0)
             return true;
         if (RTStrICmp(pszImageFile, "dwwin.exe") == 0)
+            return true;
+        if (RTStrICmp(pszImageFile, "dbgx.shell.exe") == 0) // ??
+            return true;
+    }
+    else if (pszImageFile[0] == 'e' || pszImageFile[0] == 'E')
+    {
+        if (RTStrICmp(pszImageFile, "EngHost.exe") == 0)
             return true;
     }
 
