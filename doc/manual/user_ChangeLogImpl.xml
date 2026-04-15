@@ -105,7 +105,11 @@ Rules for adding a changelog entry to make them look more uniform:
       </listitem>
 
       <listitem>
-        <para>Linux Host and Guest: Added additional fixes for RHEL 10.1 and 10.2 kernels (github:gh-455)</para>
+        <para>Linux Host: Added support for guest time accounting (github:gh-2)</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux Host and Guest: Introduced additional fixes for RHEL 10.1 and 10.2 kernels (github:gh-455)</para>
       </listitem>
 
       <listitem>
@@ -113,7 +117,7 @@ Rules for adding a changelog entry to make them look more uniform:
       </listitem>
 
       <listitem>
-        <para>Linux Host and Guest: Added improvements to make 'rcvboxdrv/rcvboxad setup' and installation process faster</para>
+        <para>Linux Host and Guest: Added improvements to make 'rcvboxdrv/rcvboxadd setup' and installation process faster</para>
       </listitem>
 
       <listitem>
@@ -123,16 +127,12 @@ Rules for adding a changelog entry to make them look more uniform:
       </listitem>
 
       <listitem>
-        <para>Linux Guest: Added support for guest time accounting (github:gh-2)</para>
-      </listitem>
-
-      <listitem>
         <para>Linux Guest Additions: Fixed issue when last character was not pasted into Windows
           host clipboard when copying from Wayland guest (bug:22339)</para>
       </listitem>
 
       <listitem>
-        <para>UEFI: Added DBX Variable (github:gh-133)</para>
+        <para>UEFI: Fixed errors with secure boot certificate updates and Windows 11 guests (github:gh-133)</para>
       </listitem>
 
     </itemizedlist>
