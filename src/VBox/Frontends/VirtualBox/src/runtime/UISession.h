@@ -1,4 +1,4 @@
-/* $Id: UISession.h 112641 2026-01-19 13:59:27Z sergey.dubov@oracle.com $ */
+/* $Id: UISession.h 113893 2026-04-15 16:29:23Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UISession class declaration.
  */
@@ -655,8 +655,11 @@ private slots:
         void sltClipboardError(const QString &strMsg);
     /** @} */
 
-    /** @name Close stuff.
+    /** @name Startup/Close stuff.
      ** @{ */
+        /** Handles signal about machine powered up.
+          * @param  fSuccess  Brings whether state was powered up successfully. */
+        void sltHandleMachinePoweredUp(bool fSuccess);
         /** Handles signal about machine state saved.
           * @param  fSuccess  Brings whether state was saved successfully. */
         void sltHandleMachineStateSaved(bool fSuccess);

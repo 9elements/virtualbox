@@ -1,4 +1,4 @@
-/* $Id: UINotificationMessage.h 113885 2026-04-15 11:35:55Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationMessage.h 113893 2026-04-15 16:29:23Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationMessage declarations.
  */
@@ -791,13 +791,6 @@ public:
 
     /** @name COM Runtime UI warnings.
       * @{ */
-        /** Notifies about inability to start machine under the certain @a strName.
-          * @param  comConsole  Brings console for machine being started. */
-        static void cannotStartMachine(const CConsole &comConsole, const QString &strName);
-        /** Notifies about inability to start machine under the certain @a strName.
-          * @param  comProgress  Brings progress for machine being started. */
-        static void cannotStartMachine(const CProgress &comProgress, const QString &strName);
-
         /** Notifies about inability to add disk scryption password.
           * @param  comConsole  Brings console trying to add disk scryption password. */
         static bool cannotAddDiskEncryptionPassword(const CConsole &comConsole);

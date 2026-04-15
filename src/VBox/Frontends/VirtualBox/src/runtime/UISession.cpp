@@ -1,4 +1,4 @@
-/* $Id: UISession.cpp 113886 2026-04-15 11:42:59Z sergey.dubov@oracle.com $ */
+/* $Id: UISession.cpp 113893 2026-04-15 16:29:23Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UISession class implementation.
  */
@@ -217,70 +217,27 @@ bool UISession::initialize()
 
 bool UISession::powerUp()
 {
-    /* Power UP machine: */
-    CProgress comProgress = uiCommon().shouldStartPaused() ? console().PowerUpPaused() : console().PowerUp();
-
-    /* Check for immediate failure: */
-    if (!console().isOk() || comProgress.isNull())
-    {
-        if (uiCommon().showStartVMErrors())
-            UINotificationMessage::cannotStartMachine(console(), machineName());
-        LogRel(("GUI: Aborting startup due to immediate power up issue detected...\n"));
-        return false;
-    }
-
-    /* Some logging right after we powered up: */
-    LogRel(("GUI: Qt version: %s\n", UIVersionInfo::qtRTVersionString().toUtf8().constData()));
-#ifdef VBOX_WS_NIX
-    LogRel(("GUI: X11 Window Manager code: %d\n", (int)uiCommon().typeOfWindowManager()));
-#endif
-#if defined(VBOX_WS_MAC) || defined(VBOX_WS_WIN)
-    LogRel(("GUI: HID LEDs sync is %s\n", uimachine()->isHidLedsSyncEnabled() ? "enabled" : "disabled"));
-#else
-    LogRel(("GUI: HID LEDs sync is not supported on this platform\n"));
-#endif
+    /* Init some vars: */
+    CConsole comConsole = console();
+    const QString strName = machineName();
 
     /* Enable 'manual-override',
      * preventing automatic Runtime UI closing
      * and visual representation mode changes: */
     uimachine()->setManualOverrideMode(true);
 
-    /* Show "Starting/Restoring" progress dialog: */
-    if (isSaved())
-    {
-#ifndef VBOX_GUI_WITH_CUSTOMIZATIONS1
-        msgCenter().showModalProgressDialog(comProgress, machineName(), ":/progress_state_restore_90px.png", 0, 0);
-#else
-        msgCenter().showModalProgressDialog(comProgress, machineName(), ":/progress_state_restore_90px.png", 0, 10000);
-#endif
-        /* After restoring from 'saved' state, machine-window(s) geometry should be adjusted: */
-        machineLogic()->adjustMachineWindowsGeometry();
-    }
-    else
-    {
-#ifndef VBOX_GUI_WITH_CUSTOMIZATIONS1
-        msgCenter().showModalProgressDialog(comProgress, machineName(), ":/progress_start_90px.png", 0, 0);
-#else
-        msgCenter().showModalProgressDialog(comProgress, machineName(), ":/progress_start_90px.png", 0, 10000);
-#endif
-        /* After VM start, machine-window(s) size-hint(s) should be sent: */
-        machineLogic()->sendMachineWindowsSizeHints();
-    }
-
-    /* Check for progress failure: */
-    if (!comProgress.isOk() || comProgress.GetResultCode() != 0)
-    {
-        if (uiCommon().showStartVMErrors())
-            UINotificationMessage::cannotStartMachine(comProgress, machineName());
-        LogRel(("GUI: Aborting startup due to power up progress issue detected...\n"));
-        return false;
-    }
+    /* Create and handle progress-notification: */
+    UINotificationProgressMachinePowerUp *pNotification = new UINotificationProgressMachinePowerUp(comConsole,
+                                                                                                   strName);
+    connect(pNotification, &UINotificationProgressMachinePowerUp::sigMachinePoweredUp,
+            this, &UISession::sltHandleMachinePoweredUp);
+    const bool fResult = gpNotificationCenter->handleNow(pNotification);
 
     /* Disable 'manual-override' finally: */
     uimachine()->setManualOverrideMode(false);
 
-    /* True by default: */
-    return true;
+    /* Return result: */
+    return fResult;
 }
 
 WId UISession::mainMachineWindowId() const
@@ -2476,6 +2433,32 @@ void UISession::sltAdditionsChange()
 void UISession::sltClipboardError(const QString &strMsg)
 {
     UINotificationMessage::warnAboutClipboardError(strMsg);
+}
+
+void UISession::sltHandleMachinePoweredUp(bool fSuccess)
+{
+    if (!fSuccess)
+        LogRel(("GUI: Aborting startup due to power up issue detected...\n"));
+    else
+    {
+        /* Some logging right after we powered up: */
+        LogRel(("GUI: Qt version: %s\n", UIVersionInfo::qtRTVersionString().toUtf8().constData()));
+#ifdef VBOX_WS_NIX
+        LogRel(("GUI: X11 Window Manager code: %d\n", (int)uiCommon().typeOfWindowManager()));
+#endif
+#if defined(VBOX_WS_MAC) || defined(VBOX_WS_WIN)
+        LogRel(("GUI: HID LEDs sync is %s\n", uimachine()->isHidLedsSyncEnabled() ? "enabled" : "disabled"));
+#else
+        LogRel(("GUI: HID LEDs sync is not supported on this platform\n"));
+#endif
+
+        /* After restoring from 'saved' state, machine-window(s) geometry should be adjusted: */
+        if (isSaved())
+            machineLogic()->adjustMachineWindowsGeometry();
+        /* After VM start, machine-window(s) size-hint(s) should be sent: */
+        else
+            machineLogic()->sendMachineWindowsSizeHints();
+    }
 }
 
 void UISession::sltHandleMachineStateSaved(bool fSuccess)

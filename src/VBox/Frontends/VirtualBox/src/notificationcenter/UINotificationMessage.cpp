@@ -1,4 +1,4 @@
-/* $Id: UINotificationMessage.cpp 113885 2026-04-15 11:35:55Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationMessage.cpp 113893 2026-04-15 16:29:23Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationMessage implementations.
  */
@@ -2314,24 +2314,6 @@ bool UINotificationMessage::cannotRunUnattendedGuestInstall(const CUnattended &c
         QApplication::translate("UIMessageCenter", "Failed to run unattended guest installation.") +
         UIErrorString::formatErrorInfo(comUnattended));
     return false;
-}
-
-/* static */
-void UINotificationMessage::cannotStartMachine(const CConsole &comConsole, const QString &strName)
-{
-    createBlockingMessage(
-        QApplication::translate("UIMessageCenter", "Can't run virtual machine ..."),
-        QApplication::translate("UIMessageCenter", "Failed to start the virtual machine <b>%1</b>.").arg(strName) +
-        UIErrorString::formatErrorInfo(comConsole));
-}
-
-/* static */
-void UINotificationMessage::cannotStartMachine(const CProgress &comProgress, const QString &strName)
-{
-    createBlockingMessage(
-        QApplication::translate("UIMessageCenter", "Can't run virtual machine ..."),
-        QApplication::translate("UIMessageCenter", "Failed to start the virtual machine <b>%1</b>.").arg(strName) +
-        UIErrorString::formatErrorInfo(comProgress));
 }
 
 /* static */

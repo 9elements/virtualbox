@@ -1,4 +1,4 @@
-/* $Id: UINotificationObjects.cpp 113892 2026-04-15 13:54:54Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationObjects.cpp 113893 2026-04-15 16:29:23Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationObjects implementations.
  */
@@ -475,6 +475,46 @@ void UINotificationProgressMachineLaunch::sltHandleProgressFinished()
 {
     /* Unlock session finally: */
     m_comSession.UnlockMachine();
+}
+
+
+/*********************************************************************************************************************************
+*   Class UINotificationProgressMachinePowerUp implementation.                                                                   *
+*********************************************************************************************************************************/
+
+UINotificationProgressMachinePowerUp::UINotificationProgressMachinePowerUp(const CConsole &comConsole,
+                                                                           const QString &strName)
+    : m_comConsole(comConsole)
+    , m_strName(strName)
+{
+    connect(this, &UINotificationProgress::sigProgressFinished,
+            this, &UINotificationProgressMachinePowerUp::sltHandleProgressFinished);
+}
+
+QString UINotificationProgressMachinePowerUp::name() const
+{
+    return UINotificationProgress::tr("Power VM up ...");
+}
+
+QString UINotificationProgressMachinePowerUp::details() const
+{
+    return UINotificationProgress::tr("<b>VM Name:</b> %1").arg(m_strName);
+}
+
+CProgress UINotificationProgressMachinePowerUp::createProgress(COMResult &comResult)
+{
+    /* Initialize progress-wrapper: */
+    CProgress comProgress = uiCommon().shouldStartPaused() ? m_comConsole.PowerUpPaused() : m_comConsole.PowerUp();
+    /* Store COM result: */
+    comResult = m_comConsole;
+    /* Return progress-wrapper: */
+    return comProgress;
+}
+
+void UINotificationProgressMachinePowerUp::sltHandleProgressFinished()
+{
+    /* Notify listeners: */
+    emit sigMachinePoweredUp(error().isEmpty());
 }
 
 

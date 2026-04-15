@@ -1,4 +1,4 @@
-/* $Id: UINotificationObjects.h 113892 2026-04-15 13:54:54Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationObjects.h 113893 2026-04-15 16:29:23Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationObjects declarations.
  */
@@ -391,6 +391,45 @@ private:
     CSession      m_comSession;
     /** Holds the machine name. */
     QString       m_strName;
+};
+
+/** UINotificationProgress extension for machine power up functionality. */
+class SHARED_LIBRARY_STUFF UINotificationProgressMachinePowerUp : public UINotificationProgress
+{
+    Q_OBJECT;
+
+signals:
+
+    /* Notifies listeners about machine powered up. */
+    void sigMachinePoweredUp(bool fPoweredUp);
+
+public:
+
+    /** Constructs machine power up notification-progress.
+      * @param  comMachine  Brings the console for the machine being powered up.
+      * @param  strName     Brings the machine name. */
+    UINotificationProgressMachinePowerUp(const CConsole &comConsole, const QString &strName);
+
+protected:
+
+    /** Returns object name. */
+    virtual QString name() const RT_OVERRIDE RT_FINAL;
+    /** Returns object details. */
+    virtual QString details() const RT_OVERRIDE RT_FINAL;
+    /** Creates and returns started progress-wrapper. */
+    virtual CProgress createProgress(COMResult &comResult) RT_OVERRIDE RT_FINAL;
+
+private slots:
+
+    /** Handles signal about progress being finished. */
+    void sltHandleProgressFinished();
+
+private:
+
+    /** Holds the console for the machine being powered up. */
+    CConsole  m_comConsole;
+    /** Holds the machine name. */
+    QString   m_strName;
 };
 
 /** UINotificationProgress extension for machine save-state functionality. */
