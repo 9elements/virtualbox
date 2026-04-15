@@ -1,4 +1,4 @@
-/* $Id: WebMWriter.cpp 113380 2026-03-13 10:01:45Z andreas.loeffler@oracle.com $ */
+/* $Id: WebMWriter.cpp 113891 2026-04-15 13:14:00Z andreas.loeffler@oracle.com $ */
 /** @file
  * WebMWriter.cpp - WebM container handling.
  */
@@ -490,20 +490,9 @@ int WebMWriter::writeSimpleBlockQueued(WebMTrack *a_pTrack, WebMSimpleBlock *a_p
     {
         const WebMTimecodeAbs tcAbsPTS = a_pBlock->Data.tcAbsPTSMs;
 
-        /* See if we already have an entry for the specified timecode in our queue. */
-        WebMBlockMap::iterator itQueue = m_CurSeg.m_queueBlocks.Map.find(tcAbsPTS);
-        if (itQueue != m_CurSeg.m_queueBlocks.Map.end()) /* Use existing queue. */
-        {
-            WebMTimecodeBlocks &Blocks = itQueue->second;
-            Blocks.Enqueue(a_pBlock);
-        }
-        else /* Create a new timecode entry. */
-        {
-            WebMTimecodeBlocks Blocks;
-            Blocks.Enqueue(a_pBlock);
-
-            m_CurSeg.m_queueBlocks.Map[tcAbsPTS] = Blocks;
-        }
+        /* Use existing queue entry or create one in-place. */
+        WebMTimecodeBlocks &Blocks = m_CurSeg.m_queueBlocks.Map[tcAbsPTS];
+        Blocks.Enqueue(a_pBlock);
 
         vrc = processQueue(&m_CurSeg.m_queueBlocks, false /* fForce */);
     }
@@ -596,8 +585,8 @@ int WebMWriter::processQueue(WebMQueue *pQueue, bool fForce)
     WebMBlockMap::iterator it = pQueue->Map.begin();
     while (it != m_CurSeg.m_queueBlocks.Map.end())
     {
-        WebMTimecodeAbs    mapAbsPTSMs = it->first;
-        WebMTimecodeBlocks mapBlocks   = it->second;
+        WebMTimecodeAbs     mapAbsPTSMs = it->first;
+        WebMTimecodeBlocks &mapBlocks   = it->second;
 
         /* Whether to start a new cluster or not. */
         bool fClusterStart = false;
