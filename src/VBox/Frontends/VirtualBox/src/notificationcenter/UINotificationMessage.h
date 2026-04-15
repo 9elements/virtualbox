@@ -1,4 +1,4 @@
-/* $Id: UINotificationMessage.h 113782 2026-04-09 10:12:24Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationMessage.h 113884 2026-04-15 11:28:52Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationMessage declarations.
  */
@@ -605,15 +605,12 @@ public:
                                             const QString &strName);
         /** Notifies about inability to find machine by ID.
           * @param  comVBox     Brings common VBox object trying to find machine.
-          * @param  uMachineId  Brings the machine ID. */
+          * @param  uMachineId  Brings the machine ID.
+          * @param  fCritical   Brings whether notification is critical. */
         static bool cannotFindMachineById(const CVirtualBox &comVBox,
-                                          const QUuid &uId);
-        /** Notifies about inability to find machine by ID.
-          * @param  comVBox     Brings common VBox object trying to find machine.
-          * @param  uMachineId  Brings the machine ID. */
-        static void cannotFindMachineById(const CVirtualBox &comVBox,
                                           const QUuid &uMachineId,
-                                          QWidget *pParent);
+                                          QWidget *pParent = 0,
+                                          bool fCritical = true);
 
         /** Notifies about inability to find snapshot by name.
           * @param  comMachine  Brings the machine being searched for particular snapshot.
