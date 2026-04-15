@@ -1,4 +1,4 @@
-/* $Id: UILocalMachineStuff.cpp 113886 2026-04-15 11:42:59Z sergey.dubov@oracle.com $ */
+/* $Id: UILocalMachineStuff.cpp 113892 2026-04-15 13:54:54Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UILocalMachineStuff namespace implementation.
  */
@@ -142,9 +142,9 @@ bool UILocalMachineStuff::launchMachine(CMachine &comMachine, UILaunchMode enmLa
                   , ("Machine must be PoweredOff/Saved/Teleported/Aborted/AbortedSaved (%d)", enmState));
     }
 
-    /* Powering VM up: */
-    UINotificationProgressMachinePowerUp *pNotification =
-        new UINotificationProgressMachinePowerUp(comMachine, enmLaunchMode);
+    /* Launch VM: */
+    UINotificationProgressMachineLaunch *pNotification =
+        new UINotificationProgressMachineLaunch(comMachine, enmLaunchMode);
     return gpNotificationCenter->handleNow(pNotification);
 }
 

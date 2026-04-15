@@ -1,4 +1,4 @@
-/* $Id: UINotificationObjects.cpp 113850 2026-04-13 13:55:49Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationObjects.cpp 113892 2026-04-15 13:54:54Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationObjects implementations.
  */
@@ -378,28 +378,28 @@ void UINotificationProgressMachineCopy::sltHandleProgressFinished()
 
 
 /*********************************************************************************************************************************
-*   Class UINotificationProgressMachinePowerUp implementation.                                                                   *
+*   Class UINotificationProgressMachineLaunch implementation.                                                                    *
 *********************************************************************************************************************************/
 
-UINotificationProgressMachinePowerUp::UINotificationProgressMachinePowerUp(const CMachine &comMachine, UILaunchMode enmLaunchMode)
+UINotificationProgressMachineLaunch::UINotificationProgressMachineLaunch(const CMachine &comMachine, UILaunchMode enmLaunchMode)
     : m_comMachine(comMachine)
     , m_enmLaunchMode(enmLaunchMode)
 {
     connect(this, &UINotificationProgress::sigProgressFinished,
-            this, &UINotificationProgressMachinePowerUp::sltHandleProgressFinished);
+            this, &UINotificationProgressMachineLaunch::sltHandleProgressFinished);
 }
 
-QString UINotificationProgressMachinePowerUp::name() const
+QString UINotificationProgressMachineLaunch::name() const
 {
-    return UINotificationProgress::tr("Powering VM up ...");
+    return UINotificationProgress::tr("Launch VM ...");
 }
 
-QString UINotificationProgressMachinePowerUp::details() const
+QString UINotificationProgressMachineLaunch::details() const
 {
     return UINotificationProgress::tr("<b>VM Name:</b> %1").arg(m_strName);
 }
 
-CProgress UINotificationProgressMachinePowerUp::createProgress(COMResult &comResult)
+CProgress UINotificationProgressMachineLaunch::createProgress(COMResult &comResult)
 {
     /* Acquire VM name: */
     m_strName = m_comMachine.GetName();
@@ -471,7 +471,7 @@ CProgress UINotificationProgressMachinePowerUp::createProgress(COMResult &comRes
     return comProgress;
 }
 
-void UINotificationProgressMachinePowerUp::sltHandleProgressFinished()
+void UINotificationProgressMachineLaunch::sltHandleProgressFinished()
 {
     /* Unlock session finally: */
     m_comSession.UnlockMachine();
