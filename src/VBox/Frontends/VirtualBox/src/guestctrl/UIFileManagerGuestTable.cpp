@@ -1,4 +1,4 @@
-/* $Id: UIFileManagerGuestTable.cpp 113854 2026-04-13 14:13:47Z sergey.dubov@oracle.com $ */
+/* $Id: UIFileManagerGuestTable.cpp 113886 2026-04-15 11:42:59Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIFileManagerGuestTable class implementation.
  */
@@ -1247,7 +1247,7 @@ bool UIFileManagerGuestTable::openMachineSession()
         emit sigLogOutput("Invalid machine reference", m_strTableName, FileManagerLogType_Error);
         return false;
     }
-    m_comSession = openExistingSession(m_comMachine.GetId());
+    m_comSession = openExistingSession(m_comMachine.GetId(), this);
     if (m_comSession.isNull())
     {
         emit sigLogOutput("Could not open machine session", m_strTableName, FileManagerLogType_Error);

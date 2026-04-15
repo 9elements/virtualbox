@@ -1,4 +1,4 @@
-/* $Id: UIAdvancedSettingsDialogSpecific.cpp 113536 2026-03-24 12:55:20Z sergey.dubov@oracle.com $ */
+/* $Id: UIAdvancedSettingsDialogSpecific.cpp 113886 2026-04-15 11:42:59Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIAdvancedSettingsDialogSpecific class implementation.
  */
@@ -399,8 +399,8 @@ bool UIAdvancedSettingsDialogMachine::load()
 
     /* Prepare session: */
     m_session = configurationAccessLevel() == ConfigurationAccessLevel_Null ? CSession() :
-                configurationAccessLevel() == ConfigurationAccessLevel_Full ? openSession(m_uMachineId) :
-                                                                              openExistingSession(m_uMachineId);
+                configurationAccessLevel() == ConfigurationAccessLevel_Full ? openSession(m_uMachineId, KLockType_Write, this) :
+                                                                              openExistingSession(m_uMachineId, this);
     /* Check that session was created: */
     if (m_session.isNull())
         return false;
@@ -428,8 +428,8 @@ void UIAdvancedSettingsDialogMachine::save()
 
     /* Prepare session: */
     m_session = configurationAccessLevel() == ConfigurationAccessLevel_Null ? CSession() :
-                configurationAccessLevel() == ConfigurationAccessLevel_Full ? openSession(m_uMachineId) :
-                                                                              openExistingSession(m_uMachineId);
+                configurationAccessLevel() == ConfigurationAccessLevel_Full ? openSession(m_uMachineId, KLockType_Write, this) :
+                                                                              openExistingSession(m_uMachineId, this);
     /* Check that session was created: */
     if (m_session.isNull())
         return;

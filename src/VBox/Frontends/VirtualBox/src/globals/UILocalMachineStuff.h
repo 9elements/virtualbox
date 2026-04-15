@@ -1,4 +1,4 @@
-/* $Id: UILocalMachineStuff.h 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: UILocalMachineStuff.h 113886 2026-04-15 11:42:59Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UILocalMachineStuff namespace declaration.
  */
@@ -53,15 +53,15 @@ namespace UILocalMachineStuff
     SHARED_LIBRARY_STUFF bool launchMachine(CMachine &comMachine, UILaunchMode enmLaunchMode = UILaunchMode_Default);
 
     /** Opens session of certain @a enmLockType for VM with certain @a uId. */
-    SHARED_LIBRARY_STUFF CSession openSession(QUuid uId, KLockType enmLockType = KLockType_Write);
+    SHARED_LIBRARY_STUFF CSession openSession(QUuid uId, KLockType enmLockType = KLockType_Write, QWidget *pParent = 0);
     /** Opens session of certain @a enmLockType for currently chosen VM. */
-    SHARED_LIBRARY_STUFF CSession openSession(KLockType enmLockType = KLockType_Write);
+    SHARED_LIBRARY_STUFF CSession openSession(KLockType enmLockType = KLockType_Write, QWidget *pParent = 0);
     /** Opens session of KLockType_Shared type for VM with certain @a uId. */
-    SHARED_LIBRARY_STUFF CSession openExistingSession(const QUuid &uId);
+    SHARED_LIBRARY_STUFF CSession openExistingSession(const QUuid &uId, QWidget *pParent = 0);
     /** Tries to guess if new @a comSession needs to be opened for certain @a comMachine,
       * if yes, new session of required type will be opened and machine will be updated,
       * otherwise, no session will be created and machine will be left unchanged. */
-    SHARED_LIBRARY_STUFF CSession tryToOpenSessionFor(CMachine &comMachine);
+    SHARED_LIBRARY_STUFF CSession tryToOpenSessionFor(CMachine &comMachine, QWidget *pParent = 0);
 }
 
 /* Using across any module who included us: */

@@ -1,4 +1,4 @@
-/* $Id: UIVMActivityMonitor.cpp 113854 2026-04-13 14:13:47Z sergey.dubov@oracle.com $ */
+/* $Id: UIVMActivityMonitor.cpp 113886 2026-04-15 11:42:59Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVMActivityMonitor class implementation.
  */
@@ -1674,7 +1674,7 @@ void UIVMActivityMonitorLocal::openSession()
 {
     if (!m_comSession.isNull())
         return;
-    m_comSession = openExistingSession(m_comMachine.GetId());
+    m_comSession = openExistingSession(m_comMachine.GetId(), this);
     AssertReturnVoid(!m_comSession.isNull());
 
     m_comConsole = m_comSession.GetConsole();

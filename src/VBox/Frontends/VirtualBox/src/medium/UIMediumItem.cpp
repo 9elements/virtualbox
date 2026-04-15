@@ -1,4 +1,4 @@
-/* $Id: UIMediumItem.cpp 113782 2026-04-09 10:12:24Z sergey.dubov@oracle.com $ */
+/* $Id: UIMediumItem.cpp 113886 2026-04-15 11:42:59Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMediumItem class implementation.
  */
@@ -320,7 +320,7 @@ void UIMediumItem::refresh()
 bool UIMediumItem::releaseFrom(const QUuid &uMachineId)
 {
     /* Open session: */
-    CSession session = openSession(uMachineId);
+    CSession session = openSession(uMachineId, KLockType_Write, treeWidget());
     if (session.isNull())
         return false;
 
@@ -351,7 +351,7 @@ bool UIMediumItem::releaseFrom(const QUuid &uMachineId)
 bool UIMediumItem::attachTo(const AttachmentCache &attachmentCache)
 {
     /* Open session: */
-    CSession comSession = openSession(attachmentCache.m_uMachineId);
+    CSession comSession = openSession(attachmentCache.m_uMachineId, KLockType_Write, parentTree());
     if (comSession.isNull())
         return false;
 

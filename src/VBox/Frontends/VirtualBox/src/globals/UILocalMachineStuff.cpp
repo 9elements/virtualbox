@@ -1,4 +1,4 @@
-/* $Id: UILocalMachineStuff.cpp 113885 2026-04-15 11:35:55Z sergey.dubov@oracle.com $ */
+/* $Id: UILocalMachineStuff.cpp 113886 2026-04-15 11:42:59Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UILocalMachineStuff namespace implementation.
  */
@@ -149,7 +149,8 @@ bool UILocalMachineStuff::launchMachine(CMachine &comMachine, UILaunchMode enmLa
 }
 
 CSession UILocalMachineStuff::openSession(QUuid uId,
-                                          KLockType enmLockType /* = KLockType_Write */)
+                                          KLockType enmLockType /* = KLockType_Write */,
+                                          QWidget *pParent /* = 0 */)
 {
     /* Prepare session: */
     CSession comSession;
@@ -168,7 +169,7 @@ CSession UILocalMachineStuff::openSession(QUuid uId,
         comSession.createInstance(CLSID_Session);
         if (comSession.isNull())
         {
-            UINotificationMessage::cannotOpenSession(comSession);
+            UINotificationMessage::cannotOpenSession(comSession, pParent);
             break;
         }
 
@@ -177,7 +178,7 @@ CSession UILocalMachineStuff::openSession(QUuid uId,
         CMachine comMachine = comVBox.FindMachine(uId.toString());
         if (comMachine.isNull())
         {
-            UINotificationMessage::cannotFindMachineById(comVBox, uId);
+            UINotificationMessage::cannotFindMachineById(comVBox, uId, pParent);
             break;
         }
 
@@ -188,7 +189,7 @@ CSession UILocalMachineStuff::openSession(QUuid uId,
         comMachine.LockMachine(comSession, enmLockType);
         if (!comMachine.isOk())
         {
-            UINotificationMessage::cannotOpenSession(comMachine);
+            UINotificationMessage::cannotOpenSession(comMachine, pParent);
             break;
         }
 
@@ -215,19 +216,22 @@ CSession UILocalMachineStuff::openSession(QUuid uId,
     return comSession;
 }
 
-CSession UILocalMachineStuff::openSession(KLockType enmLockType /* = KLockType_Write */)
+CSession UILocalMachineStuff::openSession(KLockType enmLockType /* = KLockType_Write */,
+                                          QWidget *pParent /* = 0 */)
 {
     /* Pass to function above: */
-    return openSession(uiCommon().managedVMUuid(), enmLockType);
+    return openSession(uiCommon().managedVMUuid(), enmLockType, pParent);
 }
 
-CSession UILocalMachineStuff::openExistingSession(const QUuid &uId)
+CSession UILocalMachineStuff::openExistingSession(const QUuid &uId,
+                                                  QWidget *pParent /* = 0 */)
 {
     /* Pass to function above: */
-    return openSession(uId, KLockType_Shared);
+    return openSession(uId, KLockType_Shared, pParent);
 }
 
-CSession UILocalMachineStuff::tryToOpenSessionFor(CMachine &comMachine)
+CSession UILocalMachineStuff::tryToOpenSessionFor(CMachine &comMachine,
+                                                  QWidget *pParent /* = 0 */)
 {
     /* Prepare session: */
     CSession comSession;
@@ -236,7 +240,7 @@ CSession UILocalMachineStuff::tryToOpenSessionFor(CMachine &comMachine)
     if (comMachine.GetSessionState() == KSessionState_Unlocked)
     {
         /* Open own 'write' session: */
-        comSession = openSession(comMachine.GetId());
+        comSession = openSession(comMachine.GetId(), KLockType_Write, pParent);
         AssertReturn(!comSession.isNull(), CSession());
         comMachine = comSession.GetMachine();
     }
@@ -244,7 +248,7 @@ CSession UILocalMachineStuff::tryToOpenSessionFor(CMachine &comMachine)
     else if (uiCommon().uiType() == UIType_ManagerUI)
     {
         /* Open existing 'shared' session: */
-        comSession = openExistingSession(comMachine.GetId());
+        comSession = openExistingSession(comMachine.GetId(), pParent);
         AssertReturn(!comSession.isNull(), CSession());
         comMachine = comSession.GetMachine();
     }

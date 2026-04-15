@@ -1,4 +1,4 @@
-/* $Id: UIWizardNewVM.cpp 113268 2026-03-05 13:37:28Z sergey.dubov@oracle.com $ */
+/* $Id: UIWizardNewVM.cpp 113886 2026-04-15 11:42:59Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIWizardNewVM class implementation.
  */
@@ -274,7 +274,7 @@ bool UIWizardNewVM::attachDefaultDevices()
 {
     bool success = false;
     QUuid uMachineId = m_machine.GetId();
-    CSession session = openSession(uMachineId);
+    CSession session = openSession(uMachineId, KLockType_Write, this);
     if (!session.isNull())
     {
         CMachine machine = session.GetMachine();
