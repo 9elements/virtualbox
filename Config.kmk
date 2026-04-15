@@ -1,4 +1,4 @@
-# $Id: Config.kmk 113771 2026-04-08 18:29:03Z alexander.rudnev@oracle.com $
+# $Id: Config.kmk 113882 2026-04-15 10:48:58Z alexander.rudnev@oracle.com $
 ## @file
 # The global build configuration file for VBox.
 #
@@ -5124,7 +5124,7 @@ ifdef VBOX_WITH_LIBCURL
 endif
 
 SDK_VBoxLibPng                := protable network graphics (png) library for dll linking.
-SDK_VBoxLibPng_INCS           ?= $(PATH_ROOT)/src/libs/libpng-1.6.56
+SDK_VBoxLibPng_INCS           ?= $(PATH_ROOT)/src/libs/libpng-1.6.57
 SDK_VBoxLibPng_LIBS           ?= $(PATH_STAGE_LIB)/VBox-libpng$(VBOX_SUFF_LIB)
 
 # lzf
@@ -9267,7 +9267,7 @@ endif
 SVN                    ?= svn$(HOSTSUFF_EXE)
 VBOX_SVN_REV_KMK        = $(PATH_OUT)/revision.kmk
 ifndef VBOX_SVN_REV
- VBOX_SVN_REV_CONFIG_FALLBACK := $(patsubst %:,,  $Rev: 113771 $  )
+ VBOX_SVN_REV_CONFIG_FALLBACK := $(patsubst %:,,  $Rev: 113882 $  )
  VBOX_SVN_REV_FALLBACK := $(if-expr $(VBOX_SVN_REV_CONFIG_FALLBACK) > $(VBOX_SVN_REV_VERSION_FALLBACK),$(VBOX_SVN_REV_CONFIG_FALLBACK),$(VBOX_SVN_REV_VERSION_FALLBACK))
  VBOX_SVN_DEP          := $(firstword $(wildcard $(PATH_ROOT)/.svn/wc.db $(abspath $(PATH_ROOT)/../.svn/wc.db) $(abspath $(PATH_ROOT)/../../.svn/wc.db) $(PATH_ROOT)/.svn/entries))
  ifeq ($(which $(SVN)),)
