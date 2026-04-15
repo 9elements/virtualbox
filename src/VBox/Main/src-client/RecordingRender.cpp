@@ -1,4 +1,4 @@
-/* $Id: RecordingRender.cpp 113742 2026-04-07 09:10:53Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingRender.cpp 113876 2026-04-15 09:30:47Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording rendering implementation.
  *
@@ -108,6 +108,832 @@ DECLINLINE(RECORDINGVIDEOFRAME const *) recRenderSWTex2FrmC(PCRECORDINGRENDERTEX
     AssertPtrReturn(pTexture, NULL);
 #endif
     return (RECORDINGVIDEOFRAME const *)pTexture->pvBackend;
+}
+
+/**
+ * Unified software texture view used by format-dispatched SW primitives.
+ */
+typedef struct RECRENDERSWVIEW
+{
+    /** Pixel format of this view. */
+    RECORDINGPIXELFMT  enmFmt;
+    /** Width in luma pixels. */
+    uint32_t           uWidth;
+    /** Height in luma pixels. */
+    uint32_t           uHeight;
+    /** Optional alpha map (for example cursor BGRA alpha channel). */
+    uint8_t const     *pu8Alpha;
+    /** Bytes per alpha row. */
+    uint32_t           cbAlphaStride;
+    /** Bytes between alpha samples. */
+    uint32_t           cbAlphaStep;
+    union
+    {
+        /** BRGA32 packed layout. */
+        struct
+        {
+            /** Base pointer. */
+            uint8_t       *pu8;
+            /** Bytes per row. */
+            uint32_t       cbStride;
+            /** Bytes per pixel. */
+            uint32_t       cbPixel;
+        } Brga32;
+        /** YUVI420 planar layout. */
+        struct
+        {
+            /** Luma plane pointer. */
+            uint8_t       *pu8Y;
+            /** Chroma U plane pointer. */
+            uint8_t       *pu8U;
+            /** Chroma V plane pointer. */
+            uint8_t       *pu8V;
+            /** Luma stride in bytes. */
+            uint32_t       cbYStride;
+            /** Chroma stride in bytes. */
+            uint32_t       cbUVStride;
+            /** Aligned luma height used by the backing allocation. */
+            uint32_t       cYHeightAligned;
+        } Yuvi420;
+    } u;
+} RECRENDERSWVIEW;
+/** Pointer to a SW texture view. */
+typedef RECRENDERSWVIEW *PRECRENDERSWVIEW;
+/** Pointer to a const SW texture view. */
+typedef RECRENDERSWVIEW const *PCRECRENDERSWVIEW;
+
+/**
+ * Rect mapping used by unified blit/blend primitives.
+ */
+typedef struct RECRENDERSWRECTMAP
+{
+    uint32_t uSrcX;
+    uint32_t uSrcY;
+    uint32_t uDstX;
+    uint32_t uDstY;
+    uint32_t cx;
+    uint32_t cy;
+} RECRENDERSWRECTMAP;
+/** Pointer to a rect mapping. */
+typedef RECRENDERSWRECTMAP *PRECRENDERSWRECTMAP;
+/** Pointer to a const rect mapping. */
+typedef RECRENDERSWRECTMAP const *PCRECRENDERSWRECTMAP;
+
+/**
+ * Returns chroma-plane dimension for a luma-plane dimension.
+ *
+ * @returns Chroma-plane dimension.
+ * @param   cLuma              Luma-plane dimension.
+ */
+DECLINLINE(uint32_t) recRenderSWPlaneDimFromLuma(uint32_t cLuma)
+{
+    return (cLuma + 1) / 2;
+}
+
+/**
+ * Initializes a unified software view from a recording frame.
+ *
+ * @returns VBox status code.
+ * @param   pView               View to initialize.
+ * @param   pFrame              Source frame descriptor.
+ */
+DECLINLINE(int) recRenderSWViewInitFromFrame(PRECRENDERSWVIEW pView, RECORDINGVIDEOFRAME const *pFrame)
+{
+    AssertPtrReturn(pView, VERR_INVALID_POINTER);
+    AssertPtrReturn(pFrame, VERR_INVALID_POINTER);
+    AssertPtrReturn(pFrame->pau8Buf, VERR_INVALID_POINTER);
+
+    RT_BZERO(pView, sizeof(*pView));
+
+    pView->enmFmt  = pFrame->Info.enmPixelFmt;
+    pView->uWidth  = pFrame->Info.uWidth;
+    pView->uHeight = pFrame->Info.uHeight;
+
+    switch (pFrame->Info.enmPixelFmt)
+    {
+        case RECORDINGPIXELFMT_BRGA32:
+        {
+            AssertReturn(pFrame->Info.uBPP == 32, VERR_INVALID_PARAMETER);
+
+            uint32_t const cbPixel = RT_MAX((uint32_t)pFrame->Info.uBPP / 8, 1U);
+            uint32_t const cbStride = pFrame->Info.uBytesPerLine ? pFrame->Info.uBytesPerLine : pFrame->Info.uWidth * cbPixel;
+            AssertReturn(cbStride >= pFrame->Info.uWidth * cbPixel, VERR_INVALID_PARAMETER);
+
+            pView->u.Brga32.pu8      = pFrame->pau8Buf;
+            pView->u.Brga32.cbStride = cbStride;
+            pView->u.Brga32.cbPixel  = cbPixel;
+            break;
+        }
+
+        case RECORDINGPIXELFMT_YUVI420:
+        {
+            uint32_t const cbYStride = pFrame->Info.uBytesPerLine ? pFrame->Info.uBytesPerLine : pFrame->Info.uWidth;
+            uint32_t const cbUVStride = RT_MAX(cbYStride / 2, 1U);
+            uint32_t const cYHeightAligned = RT_MAX((pFrame->Info.uHeight + 1) & ~1U, 2U);
+
+            size_t const cbY  = (size_t)cbYStride * cYHeightAligned;
+            size_t const cbUV = (size_t)cbUVStride * (cYHeightAligned / 2);
+            AssertReturn(pFrame->cbBuf >= cbY + 2 * cbUV, VERR_INVALID_PARAMETER);
+
+            pView->u.Yuvi420.pu8Y            = pFrame->pau8Buf;
+            pView->u.Yuvi420.pu8U            = pView->u.Yuvi420.pu8Y + cbY;
+            pView->u.Yuvi420.pu8V            = pView->u.Yuvi420.pu8U + cbUV;
+            pView->u.Yuvi420.cbYStride       = cbYStride;
+            pView->u.Yuvi420.cbUVStride      = cbUVStride;
+            pView->u.Yuvi420.cYHeightAligned = cYHeightAligned;
+            break;
+        }
+
+        default:
+            return VERR_NOT_SUPPORTED;
+    }
+
+    return VINF_SUCCESS;
+}
+
+/**
+ * Sets optional alpha-map metadata on a software view.
+ *
+ * @param   pView               View to update.
+ * @param   pu8Alpha            Optional alpha-map base pointer.
+ * @param   cbAlphaStride       Bytes per alpha row.
+ * @param   cbAlphaStep         Bytes between alpha samples.
+ */
+DECLINLINE(void) recRenderSWViewSetAlpha(PRECRENDERSWVIEW pView, uint8_t const *pu8Alpha,
+                                         uint32_t cbAlphaStride, uint32_t cbAlphaStep)
+{
+    AssertPtrReturnVoid(pView);
+
+    pView->pu8Alpha      = pu8Alpha;
+    pView->cbAlphaStride = cbAlphaStride;
+    pView->cbAlphaStep   = cbAlphaStep;
+}
+
+/**
+ * Clears destination contents according to the view pixel format.
+ *
+ * @returns VBox status code.
+ * @param   pView               Destination view.
+ */
+DECLINLINE(int) recRenderSWViewClear(PRECRENDERSWVIEW pView)
+{
+    AssertPtrReturn(pView, VERR_INVALID_POINTER);
+
+    switch (pView->enmFmt)
+    {
+        case RECORDINGPIXELFMT_BRGA32:
+        {
+            memset(pView->u.Brga32.pu8, 0, (size_t)pView->u.Brga32.cbStride * pView->uHeight);
+            return VINF_SUCCESS;
+        }
+
+        case RECORDINGPIXELFMT_YUVI420:
+        {
+            size_t const cbY  = (size_t)pView->u.Yuvi420.cbYStride * pView->u.Yuvi420.cYHeightAligned;
+            size_t const cbUV = (size_t)pView->u.Yuvi420.cbUVStride * (pView->u.Yuvi420.cYHeightAligned / 2);
+            memset(pView->u.Yuvi420.pu8Y, 0x00, cbY);
+            memset(pView->u.Yuvi420.pu8U, 0x80, cbUV);
+            memset(pView->u.Yuvi420.pu8V, 0x80, cbUV);
+            return VINF_SUCCESS;
+        }
+
+        default:
+            break;
+    }
+
+    return VERR_NOT_SUPPORTED;
+}
+
+/**
+ * Clips source/destination rectangles against source and destination views.
+ *
+ * @returns VBox status code.
+ * @param   pMap                Receives clipped mapping.
+ * @param   pDst                Destination view.
+ * @param   pSrc                Source view.
+ * @param   pDstRect            Optional destination rectangle.
+ * @param   pSrcRect            Optional source rectangle.
+ */
+DECLINLINE(int) recRenderSWRectMapClip(PRECRENDERSWRECTMAP pMap, PCRECRENDERSWVIEW pDst, PCRECRENDERSWVIEW pSrc,
+                                       PRTRECT pDstRect, PRTRECT pSrcRect)
+{
+    AssertPtrReturn(pMap, VERR_INVALID_POINTER);
+    AssertPtrReturn(pDst, VERR_INVALID_POINTER);
+    AssertPtrReturn(pSrc, VERR_INVALID_POINTER);
+
+    uint32_t const uSrcX = pSrcRect ? (uint32_t)RT_MAX(pSrcRect->xLeft, 0) : 0;
+    uint32_t const uSrcY = pSrcRect ? (uint32_t)RT_MAX(pSrcRect->yTop,  0) : 0;
+    uint32_t const uDstX = pDstRect ? (uint32_t)RT_MAX(pDstRect->xLeft, 0) : 0;
+    uint32_t const uDstY = pDstRect ? (uint32_t)RT_MAX(pDstRect->yTop,  0) : 0;
+
+    uint32_t const uSrcWidth  = pSrcRect ? (uint32_t)RT_MAX(pSrcRect->xRight  - pSrcRect->xLeft, 0) : pSrc->uWidth;
+    uint32_t const uSrcHeight = pSrcRect ? (uint32_t)RT_MAX(pSrcRect->yBottom - pSrcRect->yTop,  0) : pSrc->uHeight;
+
+    pMap->uSrcX = uSrcX;
+    pMap->uSrcY = uSrcY;
+    pMap->uDstX = uDstX;
+    pMap->uDstY = uDstY;
+    pMap->cx    = 0;
+    pMap->cy    = 0;
+
+    if (   uSrcX >= pSrc->uWidth
+        || uSrcY >= pSrc->uHeight
+        || uDstX >= pDst->uWidth
+        || uDstY >= pDst->uHeight)
+        return VINF_SUCCESS;
+
+    uint32_t const cx = RT_MIN(uSrcWidth,  pSrc->uWidth  - uSrcX);
+    uint32_t const cy = RT_MIN(uSrcHeight, pSrc->uHeight - uSrcY);
+    pMap->cx = RT_MIN(cx, pDst->uWidth  - uDstX);
+    pMap->cy = RT_MIN(cy, pDst->uHeight - uDstY);
+
+    return VINF_SUCCESS;
+}
+
+/** Blit primitive function pointer. */
+typedef int (*PFNRECRENDERSWBLITIMPL)(PRECRENDERSWVIEW pDst, PCRECRENDERSWVIEW pSrc, PCRECRENDERSWRECTMAP pMap);
+/** Blend primitive function pointer. */
+typedef int (*PFNRECRENDERSWBLENDIMPL)(PRECRENDERSWVIEW pDst, PCRECRENDERSWVIEW pSrc, PCRECRENDERSWRECTMAP pMap);
+
+/**
+ * Forward declaration for unified resize dispatch.
+ */
+static int recRenderSWDispatchResize(PRECRENDERSWVIEW pDst, PCRECRENDERSWVIEW pSrc,
+                                     PRECORDINGRENDERER pRenderer, PRECORDINGRENDERRESIZEPARMS pResizeParms);
+
+/**
+ * Forward declarations for BRGA32/plane resize helpers used by dispatch code.
+ */
+DECLINLINE(int) recRenderSWFrameResizeCropCenter(RECORDINGVIDEOFRAME const *pDstFrame,
+                                                 RECORDINGVIDEOFRAME const *pSrcFrame,
+                                                 PRTRECT pDstRect, PRTRECT pSrcRect);
+DECLINLINE(int) recRenderSWFrameResizeNearestNeighbor(PRECORDINGVIDEOFRAME pDstFrame,
+                                                      RECORDINGVIDEOFRAME const *pSrcFrame,
+                                                      RTRECT const *pDstRect,
+                                                      RTRECT const *pSrcRect);
+DECLINLINE(int) recRenderSWFrameResizeBilinear(PRECORDINGVIDEOFRAME pDstFrame,
+                                               RECORDINGVIDEOFRAME const *pSrcFrame,
+                                               RTRECT const *pDstRect,
+                                               RTRECT const *pSrcRect);
+DECLINLINE(int) recRenderSWFrameResizeBicubic(PRECORDINGVIDEOFRAME pDstFrame,
+                                              RECORDINGVIDEOFRAME const *pSrcFrame,
+                                              RTRECT const *pDstRect,
+                                              RTRECT const *pSrcRect);
+
+/**
+ * Maps recording pixel format to dispatch index.
+ *
+ * @returns Dispatch index, or UINT32_MAX if unsupported.
+ * @param   enmFmt              Recording pixel format.
+ */
+DECLINLINE(uint32_t) recRenderSWFmtToIdx(RECORDINGPIXELFMT enmFmt)
+{
+    switch (enmFmt)
+    {
+        case RECORDINGPIXELFMT_BRGA32:  return 0;
+        case RECORDINGPIXELFMT_YUVI420: return 1;
+        default:                        return UINT32_MAX;
+    }
+}
+
+/**
+ * Reads source alpha for the given source pixel location.
+ *
+ * @returns Alpha value at the requested source position.
+ * @param   pSrc                Source view.
+ * @param   uSrcX               Source X position.
+ * @param   uSrcY               Source Y position.
+ */
+DECLINLINE(uint8_t) recRenderSWAlphaAt(PCRECRENDERSWVIEW pSrc, uint32_t uSrcX, uint32_t uSrcY)
+{
+    if (!pSrc->pu8Alpha)
+        return 255;
+    return pSrc->pu8Alpha[(size_t)uSrcY * pSrc->cbAlphaStride + (size_t)uSrcX * pSrc->cbAlphaStep];
+}
+
+/**
+ * BRGA32 -> BRGA32 blit.
+ *
+ * @returns VBox status code.
+ * @param   pDst                Destination view.
+ * @param   pSrc                Source view.
+ * @param   pMap                Clipped source/destination mapping.
+ */
+static int recRenderSWBlitBrga32(PRECRENDERSWVIEW pDst, PCRECRENDERSWVIEW pSrc, PCRECRENDERSWRECTMAP pMap)
+{
+    AssertReturn(pDst->u.Brga32.cbPixel == pSrc->u.Brga32.cbPixel, VERR_INVALID_PARAMETER);
+
+    size_t const cbRow = (size_t)pMap->cx * pSrc->u.Brga32.cbPixel;
+    for (uint32_t y = 0; y < pMap->cy; y++)
+    {
+        size_t const offSrc = ((size_t)pMap->uSrcY + y) * pSrc->u.Brga32.cbStride + (size_t)pMap->uSrcX * pSrc->u.Brga32.cbPixel;
+        size_t const offDst = ((size_t)pMap->uDstY + y) * pDst->u.Brga32.cbStride + (size_t)pMap->uDstX * pDst->u.Brga32.cbPixel;
+        memcpy(&pDst->u.Brga32.pu8[offDst], &pSrc->u.Brga32.pu8[offSrc], cbRow);
+    }
+
+    return VINF_SUCCESS;
+}
+
+/**
+ * YUVI420 -> YUVI420 blit.
+ *
+ * @returns VBox status code.
+ * @param   pDst                Destination view.
+ * @param   pSrc                Source view.
+ * @param   pMap                Clipped source/destination mapping.
+ */
+static int recRenderSWBlitYuvi420(PRECRENDERSWVIEW pDst, PCRECRENDERSWVIEW pSrc, PCRECRENDERSWRECTMAP pMap)
+{
+    for (uint32_t y = 0; y < pMap->cy; y++)
+    {
+        size_t const offSrcY = ((size_t)pMap->uSrcY + y) * pSrc->u.Yuvi420.cbYStride + pMap->uSrcX;
+        size_t const offDstY = ((size_t)pMap->uDstY + y) * pDst->u.Yuvi420.cbYStride + pMap->uDstX;
+        memcpy(&pDst->u.Yuvi420.pu8Y[offDstY], &pSrc->u.Yuvi420.pu8Y[offSrcY], pMap->cx);
+    }
+
+    uint32_t const uSrcXUV = pMap->uSrcX / 2;
+    uint32_t const uSrcYUV = pMap->uSrcY / 2;
+    uint32_t const uDstXUV = pMap->uDstX / 2;
+    uint32_t const uDstYUV = pMap->uDstY / 2;
+
+    uint32_t cUVX = (pMap->uSrcX + pMap->cx + 1) / 2 - uSrcXUV;
+    uint32_t cUVY = (pMap->uSrcY + pMap->cy + 1) / 2 - uSrcYUV;
+
+    uint32_t const cSrcUVWidth  = recRenderSWPlaneDimFromLuma(pSrc->uWidth);
+    uint32_t const cSrcUVHeight = recRenderSWPlaneDimFromLuma(pSrc->uHeight);
+    uint32_t const cDstUVWidth  = recRenderSWPlaneDimFromLuma(pDst->uWidth);
+    uint32_t const cDstUVHeight = recRenderSWPlaneDimFromLuma(pDst->uHeight);
+    cUVX = RT_MIN(cUVX, cSrcUVWidth  - RT_MIN(uSrcXUV, cSrcUVWidth));
+    cUVY = RT_MIN(cUVY, cSrcUVHeight - RT_MIN(uSrcYUV, cSrcUVHeight));
+    cUVX = RT_MIN(cUVX, cDstUVWidth  - RT_MIN(uDstXUV, cDstUVWidth));
+    cUVY = RT_MIN(cUVY, cDstUVHeight - RT_MIN(uDstYUV, cDstUVHeight));
+
+    for (uint32_t y = 0; y < cUVY; y++)
+    {
+        size_t const offSrcUV = ((size_t)uSrcYUV + y) * pSrc->u.Yuvi420.cbUVStride + uSrcXUV;
+        size_t const offDstUV = ((size_t)uDstYUV + y) * pDst->u.Yuvi420.cbUVStride + uDstXUV;
+        memcpy(&pDst->u.Yuvi420.pu8U[offDstUV], &pSrc->u.Yuvi420.pu8U[offSrcUV], cUVX);
+        memcpy(&pDst->u.Yuvi420.pu8V[offDstUV], &pSrc->u.Yuvi420.pu8V[offSrcUV], cUVX);
+    }
+
+    return VINF_SUCCESS;
+}
+
+/**
+ * BRGA32 -> BRGA32 alpha blend.
+ *
+ * @returns VBox status code.
+ * @param   pDst                Destination view.
+ * @param   pSrc                Source view.
+ * @param   pMap                Clipped source/destination mapping.
+ */
+static int recRenderSWBlendBrga32(PRECRENDERSWVIEW pDst, PCRECRENDERSWVIEW pSrc, PCRECRENDERSWRECTMAP pMap)
+{
+    AssertReturn(pSrc->u.Brga32.cbPixel == 4, VERR_INVALID_PARAMETER);
+    AssertReturn(pDst->u.Brga32.cbPixel == 4, VERR_INVALID_PARAMETER);
+
+    for (uint32_t y = 0; y < pMap->cy; y++)
+    {
+        size_t const offSrc = ((size_t)pMap->uSrcY + y) * pSrc->u.Brga32.cbStride + (size_t)pMap->uSrcX * 4;
+        size_t const offDst = ((size_t)pMap->uDstY + y) * pDst->u.Brga32.cbStride + (size_t)pMap->uDstX * 4;
+
+        uint8_t const *pu8Src = &pSrc->u.Brga32.pu8[offSrc];
+        uint8_t       *pu8Dst = &pDst->u.Brga32.pu8[offDst];
+        for (uint32_t x = 0; x < pMap->cx; x++)
+        {
+            uint8_t const uAlpha = recRenderSWAlphaAt(pSrc, pMap->uSrcX + x, pMap->uSrcY + y);
+            if (uAlpha == 255)
+            {
+                pu8Dst[0] = pu8Src[0];
+                pu8Dst[1] = pu8Src[1];
+                pu8Dst[2] = pu8Src[2];
+                pu8Dst[3] = pu8Src[3];
+            }
+            else if (uAlpha != 0)
+            {
+                uint32_t const uInvAlpha = 255 - uAlpha;
+                pu8Dst[0] = (uint8_t)((pu8Src[0] * uAlpha + pu8Dst[0] * uInvAlpha) / 255);
+                pu8Dst[1] = (uint8_t)((pu8Src[1] * uAlpha + pu8Dst[1] * uInvAlpha) / 255);
+                pu8Dst[2] = (uint8_t)((pu8Src[2] * uAlpha + pu8Dst[2] * uInvAlpha) / 255);
+                pu8Dst[3] = (uint8_t)((pu8Src[3] * uAlpha + pu8Dst[3] * uInvAlpha) / 255);
+            }
+
+            pu8Src += 4;
+            pu8Dst += 4;
+        }
+    }
+
+    return VINF_SUCCESS;
+}
+
+/**
+ * YUVI420 -> YUVI420 alpha blend.
+ *
+ * @returns VBox status code.
+ * @param   pDst                Destination view.
+ * @param   pSrc                Source view.
+ * @param   pMap                Clipped source/destination mapping.
+ */
+static int recRenderSWBlendYuvi420(PRECRENDERSWVIEW pDst, PCRECRENDERSWVIEW pSrc, PCRECRENDERSWRECTMAP pMap)
+{
+    for (uint32_t y = 0; y < pMap->cy; y++)
+    {
+        for (uint32_t x = 0; x < pMap->cx; x++)
+        {
+            uint8_t const uAlpha = recRenderSWAlphaAt(pSrc, pMap->uSrcX + x, pMap->uSrcY + y);
+            if (!uAlpha)
+                continue;
+
+            size_t const offDstY = ((size_t)pMap->uDstY + y) * pDst->u.Yuvi420.cbYStride + (pMap->uDstX + x);
+            size_t const offSrcY = ((size_t)pMap->uSrcY + y) * pSrc->u.Yuvi420.cbYStride + (pMap->uSrcX + x);
+            uint8_t const uSrcLuma = pSrc->u.Yuvi420.pu8Y[offSrcY];
+            if (uAlpha == 255)
+                pDst->u.Yuvi420.pu8Y[offDstY] = uSrcLuma;
+            else
+            {
+                uint32_t const uInvAlpha = 255 - uAlpha;
+                pDst->u.Yuvi420.pu8Y[offDstY] = (uint8_t)((uSrcLuma * uAlpha + pDst->u.Yuvi420.pu8Y[offDstY] * uInvAlpha + 127) / 255);
+            }
+        }
+    }
+
+    for (uint32_t y = 0; y < pMap->cy; y += 2)
+    {
+        for (uint32_t x = 0; x < pMap->cx; x += 2)
+        {
+            uint32_t cPx = 0;
+            uint32_t uAlphaSum = 0;
+            if (pSrc->pu8Alpha)
+            {
+                for (uint32_t iy = 0; iy < 2; iy++)
+                {
+                    if (y + iy >= pMap->cy)
+                        continue;
+                    for (uint32_t ix = 0; ix < 2; ix++)
+                    {
+                        if (x + ix >= pMap->cx)
+                            continue;
+                        uAlphaSum += recRenderSWAlphaAt(pSrc, pMap->uSrcX + x + ix, pMap->uSrcY + y + iy);
+                        cPx++;
+                    }
+                }
+            }
+            else
+            {
+                uAlphaSum = 255;
+                cPx = 1;
+            }
+
+            if (!cPx)
+                continue;
+
+            uint8_t const uAlpha = (uint8_t)((uAlphaSum + (cPx / 2)) / cPx);
+            if (!uAlpha)
+                continue;
+
+            size_t const offDstUV = (size_t)((pMap->uDstY + y) / 2) * pDst->u.Yuvi420.cbUVStride + ((pMap->uDstX + x) / 2);
+            size_t const offSrcUV = (size_t)((pMap->uSrcY + y) / 2) * pSrc->u.Yuvi420.cbUVStride + ((pMap->uSrcX + x) / 2);
+
+            uint8_t const uSrcU = pSrc->u.Yuvi420.pu8U[offSrcUV];
+            uint8_t const uSrcV = pSrc->u.Yuvi420.pu8V[offSrcUV];
+            if (uAlpha == 255)
+            {
+                pDst->u.Yuvi420.pu8U[offDstUV] = uSrcU;
+                pDst->u.Yuvi420.pu8V[offDstUV] = uSrcV;
+            }
+            else
+            {
+                uint32_t const uInvAlpha = 255 - uAlpha;
+                pDst->u.Yuvi420.pu8U[offDstUV] = (uint8_t)((uSrcU * uAlpha + pDst->u.Yuvi420.pu8U[offDstUV] * uInvAlpha + 127) / 255);
+                pDst->u.Yuvi420.pu8V[offDstUV] = (uint8_t)((uSrcV * uAlpha + pDst->u.Yuvi420.pu8V[offDstUV] * uInvAlpha + 127) / 255);
+            }
+        }
+    }
+
+    return VINF_SUCCESS;
+}
+
+/**
+ * Unified blit dispatcher.
+ *
+ * @returns VBox status code.
+ * @param   pDst                Destination view.
+ * @param   pSrc                Source view.
+ * @param   pDstRect            Optional destination rectangle.
+ * @param   pSrcRect            Optional source rectangle.
+ */
+static int recRenderSWDispatchBlit(PRECRENDERSWVIEW pDst, PCRECRENDERSWVIEW pSrc,
+                                   PRTRECT pDstRect, PRTRECT pSrcRect)
+{
+    RECRENDERSWRECTMAP Map;
+    int vrc = recRenderSWRectMapClip(&Map, pDst, pSrc, pDstRect, pSrcRect);
+    if (RT_FAILURE(vrc))
+        return vrc;
+    if (!Map.cx || !Map.cy)
+        return VINF_SUCCESS;
+
+    uint32_t const iDst = recRenderSWFmtToIdx(pDst->enmFmt);
+    uint32_t const iSrc = recRenderSWFmtToIdx(pSrc->enmFmt);
+    if (   iDst >= 2
+        || iSrc >= 2)
+        return VERR_NOT_SUPPORTED;
+
+    static PFNRECRENDERSWBLITIMPL const s_aapfnBlit[2][2] =
+    {
+        /* dst BRGA32 */  { recRenderSWBlitBrga32,  NULL },
+        /* dst YUVI420 */ { NULL,                   recRenderSWBlitYuvi420 }
+    };
+
+    PFNRECRENDERSWBLITIMPL const pfnImpl = s_aapfnBlit[iDst][iSrc];
+    if (!pfnImpl)
+        return VERR_NOT_SUPPORTED;
+
+    return pfnImpl(pDst, pSrc, &Map);
+}
+
+/**
+ * Unified blend dispatcher.
+ *
+ * @returns VBox status code.
+ * @param   pDst                Destination view.
+ * @param   pSrc                Source view.
+ * @param   pSrcRect            Optional source rectangle.
+ * @param   pDstRect            Optional destination rectangle.
+ */
+static int recRenderSWDispatchBlend(PRECRENDERSWVIEW pDst, PCRECRENDERSWVIEW pSrc,
+                                    PRTRECT pSrcRect, PRTRECT pDstRect)
+{
+    RECRENDERSWRECTMAP Map;
+    int vrc = recRenderSWRectMapClip(&Map, pDst, pSrc, pDstRect, pSrcRect);
+    if (RT_FAILURE(vrc))
+        return vrc;
+    if (!Map.cx || !Map.cy)
+        return VINF_SUCCESS;
+
+    uint32_t const iDst = recRenderSWFmtToIdx(pDst->enmFmt);
+    uint32_t const iSrc = recRenderSWFmtToIdx(pSrc->enmFmt);
+    if (   iDst >= 2
+        || iSrc >= 2)
+        return VERR_NOT_SUPPORTED;
+
+    static PFNRECRENDERSWBLENDIMPL const s_aapfnBlend[2][2] =
+    {
+        /* dst BRGA32 */  { recRenderSWBlendBrga32, NULL },
+        /* dst YUVI420 */ { NULL,                   recRenderSWBlendYuvi420 }
+    };
+
+    PFNRECRENDERSWBLENDIMPL const pfnImpl = s_aapfnBlend[iDst][iSrc];
+    if (!pfnImpl)
+        return VERR_NOT_SUPPORTED;
+
+    return pfnImpl(pDst, pSrc, &Map);
+}
+
+/**
+ * Creates a temporary plane frame descriptor from raw plane metadata.
+ *
+ * @param   pFrame              Frame descriptor to initialize.
+ * @param   pu8Plane            Raw plane pointer.
+ * @param   uWidth              Plane width in pixels.
+ * @param   uHeight             Plane height in pixels.
+ * @param   cbStride            Plane stride in bytes.
+ */
+DECLINLINE(void) recRenderSWPlaneAsFrame(PRECORDINGVIDEOFRAME pFrame, uint8_t *pu8Plane,
+                                         uint32_t uWidth, uint32_t uHeight, uint32_t cbStride)
+{
+    RT_ZERO(*pFrame);
+    pFrame->Info.uWidth        = uWidth;
+    pFrame->Info.uHeight       = uHeight;
+    pFrame->Info.uBPP          = 8;
+    pFrame->Info.enmPixelFmt   = RECORDINGPIXELFMT_UNKNOWN;
+    pFrame->Info.uBytesPerLine = cbStride;
+    pFrame->pau8Buf            = pu8Plane;
+    pFrame->cbBuf              = (size_t)cbStride * uHeight;
+}
+
+/**
+ * Resizes/copies one generic byte-per-pixel plane using the selected scaling mode.
+ *
+ * @returns VBox status code.
+ * @param   pDstFrame           Destination plane frame descriptor.
+ * @param   pSrcFrame           Source plane frame descriptor.
+ * @param   enmMode             Scaling mode to apply.
+ * @param   pDstRect            Destination rectangle.
+ * @param   pSrcRect            Source rectangle.
+ */
+static int recRenderSWResizePlane(PRECORDINGVIDEOFRAME pDstFrame, RECORDINGVIDEOFRAME const *pSrcFrame,
+                                  RecordingVideoScalingMode_T enmMode,
+                                  RTRECT const *pDstRect, RTRECT const *pSrcRect)
+{
+    switch (enmMode)
+    {
+        case RecordingVideoScalingMode_NearestNeighbor:
+            return recRenderSWFrameResizeNearestNeighbor(pDstFrame, pSrcFrame, pDstRect, pSrcRect);
+
+        case RecordingVideoScalingMode_Bilinear:
+            return recRenderSWFrameResizeBilinear(pDstFrame, pSrcFrame, pDstRect, pSrcRect);
+
+        case RecordingVideoScalingMode_Bicubic:
+            return recRenderSWFrameResizeBicubic(pDstFrame, pSrcFrame, pDstRect, pSrcRect);
+
+        case RecordingVideoScalingMode_None:
+        default:
+            break;
+    }
+
+    int32_t const sx = pSrcRect->xLeft;
+    int32_t const sy = pSrcRect->yTop;
+    int32_t const sw = pSrcRect->xRight  - pSrcRect->xLeft;
+    int32_t const sh = pSrcRect->yBottom - pSrcRect->yTop;
+    int32_t const dx = pDstRect->xLeft;
+    int32_t const dy = pDstRect->yTop;
+
+    if (   sw <= 0
+        || sh <= 0)
+        return VINF_SUCCESS;
+
+    uint32_t const cbPixel = RT_MAX((uint32_t)pSrcFrame->Info.uBPP / 8, 1U);
+    size_t   const cbCopy  = (size_t)sw * cbPixel;
+    for (uint32_t y = 0; y < (uint32_t)sh; y++)
+    {
+        uint8_t const *pu8Src = pSrcFrame->pau8Buf
+                               + ((size_t)sy + y) * pSrcFrame->Info.uBytesPerLine
+                               + (size_t)sx * cbPixel;
+        uint8_t       *pu8Dst = pDstFrame->pau8Buf
+                               + ((size_t)dy + y) * pDstFrame->Info.uBytesPerLine
+                               + (size_t)dx * cbPixel;
+        memcpy(pu8Dst, pu8Src, cbCopy);
+    }
+
+    return VINF_SUCCESS;
+}
+
+/**
+ * Unified resize dispatcher.
+ *
+ * @returns VBox status code.
+ * @param   pDst                Destination view.
+ * @param   pSrc                Source view.
+ * @param   pRenderer           Renderer instance.
+ * @param   pResizeParms        Resize parameters (input/output).
+ */
+static int recRenderSWDispatchResize(PRECRENDERSWVIEW pDst, PCRECRENDERSWVIEW pSrc,
+                                     PRECORDINGRENDERER pRenderer, PRECORDINGRENDERRESIZEPARMS pResizeParms)
+{
+    AssertPtrReturn(pDst, VERR_INVALID_POINTER);
+    AssertPtrReturn(pSrc, VERR_INVALID_POINTER);
+    AssertPtrReturn(pRenderer, VERR_INVALID_POINTER);
+    AssertPtrReturn(pResizeParms, VERR_INVALID_POINTER);
+
+    int32_t sx = 0;
+    int32_t sy = 0;
+    int32_t sw = (int32_t)pSrc->uWidth;
+    int32_t sh = (int32_t)pSrc->uHeight;
+    int32_t dx = 0;
+    int32_t dy = 0;
+    int32_t dw = sw;
+    int32_t dh = sh;
+
+    int vrc = VINF_SUCCESS;
+
+    switch (pResizeParms->enmMode)
+    {
+        case RecordingVideoScalingMode_NearestNeighbor:
+        case RecordingVideoScalingMode_Bilinear:
+        case RecordingVideoScalingMode_Bicubic:
+            dw = (int32_t)pRenderer->Parms.Info.uWidth;
+            dh = (int32_t)pRenderer->Parms.Info.uHeight;
+            break;
+
+        case RecordingVideoScalingMode_None:
+        default:
+        {
+            RECORDINGVIDEOFRAME SrcDummy;
+            RECORDINGVIDEOFRAME DstDummy;
+            RT_ZERO(SrcDummy);
+            RT_ZERO(DstDummy);
+            SrcDummy.Info.uWidth  = pSrc->uWidth;
+            SrcDummy.Info.uHeight = pSrc->uHeight;
+            DstDummy.Info.uWidth  = pDst->uWidth;
+            DstDummy.Info.uHeight = pDst->uHeight;
+
+            RTRECT DstRect;
+            RTRECT SrcRect;
+            vrc = recRenderSWFrameResizeCropCenter(&DstDummy, &SrcDummy, &DstRect, &SrcRect);
+            if (RT_SUCCESS(vrc))
+            {
+                sx = SrcRect.xLeft;
+                sy = SrcRect.yTop;
+                sw = SrcRect.xRight  - SrcRect.xLeft;
+                sh = SrcRect.yBottom - SrcRect.yTop;
+
+                dx = DstRect.xLeft;
+                dy = DstRect.yTop;
+                dw = DstRect.xRight  - DstRect.xLeft;
+                dh = DstRect.yBottom - DstRect.yTop;
+            }
+            break;
+        }
+    }
+
+    pResizeParms->srcRect.xLeft   = sx;
+    pResizeParms->srcRect.yTop    = sy;
+    pResizeParms->srcRect.xRight  = sx + sw;
+    pResizeParms->srcRect.yBottom = sy + sh;
+    pResizeParms->dstRect.xLeft   = dx;
+    pResizeParms->dstRect.yTop    = dy;
+    pResizeParms->dstRect.xRight  = dx + dw;
+    pResizeParms->dstRect.yBottom = dy + dh;
+
+    if (RT_FAILURE(vrc))
+        return vrc;
+    if (vrc == VWRN_RECORDING_ENCODING_SKIPPED)
+        return vrc;
+
+#ifdef VBOX_STRICT
+    AssertReturn(pSrc->enmFmt == pDst->enmFmt, VERR_INVALID_PARAMETER);
+    AssertReturn(sw > 0 && sh > 0 && dw > 0 && dh > 0, VERR_INVALID_PARAMETER);
+    AssertReturn((uint32_t)(dx + dw) <= pDst->uWidth, VERR_INVALID_PARAMETER);
+    AssertReturn((uint32_t)(dy + dh) <= pDst->uHeight, VERR_INVALID_PARAMETER);
+    AssertReturn((uint32_t)(sx + sw) <= pSrc->uWidth, VERR_INVALID_PARAMETER);
+    AssertReturn((uint32_t)(sy + sh) <= pSrc->uHeight, VERR_INVALID_PARAMETER);
+#endif
+
+    vrc = recRenderSWViewClear(pDst);
+    if (RT_FAILURE(vrc))
+        return vrc;
+
+    if (pDst->enmFmt == RECORDINGPIXELFMT_BRGA32)
+    {
+        RECORDINGVIDEOFRAME SrcFrame;
+        RECORDINGVIDEOFRAME DstFrame;
+        RT_ZERO(SrcFrame);
+        RT_ZERO(DstFrame);
+
+        SrcFrame.Info.uWidth        = pSrc->uWidth;
+        SrcFrame.Info.uHeight       = pSrc->uHeight;
+        SrcFrame.Info.uBPP          = pSrc->u.Brga32.cbPixel * 8;
+        SrcFrame.Info.enmPixelFmt   = RECORDINGPIXELFMT_BRGA32;
+        SrcFrame.Info.uBytesPerLine = pSrc->u.Brga32.cbStride;
+        SrcFrame.pau8Buf            = pSrc->u.Brga32.pu8;
+        SrcFrame.cbBuf              = (size_t)pSrc->u.Brga32.cbStride * pSrc->uHeight;
+
+        DstFrame.Info.uWidth        = pDst->uWidth;
+        DstFrame.Info.uHeight       = pDst->uHeight;
+        DstFrame.Info.uBPP          = pDst->u.Brga32.cbPixel * 8;
+        DstFrame.Info.enmPixelFmt   = RECORDINGPIXELFMT_BRGA32;
+        DstFrame.Info.uBytesPerLine = pDst->u.Brga32.cbStride;
+        DstFrame.pau8Buf            = pDst->u.Brga32.pu8;
+        DstFrame.cbBuf              = (size_t)pDst->u.Brga32.cbStride * pDst->uHeight;
+
+        return recRenderSWResizePlane(&DstFrame, &SrcFrame, pResizeParms->enmMode,
+                                      &pResizeParms->dstRect, &pResizeParms->srcRect);
+    }
+    else if (pDst->enmFmt == RECORDINGPIXELFMT_YUVI420)
+    {
+        RECORDINGVIDEOFRAME SrcY;
+        RECORDINGVIDEOFRAME DstY;
+        recRenderSWPlaneAsFrame(&SrcY, pSrc->u.Yuvi420.pu8Y, pSrc->uWidth, pSrc->uHeight, pSrc->u.Yuvi420.cbYStride);
+        recRenderSWPlaneAsFrame(&DstY, pDst->u.Yuvi420.pu8Y, pDst->uWidth, pDst->uHeight, pDst->u.Yuvi420.cbYStride);
+
+        vrc = recRenderSWResizePlane(&DstY, &SrcY, pResizeParms->enmMode,
+                                     &pResizeParms->dstRect, &pResizeParms->srcRect);
+        if (RT_FAILURE(vrc))
+            return vrc;
+
+        RTRECT SrcRectUV;
+        RTRECT DstRectUV;
+        SrcRectUV.xLeft   = pResizeParms->srcRect.xLeft / 2;
+        SrcRectUV.yTop    = pResizeParms->srcRect.yTop / 2;
+        SrcRectUV.xRight  = (pResizeParms->srcRect.xRight  + 1) / 2;
+        SrcRectUV.yBottom = (pResizeParms->srcRect.yBottom + 1) / 2;
+        DstRectUV.xLeft   = pResizeParms->dstRect.xLeft / 2;
+        DstRectUV.yTop    = pResizeParms->dstRect.yTop / 2;
+        DstRectUV.xRight  = (pResizeParms->dstRect.xRight  + 1) / 2;
+        DstRectUV.yBottom = (pResizeParms->dstRect.yBottom + 1) / 2;
+
+        uint32_t const cSrcUVWidth  = recRenderSWPlaneDimFromLuma(pSrc->uWidth);
+        uint32_t const cSrcUVHeight = recRenderSWPlaneDimFromLuma(pSrc->uHeight);
+        uint32_t const cDstUVWidth  = recRenderSWPlaneDimFromLuma(pDst->uWidth);
+        uint32_t const cDstUVHeight = recRenderSWPlaneDimFromLuma(pDst->uHeight);
+
+        RECORDINGVIDEOFRAME SrcU;
+        RECORDINGVIDEOFRAME DstU;
+        RECORDINGVIDEOFRAME SrcV;
+        RECORDINGVIDEOFRAME DstV;
+        recRenderSWPlaneAsFrame(&SrcU, pSrc->u.Yuvi420.pu8U, cSrcUVWidth, cSrcUVHeight, pSrc->u.Yuvi420.cbUVStride);
+        recRenderSWPlaneAsFrame(&DstU, pDst->u.Yuvi420.pu8U, cDstUVWidth, cDstUVHeight, pDst->u.Yuvi420.cbUVStride);
+        recRenderSWPlaneAsFrame(&SrcV, pSrc->u.Yuvi420.pu8V, cSrcUVWidth, cSrcUVHeight, pSrc->u.Yuvi420.cbUVStride);
+        recRenderSWPlaneAsFrame(&DstV, pDst->u.Yuvi420.pu8V, cDstUVWidth, cDstUVHeight, pDst->u.Yuvi420.cbUVStride);
+
+        vrc = recRenderSWResizePlane(&DstU, &SrcU, pResizeParms->enmMode, &DstRectUV, &SrcRectUV);
+        if (RT_FAILURE(vrc))
+            return vrc;
+
+        return recRenderSWResizePlane(&DstV, &SrcV, pResizeParms->enmMode, &DstRectUV, &SrcRectUV);
+    }
+
+    return VERR_NOT_SUPPORTED;
 }
 
 /**
@@ -634,7 +1460,18 @@ static DECLCALLBACK(void) recRenderSWTextureClear(PRECORDINGRENDERER pRenderer, 
     RT_NOREF(pRenderer);
 
     PRECORDINGVIDEOFRAME const pFrame = (PRECORDINGVIDEOFRAME)pTexture->pvBackend;
-    RT_BZERO(pFrame->pau8Buf, pFrame->cbBuf);
+
+    RECRENDERSWVIEW View;
+    int const vrc = recRenderSWViewInitFromFrame(&View, pFrame);
+    AssertRC(vrc);
+    if (RT_SUCCESS(vrc))
+    {
+        int const vrc2 = recRenderSWViewClear(&View);
+        AssertRC(vrc2);
+        RT_NOREF(vrc2);
+    }
+    else
+        RT_BZERO(pFrame->pau8Buf, pFrame->cbBuf);
 }
 
 /** @copydoc RECORDINGRENDEROPS::pfnTextureQueryPixelData */
@@ -680,45 +1517,22 @@ static DECLCALLBACK(int) recRenderSWBlit(PRECORDINGRENDERER pRenderer,
     PRECORDINGVIDEOFRAME pDstFrame = recRenderSWTex2Frm(pDstTexture);
     RECORDINGVIDEOFRAME const *pSrcFrame = recRenderSWTex2FrmC(pSrcTexture);
 
-    uint32_t const uSrcX = pSrcRect ? (uint32_t)RT_MAX(pSrcRect->xLeft, 0) : 0;
-    uint32_t const uSrcY = pSrcRect ? (uint32_t)RT_MAX(pSrcRect->yTop,  0) : 0;
-    uint32_t const uDstX = pDstRect ? (uint32_t)RT_MAX(pDstRect->xLeft, 0) : 0;
-    uint32_t const uDstY = pDstRect ? (uint32_t)RT_MAX(pDstRect->yTop,  0) : 0;
+    RECRENDERSWVIEW DstView;
+    RECRENDERSWVIEW SrcView;
+    int vrc = recRenderSWViewInitFromFrame(&DstView, pDstFrame);
+    AssertRCReturn(vrc, vrc);
+    vrc = recRenderSWViewInitFromFrame(&SrcView, pSrcFrame);
+    AssertRCReturn(vrc, vrc);
 
-    uint32_t const uSrcWidth  = pSrcRect ? (uint32_t)RT_MAX(pSrcRect->xRight  - pSrcRect->xLeft, 0)
-                                         : pSrcFrame->Info.uWidth;
-    uint32_t const uSrcHeight = pSrcRect ? (uint32_t)RT_MAX(pSrcRect->yBottom - pSrcRect->yTop,  0)
-                                         : pSrcFrame->Info.uHeight;
-
-    Assert(pSrcFrame->Info.enmPixelFmt == pDstFrame->Info.enmPixelFmt);
-    Assert(pSrcFrame->Info.uBPP == pDstFrame->Info.uBPP);
-
-    if (   uSrcX >= pSrcFrame->Info.uWidth
-        || uSrcY >= pSrcFrame->Info.uHeight
-        || uDstX >= pDstFrame->Info.uWidth
-        || uDstY >= pDstFrame->Info.uHeight)
-        return VINF_SUCCESS;
-
-    uint32_t const cbPixel = RT_MAX((uint32_t)pSrcFrame->Info.uBPP / 8, 1U);
-    uint32_t const cx = RT_MIN(uSrcWidth,  pSrcFrame->Info.uWidth  - uSrcX);
-    uint32_t const cy = RT_MIN(uSrcHeight, pSrcFrame->Info.uHeight - uSrcY);
-    uint32_t const cxDst = RT_MIN(cx, pDstFrame->Info.uWidth  - uDstX);
-    uint32_t const cyDst = RT_MIN(cy, pDstFrame->Info.uHeight - uDstY);
-    size_t   const cbRow = (size_t)cxDst * cbPixel;
-
-    for (uint32_t y = 0; y < cyDst; y++)
-    {
-        size_t const offSrc = ((size_t)uSrcY + y) * pSrcFrame->Info.uBytesPerLine + (size_t)uSrcX * cbPixel;
-        size_t const offDst = ((size_t)uDstY + y) * pDstFrame->Info.uBytesPerLine + (size_t)uDstX * cbPixel;
-
-        memcpy(&pDstFrame->pau8Buf[offDst], &pSrcFrame->pau8Buf[offSrc], cbRow);
-    }
+    vrc = recRenderSWDispatchBlit(&DstView, &SrcView, pDstRect, pSrcRect);
+    if (RT_FAILURE(vrc))
+        return vrc;
 
 #ifdef VBOX_RECORDING_DEBUG_DUMP_FRAMES
     RecordingDbgDumpVideoFrame(pDstFrame, "render-sw-blit", 0);
 #endif
 
-    return VINF_SUCCESS;
+    return vrc;
 }
 
 /** @copydoc RECORDINGRENDEROPS::pfnBlend */
@@ -731,63 +1545,22 @@ static DECLCALLBACK(int) recRenderSWBlend(PRECORDINGRENDERER pRenderer,
 
     RT_NOREF(pRenderer);
 
-    uint32_t const uSrcX = pSrcRect ? (uint32_t)RT_MAX(pSrcRect->xLeft, 0) : 0;
-    uint32_t const uSrcY = pSrcRect ? (uint32_t)RT_MAX(pSrcRect->yTop,  0) : 0;
-    uint32_t const uDstX = pDstRect ? (uint32_t)RT_MAX(pDstRect->xLeft, 0) : 0;
-    uint32_t const uDstY = pDstRect ? (uint32_t)RT_MAX(pDstRect->yTop,  0) : 0;
-    uint32_t const uSrcWidth  = pSrcRect ? (uint32_t)RT_MAX(pSrcRect->xRight  - pSrcRect->xLeft, 0)
-                                         : pSrcFrame->Info.uWidth;
-    uint32_t const uSrcHeight = pSrcRect ? (uint32_t)RT_MAX(pSrcRect->yBottom - pSrcRect->yTop,  0)
-                                         : pSrcFrame->Info.uHeight;
+    RECRENDERSWVIEW DstView;
+    RECRENDERSWVIEW SrcView;
+    int vrc = recRenderSWViewInitFromFrame(&DstView, pDstFrame);
+    AssertRCReturn(vrc, vrc);
+    vrc = recRenderSWViewInitFromFrame(&SrcView, pSrcFrame);
+    AssertRCReturn(vrc, vrc);
 
-    AssertReturn(pSrcFrame->Info.enmPixelFmt == RECORDINGPIXELFMT_BRGA32, VERR_INVALID_PARAMETER);
-    AssertReturn(pDstFrame->Info.enmPixelFmt == RECORDINGPIXELFMT_BRGA32, VERR_INVALID_PARAMETER);
-    AssertReturn(pSrcFrame->Info.uBPP == 32, VERR_INVALID_PARAMETER);
-    AssertReturn(pDstFrame->Info.uBPP == 32, VERR_INVALID_PARAMETER);
-
-    if (   uSrcX >= pSrcFrame->Info.uWidth
-        || uSrcY >= pSrcFrame->Info.uHeight
-        || uDstX >= pDstFrame->Info.uWidth
-        || uDstY >= pDstFrame->Info.uHeight)
-        return VINF_SUCCESS;
-
-    uint32_t const cx = RT_MIN(uSrcWidth,  pSrcFrame->Info.uWidth  - uSrcX);
-    uint32_t const cy = RT_MIN(uSrcHeight, pSrcFrame->Info.uHeight - uSrcY);
-    uint32_t const cxDst = RT_MIN(cx, pDstFrame->Info.uWidth  - uDstX);
-    uint32_t const cyDst = RT_MIN(cy, pDstFrame->Info.uHeight - uDstY);
-
-    for (uint32_t y = 0; y < cyDst; y++)
+    /* For BRGA32, default to source alpha channel as blend factor. */
+    if (SrcView.enmFmt == RECORDINGPIXELFMT_BRGA32)
     {
-        size_t const offSrc = ((size_t)uSrcY + y) * pSrcFrame->Info.uBytesPerLine + (size_t)uSrcX * 4;
-        size_t const offDst = ((size_t)uDstY + y) * pDstFrame->Info.uBytesPerLine + (size_t)uDstX * 4;
-
-        uint8_t const *pu8Src = &pSrcFrame->pau8Buf[offSrc];
-        uint8_t       *pu8Dst = &pDstFrame->pau8Buf[offDst];
-        for (uint32_t x = 0; x < cxDst; x++)
-        {
-            uint8_t const uAlpha = pu8Src[3];
-            if (uAlpha == 255)
-            {
-                pu8Dst[0] = pu8Src[0];
-                pu8Dst[1] = pu8Src[1];
-                pu8Dst[2] = pu8Src[2];
-                pu8Dst[3] = pu8Src[3];
-            }
-            else if (uAlpha != 0)
-            {
-                uint32_t const uInvAlpha = 255 - uAlpha;
-                pu8Dst[0] = (uint8_t)((pu8Src[0] * uAlpha + pu8Dst[0] * uInvAlpha) / 255);
-                pu8Dst[1] = (uint8_t)((pu8Src[1] * uAlpha + pu8Dst[1] * uInvAlpha) / 255);
-                pu8Dst[2] = (uint8_t)((pu8Src[2] * uAlpha + pu8Dst[2] * uInvAlpha) / 255);
-                pu8Dst[3] = (uint8_t)((pu8Src[3] * uAlpha + pu8Dst[3] * uInvAlpha) / 255);
-            }
-
-            pu8Src += 4;
-            pu8Dst += 4;
-        }
+        AssertReturn(SrcView.u.Brga32.cbPixel >= 4, VERR_INVALID_PARAMETER);
+        recRenderSWViewSetAlpha(&SrcView, SrcView.u.Brga32.pu8 + 3,
+                                SrcView.u.Brga32.cbStride, SrcView.u.Brga32.cbPixel);
     }
 
-    return VINF_SUCCESS;
+    return recRenderSWDispatchBlend(&DstView, &SrcView, pSrcRect, pDstRect);
 }
 
 /** @copydoc RECORDINGRENDEROPS::pfnResize */
@@ -799,126 +1572,28 @@ static DECLCALLBACK(int) recRenderSWResize(PRECORDINGRENDERER pRenderer,
     RECORDINGVIDEOFRAME const *pSrcFrame = recRenderSWTex2FrmC(pSrcTexture);
     PRECORDINGVIDEOFRAME pDstFrame = recRenderSWTex2Frm(pDstTexture);
 
-    /* Default source geometry is the full input frame. */
-    int32_t sx = 0;
-    int32_t sy = 0;
-    int32_t sw = (int32_t)pSrcFrame->Info.uWidth;
-    int32_t sh = (int32_t)pSrcFrame->Info.uHeight;
-    int32_t dx = 0;
-    int32_t dy = 0;
-    int32_t dw = sw;
-    int32_t dh = sh;
-
-    int vrc = VINF_SUCCESS;
-
-    switch (pResizeParms->enmMode)
-    {
-        case RecordingVideoScalingMode_NearestNeighbor:
-        case RecordingVideoScalingMode_Bilinear:
-        case RecordingVideoScalingMode_Bicubic:
-        {
-            dw = pRenderer->Parms.Info.uWidth;
-            dh = pRenderer->Parms.Info.uHeight;
-            break;
-        }
-
-        /* Other scaling methods are not implemented yet, so default to cropping / centering. */
-        case RecordingVideoScalingMode_None:
-        default:
-        {
-            RTRECT DstRect;
-            RTRECT SrcRect;
-            vrc = recRenderSWFrameResizeCropCenter(pDstFrame, pSrcFrame, &DstRect, &SrcRect);
-            if (RT_SUCCESS(vrc))
-            {
-                sx = SrcRect.xLeft;
-                sy = SrcRect.yTop;
-                sw = SrcRect.xRight  - SrcRect.xLeft;
-                sh = SrcRect.yBottom - SrcRect.yTop;
-
-                dx = DstRect.xLeft;
-                dy = DstRect.yTop;
-                dw = DstRect.xRight  - DstRect.xLeft;
-                dh = DstRect.yBottom - DstRect.yTop;
-            }
-            break;
-        }
-    }
-
-    pResizeParms->srcRect.xLeft   = sx;
-    pResizeParms->srcRect.yTop    = sy;
-    pResizeParms->srcRect.xRight  = sx + sw;
-    pResizeParms->srcRect.yBottom = sy + sh;
-    pResizeParms->dstRect.xLeft   = dx;
-    pResizeParms->dstRect.yTop    = dy;
-    pResizeParms->dstRect.xRight  = dx + dw;
-    pResizeParms->dstRect.yBottom = dy + dh;
-
-    if (RT_FAILURE(vrc))
-        return vrc;
-
-    if (vrc == VWRN_RECORDING_ENCODING_SKIPPED)
-        return vrc;
+    RECRENDERSWVIEW DstView;
+    RECRENDERSWVIEW SrcView;
+    int vrc = recRenderSWViewInitFromFrame(&DstView, pDstFrame);
+    AssertRCReturn(vrc, vrc);
+    vrc = recRenderSWViewInitFromFrame(&SrcView, pSrcFrame);
+    AssertRCReturn(vrc, vrc);
 
 #ifdef VBOX_STRICT
-    AssertReturn(pSrcFrame->Info.enmPixelFmt == pDstFrame->Info.enmPixelFmt, VERR_INVALID_PARAMETER);
-    AssertReturn(pSrcFrame->Info.uBPP == pDstFrame->Info.uBPP, VERR_INVALID_PARAMETER);
-    AssertReturn(sw > 0 && sh > 0 && dw > 0 && dh > 0, VERR_INVALID_PARAMETER);
-    AssertReturn((uint32_t)(dx + dw) <= pDstFrame->Info.uWidth, VERR_INVALID_PARAMETER);
-    AssertReturn((uint32_t)(dy + dh) <= pDstFrame->Info.uHeight, VERR_INVALID_PARAMETER);
-    AssertReturn((uint32_t)(sx + sw) <= pSrcFrame->Info.uWidth, VERR_INVALID_PARAMETER);
-    AssertReturn((uint32_t)(sy + sh) <= pSrcFrame->Info.uHeight, VERR_INVALID_PARAMETER);
     AssertReturn(pDstFrame != pSrcFrame, VERR_INVALID_PARAMETER);
 #endif
 
-    RecordingVideoFrameClear(pDstFrame);
-
-    uint32_t const cbPixel = RT_MAX((uint32_t)pSrcFrame->Info.uBPP / 8, 1U);
-
-    if (pResizeParms->enmMode == RecordingVideoScalingMode_NearestNeighbor)
-    {
-        vrc = recRenderSWFrameResizeNearestNeighbor(pDstFrame, pSrcFrame,
-                                                    &pResizeParms->dstRect, &pResizeParms->srcRect);
-        AssertRC(vrc);
-        if (RT_FAILURE(vrc))
-            return vrc;
-    }
-    else if (pResizeParms->enmMode == RecordingVideoScalingMode_Bilinear)
-    {
-        vrc = recRenderSWFrameResizeBilinear(pDstFrame, pSrcFrame,
-                                             &pResizeParms->dstRect, &pResizeParms->srcRect);
-        AssertRC(vrc);
-        if (RT_FAILURE(vrc))
-            return vrc;
-    }
-    else if (pResizeParms->enmMode == RecordingVideoScalingMode_Bicubic)
-    {
-        vrc = recRenderSWFrameResizeBicubic(pDstFrame, pSrcFrame,
-                                            &pResizeParms->dstRect, &pResizeParms->srcRect);
-        AssertRC(vrc);
-        if (RT_FAILURE(vrc))
-            return vrc;
-    }
-    else
-    {
-        size_t const cbCopy = (size_t)sw * cbPixel;
-        for (uint32_t y = 0; y < (uint32_t)sh; y++)
-        {
-            uint8_t const *pu8Src = pSrcFrame->pau8Buf
-                                   + ((size_t)sy + y) * pSrcFrame->Info.uBytesPerLine
-                                   + (size_t)sx * cbPixel;
-            uint8_t       *pu8Dst = pDstFrame->pau8Buf
-                                   + ((size_t)dy + y) * pDstFrame->Info.uBytesPerLine
-                                   + (size_t)dx * cbPixel;
-            memcpy(pu8Dst, pu8Src, cbCopy);
-        }
-    }
+    vrc = recRenderSWDispatchResize(&DstView, &SrcView, pRenderer, pResizeParms);
+    if (RT_FAILURE(vrc))
+        return vrc;
+    if (vrc == VWRN_RECORDING_ENCODING_SKIPPED)
+        return vrc;
 
 #ifdef VBOX_RECORDING_DEBUG_DUMP_FRAMES
     RecordingDbgDumpVideoFrame(pDstFrame, "render-sw-resized", pRenderer->msLastRenderedTS);
 #endif
 
-    return VINF_SUCCESS;
+    return vrc;
 }
 
 /**
@@ -1201,44 +1876,540 @@ static const RECORDINGRENDEROPS g_RecordingRenderOpsSoftware =
  ********************************************************************************************************************************/
 
 /**
+ * Output target texture backend private state.
+ */
+typedef struct RECORDINGRENDEROUTTGTTEX
+{
+    /** Surface information of this texture. */
+    RECORDINGSURFACEINFO Info;
+    /**
+     * Optional YUVI420 blend view used by software blending helpers.
+     */
+    struct
+    {
+        /** Source or destination frame. */
+        RECORDINGVIDEOFRAME       Frame;
+        /** Optional alpha map (for example BGRA cursor alpha channel). */
+        uint8_t const            *pu8Alpha;
+        /** Bytes per alpha row. */
+        uint32_t                  uAlphaStride;
+        /** Bytes between alpha samples in one row. */
+        uint32_t                  uAlphaStep;
+    } YUVI420;
+} RECORDINGRENDEROUTTGTTEX;
+/** Pointer to output target texture backend private state. */
+typedef RECORDINGRENDEROUTTGTTEX *PRECORDINGRENDEROUTTGTTEX;
+/** Pointer to const output target texture backend private state. */
+typedef RECORDINGRENDEROUTTGTTEX const *PCRECORDINGRENDEROUTTGTTEX;
+
+/**
  * Output target backend private state.
  */
-typedef struct RECORDINGRENDEROUTTGT
+typedef struct RECRENDEROUTTGT
 {
     /** Copy of output target description from Main to use. */
-    PDMDISPLAYOUTPUTTARGETDESC TgtDesc;
-    /** Surface information of the output target description.
-     *  Used when the renderer queries the pixel data. */
-    RECORDINGSURFACEINFO       SurfaceInfo;
-} RECORDINGRENDEROUTTGT;
+    PDMDISPLAYOUTPUTTARGETDESC     TgtDesc;
+    /** Cursor-related data and caches. */
+    struct
+    {
+        /** Current cursor shape in BGRA32. */
+        RECORDINGVIDEOFRAME        Shape;
+        /** Scratch output buffer for cursor-composited YUVI420 frame. */
+        uint8_t                   *pu8ScratchOutput;
+        /** Allocated size (in bytes) of \a pu8ScratchOutput. */
+        size_t                     cbScratchOutput;
+        /** Temporary bilinear-scaled cursor in BGRA32. */
+        uint8_t                   *pu8ScaledBgra;
+        /** Allocated size (in bytes) of \a pu8ScaledBgra. */
+        size_t                     cbScaledBgra;
+        /** Temporary scaled cursor converted to YUVI420. */
+        uint8_t                   *pu8ScaledYuv;
+        /** Allocated size (in bytes) of \a pu8ScaledYuv. */
+        size_t                     cbScaledYuv;
+        /** Whether scaled cursor caches are up-to-date and usable. */
+        bool                       fScaledValid;
+        /** Cached scaled cursor width in pixels. */
+        uint32_t                   uScaledWidth;
+        /** Cached scaled cursor height in pixels. */
+        uint32_t                   uScaledHeight;
+        /** Cached BGRA stride in pixels. */
+        uint32_t                   uScaledBgraStride;
+        /** Cached Y plane stride in pixels. */
+        uint32_t                   uScaledYStride;
+        /** Cached U/V plane stride in pixels. */
+        uint32_t                   uScaledUVStride;
+        /** Source width used for last scaling pass. */
+        uint32_t                   uSrcWidth;
+        /** Source height used for last scaling pass. */
+        uint32_t                   uSrcHeight;
+        /** Destination width used for last scaling pass. */
+        uint32_t                   uDstWidth;
+        /** Destination height used for last scaling pass. */
+        uint32_t                   uDstHeight;
+    } Cursor;
+} RECRENDEROUTTGT;
 /** Pointer to output target backend private state. */
-typedef RECORDINGRENDEROUTTGT *PRECORDINGRENDEROUTTGT;
+typedef RECRENDEROUTTGT *PRECRENDEROUTTGT;
 /** Pointer to const output target backend private state. */
-typedef RECORDINGRENDEROUTTGT const *PCRECORDINGRENDEROUTTGT;
+typedef RECRENDEROUTTGT const *PCRECRENDEROUTTGT;
 
-/** @copydoc RECORDINGRENDEROPS::pfnProbe */
+/**
+ * Populates renderer surface information from an output-target descriptor.
+ *
+ * @param   pInfo               Where to store the mapped surface information.
+ * @param   pTgtDesc            Output-target descriptor to translate.
+ */
+DECLINLINE(void) recRenderOutTgtSurfaceInfoFromTgtDesc(PRECORDINGSURFACEINFO pInfo,
+                                                       PDMDISPLAYOUTPUTTARGETDESC const *pTgtDesc)
+{
+    pInfo->enmPixelFmt   = pTgtDesc->enmFormat == PDMDISPLAYOUTPUTTARGETFORMAT_YUVI420
+                         ? RECORDINGPIXELFMT_YUVI420 : RECORDINGPIXELFMT_UNKNOWN;
+    pInfo->uBPP          = 32;
+    pInfo->uWidth        = pTgtDesc->cWidth;
+    pInfo->uHeight       = pTgtDesc->cHeight;
+    pInfo->uBytesPerLine = pInfo->uWidth; /* YUVI420 luma stride. */
+}
+
+/**
+ * Resolves output dimensions currently used by the OutTgt backend.
+ *
+ * @param   pRenderer           Renderer instance.
+ * @param   pOutTgt             OutTgt backend state.
+ * @param   puWidth             Where to return the resolved output width.
+ * @param   puHeight            Where to return the resolved output height.
+ */
+DECLINLINE(void) recRenderOutTgtGetOutputSize(PCRECORDINGRENDERER pRenderer, PCRECRENDEROUTTGT pOutTgt,
+                                              uint32_t *puWidth, uint32_t *puHeight)
+{
+    uint32_t uWidth  = pOutTgt->TgtDesc.cWidth;
+    uint32_t uHeight = pOutTgt->TgtDesc.cHeight;
+
+    RECORDINGSURFACEINFO const *pInfoOut = NULL;
+    if (pRenderer->pTexConv && pRenderer->pTexConv->pInfo)
+        pInfoOut = pRenderer->pTexConv->pInfo;
+    else if (pRenderer->texConv.pInfo)
+        pInfoOut = pRenderer->texConv.pInfo;
+    else if (pRenderer->texScaled.pInfo)
+        pInfoOut = pRenderer->texScaled.pInfo;
+
+    if (   pInfoOut
+        && pInfoOut->uWidth
+        && pInfoOut->uHeight)
+    {
+        uWidth  = pInfoOut->uWidth;
+        uHeight = pInfoOut->uHeight;
+    }
+
+    *puWidth  = uWidth;
+    *puHeight = uHeight;
+}
+
+/**
+ * Ensures a scratch buffer has at least the requested size.
+ *
+ * @returns VBox status code.
+ * @param   ppu8Buf             Buffer pointer to (re)allocate.
+ * @param   pcbBuf              Current/returned buffer size in bytes.
+ * @param   cbReq               Required minimum buffer size in bytes.
+ */
+static int recRenderOutTgtEnsureBuf(uint8_t **ppu8Buf, size_t *pcbBuf, size_t cbReq)
+{
+#ifdef VBOX_STRICT
+    AssertPtrReturn(ppu8Buf, VERR_INVALID_POINTER);
+    AssertPtrReturn(pcbBuf, VERR_INVALID_POINTER);
+#endif
+
+    if (*pcbBuf >= cbReq)
+        return VINF_SUCCESS;
+
+    uint8_t *pu8Buf = (uint8_t *)RTMemRealloc(*ppu8Buf, cbReq);
+    AssertPtrReturn(pu8Buf, VERR_NO_MEMORY);
+
+    *ppu8Buf = pu8Buf;
+    *pcbBuf  = cbReq;
+    return VINF_SUCCESS;
+}
+
+/**
+ * Invalidates cached scaled/converted cursor data.
+ *
+ * @param   pOutTgt             OutTgt backend state.
+ */
+DECLINLINE(void) recRenderOutTgtCursorCacheInvalidate(PRECRENDEROUTTGT pOutTgt)
+{
+#ifdef VBOX_STRICT
+    AssertPtrReturnVoid(pOutTgt);
+#endif
+
+    pOutTgt->Cursor.fScaledValid      = false;
+    pOutTgt->Cursor.uScaledWidth      = 0;
+    pOutTgt->Cursor.uScaledHeight     = 0;
+    pOutTgt->Cursor.uScaledBgraStride = 0;
+    pOutTgt->Cursor.uScaledYStride    = 0;
+    pOutTgt->Cursor.uScaledUVStride   = 0;
+    pOutTgt->Cursor.uSrcWidth         = 0;
+    pOutTgt->Cursor.uSrcHeight        = 0;
+    pOutTgt->Cursor.uDstWidth         = 0;
+    pOutTgt->Cursor.uDstHeight        = 0;
+}
+
+/**
+ * Rebuilds cached scaled/converted cursor data based on current source/output geometry.
+ *
+ * @returns VBox status code.
+ * @param   pRenderer           Renderer instance.
+ * @param   pOutTgt             OutTgt backend state.
+ */
+static int recRenderOutTgtCursorCacheRebuild(PCRECORDINGRENDERER pRenderer, PRECRENDEROUTTGT pOutTgt)
+{
+#ifdef VBOX_STRICT
+    AssertPtrReturn(pRenderer, VERR_INVALID_POINTER);
+    AssertPtrReturn(pOutTgt, VERR_INVALID_POINTER);
+#endif
+
+    recRenderOutTgtCursorCacheInvalidate(pOutTgt);
+
+    if (   !pOutTgt->Cursor.Shape.pau8Buf
+        || !(pOutTgt->Cursor.Shape.fFlags & RECORDINGVIDEOFRAME_F_VISIBLE)
+        || !pOutTgt->Cursor.Shape.Info.uWidth
+        || !pOutTgt->Cursor.Shape.Info.uHeight)
+        return VINF_SUCCESS;
+
+    uint32_t uDstWidth;
+    uint32_t uDstHeight;
+    recRenderOutTgtGetOutputSize(pRenderer, pOutTgt, &uDstWidth, &uDstHeight);
+    if (!uDstWidth || !uDstHeight)
+        return VINF_SUCCESS;
+
+    uint32_t const uSrcWidth  = pRenderer->texFront.pInfo && pRenderer->texFront.pInfo->uWidth
+                              ? pRenderer->texFront.pInfo->uWidth : uDstWidth;
+    uint32_t const uSrcHeight = pRenderer->texFront.pInfo && pRenderer->texFront.pInfo->uHeight
+                              ? pRenderer->texFront.pInfo->uHeight : uDstHeight;
+
+    uint32_t const uCurSrcW = pOutTgt->Cursor.Shape.Info.uWidth;
+    uint32_t const uCurSrcH = pOutTgt->Cursor.Shape.Info.uHeight;
+
+    uint32_t uCurDstW = (uint32_t)(((uint64_t)uCurSrcW * uDstWidth  + RT_MAX(uSrcWidth,  1U) - 1) / RT_MAX(uSrcWidth,  1U));
+    uint32_t uCurDstH = (uint32_t)(((uint64_t)uCurSrcH * uDstHeight + RT_MAX(uSrcHeight, 1U) - 1) / RT_MAX(uSrcHeight, 1U));
+    uCurDstW = RT_MAX(uCurDstW, 1U);
+    uCurDstH = RT_MAX(uCurDstH, 1U);
+
+    size_t const cbCursorScaledBgra = (size_t)uCurDstW * uCurDstH * 4;
+    int vrc = recRenderOutTgtEnsureBuf(&pOutTgt->Cursor.pu8ScaledBgra, &pOutTgt->Cursor.cbScaledBgra, cbCursorScaledBgra);
+    AssertRCReturn(vrc, vrc);
+
+    RECORDINGVIDEOFRAME SrcFrame;
+    RT_ZERO(SrcFrame);
+    SrcFrame.Info.uWidth        = pOutTgt->Cursor.Shape.Info.uWidth;
+    SrcFrame.Info.uHeight       = pOutTgt->Cursor.Shape.Info.uHeight;
+    SrcFrame.Info.uBPP          = 32;
+    SrcFrame.Info.enmPixelFmt   = RECORDINGPIXELFMT_BRGA32;
+    SrcFrame.Info.uBytesPerLine = pOutTgt->Cursor.Shape.Info.uWidth * 4;
+    SrcFrame.pau8Buf            = pOutTgt->Cursor.Shape.pau8Buf;
+    SrcFrame.cbBuf              = pOutTgt->Cursor.Shape.cbBuf;
+
+    RECORDINGVIDEOFRAME DstFrame;
+    RT_ZERO(DstFrame);
+    DstFrame.Info.uWidth        = uCurDstW;
+    DstFrame.Info.uHeight       = uCurDstH;
+    DstFrame.Info.uBPP          = 32;
+    DstFrame.Info.enmPixelFmt   = RECORDINGPIXELFMT_BRGA32;
+    DstFrame.Info.uBytesPerLine = uCurDstW * 4;
+    DstFrame.pau8Buf            = pOutTgt->Cursor.pu8ScaledBgra;
+    DstFrame.cbBuf              = cbCursorScaledBgra;
+
+    RTRECT const SrcRect = { 0, 0, (int32_t)SrcFrame.Info.uWidth, (int32_t)SrcFrame.Info.uHeight };
+    RTRECT const DstRect = { 0, 0, (int32_t)DstFrame.Info.uWidth, (int32_t)DstFrame.Info.uHeight };
+
+    vrc = recRenderSWFrameResizeBilinear(&DstFrame, &SrcFrame, &DstRect, &SrcRect);
+    AssertRCReturn(vrc, vrc);
+
+    uint32_t const uCurYuvW          = RT_MAX((uCurDstW + 1) & ~1U, 2U);
+    uint32_t const uCurYuvH          = RT_MAX((uCurDstH + 1) & ~1U, 2U);
+    uint32_t const uCurYStride       = uCurYuvW;
+    uint32_t const uCurUVStride      = uCurYuvW / 2;
+    size_t   const cbCursorScaledYuv =        (size_t)uCurYStride * uCurYuvH
+                                       + 2 * ((size_t)uCurUVStride * (uCurYuvH / 2));
+    vrc = recRenderOutTgtEnsureBuf(&pOutTgt->Cursor.pu8ScaledYuv, &pOutTgt->Cursor.cbScaledYuv, cbCursorScaledYuv);
+    AssertRCReturn(vrc, vrc);
+
+    recRenderSWConvertBGRA32ToYUVI420(pOutTgt->Cursor.pu8ScaledYuv,
+                                      0 /* uDstX */, 0 /* uDstY */, uCurYuvW, uCurYuvH,
+                                      pOutTgt->Cursor.pu8ScaledBgra,
+                                      0 /* uSrcX */, 0 /* uSrcY */, uCurDstW, uCurDstH,
+                                      uCurDstW * 4 /* uSrcStride */, 32 /* uSrcBPP */);
+
+    pOutTgt->Cursor.fScaledValid      = true;
+    pOutTgt->Cursor.uScaledWidth      = uCurDstW;
+    pOutTgt->Cursor.uScaledHeight     = uCurDstH;
+    pOutTgt->Cursor.uScaledBgraStride = uCurDstW;
+    pOutTgt->Cursor.uScaledYStride    = uCurYStride;
+    pOutTgt->Cursor.uScaledUVStride   = uCurUVStride;
+    pOutTgt->Cursor.uSrcWidth         = uSrcWidth;
+    pOutTgt->Cursor.uSrcHeight        = uSrcHeight;
+    pOutTgt->Cursor.uDstWidth         = uDstWidth;
+    pOutTgt->Cursor.uDstHeight        = uDstHeight;
+
+    return VINF_SUCCESS;
+}
+
+/**
+ * Alpha-blends a YUVI420 source frame into a YUVI420 destination frame.
+ *
+ * @returns VBox status code.
+ * @param   pRenderer           Renderer instance.
+ * @param   pDstTexture         Destination texture.
+ * @param   pSrcRect            Source rectangle.
+ * @param   pSrcTexture         Source texture.
+ * @param   pDstRect            Destination rectangle.
+ */
+DECLINLINE(int) recRenderSWBlendYUVI420(PRECORDINGRENDERER pRenderer,
+                                        PRECORDINGRENDERTEXTURE pDstTexture, PRTRECT pSrcRect,
+                                        PRECORDINGRENDERTEXTURE pSrcTexture, PRTRECT pDstRect)
+{
+    RT_NOREF(pRenderer);
+
+    PRECORDINGRENDEROUTTGTTEX pDstTex = (PRECORDINGRENDEROUTTGTTEX)pDstTexture->pvBackend;
+    PRECORDINGRENDEROUTTGTTEX pSrcTex = (PRECORDINGRENDEROUTTGTTEX)pSrcTexture->pvBackend;
+    PRECORDINGVIDEOFRAME pDstFrame = pDstTex ? &pDstTex->YUVI420.Frame : NULL;
+    RECORDINGVIDEOFRAME const *pSrcFrame = pSrcTex ? &pSrcTex->YUVI420.Frame : NULL;
+
+#ifdef VBOX_STRICT
+    AssertPtrReturn(pDstTexture, VERR_INVALID_POINTER);
+    AssertPtrReturn(pSrcTexture, VERR_INVALID_POINTER);
+    AssertPtrReturn(pDstTex,     VERR_INVALID_POINTER);
+    AssertPtrReturn(pSrcTex,     VERR_INVALID_POINTER);
+    AssertPtrReturn(pDstFrame,   VERR_INVALID_POINTER);
+    AssertPtrReturn(pSrcFrame,   VERR_INVALID_POINTER);
+
+    AssertReturn(pDstFrame->Info.enmPixelFmt == RECORDINGPIXELFMT_YUVI420, VERR_INVALID_PARAMETER);
+    AssertReturn(pSrcFrame->Info.enmPixelFmt == RECORDINGPIXELFMT_YUVI420, VERR_INVALID_PARAMETER);
+
+    if (pSrcTex->YUVI420.pu8Alpha)
+    {
+        AssertReturn(pSrcTex->YUVI420.uAlphaStride, VERR_INVALID_PARAMETER);
+        AssertReturn(pSrcTex->YUVI420.uAlphaStep,   VERR_INVALID_PARAMETER);
+    }
+#endif
+
+    RECRENDERSWVIEW DstView;
+    RECRENDERSWVIEW SrcView;
+    int vrc = recRenderSWViewInitFromFrame(&DstView, pDstFrame);
+    AssertRCReturn(vrc, vrc);
+    vrc = recRenderSWViewInitFromFrame(&SrcView, pSrcFrame);
+    AssertRCReturn(vrc, vrc);
+
+    if (pSrcTex->YUVI420.pu8Alpha)
+        recRenderSWViewSetAlpha(&SrcView, pSrcTex->YUVI420.pu8Alpha,
+                                pSrcTex->YUVI420.uAlphaStride, pSrcTex->YUVI420.uAlphaStep);
+
+    return recRenderSWDispatchBlend(&DstView, &SrcView, pSrcRect, pDstRect);
+}
+
+/**
+ * Alpha-blends a YUVI420 cursor into a YUVI420 destination frame.
+ *
+ * @param   pu8Dst              Destination YUVI420 buffer.
+ * @param   uDstWidth           Destination width in pixels.
+ * @param   uDstHeight          Destination height in pixels.
+ * @param   pu8CursorYuv        Cursor YUVI420 source buffer.
+ * @param   pu8CursorBgra       Cursor BGRA32 source buffer (alpha channel used).
+ * @param   uCursorWidth        Cursor width in pixels.
+ * @param   uCursorHeight       Cursor height in pixels.
+ * @param   uCursorBgraStride   Cursor BGRA stride in pixels.
+ * @param   uCursorYStride      Cursor Y plane stride in pixels.
+ * @param   uCursorUVStride     Cursor U/V plane stride in pixels.
+ * @param   uDstX               Destination X position in pixels.
+ * @param   uDstY               Destination Y position in pixels.
+ */
+DECLINLINE(void) recRenderOutTgtBlendCursorYUVI420(uint8_t *pu8Dst, uint32_t uDstWidth, uint32_t uDstHeight,
+                                                   uint8_t const *pu8CursorYuv, uint8_t const *pu8CursorBgra,
+                                                   uint32_t uCursorWidth, uint32_t uCursorHeight,
+                                                   uint32_t uCursorBgraStride, uint32_t uCursorYStride, uint32_t uCursorUVStride,
+                                                   uint32_t uDstX, uint32_t uDstY)
+{
+    RECORDINGVIDEOFRAME DstFrame;
+    RT_ZERO(DstFrame);
+    DstFrame.Info.uWidth        = uDstWidth;
+    DstFrame.Info.uHeight       = uDstHeight;
+    DstFrame.Info.uBPP          = 32;
+    DstFrame.Info.enmPixelFmt   = RECORDINGPIXELFMT_YUVI420;
+    DstFrame.Info.uBytesPerLine = uDstWidth;
+    DstFrame.pau8Buf            = pu8Dst;
+    DstFrame.cbBuf              = (size_t)uDstWidth * uDstHeight * 3 / 2;
+
+    RECORDINGRENDEROUTTGTTEX DstTexBackend;
+    RT_ZERO(DstTexBackend);
+    DstTexBackend.Info = DstFrame.Info;
+    DstTexBackend.YUVI420.Frame = DstFrame;
+
+    uint32_t const uCursorHeightAligned = RT_MAX((uCursorHeight + 1) & ~1U, 2U);
+
+    RECORDINGVIDEOFRAME SrcFrame;
+    RT_ZERO(SrcFrame);
+    SrcFrame.Info.uWidth        = uCursorWidth;
+    SrcFrame.Info.uHeight       = uCursorHeight;
+    SrcFrame.Info.uBPP          = 32;
+    SrcFrame.Info.enmPixelFmt   = RECORDINGPIXELFMT_YUVI420;
+    SrcFrame.Info.uBytesPerLine = uCursorYStride;
+    SrcFrame.pau8Buf            = (uint8_t *)pu8CursorYuv;
+    SrcFrame.cbBuf              = (size_t)uCursorYStride * uCursorHeightAligned
+                                + 2 * ((size_t)uCursorUVStride * (uCursorHeightAligned / 2));
+
+    RECORDINGRENDEROUTTGTTEX SrcTexBackend;
+    RT_ZERO(SrcTexBackend);
+    SrcTexBackend.Info = SrcFrame.Info;
+    SrcTexBackend.YUVI420.Frame = SrcFrame;
+    SrcTexBackend.YUVI420.pu8Alpha = pu8CursorBgra + 3;
+    SrcTexBackend.YUVI420.uAlphaStride = uCursorBgraStride * 4;
+    SrcTexBackend.YUVI420.uAlphaStep = 4;
+
+    RECORDINGRENDERTEXTURE DstTex;
+    RT_ZERO(DstTex);
+    DstTex.pInfo     = &DstTexBackend.Info;
+    DstTex.pvBackend = &DstTexBackend;
+
+    RECORDINGRENDERTEXTURE SrcTex;
+    RT_ZERO(SrcTex);
+    SrcTex.pInfo     = &SrcTexBackend.Info;
+    SrcTex.pvBackend = &SrcTexBackend;
+
+    RTRECT const SrcRect = { 0, 0, (int32_t)uCursorWidth, (int32_t)uCursorHeight };
+    RTRECT const DstRect = { (int32_t)uDstX, (int32_t)uDstY,
+                             (int32_t)uDstX + (int32_t)uCursorWidth,
+                             (int32_t)uDstY + (int32_t)uCursorHeight };
+
+    int const vrc = recRenderSWBlendYUVI420(NULL /* pRenderer */, &DstTex, (PRTRECT)&SrcRect, &SrcTex, (PRTRECT)&DstRect);
+    AssertRC(vrc);
+}
+
+/**
+ * Builds a YUVI420 frame with cursor composited for output-target backend.
+ *
+ * @returns VBox status code.
+ * @param   pRenderer           Renderer instance.
+ * @param   pOutTgt             OutTgt backend state.
+ * @param   ppvBuf              Where to return the output frame buffer.
+ * @param   pcbBuf              Where to return the output frame buffer size.
+ */
+static int recRenderOutTgtCompose(PCRECORDINGRENDERER pRenderer, PRECRENDEROUTTGT pOutTgt,
+                                  void **ppvBuf, size_t *pcbBuf)
+{
+#ifdef VBOX_STRICT
+    AssertPtrReturn(pRenderer, VERR_INVALID_POINTER);
+    AssertPtrReturn(pOutTgt, VERR_INVALID_POINTER);
+    AssertPtrReturn(ppvBuf, VERR_INVALID_POINTER);
+    AssertPtrReturn(pcbBuf, VERR_INVALID_POINTER);
+#endif
+
+    if (   !pOutTgt->Cursor.Shape.pau8Buf
+        || !(pOutTgt->Cursor.Shape.fFlags & RECORDINGVIDEOFRAME_F_VISIBLE)
+        || !pOutTgt->Cursor.Shape.Info.uWidth
+        || !pOutTgt->Cursor.Shape.Info.uHeight)
+    {
+        *ppvBuf = pOutTgt->TgtDesc.pvOutputBuffer;
+        *pcbBuf = pOutTgt->TgtDesc.cbOutputBuffer;
+        return VINF_SUCCESS;
+    }
+
+    uint32_t uDstWidth;
+    uint32_t uDstHeight;
+    recRenderOutTgtGetOutputSize(pRenderer, pOutTgt, &uDstWidth, &uDstHeight);
+    if (!uDstWidth || !uDstHeight)
+    {
+        *ppvBuf = pOutTgt->TgtDesc.pvOutputBuffer;
+        *pcbBuf = pOutTgt->TgtDesc.cbOutputBuffer;
+        return VINF_SUCCESS;
+    }
+
+    uint32_t const uSrcWidth  = pRenderer->texFront.pInfo && pRenderer->texFront.pInfo->uWidth
+                              ? pRenderer->texFront.pInfo->uWidth : uDstWidth;
+    uint32_t const uSrcHeight = pRenderer->texFront.pInfo && pRenderer->texFront.pInfo->uHeight
+                              ? pRenderer->texFront.pInfo->uHeight : uDstHeight;
+
+    uint32_t const uCurSrcX = pRenderer->uCursorOldX;
+    uint32_t const uCurSrcY = pRenderer->uCursorOldY;
+    uint64_t const uDstX0 = ((uint64_t)uCurSrcX * uDstWidth) / RT_MAX(uSrcWidth, 1U);
+    uint64_t const uDstY0 = ((uint64_t)uCurSrcY * uDstHeight) / RT_MAX(uSrcHeight, 1U);
+
+    if (   uDstX0 >= uDstWidth
+        || uDstY0 >= uDstHeight)
+    {
+        *ppvBuf = pOutTgt->TgtDesc.pvOutputBuffer;
+        *pcbBuf = pOutTgt->TgtDesc.cbOutputBuffer;
+        return VINF_SUCCESS;
+    }
+
+    int vrc;
+
+    if (   !pOutTgt->Cursor.fScaledValid
+        || pOutTgt->Cursor.uSrcWidth  != uSrcWidth
+        || pOutTgt->Cursor.uSrcHeight != uSrcHeight
+        || pOutTgt->Cursor.uDstWidth  != uDstWidth
+        || pOutTgt->Cursor.uDstHeight != uDstHeight)
+    {
+        vrc = recRenderOutTgtCursorCacheRebuild(pRenderer, pOutTgt);
+        AssertRCReturn(vrc, vrc);
+    }
+
+    if (   !pOutTgt->Cursor.fScaledValid
+        || !pOutTgt->Cursor.uScaledWidth
+        || !pOutTgt->Cursor.uScaledHeight)
+    {
+        *ppvBuf = pOutTgt->TgtDesc.pvOutputBuffer;
+        *pcbBuf = pOutTgt->TgtDesc.cbOutputBuffer;
+        return VINF_SUCCESS;
+    }
+
+    size_t const cbOutReq = (size_t)uDstWidth * uDstHeight * 3 / 2;
+    vrc = recRenderOutTgtEnsureBuf(&pOutTgt->Cursor.pu8ScratchOutput, &pOutTgt->Cursor.cbScratchOutput, cbOutReq);
+    AssertRCReturn(vrc, vrc);
+
+    size_t const cbOutSrc = RT_MIN(pOutTgt->TgtDesc.cbOutputBuffer, cbOutReq);
+    memcpy(pOutTgt->Cursor.pu8ScratchOutput, pOutTgt->TgtDesc.pvOutputBuffer, cbOutSrc);
+    if (cbOutSrc < cbOutReq)
+        memset(pOutTgt->Cursor.pu8ScratchOutput + cbOutSrc, 0, cbOutReq - cbOutSrc);
+
+    recRenderOutTgtBlendCursorYUVI420(pOutTgt->Cursor.pu8ScratchOutput, uDstWidth, uDstHeight,
+                                      pOutTgt->Cursor.pu8ScaledYuv, pOutTgt->Cursor.pu8ScaledBgra,
+                                      pOutTgt->Cursor.uScaledWidth, pOutTgt->Cursor.uScaledHeight,
+                                      pOutTgt->Cursor.uScaledBgraStride /* uCursorBgraStride */,
+                                      pOutTgt->Cursor.uScaledYStride /* uCursorYStride */,
+                                      pOutTgt->Cursor.uScaledUVStride /* uCursorUVStride */,
+                                      (uint32_t)uDstX0, (uint32_t)uDstY0);
+
+    *ppvBuf = pOutTgt->Cursor.pu8ScratchOutput;
+    *pcbBuf = cbOutReq;
+    return VINF_SUCCESS;
+}
+
+/**
+ * Probes OutTgt backend availability.
+ *
+ * @returns VBox status code.
+ * @param   pRenderer           Renderer instance.
+ */
 static DECLCALLBACK(int) recRenderOutTgtProbe(PCRECORDINGRENDERER pRenderer)
 {
     RT_NOREF(pRenderer);
     return VINF_SUCCESS;
 }
 
-/** @copydoc RECORDINGRENDEROPS::pfnInit */
+/**
+ * Initializes OutTgt backend state.
+ *
+ * @returns VBox status code.
+ * @param   pRenderer           Renderer instance.
+ * @param   pvBackend           Backend-specific initialization data.
+ */
 static DECLCALLBACK(int) recRenderOutTgtInit(PRECORDINGRENDERER pRenderer, const void *pvBackend)
 {
     AssertPtr(pvBackend);
 
-    PRECORDINGRENDEROUTTGT pOutTgt = (PRECORDINGRENDEROUTTGT)RTMemAllocZ(sizeof(RECORDINGRENDEROUTTGT));
+    PRECRENDEROUTTGT pOutTgt = (PRECRENDEROUTTGT)RTMemAllocZ(sizeof(RECRENDEROUTTGT));
     AssertPtrReturn(pOutTgt, VERR_NO_MEMORY);
 
     memcpy(&pOutTgt->TgtDesc, pvBackend, sizeof(PDMDISPLAYOUTPUTTARGETDESC));
-
-    pOutTgt->SurfaceInfo.enmPixelFmt   = pOutTgt->TgtDesc.enmFormat == PDMDISPLAYOUTPUTTARGETFORMAT_YUVI420
-                                       ? RECORDINGPIXELFMT_YUVI420 : RECORDINGPIXELFMT_UNKNOWN;
-    pOutTgt->SurfaceInfo.uBPP          = 32;
-    pOutTgt->SurfaceInfo.uWidth        = pOutTgt->TgtDesc.cWidth;
-    pOutTgt->SurfaceInfo.uHeight       = pOutTgt->TgtDesc.cHeight;
-    pOutTgt->SurfaceInfo.uBytesPerLine = 0; /* Unused */
 
     /* Attach backend state early so all failure paths can use one cleanup routine. */
     pRenderer->pvBackend = pOutTgt;
@@ -1246,70 +2417,234 @@ static DECLCALLBACK(int) recRenderOutTgtInit(PRECORDINGRENDERER pRenderer, const
     return VINF_SUCCESS;
 }
 
-/** @copydoc RECORDINGRENDEROPS::pfnDestroy */
+/**
+ * Destroys OutTgt backend state.
+ *
+ * @param   pRenderer           Renderer instance.
+ */
 static DECLCALLBACK(void) recRenderOutTgtDestroy(PRECORDINGRENDERER pRenderer)
 {
-    PRECORDINGRENDEROUTTGT pOutTgt = (PRECORDINGRENDEROUTTGT)pRenderer->pvBackend;
+    PRECRENDEROUTTGT pOutTgt = (PRECRENDEROUTTGT)pRenderer->pvBackend;
     if (!pOutTgt)
         return;
+
+    RecordingVideoFrameDestroy(&pOutTgt->Cursor.Shape);
+
+    RTMemFree(pOutTgt->Cursor.pu8ScratchOutput);
+    pOutTgt->Cursor.pu8ScratchOutput = NULL;
+
+    RTMemFree(pOutTgt->Cursor.pu8ScaledBgra);
+    pOutTgt->Cursor.pu8ScaledBgra = NULL;
+
+    RTMemFree(pOutTgt->Cursor.pu8ScaledYuv);
+    pOutTgt->Cursor.pu8ScaledYuv = NULL;
 
     RTMemFree(pOutTgt);
     pRenderer->pvBackend = NULL;
 }
 
-/** @copydoc RECORDINGRENDEROPS::pfnQueryCaps */
+/**
+ * Queries OutTgt backend capabilities.
+ *
+ * @returns Capability bit mask.
+ * @param   pRenderer           Renderer instance.
+ */
 static DECLCALLBACK(uint64_t) recRenderOutTgtQueryCaps(PCRECORDINGRENDERER pRenderer)
 {
     RT_NOREF(pRenderer);
     return RECORDINGRENDERCAP_F_NONE;
 }
 
-/** @copydoc RECORDINGRENDEROPS::pfnTextureCreate */
+/**
+ * Creates an OutTgt texture backend object.
+ *
+ * @returns VBox status code.
+ * @param   pRenderer           Renderer instance.
+ * @param   pTexture            Texture wrapper to initialize.
+ * @param   pInfo               Initial surface information.
+ */
 static DECLCALLBACK(int) recRenderOutTgtTextureCreate(PRECORDINGRENDERER pRenderer, PRECORDINGRENDERTEXTURE pTexture,
                                                       PRECORDINGSURFACEINFO pInfo)
 {
-    RT_NOREF(pRenderer, pTexture, pInfo);
+    PRECRENDEROUTTGT pOutTgt = (PRECRENDEROUTTGT)pRenderer->pvBackend;
+
+    if (pTexture == &pRenderer->texCursor)
+    {
+        PRECORDINGRENDEROUTTGTTEX pTex = (PRECORDINGRENDEROUTTGTTEX)RTMemAllocZ(sizeof(RECORDINGRENDEROUTTGTTEX));
+        AssertPtrReturn(pTex, VERR_NO_MEMORY);
+
+        pTexture->pvBackend = pTex;
+        pTexture->pInfo     = NULL;
+        if (pOutTgt)
+            recRenderOutTgtCursorCacheInvalidate(pOutTgt);
+        return VINF_SUCCESS;
+    }
+
+    AssertReturn(pTexture->pvBackend == NULL, VERR_INVALID_STATE);
+
+    PRECORDINGRENDEROUTTGTTEX pTex = (PRECORDINGRENDEROUTTGTTEX)RTMemAllocZ(sizeof(RECORDINGRENDEROUTTGTTEX));
+    AssertPtrReturn(pTex, VERR_NO_MEMORY);
+
+    pTex->Info = *pInfo;
+    if (pTex->Info.uBytesPerLine == 0)
+    {
+        if (pTex->Info.enmPixelFmt == RECORDINGPIXELFMT_YUVI420)
+            pTex->Info.uBytesPerLine = pTex->Info.uWidth;
+        else
+            pTex->Info.uBytesPerLine = pTex->Info.uWidth * RT_MAX((uint32_t)pTex->Info.uBPP / 8, 1U);
+    }
+
+    pTexture->pvBackend = pTex;
+    pTexture->pInfo     = &pTex->Info;
+
     return VINF_SUCCESS;
 }
 
-/** @copydoc RECORDINGRENDEROPS::pfnTextureDestroy */
+/**
+ * Destroys an OutTgt texture backend object.
+ *
+ * @param   pRenderer           Renderer instance.
+ * @param   pTexture            Texture wrapper to destroy.
+ */
 static DECLCALLBACK(void) recRenderOutTgtTextureDestroy(PRECORDINGRENDERER pRenderer, PRECORDINGRENDERTEXTURE pTexture)
 {
-    RT_NOREF(pRenderer, pTexture);
+    if (pTexture == &pRenderer->texCursor)
+    {
+        PRECRENDEROUTTGT pOutTgt = (PRECRENDEROUTTGT)pRenderer->pvBackend;
+        if (pOutTgt)
+        {
+            RecordingVideoFrameDestroy(&pOutTgt->Cursor.Shape);
+            recRenderOutTgtCursorCacheInvalidate(pOutTgt);
+        }
+
+        PRECORDINGRENDEROUTTGTTEX pTex = (PRECORDINGRENDEROUTTGTTEX)pTexture->pvBackend;
+        RTMemFree(pTex);
+    }
+    else
+    {
+        PRECORDINGRENDEROUTTGTTEX pTex = (PRECORDINGRENDEROUTTGTTEX)pTexture->pvBackend;
+        RTMemFree(pTex);
+    }
+
+    pTexture->pvBackend = NULL;
+    pTexture->pInfo     = NULL;
 }
 
-/** @copydoc RECORDINGRENDEROPS::pfnTextureClear */
+/**
+ * Clears backend-maintained texture content.
+ *
+ * @param   pRenderer           Renderer instance.
+ * @param   pTexture            Texture wrapper to clear.
+ */
 static DECLCALLBACK(void) recRenderOutTgtTextureClear(PRECORDINGRENDERER pRenderer, PRECORDINGRENDERTEXTURE pTexture)
 {
-    RT_NOREF(pRenderer, pTexture);
+    PRECRENDEROUTTGT pOutTgt = (PRECRENDEROUTTGT)pRenderer->pvBackend;
+
+    if (pTexture == &pRenderer->texCursor)
+    {
+        RecordingVideoFrameClear(&pOutTgt->Cursor.Shape);
+        recRenderOutTgtCursorCacheInvalidate(pOutTgt);
+    }
 }
 
-/** @copydoc RECORDINGRENDEROPS::pfnTextureQueryPixelData */
+/**
+ * Queries pixel data for an OutTgt texture.
+ *
+ * @returns VBox status code.
+ * @param   pRenderer           Renderer instance.
+ * @param   pTexture            Texture wrapper to query.
+ * @param   ppvBuf              Where to return the output buffer pointer.
+ * @param   pcbBuf              Where to return the output buffer size.
+ */
 static DECLCALLBACK(int) recRenderOutTgtTextureQueryPixelData(PRECORDINGRENDERER pRenderer, PRECORDINGRENDERTEXTURE pTexture,
                                                               void **ppvBuf, size_t *pcbBuf)
 {
-    RT_NOREF(pTexture);
+    PRECRENDEROUTTGT pOutTgt = (PRECRENDEROUTTGT)pRenderer->pvBackend;
+    PRECORDINGRENDEROUTTGTTEX pTexOut = (PRECORDINGRENDEROUTTGTTEX)pTexture->pvBackend;
 
-    PRECORDINGRENDEROUTTGT pOutTgt = (PRECORDINGRENDEROUTTGT)pRenderer->pvBackend;
-    AssertPtr(pOutTgt);
+    AssertPtrReturn(pTexOut, VERR_INVALID_POINTER);
 
-    *ppvBuf = pOutTgt->TgtDesc.pvOutputBuffer;
-    *pcbBuf = pOutTgt->TgtDesc.cbOutputBuffer;
+#ifdef VBOX_STRICT
+    AssertPtrReturn(pOutTgt->TgtDesc.pvOutputBuffer, VERR_INVALID_POINTER);
+    AssertReturn(pOutTgt->TgtDesc.cbOutputBuffer, VERR_INVALID_PARAMETER);
+#endif
 
-    pTexture->pInfo = &pOutTgt->SurfaceInfo;
+    int const vrc = recRenderOutTgtCompose(pRenderer, pOutTgt, ppvBuf, pcbBuf);
+    if (RT_FAILURE(vrc))
+        return vrc;
+
+    recRenderOutTgtSurfaceInfoFromTgtDesc(&pTexOut->Info, &pOutTgt->TgtDesc);
+    pTexture->pInfo = &pTexOut->Info;
 
     return VINF_SUCCESS;
 }
 
-/** @copydoc RECORDINGRENDEROPS::pfnTextureUpdate */
+/**
+ * Updates backend texture state from an incoming frame.
+ *
+ * @returns VBox status code.
+ * @param   pRenderer           Renderer instance.
+ * @param   pTexture            Texture wrapper to update.
+ * @param   pFrame              Source frame.
+ */
 static DECLCALLBACK(int) recRenderOutTgtTextureUpdate(PRECORDINGRENDERER pRenderer, PRECORDINGRENDERTEXTURE pTexture,
                                                       PRECORDINGVIDEOFRAME pFrame)
 {
-    RT_NOREF(pRenderer, pTexture, pFrame);
+    PRECRENDEROUTTGT pOutTgt = (PRECRENDEROUTTGT)pRenderer->pvBackend;
+
+#ifdef VBOX_STRICT
+    AssertPtrReturn(pTexture, VERR_INVALID_POINTER);
+    AssertPtrReturn(pFrame, VERR_INVALID_POINTER);
+#endif
+
+    /* For cursor shape updates we need to invalidate / re-cache the (scaled) YUV copy. */
+    if (pTexture == &pRenderer->texCursor)
+    {
+        PRECORDINGRENDEROUTTGTTEX pTex = (PRECORDINGRENDEROUTTGTTEX)pTexture->pvBackend;
+        AssertPtrReturn(pTex, VERR_INVALID_POINTER);
+
+        int vrc = RecordingVideoFrameCopy(&pOutTgt->Cursor.Shape, pFrame);
+        AssertRCReturn(vrc, vrc);
+
+        vrc = recRenderOutTgtCursorCacheRebuild(pRenderer, pOutTgt);
+        AssertRCReturn(vrc, vrc);
+
+        pTex->Info = pOutTgt->Cursor.Shape.Info;
+        pTexture->pInfo = &pTex->Info;
+        return VINF_SUCCESS;
+    }
+
+    PRECORDINGRENDEROUTTGTTEX pTex = (PRECORDINGRENDEROUTTGTTEX)pTexture->pvBackend;
+    AssertPtrReturn(pTex, VERR_INVALID_POINTER);
+
+    bool const fFrontResized =    pTexture == &pRenderer->texFront
+                               && (   pTex->Info.uWidth  != pFrame->Info.uWidth
+                                   || pTex->Info.uHeight != pFrame->Info.uHeight);
+
+    pTex->Info = pFrame->Info;
+    pTexture->pInfo = &pTex->Info;
+
+    if (   fFrontResized
+        && pOutTgt->Cursor.Shape.pau8Buf)
+    {
+        int const vrc = recRenderOutTgtCursorCacheRebuild(pRenderer, pOutTgt);
+        if (RT_FAILURE(vrc))
+            return vrc;
+    }
+
     return VINF_SUCCESS;
 }
 
-/** @copydoc RECORDINGRENDEROPS::pfnBlit */
+/**
+ * OutTgt backend blit entry point (currently a no-op).
+ *
+ * @returns VBox status code.
+ * @param   pRenderer           Renderer instance.
+ * @param   pDstTexture         Destination texture.
+ * @param   pDstRect            Destination rectangle.
+ * @param   pSrcTexture         Source texture.
+ * @param   pSrcRect            Source rectangle.
+ */
 static DECLCALLBACK(int) recRenderOutTgtBlit(PRECORDINGRENDERER pRenderer,
                                              PRECORDINGRENDERTEXTURE pDstTexture, PRTRECT pDstRect,
                                              PCRECORDINGRENDERTEXTURE pSrcTexture, PRTRECT pSrcRect)
@@ -1318,7 +2653,16 @@ static DECLCALLBACK(int) recRenderOutTgtBlit(PRECORDINGRENDERER pRenderer,
     return VINF_SUCCESS;
 }
 
-/** @copydoc RECORDINGRENDEROPS::pfnBlend */
+/**
+ * OutTgt backend blend entry point (currently a no-op).
+ *
+ * @returns VBox status code.
+ * @param   pRenderer           Renderer instance.
+ * @param   pDstTexture         Destination texture.
+ * @param   pDstRect            Destination rectangle.
+ * @param   pSrcTexture         Source texture.
+ * @param   pSrcRect            Source rectangle.
+ */
 static DECLCALLBACK(int) recRenderOutTgtBlend(PRECORDINGRENDERER pRenderer,
                                               PRECORDINGRENDERTEXTURE pDstTexture, PRTRECT pDstRect,
                                               PRECORDINGRENDERTEXTURE pSrcTexture, PRTRECT pSrcRect)
@@ -1327,7 +2671,15 @@ static DECLCALLBACK(int) recRenderOutTgtBlend(PRECORDINGRENDERER pRenderer,
     return VINF_SUCCESS;
 }
 
-/** @copydoc RECORDINGRENDEROPS::pfnResize */
+/**
+ * OutTgt backend resize entry point (currently a no-op).
+ *
+ * @returns VBox status code.
+ * @param   pRenderer           Renderer instance.
+ * @param   pDstTexture         Destination texture.
+ * @param   pSrcTexture         Source texture.
+ * @param   pResizeParms        Resize parameters.
+ */
 static DECLCALLBACK(int) recRenderOutTgtResize(PRECORDINGRENDERER pRenderer,
                                                PRECORDINGRENDERTEXTURE pDstTexture,
                                                PCRECORDINGRENDERTEXTURE pSrcTexture,
@@ -1337,7 +2689,14 @@ static DECLCALLBACK(int) recRenderOutTgtResize(PRECORDINGRENDERER pRenderer,
     return VINF_SUCCESS;
 }
 
-/** @copydoc RECORDINGRENDEROPS::pfnConvert */
+/**
+ * OutTgt backend convert entry point (currently a no-op).
+ *
+ * @returns VBox status code.
+ * @param   pRenderer           Renderer instance.
+ * @param   pDstTexture         Destination texture.
+ * @param   pSrcTexture         Source texture.
+ */
 static DECLCALLBACK(int) recRenderOutTgtConvert(PRECORDINGRENDERER pRenderer,
                                                 PRECORDINGRENDERTEXTURE pDstTexture,
                                                 PCRECORDINGRENDERTEXTURE pSrcTexture)
@@ -1508,6 +2867,9 @@ typedef RECORDINGRENDERSDLTEXTURE const *PCRECORDINGRENDERSDLTEXTURE;
 
 /**
  * Loads and resolves all required SDL symbols.
+ *
+ * @returns VBox status code.
+ * @param   pSDL                SDL backend private state.
  */
 static int recRenderSDLResolveSymbols(PRECORDINGRENDERSDL pSDL)
 {
@@ -1664,6 +3026,9 @@ DECLINLINE(Uint32) recRenderSDLPixelFmtFromRec(RECORDINGPIXELFMT enmFmt, uint8_t
 
 /**
  * Returns default stride for a surface if not explicitly supplied.
+ *
+ * @returns Surface stride in bytes.
+ * @param   pInfo               Surface information.
  */
 DECLINLINE(uint32_t) recRenderSDLDefaultStride(RECORDINGSURFACEINFO const *pInfo)
 {
@@ -1676,6 +3041,9 @@ DECLINLINE(uint32_t) recRenderSDLDefaultStride(RECORDINGSURFACEINFO const *pInfo
 
 /**
  * Resolves a generic texture reference to a native SDL texture wrapper.
+ *
+ * @returns Native SDL texture wrapper, or NULL if unavailable.
+ * @param   pTexture            Generic texture reference.
  */
 DECLINLINE(PRECORDINGRENDERSDLTEXTURE) recRenderSDLTexFromRef(PRECORDINGRENDERTEXTURE pTexture)
 {
@@ -1688,6 +3056,9 @@ DECLINLINE(PRECORDINGRENDERSDLTEXTURE) recRenderSDLTexFromRef(PRECORDINGRENDERTE
 
 /**
  * Resolves a const generic texture reference to a native SDL texture wrapper.
+ *
+ * @returns Const native SDL texture wrapper, or NULL if unavailable.
+ * @param   pTexture            Generic texture reference.
  */
 DECLINLINE(PCRECORDINGRENDERSDLTEXTURE) recRenderSDLTexFromRefC(PCRECORDINGRENDERTEXTURE pTexture)
 {
@@ -2637,6 +4008,13 @@ int RecordingRenderInitEx(PRECORDINGRENDERER pRenderer, RECORDINGRENDERBACKEND e
     return recRenderInitCommon(pRenderer);
 }
 
+/**
+ * Convenience wrapper for RecordingRenderInitEx() without backend-specific data.
+ *
+ * @returns VBox status code.
+ * @param   pRenderer           Renderer instance.
+ * @param   enmBackend          Preferred backend.
+ */
 int RecordingRenderInit(PRECORDINGRENDERER pRenderer, RECORDINGRENDERBACKEND enmBackend)
 {
     return RecordingRenderInitEx(pRenderer, enmBackend, NULL /* pvBackend */);
@@ -2852,7 +4230,8 @@ int RecordingRenderComposeAddFrame(PRECORDINGRENDERER pRenderer, PRECORDINGFRAME
             dy = pFrameSrc->Pos.y;
 
             PRECORDINGRENDERTEXTURE pTexCursor = &pRenderer->texCursor;
-            if (pTexCursor->pvBackend)
+            if (   pTexCursor->pvBackend
+                && pTexCursor->pInfo)
             {
                 uint32_t const uCurX = pRenderer->uCursorOldX;
                 uint32_t const uCurY = pRenderer->uCursorOldY;
@@ -3077,7 +4456,7 @@ int RecordingRenderQueryFrame(PRECORDINGRENDERER pRenderer, PRECORDINGVIDEOFRAME
     AssertPtr(pTexSrc->pInfo);
     pFrame->Info = *pTexSrc->pInfo;
 
-    /* Instead of copying the pixel data over to pFrame, backends only sets the pointer to the data.
+    /* Instead of copying the pixel data over to pFrame, certain backends can set only the pointer to the data.
      * In that case the backend texture remains the owner of the pixel data and thus pFrame isn't allowed to destroy it. */
     if (   pRenderer->enmBackend == RECORDINGRENDERBACKEND_SOFTWARE
         || pRenderer->enmBackend == RECORDINGRENDERBACKEND_OUTTGT)

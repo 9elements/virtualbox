@@ -1,4 +1,4 @@
-/* $Id: RecordingRender.h 113708 2026-04-02 09:19:01Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingRender.h 113876 2026-04-15 09:30:47Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording rendering backend abstraction.
  */
@@ -296,7 +296,7 @@ typedef struct RECORDINGRENDERER
     /** The current render state. */
     RECORDINGRENDERSTATE      enmState;
     /** Render parameters. */
-    RECORDINGRENDERPARMS     Parms;
+    RECORDINGRENDERPARMS      Parms;
     /** Front buffer texture.
      *  Always matches the VM screen's framebuffer size. */
     RECORDINGRENDERTEXTURE    texFront;

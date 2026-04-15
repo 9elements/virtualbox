@@ -1,4 +1,4 @@
-/* $Id: RecordingStream.cpp 113749 2026-04-07 16:13:56Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingStream.cpp 113876 2026-04-15 09:30:47Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording stream code.
  */
@@ -2052,14 +2052,20 @@ int RecordingStream::InitVideo(const ComPtr<IRecordingScreenSettings> &ScreenSet
                 RecordingUtilsVideoScalingModeToStr(m_RenderParms.enmScalingMode)));
 
         vrc = RecordingRenderSetParms(&m_Renderer, &m_RenderParms);
-        if (RT_FAILURE(vrc))
-            return vrc;
-
-        vrc = this->File.m_pWEBM->AddVideoTrack(&m_CodecVideo, uWidth, uHeight, uFPS, &m_uTrackVideo);
-        if (RT_FAILURE(vrc))
+        if (RT_SUCCESS(vrc))
         {
-            LogRel(("Recording: Failed to add video track to output file (%Rrc)\n", vrc));
-            return VERR_RECORDING_INIT_FAILED;
+            /* Trigger an initial screen change so that necessary textures can be initialized. */
+            RECORDINGSURFACEINFO ScreenInfo;
+            ScreenInfo             = m_RenderParms.Info;
+            ScreenInfo.enmPixelFmt = RECORDINGPIXELFMT_BRGA32;
+            vrc = RecordingRenderScreenChange(&m_Renderer, &ScreenInfo);
+        }
+
+        if (RT_SUCCESS(vrc))
+        {
+            vrc = this->File.m_pWEBM->AddVideoTrack(&m_CodecVideo, uWidth, uHeight, uFPS, &m_uTrackVideo);
+            if (RT_FAILURE(vrc))
+                LogRel(("Recording: Failed to add video track to output file (%Rrc)\n", vrc));
         }
 
         if (RT_SUCCESS(vrc))
