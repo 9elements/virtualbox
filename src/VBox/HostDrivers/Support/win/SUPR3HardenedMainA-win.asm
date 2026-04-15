@@ -1,4 +1,4 @@
-; $Id: SUPR3HardenedMainA-win.asm 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+; $Id: SUPR3HardenedMainA-win.asm 113873 2026-04-15 00:06:25Z knut.osmundsen@oracle.com $
 ;; @file
 ; VirtualBox Support Library - Hardened main(), Windows assembly bits.
 ;
@@ -116,8 +116,17 @@ BEGINPROC supR3HardenedEarlyProcessInitThunk
         ; the resume address. Then use the 'ret' instruction to resume process
         ; initializaton.
         ;
+        ; Update 2026-04-13: With shadow stacks enabled, this RET doesn't work
+        ; so, we're sacrifying r11 for linking here.
+        ;
         leave
+%ifndef RT_ARCH_AMD64
         ret
+%else
+        pop     r11
+        db      0x3e                        ; paranoia: notrack (DS prefix)
+        jmp     r11
+%endif
 ENDPROC   supR3HardenedEarlyProcessInitThunk
 
 
@@ -192,8 +201,17 @@ BEGINPROC supR3HardenedMonitor_KiUserApcDispatcher
         ; the resume address. Then use the 'ret' instruction to execute the
         ; original KiUserApcDispatcher code as if we've never been here...
         ;
+        ; Update 2026-04-13: With shadow stacks enabled, this RET doesn't work
+        ; so, we're sacrifying r11 for linking here.
+        ;
         leave
+%ifndef RT_ARCH_AMD64
         ret
+%else
+        pop     r11
+        db      0x3e                        ; paranoia: notrack (DS prefix)
+        jmp     r11
+%endif
 ENDPROC   supR3HardenedMonitor_KiUserApcDispatcher
 
 
