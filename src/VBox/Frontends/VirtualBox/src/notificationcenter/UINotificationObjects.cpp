@@ -1,4 +1,4 @@
-/* $Id: UINotificationObjects.cpp 113893 2026-04-15 16:29:23Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationObjects.cpp 113906 2026-04-16 13:14:11Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationObjects implementations.
  */
@@ -515,6 +515,42 @@ void UINotificationProgressMachinePowerUp::sltHandleProgressFinished()
 {
     /* Notify listeners: */
     emit sigMachinePoweredUp(error().isEmpty());
+}
+
+
+/*********************************************************************************************************************************
+*   Class UINotificationProgressDranAndDropSend implementation.                                                                  *
+*********************************************************************************************************************************/
+
+UINotificationProgressDranAndDropSend::UINotificationProgressDranAndDropSend(const CDnDTarget &comTarget,
+                                                                             ulong uScreenId,
+                                                                             const QString &strFormat,
+                                                                             const QVector<uint8_t> &vecData)
+    : m_comTarget(comTarget)
+    , m_uScreenId(uScreenId)
+    , m_strFormat(strFormat)
+    , m_vecData(vecData)
+{
+}
+
+QString UINotificationProgressDranAndDropSend::name() const
+{
+    return UINotificationProgress::tr("Sending D&D data ...");
+}
+
+QString UINotificationProgressDranAndDropSend::details() const
+{
+    return UINotificationProgress::tr("<b>Format:</b> %1<br><b>Size:</b> %2").arg(m_strFormat).arg(m_vecData.size());
+}
+
+CProgress UINotificationProgressDranAndDropSend::createProgress(COMResult &comResult)
+{
+    /* Initialize progress-wrapper: */
+    CProgress comProgress = m_comTarget.SendData(m_uScreenId, m_strFormat, m_vecData);
+    /* Store COM result: */
+    comResult = m_comTarget;
+    /* Return progress-wrapper: */
+    return comProgress;
 }
 
 

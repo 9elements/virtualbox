@@ -1,4 +1,4 @@
-/* $Id: UIDnDHandler.cpp 113062 2026-02-17 12:37:07Z sergey.dubov@oracle.com $ */
+/* $Id: UIDnDHandler.cpp 113906 2026-04-16 13:14:11Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIDnDHandler class implementation.
  */
@@ -49,7 +49,7 @@
 #endif /* VBOX_WITH_DRAG_AND_DROP_GH */
 #include "UIMachine.h"
 #include "UIMessageCenter.h"
-#include "UINotificationMessage.h"
+#include "UINotificationCenter.h"
 #include "UISession.h"
 
 /* COM includes: */
@@ -237,31 +237,10 @@ Qt::DropAction UIDnDHandler::dragDrop(ulong screenID, int x, int y,
 
             /* Send data to the guest. */
             LogRel2(("DnD: Host is sending %d bytes of data as '%s'\n", vecData.size(), strFormat.toUtf8().constData()));
-            CProgress progress = m_dndTarget.SendData(screenID, strFormat, vecData);
-
-            if (m_dndTarget.isOk())
-            {
-                msgCenter().showModalProgressDialog(progress,
-                                                    tr("Dropping data ..."), ":/progress_dnd_hg_90px.png",
-                                                    m_pParent);
-
-                LogFlowFunc(("Transfer fCompleted=%RTbool, fCanceled=%RTbool, hr=%Rhrc\n",
-                             progress.GetCompleted(), progress.GetCanceled(), progress.GetResultCode()));
-
-                BOOL fCanceled = progress.GetCanceled();
-                if (   !fCanceled
-                    && (   !progress.isOk()
-                        ||  progress.GetResultCode() != 0))
-                {
-                    UINotificationMessage::cannotDropDataToGuest(progress);
-                    enmResult = KDnDAction_Ignore;
-                }
-            }
-            else
-            {
-                UINotificationMessage::cannotDropDataToGuest(m_dndTarget);
+            UINotificationProgressDranAndDropSend *pNotification =
+                new UINotificationProgressDranAndDropSend(m_dndTarget, screenID, strFormat, vecData);
+            if (!gpNotificationCenter->handleNow(pNotification))
                 enmResult = KDnDAction_Ignore;
-            }
         }
         else /* Error. */
             enmResult = KDnDAction_Ignore;

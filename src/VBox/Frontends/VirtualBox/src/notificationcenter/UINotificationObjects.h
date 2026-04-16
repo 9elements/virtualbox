@@ -1,4 +1,4 @@
-/* $Id: UINotificationObjects.h 113893 2026-04-15 16:29:23Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationObjects.h 113906 2026-04-16 13:14:11Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationObjects declarations.
  */
@@ -44,6 +44,7 @@
 #include "CCloudMachine.h"
 #include "CConsole.h"
 #include "CDataStream.h"
+#include "CDnDTarget.h"
 #include "CExtPackFile.h"
 #include "CExtPackManager.h"
 #include "CForm.h"
@@ -430,6 +431,44 @@ private:
     CConsole  m_comConsole;
     /** Holds the machine name. */
     QString   m_strName;
+};
+
+/** UINotificationProgress extension for drag&drop send functionality. */
+class SHARED_LIBRARY_STUFF UINotificationProgressDranAndDropSend : public UINotificationProgress
+{
+    Q_OBJECT;
+
+public:
+
+    /** Constructs drag&drop send notification-progress.
+      * @param  comTarget  Brings the D&D target used to send data to.
+      * @param  uScreenId  Brings the screen ID.
+      * @param  strFormat  Brings the format.
+      * @param  vecData    Brings the data. */
+    UINotificationProgressDranAndDropSend(const CDnDTarget &comTarget,
+                                          ulong uScreenId,
+                                          const QString &strFormat,
+                                          const QVector<uint8_t> &vecData);
+
+protected:
+
+    /** Returns object name. */
+    virtual QString name() const RT_OVERRIDE RT_FINAL;
+    /** Returns object details. */
+    virtual QString details() const RT_OVERRIDE RT_FINAL;
+    /** Creates and returns started progress-wrapper. */
+    virtual CProgress createProgress(COMResult &comResult) RT_OVERRIDE RT_FINAL;
+
+private:
+
+    /** Holds the D&D target used to send data to. */
+    CDnDTarget        m_comTarget;
+    /** Holds the screen ID. */
+    ulong             m_uScreenId;
+    /** Holds the format. */
+    QString           m_strFormat;
+    /** Holds the data. */
+    QVector<uint8_t>  m_vecData;
 };
 
 /** UINotificationProgress extension for machine save-state functionality. */
