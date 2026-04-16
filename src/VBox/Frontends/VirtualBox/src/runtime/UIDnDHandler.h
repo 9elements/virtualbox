@@ -1,4 +1,4 @@
-/* $Id: UIDnDHandler.h 113252 2026-03-04 14:45:19Z sergey.dubov@oracle.com $ */
+/* $Id: UIDnDHandler.h 113907 2026-04-16 14:33:46Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIDnDHandler class declaration..
  */
@@ -128,6 +128,11 @@ protected:
 #ifdef RT_OS_WINDOWS
     static int                 getProcessIntegrityLevel(DWORD *pdwIntegrityLevel);
 #endif
+
+protected slots:
+
+    /** Handles signal about drop progress created. */
+    void sltHandleDropProgressCreated();
 
 protected:
 

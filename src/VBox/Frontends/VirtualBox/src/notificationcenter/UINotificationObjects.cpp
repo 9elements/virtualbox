@@ -1,4 +1,4 @@
-/* $Id: UINotificationObjects.cpp 113906 2026-04-16 13:14:11Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationObjects.cpp 113907 2026-04-16 14:33:46Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationObjects implementations.
  */
@@ -549,6 +549,47 @@ CProgress UINotificationProgressDranAndDropSend::createProgress(COMResult &comRe
     CProgress comProgress = m_comTarget.SendData(m_uScreenId, m_strFormat, m_vecData);
     /* Store COM result: */
     comResult = m_comTarget;
+    /* Return progress-wrapper: */
+    return comProgress;
+}
+
+
+/*********************************************************************************************************************************
+*   Class UINotificationProgressDranAndDropReceive implementation.                                                               *
+*********************************************************************************************************************************/
+
+UINotificationProgressDranAndDropReceive::UINotificationProgressDranAndDropReceive(const CDnDSource &comSource,
+                                                                                   const QString &strMIMEType,
+                                                                                   KDnDAction enmAction)
+    : m_comSource(comSource)
+    , m_strMIMEType(strMIMEType)
+    , m_enmAction(enmAction)
+{
+}
+
+QString UINotificationProgressDranAndDropReceive::name() const
+{
+    return UINotificationProgress::tr("Retrieving D&D data ...");
+}
+
+QString UINotificationProgressDranAndDropReceive::details() const
+{
+    return UINotificationProgress::tr("<b>MIME type:</b> %1<br><b>Action:</b> %2").arg(m_strMIMEType).arg((int)m_enmAction);
+}
+
+CProgress UINotificationProgressDranAndDropReceive::createProgress(COMResult &comResult)
+{
+    /* Initialize progress-wrapper: */
+    CProgress comProgress = m_comSource.Drop(m_strMIMEType, m_enmAction);
+
+    // WORKAROUND:
+    // We've to notify UIMachine to pass event to guest,
+    // is it really so important?
+    if (m_comSource.isOk())
+        emit sigProgressCreated();
+
+    /* Store COM result: */
+    comResult = m_comSource;
     /* Return progress-wrapper: */
     return comProgress;
 }

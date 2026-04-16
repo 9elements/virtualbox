@@ -1,4 +1,4 @@
-/* $Id: UIDnDHandler.cpp 113906 2026-04-16 13:14:11Z sergey.dubov@oracle.com $ */
+/* $Id: UIDnDHandler.cpp 113907 2026-04-16 14:33:46Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIDnDHandler class implementation.
  */
@@ -733,57 +733,37 @@ int UIDnDHandler::retrieveDataInternal(      Qt::DropAction    dropAction,
     /* Indicate to the guest that we have dropped the data on the host.
      * The guest then will initiate the actual "drop" operation into our proxy on the guest. */
     Assert(!m_dndSource.isNull());
-    CProgress progress = m_dndSource.Drop(strMIMEType,
-                                          UIDnDHandler::toVBoxDnDAction(dropAction));
-    LogFlowFunc(("Source: isOk=%RTbool\n", m_dndSource.isOk()));
-    if (m_dndSource.isOk())
-    {
-        /* Send a mouse event with released mouse buttons into the guest that triggers
-         * the "drop" event in our proxy window on the guest. */
-        m_pMachine->putMouseEvent(0, 0, 0, 0, 0);
-
-        msgCenter().showModalProgressDialog(progress,
-                                            tr("Retrieving data ..."), ":/progress_dnd_gh_90px.png",
-                                            m_pParent);
-
-        LogFlowFunc(("Progress: fCanceled=%RTbool, fCompleted=%RTbool, isOk=%RTbool, hrc=%Rhrc\n",
-                     progress.GetCanceled(), progress.GetCompleted(), progress.isOk(), progress.GetResultCode()));
-
-        if (!progress.GetCanceled())
-        {
-            rc =   (   progress.isOk()
-                    && progress.GetResultCode() == 0)
-                 ? VINF_SUCCESS : VERR_GENERAL_FAILURE; /** @todo Fudge; do a GetResultCode() to rc translation. */
-
-            if (RT_SUCCESS(rc))
-            {
-                /* After we successfully retrieved data from the source we query it from Main. */
-                vecData = m_dndSource.ReceiveData(); /** @todo QVector.size() is "int" only!? */
-                if (m_dndSource.isOk())
-                {
-                    if (vecData.isEmpty())
-                        rc = VERR_NO_DATA;
-                }
-                else
-                {
-                    UINotificationMessage::cannotDropDataToHost(m_dndSource);
-                    rc = VERR_GENERAL_FAILURE; /** @todo Fudge; do a GetResultCode() to rc translation. */
-                }
-            }
-            else
-                UINotificationMessage::cannotDropDataToHost(progress);
-        }
-        else /* Don't pop up a message. */
-            rc = VERR_CANCELLED;
-    }
+    UINotificationProgressDranAndDropReceive *pNotification =
+        new UINotificationProgressDranAndDropReceive(m_dndSource, strMIMEType, UIDnDHandler::toVBoxDnDAction(dropAction));
+    connect(pNotification, &UINotificationProgressDranAndDropReceive::sigProgressCreated,
+            this, &UIDnDHandler::sltHandleDropProgressCreated);
+    if (!gpNotificationCenter->handleNow(pNotification))
+        rc = VERR_GENERAL_FAILURE; /** @todo Fudge; do a GetResultCode() to rc translation. */
     else
     {
-        UINotificationMessage::cannotDropDataToHost(m_dndSource);
-        rc = VERR_GENERAL_FAILURE; /** @todo Fudge; do a GetResultCode() to rc translation. */
+        /* After we successfully retrieved data from the source we query it from Main. */
+        vecData = m_dndSource.ReceiveData(); /** @todo QVector.size() is "int" only!? */
+        if (m_dndSource.isOk())
+        {
+            if (vecData.isEmpty())
+                rc = VERR_NO_DATA;
+        }
+        else
+        {
+            UINotificationMessage::cannotDropDataToHost(m_dndSource);
+            rc = VERR_GENERAL_FAILURE; /** @todo Fudge; do a GetResultCode() to rc translation. */
+        }
     }
 
     LogFlowFuncLeaveRC(rc);
     return rc;
+}
+
+void UIDnDHandler::sltHandleDropProgressCreated()
+{
+    /* Send a mouse event with released mouse buttons into the guest that triggers
+     * the "drop" event in our proxy window on the guest. */
+    m_pMachine->putMouseEvent(0, 0, 0, 0, 0);
 }
 
 int UIDnDHandler::sltGetData(      Qt::DropAction   dropAction,

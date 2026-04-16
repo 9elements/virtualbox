@@ -1,4 +1,4 @@
-/* $Id: UINotificationObjects.h 113906 2026-04-16 13:14:11Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationObjects.h 113907 2026-04-16 14:33:46Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationObjects declarations.
  */
@@ -44,6 +44,7 @@
 #include "CCloudMachine.h"
 #include "CConsole.h"
 #include "CDataStream.h"
+#include "CDnDSource.h"
 #include "CDnDTarget.h"
 #include "CExtPackFile.h"
 #include "CExtPackManager.h"
@@ -469,6 +470,45 @@ private:
     QString           m_strFormat;
     /** Holds the data. */
     QVector<uint8_t>  m_vecData;
+};
+
+/** UINotificationProgress extension for drag&drop receive functionality. */
+class SHARED_LIBRARY_STUFF UINotificationProgressDranAndDropReceive : public UINotificationProgress
+{
+    Q_OBJECT;
+
+signals:
+
+    /** Notify listeners about progress created. */
+    void sigProgressCreated();
+
+public:
+
+    /** Constructs drag&drop receive notification-progress.
+      * @param  comSource    Brings the D&D source used to receive data.
+      * @param  strMIMEType  Brings the MIME type.
+      * @param  enmAction    Brings the action type. */
+    UINotificationProgressDranAndDropReceive(const CDnDSource &comSource,
+                                             const QString &strMIMEType,
+                                             KDnDAction enmAction);
+
+protected:
+
+    /** Returns object name. */
+    virtual QString name() const RT_OVERRIDE RT_FINAL;
+    /** Returns object details. */
+    virtual QString details() const RT_OVERRIDE RT_FINAL;
+    /** Creates and returns started progress-wrapper. */
+    virtual CProgress createProgress(COMResult &comResult) RT_OVERRIDE RT_FINAL;
+
+private:
+
+    /** Holds the D&D source used to receive data. */
+    CDnDSource  m_comSource;
+    /** Holds the MIME type. */
+    QString     m_strMIMEType;
+    /** Holds the action type. */
+    KDnDAction  m_enmAction;
 };
 
 /** UINotificationProgress extension for machine save-state functionality. */
