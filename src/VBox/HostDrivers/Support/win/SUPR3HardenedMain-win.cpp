@@ -1,4 +1,4 @@
-/* $Id: SUPR3HardenedMain-win.cpp 111549 2025-11-05 09:38:53Z knut.osmundsen@oracle.com $ */
+/* $Id: SUPR3HardenedMain-win.cpp 113920 2026-04-16 21:25:06Z knut.osmundsen@oracle.com $ */
 /** @file
  * VirtualBox Support Library - Hardened main(), windows bits.
  */
@@ -41,6 +41,7 @@
 #include <iprt/nt/nt-and-windows.h>
 #include <AccCtrl.h>
 #include <AclApi.h>
+#include <ehdata.h>
 #ifndef PROCESS_SET_LIMITED_INFORMATION
 # define PROCESS_SET_LIMITED_INFORMATION        0x2000
 #endif
@@ -59,6 +60,7 @@
 #include <iprt/initterm.h>
 #include <iprt/param.h>
 #include <iprt/path.h>
+#include <iprt/stackcheck.h>
 #include <iprt/thread.h>
 #include <iprt/utf16.h>
 #include <iprt/zero.h>
@@ -502,6 +504,38 @@ static uint64_t supR3HardenedWinGetMilliTS(void)
 }
 
 
+#ifdef RT_ARCH_AMD64 /* Using NOCRT VCC support code. */
+
+typedef struct RTC_VAR_DESC_T
+{
+    int32_t     offFrame;
+    uint32_t    cbVar;
+    const char *pszName;
+} RTC_VAR_DESC_T;
+
+extern "C" __declspec(noreturn guard(nosspro) guard(nossepi))
+void __cdecl rtVccStackVarCorrupted(uint8_t *pbFrame, RTC_VAR_DESC_T const *pVar, PCONTEXT pCpuCtx)
+{
+    RT_NOREF(pCpuCtx);
+    supR3HardenedFatal("!!Stack corruption!! - %p LB %#x - %s", pbFrame + pVar->offFrame, pVar->cbVar, pVar->pszName);
+}
+
+extern "C" __declspec(noreturn guard(nosspro) guard(nossepi))
+void __cdecl rtVccSecurityCookieMismatch(uintptr_t uCookie, PCONTEXT pCpuCtx)
+{
+    RT_NOREF(pCpuCtx);
+    supR3HardenedFatal("!!Stack cookie corruption!! expected %p, found %p", __security_cookie, uCookie);
+}
+
+
+extern "C" __declspec(noreturn guard(nosspro) guard(nossepi))
+void __cdecl rtVccRangeCheckFailed(PCONTEXT pCpuCtx)
+{
+    supR3HardenedFatal("!!Range check failed at %p!!", pCpuCtx->Rip);
+}
+
+#else
+
 /**
  * Called when there is some /GS (or maybe /RTCsu) related stack problem.
  *
@@ -514,6 +548,7 @@ void __cdecl __report_rangecheckfailure(void)
     supR3HardenedFatal("__report_rangecheckfailure called from %p", ASMReturnAddress());
 }
 
+#endif
 
 /**
  * Called when there is some /GS problem has been detected.
@@ -534,6 +569,23 @@ void __report_gsfailure(uintptr_t uCookie)
     supR3HardenedFatal("__report_gsfailure called from %p, cookie=%p", ASMReturnAddress(), uCookie);
 #endif
 }
+
+
+#ifdef RT_ARCH_AMD64
+/**
+ * Mainly called to destroy stack objects during unwinding, which shouldn't
+ * happen (tm).
+ */
+extern "C" __declspec(guard(suppress))
+EXCEPTION_DISPOSITION __cdecl
+__CxxFrameHandler4(EHExceptionRecord *pExcept, EHRegistrationNode RN, CONTEXT *pContext, DispatcherContext *pDC)
+{
+    RT_NOREF(pExcept, RN, pContext, pDC);
+    for (;;)
+        supR3HardenedFatal("Unexpected __CxxFrameHandler4 call!\n");
+    //return ExceptionContinueSearch;
+}
+#endif
 
 
 /**
@@ -2880,6 +2932,7 @@ static bool supR3HardenedWinAmIAlone(void) RT_NOTHROW_DEF
  */
 static NTSTATUS supR3HardenedWinProtectMemory(PVOID pvMem, SIZE_T cbMem, ULONG fNewProt) RT_NOTHROW_DEF
 {
+    RT_STACK_CHECK_RET_ADDR();
     ULONG fOldProt = 0;
     return NtProtectVirtualMemory(NtCurrentProcess(), &pvMem, &cbMem, fNewProt, &fOldProt);
 }
@@ -2890,6 +2943,7 @@ static NTSTATUS supR3HardenedWinProtectMemory(PVOID pvMem, SIZE_T cbMem, ULONG f
  */
 static void supR3HardenedWinReInstallHooks(bool fFirstCall) RT_NOTHROW_DEF
 {
+    RT_STACK_CHECK_RET_ADDR();
     struct
     {
         size_t          cbPatch;
@@ -2982,6 +3036,7 @@ static void supR3HardenedWinReInstallHooks(bool fFirstCall) RT_NOTHROW_DEF
  */
 static void supR3HardenedWinInstallHooks(void)
 {
+    RT_STACK_CHECK_RET_ADDR();
     NTSTATUS rcNt;
 
     /*
@@ -4115,17 +4170,35 @@ static void supR3HardNtChildWaitFor(PSUPR3HARDNTCHILD pThis, SUPR3WINCHILDREQ en
 static void supR3HardNtChildCloseFullAccessHandles(PSUPR3HARDNTCHILD pThis)
 {
     /*
-     * The thread handle.
+     * The thread handle. Just close it. (Alternatively, duplicate it.)
      */
-    NTSTATUS rcNt = NtClose(pThis->hThread);
+    NTSTATUS rcNt;
+    HANDLE hThreadNew = NULL;
+#if 0
+    ULONG fThreadRights = SYNCHRONIZE | THREAD_GET_CONTEXT;
+    if (g_uNtVerCombined >= SUP_MAKE_NT_VER_SIMPLE(6, 0)) /* Introduced in Vista. */
+        fThreadRights |= THREAD_QUERY_LIMITED_INFORMATION;
+    else
+        fThreadRights |= THREAD_QUERY_INFORMATION;
+    rcNt = NtDuplicateObject(NtCurrentProcess(), pThis->hThread,
+                             NtCurrentProcess(), &hThreadNew,
+                             fThreadRights, 0 /*HandleAttributes*/, 0);
+    if (!NT_SUCCESS(rcNt))
+    {
+        SUP_DPRINTF(("supR3HardNtChildCloseFullAccessHandles: hThread dup failed: %#x\n", rcNt));
+        hThreadNew = NULL;
+    }
+#endif
+
+    rcNt = NtClose(pThis->hThread);
     if (!NT_SUCCESS(rcNt))
         supR3HardenedWinKillChild(pThis, "supR3HardenedWinReSpawn", rcNt, "NtClose(hThread) failed: %#x", rcNt);
-    pThis->hThread = NULL;
+    pThis->hThread = hThreadNew;
 
     /*
      * Duplicate the process handle into a harmless one.
      */
-    HANDLE hProcWait;
+    HANDLE hProcWait = NULL;
     ULONG fRights = SYNCHRONIZE | PROCESS_TERMINATE | PROCESS_VM_READ;
     if (g_uNtVerCombined >= SUP_MAKE_NT_VER_SIMPLE(6, 0)) /* Introduced in Vista. */
         fRights |= PROCESS_QUERY_LIMITED_INFORMATION;
@@ -4311,6 +4384,7 @@ static void supR3HardNtChildPurify(PSUPR3HARDNTCHILD pThis)
 static void supR3HardNtChildSetUpChildInit(PSUPR3HARDNTCHILD pThis)
 {
     uintptr_t const uChildExeAddr = (uintptr_t)pThis->Peb.ImageBaseAddress;
+    RT_STACK_CHECK_RET_ADDR();
 
     /*
      * Plant the process parameters.  This ASSUMES the handle inheritance is
@@ -5215,6 +5289,7 @@ static bool supR3HardenedWinDriverExists(const char *pszDriver)
  */
 static void supR3HardenedWinOpenStubDevice(void)
 {
+    RT_STACK_CHECK_RET_ADDR();
     if (g_fSupStubOpened)
         return;
 
@@ -5472,6 +5547,7 @@ DECLHIDDEN(bool) supR3HardenedWinIsReSpawnNeeded(int iWhich, int cArgs, char **p
 DECLHIDDEN(void) supR3HardenedWinInit(uint32_t fFlags, bool fAvastKludge)
 {
     NTSTATUS rcNt;
+    RT_STACK_CHECK_RET_ADDR();
 
 #ifndef VBOX_WITHOUT_DEBUGGER_CHECKS
     /*
@@ -5548,6 +5624,7 @@ DECLHIDDEN(void) supR3HardenedWinInit(uint32_t fFlags, bool fAvastKludge)
                     cSleeps++;
                 } while (   supR3HardenedWinGetMilliTS() - uMsTsStart <= cMsFudge
                          || cSleeps < 8);
+                RT_STACK_CHECK_RET_ADDR_VERIFY();
                 SUP_DPRINTF(("supR3HardenedWinInit: Startup delay kludge #2/%u: %u ms, %u sleeps\n",
                              iLoop, supR3HardenedWinGetMilliTS() - uMsTsStart, cSleeps));
 
@@ -5603,6 +5680,8 @@ DECLHIDDEN(void) supR3HardenedWinInit(uint32_t fFlags, bool fAvastKludge)
         supR3HardenedFatalMsg("supR3HardenedWinInit", kSupInitOp_Misc, VERR_NOT_SUPPORTED,
                               "Window Vista without any service pack installed is not supported. Please install the latest service pack.");
 #endif
+
+    RT_STACK_CHECK_RET_ADDR_VERIFY();
 }
 
 
@@ -5698,6 +5777,7 @@ DECLHIDDEN(void) supR3HardenedWinModifyDllSearchPath(uint32_t fFlags, const char
  */
 DECLHIDDEN(void) supR3HardenedWinInitAppBin(uint32_t fFlags)
 {
+    RT_STACK_CHECK_RET_ADDR();
     USHORT cwc = (USHORT)g_offSupLibHardenedExeNtName - 1;
     g_SupLibHardenedAppBinNtPath.UniStr.Buffer = g_SupLibHardenedAppBinNtPath.awcBuffer;
     memcpy(g_SupLibHardenedAppBinNtPath.UniStr.Buffer, g_SupLibHardenedExeNtPath.UniStr.Buffer, cwc * sizeof(WCHAR));
@@ -5759,6 +5839,8 @@ DECLHIDDEN(void) supR3HardenedWinInitAppBin(uint32_t fFlags)
  */
 static char **suplibCommandLineToArgvWStub(PCRTUTF16 pawcCmdLine, size_t cwcCmdLine, int *pcArgs)
 {
+    RT_STACK_CHECK_RET_ADDR();
+
     /*
      * Convert the command line string to UTF-8.
      */
@@ -6974,6 +7056,8 @@ DECLHIDDEN(void) supR3HardenedWinReportErrorToParent(const char *pszWhere, SUPIN
  */
 DECLASM(uintptr_t) supR3HardenedEarlyProcessInit(void)
 {
+    RT_STACK_CHECK_RET_ADDR();
+
     /*
      * When the first thread gets here we wait for the parent to continue with
      * the process purifications.  The primary thread must execute for image
@@ -7030,6 +7114,7 @@ DECLASM(uintptr_t) supR3HardenedEarlyProcessInit(void)
     rcNt = pfnNtWaitForSingleObject(hEvtChild, FALSE /*Alertable (never alertable before hooking!) */, &Timeout);
     if (rcNt != STATUS_SUCCESS)
         return 0x34; /* crash */
+    RT_STACK_CHECK_RET_ADDR_VERIFY();
 
     /*
      * We're good to go, work global state and restore process parameters.
@@ -7069,6 +7154,7 @@ DECLASM(uintptr_t) supR3HardenedEarlyProcessInit(void)
     int    cArgs;
     char **papszArgs = suplibCommandLineToArgvWStub(CmdLineStr.Buffer, CmdLineStr.Length / sizeof(WCHAR), &cArgs);
     supR3HardenedOpenLog(&cArgs, papszArgs);
+    RT_STACK_CHECK_RET_ADDR_VERIFY();
     SUP_DPRINTF(("supR3HardenedVmProcessInit: uNtDllAddr=%p g_uNtVerCombined=%#x (stack ~%p)\n",
                  uNtDllAddr, g_uNtVerCombined, &Timeout));
 
@@ -7140,6 +7226,7 @@ DECLASM(uintptr_t) supR3HardenedEarlyProcessInit(void)
     if (RT_FAILURE(rc))
         supR3HardenedFatal("supR3HardenedVmProcessInit: supHardNtLdrCacheOpen failed on NTDLL: %Rrc %s\n",
                            rc, ErrInfo.Core.pszMsg);
+    RT_STACK_CHECK_RET_ADDR_VERIFY();
 
     uint8_t *pbBits;
     rc = supHardNtLdrCacheEntryGetBits(pLdrEntry, &pbBits, uNtDllAddr, NULL, NULL, RTErrInfoInitStatic(&ErrInfo));
@@ -7158,6 +7245,7 @@ DECLASM(uintptr_t) supR3HardenedEarlyProcessInit(void)
     SUPR3HARDENED_ASSERT_NT_SUCCESS(supR3HardenedWinProtectMemory(pvLdrInitThunk, 16, PAGE_EXECUTE_READ));
 
     SUP_DPRINTF(("supR3HardenedVmProcessInit: Returning to LdrInitializeThunk...\n"));
+    RT_STACK_CHECK_RET_ADDR_VERIFY();
     return (uintptr_t)pvLdrInitThunk;
 }
 

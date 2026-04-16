@@ -1,4 +1,4 @@
-/* $Id: SUPHardenedVerifyImage-win.cpp 107182 2024-11-26 15:13:22Z knut.osmundsen@oracle.com $ */
+/* $Id: SUPHardenedVerifyImage-win.cpp 113920 2026-04-16 21:25:06Z knut.osmundsen@oracle.com $ */
 /** @file
  * VirtualBox Support Library/Driver - Hardened Image Verification, Windows.
  */
@@ -60,6 +60,7 @@
 #include <iprt/ldr.h>
 #include <iprt/log.h>
 #include <iprt/path.h>
+#include <iprt/stackcheck.h>
 #include <iprt/string.h>
 #include <iprt/utf16.h>
 #include <iprt/crypto/pkcs7.h>
@@ -1719,6 +1720,7 @@ DECLHIDDEN(int) supHardNtGetSystemRootDir(void *pvBuf, uint32_t cbBuf, SUPHARDNT
 static int supHardNtViCertInit(PRTCRX509CERTIFICATE pCert, unsigned char const *pabCert, unsigned cbCert,
                                PRTERRINFO pErrInfo, const char *pszErrorTag)
 {
+    RT_STACK_CHECK_RET_ADDR();
     AssertReturn(cbCert > 16 && cbCert < _128K,
                  RTErrInfoSetF(pErrInfo, VERR_INTERNAL_ERROR_3, "%s: cbCert=%#x out of range", pszErrorTag, cbCert));
     AssertReturn(!RTCrX509Certificate_IsPresent(pCert),
@@ -1745,6 +1747,7 @@ static int supHardNtViCertInit(PRTCRX509CERTIFICATE pCert, unsigned char const *
  */
 static int supHardNtViCertStoreInit(PRTCRSTORE phStore, PRTERRINFO pErrInfo, const char *pszErrorTag, unsigned cTables, ...)
 {
+    RT_STACK_CHECK_RET_ADDR();
     AssertReturn(*phStore == NIL_RTCRSTORE, VERR_WRONG_ORDER);
     RT_NOREF1(pszErrorTag);
 
@@ -1789,6 +1792,8 @@ static int supHardNtViCertStoreInit(PRTCRSTORE phStore, PRTERRINFO pErrInfo, con
  */
 static void supHardenedWinInitImageVerifierWinPaths(void)
 {
+    RT_STACK_CHECK_RET_ADDR();
+
     /*
      * Windows paths that we're interested in.
      */
@@ -1984,6 +1989,7 @@ static void supHardenedWinInitImageVerifierWinPaths(void)
 DECLHIDDEN(int) supHardenedWinInitImageVerifier(PRTERRINFO pErrInfo)
 {
     AssertReturn(!RTCrX509Certificate_IsPresent(&g_BuildX509Cert), VERR_WRONG_ORDER);
+    RT_STACK_CHECK_RET_ADDR();
 
     /*
      * Get the system root paths.
@@ -2065,6 +2071,7 @@ DECLHIDDEN(int) supHardenedWinInitImageVerifier(PRTERRINFO pErrInfo)
  */
 DECLHIDDEN(void) supHardenedWinTermImageVerifier(void)
 {
+    RT_STACK_CHECK_RET_ADDR();
     if (RTCrX509Certificate_IsPresent(&g_BuildX509Cert))
         RTAsn1VtDelete(&g_BuildX509Cert.SeqCore.Asn1Core);
 

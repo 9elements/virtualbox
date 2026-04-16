@@ -1,10 +1,10 @@
-/* $Id: stack-except-seh-vcc.cpp 113920 2026-04-16 21:25:06Z knut.osmundsen@oracle.com $ */
+/* $Id: stack-except-eh4-vcc.cpp 113920 2026-04-16 21:25:06Z knut.osmundsen@oracle.com $ */
 /** @file
  * IPRT - Visual C++ Compiler - Stack Checking, __GSHandlerCheck_SEH.
  */
 
 /*
- * Copyright (C) 2022-2024 Oracle and/or its affiliates.
+ * Copyright (C) 2022-2026 Oracle and/or its affiliates.
  *
  * This file is part of VirtualBox base platform packages, as
  * available from https://www.virtualbox.org.
@@ -50,45 +50,41 @@
 
 
 /**
- * Check the stack cookie before calling the exception handler.
+ * Check the stack cookie before maybe calling the C++ exception handler.
  *
  * This is to prevent attackers from bypassing stack cookie checking by
  * triggering an exception.
  *
- * This is called for windows' structured exception handling (SEH), i.e. the
- * __try/__except/__finally stuff in Visual C++, for which the compiler
- * generates somewhat different strctures compared to the plain __GSHanderCheck
- * scenario.
+ * The signature is different from __GSHandlerCheck_SEH and the compiler
+ * structures are also different (HandlerData).
  *
  * @returns Exception disposition.
  * @param   pXcptRec    The exception record.
- * @param   pXcptRegRec The exception registration record, taken to be the frame
- *                      address.
+ * @param   pvEstFrame  Establisher frame address.
  * @param   pCpuCtx     The CPU context for the exception.
  * @param   pDispCtx    Dispatcher context.
  */
 extern "C" __declspec(guard(suppress))
-EXCEPTION_DISPOSITION __GSHandlerCheck_SEH(PEXCEPTION_RECORD pXcptRec, PEXCEPTION_REGISTRATION_RECORD pXcptRegRec,
+EXCEPTION_DISPOSITION __GSHandlerCheck_EH4(PEXCEPTION_RECORD pXcptRec, PVOID pvEstFrame,
                                            PCONTEXT pCpuCtx, PDISPATCHER_CONTEXT pDispCtx)
 {
     /*
-     * The HandlerData points to a scope table, which is then followed by GS_HANDLER_DATA.
-     *
-     * Sample offCookie values: 0521H (tst.cpp), 02caH (installNetLwf), and 0502H (installNetFlt).
+     * The HandlerData points to a 32-bit image relative offset to the
+     * FuncInfoHeader and following data used by __CxxFrameHandler4.  After
+     * this 32-bit offset comes the GS handler data.
      */
-    SCOPE_TABLE const *pScopeTable  = (SCOPE_TABLE const *)pDispCtx->HandlerData;
-    PCGS_HANDLER_DATA  pHandlerData = (PCGS_HANDLER_DATA)&pScopeTable->ScopeRecord[pScopeTable->Count];
+    PCGS_HANDLER_DATA  pHandlerData = (PCGS_HANDLER_DATA)&((PULONG)pDispCtx->HandlerData)[1];
 
     /*
      * Do the cookie checking.
      */
-    IPRT_GS_HANDLER_CHECK_BODY(pHandlerData, pXcptRegRec);
+    IPRT_GS_HANDLER_CHECK_BODY(pHandlerData, pvEstFrame);
 
     /*
      * Now call the handler if the GS handler data indicates that we ought to.
      */
     if (IPRT_GS_HANDLER_HAS_HANDLER(pHandlerData, pXcptRec))
-        return __C_specific_handler(pXcptRec, pXcptRegRec, pCpuCtx, pDispCtx);
+        return __CxxFrameHandler4(pXcptRec, pvEstFrame, pCpuCtx, pDispCtx);
 
     return ExceptionContinueSearch;
 }
