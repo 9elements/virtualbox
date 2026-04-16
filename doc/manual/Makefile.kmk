@@ -1,4 +1,4 @@
-# /# $Id: Makefile.kmk 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $
+# /# $Id: Makefile.kmk 113897 2026-04-16 08:48:47Z knut.osmundsen@oracle.com $
 ## @file
 # Sub-Makefile for the VirtualBox User Manual, SDK reference and other manuals.
 #
@@ -133,12 +133,13 @@ if defined(VBOX_WITH_DOCS) && (!defined(VBOX_ONLY_BUILD) || defined(VBOX_ONLY_DO
  #
  # @param 1    Additional kmk_redirect options.
  # @param 2    Parameters for the invoker.
+ # @param 3    Classpath extra (prepended).
  #
  VBOX_DITA_RUN_DOST = $(REDIRECT_EXT) \
  	-E 'ANT_HOME=$(VBOX_DITA_OT_PATH)' \
  	-E 'DITA_DIR=$(VBOX_DITA_OT_PATH)' \
  	-E 'JAVA_HOME=$(VBOX_JAVA17PLUS_HOME)' \
- 	-E 'CLASSPATH=$(VBOX_DITA_CLASSPATH)' \
+ 	-E 'CLASSPATH=$(if $(3),$(strip $(3))$(HOST_PATH_SEP),)$(VBOX_DITA_CLASSPATH)' \
  	$1 \
  	-- \
  	"$(VBOX_JAVA17PLUS_HOME)/bin/java" \
@@ -147,7 +148,7 @@ if defined(VBOX_WITH_DOCS) && (!defined(VBOX_ONLY_BUILD) || defined(VBOX_ONLY_DO
  	"-Dant.home=$(VBOX_DITA_OT_PATH)" \
  	"-Ddita.dir=$(VBOX_DITA_OT_PATH)" \
  	org.apache.tools.ant.launch.Launcher \
- 	-cp "$(VBOX_DITA_CLASSPATH)" \
+ 	-cp "$(if $(3),$(strip $(3))$(HOST_PATH_SEP),)$(VBOX_DITA_CLASSPATH)" \
  	-buildfile "$(VBOX_DITA_OT_PATH)/build.xml" \
  	-main "org.dita.dost.invoker.Main" \
  	--args.grammar.cache=yes \
@@ -678,9 +679,11 @@ if defined(VBOX_WITH_DOCS) && (!defined(VBOX_ONLY_BUILD) || defined(VBOX_ONLY_DO
   $$(VBOX_PATH_MANUAL_OUTBASE)/$(1)/dita/cli_topics/$(2).ditamap \
   + $$(VBOX_PATH_MANUAL_OUTBASE)/$(1)/dita/cli_topics/$(2).ditamap.kmk \
   + $$(VBOX_PATH_MANUAL_OUTBASE)/$(1)/dita/cli_topics/flat-$(2).dita \
+  + $$(VBOX_PATH_MANUAL_OUTBASE)/$(1)/dita/cli_topics/flat-$(2)-initial.dita \
   + $$(VBOX_PATH_MANUAL_OUTBASE)/$(1)/dita/cli_topics/flat-$(2).xml: \
   		$$(VBOX_PATH_MANUAL_SRC)/docbook-refentry-to-manual-dita-pre.xsl \
   		$$(VBOX_PATH_MANUAL_SRC)/docbook-refentry-to-manual-dita.xsl \
+  		$$(VBOX_PATH_MANUAL_SRC)/docbook-refentry-to-manual-dita-post.xsl \
   		$$(VBOX_PATH_MANUAL_SRC)/dita-refentry-flat-to-single-topic.sh \
   		$$(VBOX_PATH_MANUAL_SRC)/dita-refentry-flat-to-single-topic.xsl \
   		$$(VBOX_PATH_MANUAL_SRC)/dita-refentry-flat-topic-ids.xsl \
@@ -701,9 +704,13 @@ if defined(VBOX_WITH_DOCS) && (!defined(VBOX_ONLY_BUILD) || defined(VBOX_ONLY_DO
 		$$(qfirstfile , $$(qwildcard , $$(VBOX_PATH_MANUAL_SRC)/$(1)/$(2).xml) $(3) $$(VBOX_PATH_MANUAL_SRC)/en_US/$(2).xml)
 	$$(QUIET)$$(call VBOX_XSLTPROC_WITH_CAT) \
 		--stringparam "g_fReplaceHyphens" "true" \
-		--output "$$(VBOX_PATH_MANUAL_OUTBASE)/$(1)/dita/cli_topics/flat-$(2).dita" \
+		--output "$$(VBOX_PATH_MANUAL_OUTBASE)/$(1)/dita/cli_topics/flat-$(2)-initial.dita" \
 		$$(VBOX_PATH_MANUAL_SRC)/docbook-refentry-to-manual-dita.xsl \
 		"$$(VBOX_PATH_MANUAL_OUTBASE)/$(1)/dita/cli_topics/flat-$(2).xml"
+	$$(QUIET)$$(call VBOX_XSLTPROC_WITH_CAT) \
+		--output "$$(VBOX_PATH_MANUAL_OUTBASE)/$(1)/dita/cli_topics/flat-$(2).dita" \
+		$$(VBOX_PATH_MANUAL_SRC)/docbook-refentry-to-manual-dita-post.xsl \
+		"$$(VBOX_PATH_MANUAL_OUTBASE)/$(1)/dita/cli_topics/flat-$(2)-initial.dita"
 	$$(QUIET)$$(VBOX_BLD_PYTHON) $$(VBOX_PATH_MANUAL_SRC)/add_file_to_id_only_references.py \
 		--mapping-file "$$(VBOX_USER_MANUAL_ID_MAPPING_FILE_$1)" \
 		--refentry_file_list "$$(VBOX_MANUAL_XML_REFENTRY_FILES) man_vboximg-mount man_VBoxHeadless" \
@@ -1085,6 +1092,13 @@ if defined(VBOX_WITH_DOCS) && (!defined(VBOX_ONLY_BUILD) || defined(VBOX_ONLY_DO
 		"$$(VBOX_PATH_MANUAL_OUTBASE)/$(1)/dita/temp_qhelp"
 	$$(call MSG_L1,dita-ot-qhelp, => $$@ ($(2)/UserManual_htmlhelp.log))
 	$$(QUIET)$$(MKDIR) -- "$$(@D)"
+  if 1
+	$$(QUIET)$$(MKDIR) -p -- "$$(@D)/lib/org/dita/dost/ant"
+	"$(VBOX_JAVA17PLUS_HOME)/bin/javac" \
+		-cp "$(VBOX_DITA_CLASSPATH)" \
+		-d "$$(@D)/lib" \
+		$(VBOX_PATH_MANUAL_SRC)/dita-hacks/java/org/dita/dost/ant/ConvertLang.java
+  endif
 	$$(QUIET)$$(call VBOX_DITA_RUN_DOST, -EHHCDIR="$$(@D)", \
 		"--input=$$(VBOX_PATH_MANUAL_OUTBASE)/$(1)/dita/UserManual.ditamap" \
 		"--format=htmlhelp" \
@@ -1093,7 +1107,7 @@ if defined(VBOX_WITH_DOCS) && (!defined(VBOX_ONLY_BUILD) || defined(VBOX_ONLY_DO
 		"--temp=$$(VBOX_PATH_MANUAL_OUTBASE)/$(1)/dita/temp_qhelp" \
 		"--logfile=$(2)/UserManual_htmlhelp.log" \
 		"-Ddita.output.dir=$(2)" \
-		)
+		, $$(@D)/lib)
 	$$(QUIET)$$(MV) -f -- "$(2)/UserManual.hhc" "$(2)/UserManual.hhc.tmp"
 	$$(QUIET)$$(SED) \
 		-e 's|&reg;|®|g' \
