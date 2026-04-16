@@ -1,4 +1,4 @@
-/* $Id: except-vcc.h 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: except-vcc.h 113914 2026-04-16 20:53:06Z knut.osmundsen@oracle.com $ */
 /** @file
  * IPRT - Visual C++ Compiler - Exception Management.
  */
@@ -148,6 +148,45 @@ typedef struct _GS_HANDLER_DATA
 } GS_HANDLER_DATA;
 typedef GS_HANDLER_DATA *PGS_HANDLER_DATA;
 typedef GS_HANDLER_DATA const *PCGS_HANDLER_DATA;
+
+/**
+ * GS handler checking body.
+ * Shared by __GSHandlerCheck, __GSHandlerCheck_SEH & __GSHandlerCheck_EH4.
+ * @note This is not a safe macro!
+ */
+#define IPRT_GS_HANDLER_CHECK_BODY(pHandlerData, a_pvEstFrame) \
+    /* \
+     * Locate the stack cookie and call the regular stack cookie checker routine. \
+     */ \
+    /* Calculate the cookie address and read it. */ \
+    uintptr_t uPtrFrame = (uintptr_t)(a_pvEstFrame); \
+    uint32_t  offCookie = pHandlerData->u.offCookie; \
+    if (offCookie & GS_HANDLER_OFF_COOKIE_HAS_ALIGNMENT) \
+    { \
+        uPtrFrame += pHandlerData->offAlignedBase; \
+        uPtrFrame &= ~(uintptr_t)pHandlerData->uAlignmentMask; \
+    } \
+    uintptr_t uCookie = *(uintptr_t const *)(uPtrFrame + (int32_t)(offCookie & GS_HANDLER_OFF_COOKIE_MASK)); \
+    \
+    /* The stored cookie is xor'ed with the frame / registration record address \
+       or with the frame pointer register if one is being used.  In the latter \
+       case, we have to add the frame offset to get the correct address. */ \
+    uintptr_t uXorAddr = (uintptr_t)(a_pvEstFrame); \
+    PCIMAGE_UNWIND_INFO pUnwindInfo = (PCIMAGE_UNWIND_INFO)(pDispCtx->ImageBase + pDispCtx->FunctionEntry->UnwindInfoAddress); \
+    if (pUnwindInfo->FrameRegister != 0) \
+        uXorAddr += pUnwindInfo->FrameOffset << 4; \
+    \
+    /* This call will not return on failure. */ \
+    __security_check_cookie(uCookie ^ uXorAddr)
+
+/**
+ * Checks the for the precense of handler matching IS_UNWINDING.
+ * Shared by __GSHandlerCheck_SEH & __GSHandlerCheck_EH4.
+ */
+#define IPRT_GS_HANDLER_HAS_HANDLER(pHandlerData, pXcptRec) \
+    (  (IS_UNWINDING((pXcptRec)->ExceptionFlags) ? GS_HANDLER_OFF_COOKIE_IS_UHANDLER : GS_HANDLER_OFF_COOKIE_IS_EHANDLER) \
+     & (pHandlerData)->u.offCookie)
+
 #endif /* RT_ARCH_AMD64 */
 
 #ifdef RT_ARCH_X86
@@ -243,6 +282,8 @@ typedef EH4_SCOPE_TAB_T const *PCEH4_SCOPE_TAB_T;
 #if defined(RT_ARCH_AMD64)
 EXCEPTION_DISPOSITION __C_specific_handler(PEXCEPTION_RECORD pXcptRec, PEXCEPTION_REGISTRATION_RECORD pXcptRegRec,
                                            PCONTEXT pCpuCtx, PDISPATCHER_CONTEXT pDispCtx);
+EXCEPTION_DISPOSITION __CxxFrameHandler4(PEXCEPTION_RECORD pXcptRec, PVOID pvEstFrame,
+                                         PCONTEXT pCpuCtx, PDISPATCHER_CONTEXT pDispCtx);
 #endif
 
 RT_C_DECLS_END

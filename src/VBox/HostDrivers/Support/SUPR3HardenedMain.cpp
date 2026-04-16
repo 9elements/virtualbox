@@ -1,4 +1,4 @@
-/* $Id: SUPR3HardenedMain.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: SUPR3HardenedMain.cpp 113914 2026-04-16 20:53:06Z knut.osmundsen@oracle.com $ */
 /** @file
  * VirtualBox Support Library - Hardened main().
  */
@@ -462,6 +462,7 @@
 #include <iprt/initterm.h>
 #include <iprt/param.h>
 #include <iprt/path.h>
+#include <iprt/stackcheck.h>
 
 #include "SUPLibInternal.h"
 
@@ -706,6 +707,7 @@ DECLHIDDEN(DECL_NO_RETURN(void)) suplibHardenedExit(RTEXITCODE rcExit)
 static void suplibHardenedPrintStrN(const char *pch, size_t cch)
 {
 #ifdef RT_OS_WINDOWS
+    RT_STACK_CHECK_RET_ADDR();
     HANDLE hStdOut = NtCurrentPeb()->ProcessParameters->StandardOutput;
     if (hStdOut != NULL)
     {
@@ -849,6 +851,7 @@ struct SUPLIBHARDENEDOUTPUTBUF
 /** Callback for RTStrFormatV, see FNRTSTROUTPUT. */
 static DECLCALLBACK(size_t) suplibHardenedOutput(void *pvArg, const char *pachChars, size_t cbChars)
 {
+    RT_STACK_CHECK_RET_ADDR();
     SUPLIBHARDENEDOUTPUTBUF *pBuf = (SUPLIBHARDENEDOUTPUTBUF *)pvArg;
     size_t cbTodo = cbChars;
     for (;;)
@@ -900,6 +903,8 @@ static DECLCALLBACK(size_t) suplibHardenedOutput(void *pvArg, const char *pachCh
 DECLHIDDEN(void) suplibHardenedPrintFV(const char *pszFormat, va_list va)
 {
 #ifdef IPRT_NO_CRT
+    RT_STACK_CHECK_RET_ADDR();
+
     /*
      * Use buffered output here to avoid character mixing on the windows
      * console and to enable us to use OutputDebugString.
@@ -1468,6 +1473,7 @@ extern "C" uint32_t g_uNtVerCombined;
 DECLHIDDEN(void) supR3HardenedOpenLog(int *pcArgs, char **papszArgs)
 {
     static const char s_szLogOption[] = "--sup-hardening-log=";
+    RT_STACK_CHECK_RET_ADDR();
 
     /*
      * Scan the argument vector.
@@ -1869,6 +1875,7 @@ DECLHIDDEN(int) supR3HardenedError(int rc, bool fFatal, const char *pszFormat, .
  */
 DECLHIDDEN(void) supR3HardenedMainOpenDevice(void)
 {
+    RT_STACK_CHECK_RET_ADDR();
     RTERRINFOSTATIC ErrInfo;
     SUPINITOP       enmWhat = kSupInitOp_Driver;
     uint32_t        fFlags  = SUPR3INIT_F_UNRESTRICTED;
