@@ -1,4 +1,4 @@
-/* $Id: UIMessageCenter.h 113885 2026-04-15 11:35:55Z sergey.dubov@oracle.com $ */
+/* $Id: UIMessageCenter.h 113910 2026-04-16 14:59:49Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMessageCenter class declaration.
  */
@@ -36,12 +36,6 @@
 
 /* GUI includes: */
 #include "UILibraryDefs.h"
-
-/* COM includes: */
-#include "CProgress.h"
-
-/* Forward declarations: */
-class UIMedium;
 
 /** Possible message types. */
 enum MessageType
@@ -187,16 +181,6 @@ public:
                         const QString &strOkButtonText = QString(),
                         const QString &strCancelButtonText = QString(),
                         bool fDefaultFocusForOk = true) const;
-
-    /** Shows modal progress-dialog.
-      * @param  comProgress   Brings the progress this dialog is based on.
-      * @param  strTitle      Brings the title.
-      * @param  strImage      Brings the image.
-      * @param  pParent       Brings the parent.
-      * @param  cMinDuration  Brings the minimum diration to show this dialog after expiring it. */
-    bool showModalProgressDialog(CProgress &comProgress, const QString &strTitle,
-                                 const QString &strImage, QWidget *pParent = 0,
-                                 int cMinDuration = 2000);
 
 public slots:
 

@@ -1,4 +1,4 @@
-/* $Id: UIActionPool.cpp 113262 2026-03-04 20:12:57Z sergey.dubov@oracle.com $ */
+/* $Id: UIActionPool.cpp 113910 2026-04-16 14:59:49Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIActionPool class implementation.
  */
@@ -46,6 +46,9 @@
 # include "UINetworkRequestManager.h"
 # include "UIUpdateManager.h"
 #endif /* VBOX_GUI_WITH_NETWORK_MANAGER */
+
+/* Other VBox includes: */
+#include "iprt/assert.h"
 
 
 /** Additional Qt event types. */

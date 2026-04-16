@@ -1,4 +1,4 @@
-/* $Id: UIMessageCenter.cpp 113885 2026-04-15 11:35:55Z sergey.dubov@oracle.com $ */
+/* $Id: UIMessageCenter.cpp 113910 2026-04-16 14:59:49Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMessageCenter class implementation.
  */
@@ -27,29 +27,23 @@
 
 /* Qt includes: */
 #include <QThread>
-#include <QWindow>
 
 /* GUI includes: */
 #include "QIMessageBox.h"
 #include "UICommon.h"
-#include "UIErrorString.h"
 #include "UIExtraDataManager.h"
 #include "UIGlobalSession.h"
-#include "UIIconPool.h"
-#include "UIMedium.h"
 #include "UIMessageCenter.h"
 #include "UIModalWindowManager.h"
-#include "UIProgressDialog.h"
 #include "UIVersion.h"
 #include "VBoxAboutDlg.h"
 
 /* COM includes: */
-#include "CMachine.h"
-#include "CSession.h"
 #include "CVirtualBox.h"
 
 /* Other VBox includes: */
 #include <VBox/version.h>
+
 
 /* static */
 UIMessageCenter *UIMessageCenter::s_pInstance = 0;
@@ -196,51 +190,6 @@ bool UIMessageCenter::questionBinary(QWidget *pParent, MessageType enmType,
                       strCancelButtonText,
                       QString() /* third button */) &
              AlertButtonMask) == AlertButton_Ok);
-}
-
-bool UIMessageCenter::showModalProgressDialog(CProgress &progress,
-                                              const QString &strTitle,
-                                              const QString &strImage,
-                                              QWidget *pParent /* = 0 */,
-                                              int cMinDuration /* = 2000 */)
-{
-    /* Prepare result: */
-    bool fRc = false;
-
-    /* Gather suitable dialog parent: */
-    QWidget *pDlgParent = windowManager().realParentWindow(pParent ? pParent : windowManager().mainWindowShown());
-
-    /* Prepare pixmap: */
-    QPixmap pixmap;
-    if (!strImage.isEmpty())
-    {
-        const qreal fDevicePixelRatio = pDlgParent && pDlgParent->windowHandle()
-                                      ? pDlgParent->windowHandle()->devicePixelRatio()
-                                      : 1;
-        pixmap = UIIconPool::iconSet(strImage).pixmap(QSize(90, 90), fDevicePixelRatio);
-    }
-
-    /* Create progress-dialog: */
-    QPointer<UIProgressDialog> pProgressDlg = new UIProgressDialog(progress, strTitle, &pixmap, cMinDuration, pDlgParent);
-    if (pProgressDlg)
-    {
-        /* Register it as new parent: */
-        windowManager().registerNewParent(pProgressDlg, pDlgParent);
-
-        /* Run the dialog with the 350 ms refresh interval. */
-        pProgressDlg->run(350);
-
-        /* Make sure progress-dialog still valid: */
-        if (pProgressDlg)
-        {
-            /* Delete progress-dialog: */
-            delete pProgressDlg;
-            fRc = true;
-        }
-    }
-
-    /* Return result: */
-    return fRc;
 }
 
 void UIMessageCenter::sltShowHelpWebDialog()

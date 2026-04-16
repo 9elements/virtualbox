@@ -1,4 +1,4 @@
-/* $Id: UIModalWindowManager.h 113262 2026-03-04 20:12:57Z sergey.dubov@oracle.com $ */
+/* $Id: UIModalWindowManager.h 113910 2026-04-16 14:59:49Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIModalWindowManager class declaration.
  */
@@ -86,9 +86,6 @@ private:
 
     /** Returns whether stack contains @a pParentWindow at all or @a fAsTheTopOfStack. */
     bool contains(QWidget *pParentWindow, bool fAsTheTopOfStack = false);
-
-    /** WORKAROUND: Preprocess (show) real parent for a passed @a pParent. */
-    static void preprocessRealParent(QWidget *pParent);
 
     /** Holds the list of the top-level window stacks. */
     QList<QList<QWidget*> > m_windows;
