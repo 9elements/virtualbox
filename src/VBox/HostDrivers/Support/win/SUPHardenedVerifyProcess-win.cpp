@@ -1,4 +1,4 @@
-/* $Id: SUPHardenedVerifyProcess-win.cpp 113870 2026-04-14 23:59:26Z knut.osmundsen@oracle.com $ */
+/* $Id: SUPHardenedVerifyProcess-win.cpp 113899 2026-04-16 11:16:49Z knut.osmundsen@oracle.com $ */
 /** @file
  * VirtualBox Support Library/Driver - Hardened Process Verification, Windows.
  */
@@ -224,6 +224,7 @@ typedef SUPHNTVPSTATE *PSUPHNTVPSTATE;
 /*********************************************************************************************************************************
 *   Global Variables                                                                                                             *
 *********************************************************************************************************************************/
+#if defined(IN_RING3) || !defined(VBOX_WITH_MINIMAL_HARDENING)
 /**
  * System DLLs allowed to be loaded into the process.
  * @remarks supHardNtVpCheckDlls assumes these are lower case.
@@ -235,26 +236,27 @@ static struct { const char *pszName; SUPHNTVPIMAGEID enmImageId; } const g_aSupN
     { "kernelbase.dll",         kSupHNtVpImageId_KernelBase },
     { "apphelp.dll",            kSupHNtVpImageId_AppHelp },
     { "apisetschema.dll",       kSupHNtVpImageId_AppSetSchema },
-#ifdef VBOX_PERMIT_VERIFIER_DLL
+# ifdef VBOX_PERMIT_VERIFIER_DLL
     { "verifier.dll",           kSupHNtVpImageId_Other },
-#endif
-#ifdef VBOX_PERMIT_MORE
-# define VBOX_PERMIT_MORE_FIRST_IDX 5
+# endif
+# ifdef VBOX_PERMIT_MORE
+#  define VBOX_PERMIT_MORE_FIRST_IDX 5
     { "sfc.dll",                kSupHNtVpImageId_Other },
     { "sfc_os.dll",             kSupHNtVpImageId_Other },
     { "user32.dll",             kSupHNtVpImageId_Other },
     { "acres.dll",              kSupHNtVpImageId_Other },
     { "acgenral.dll",           kSupHNtVpImageId_Other },
-#endif
-#ifdef VBOX_PERMIT_VISUAL_STUDIO_PROFILING
+# endif
+# ifdef VBOX_PERMIT_VISUAL_STUDIO_PROFILING
     { "psapi.dll",              kSupHNtVpImageId_Other },
     { "msvcrt.dll",             kSupHNtVpImageId_Other },
     { "advapi32.dll",           kSupHNtVpImageId_Other },
     { "sechost.dll",            kSupHNtVpImageId_Other },
     { "rpcrt4.dll",             kSupHNtVpImageId_Other },
     { "SamplingRuntime.dll",    kSupHNtVpImageId_Other },
-#endif
+# endif
 };
+#endif
 
 /**
  * VBox executables allowed to start VMs.
