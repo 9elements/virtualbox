@@ -41,9 +41,10 @@
 
 #include <iprt/cdefs.h>
 #include <iprt/types.h>
-#include <iprt/vfs.h>
 
-#include <iprt/formats/acpi-tables.h>
+#if defined(_MSC_VER)
+# include <iprt/sanitized/intrin.h> /* for __fastfail and _AddressOfReturnAddress prototypes */
+#endif
 
 
 
