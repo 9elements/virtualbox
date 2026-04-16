@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $
+# $Id: Makefile.kmk 113912 2026-04-16 17:32:27Z vadim.galitsyn@oracle.com $
 ## @file
 # Sub-Makefile for the VirtualBox Guest Addition X11 Client.
 #
@@ -204,6 +204,7 @@ ifdef VBOX_WITH_SHARED_CLIPBOARD
   VBoxClient_DEFS.linux += VBOX_WITH_WAYLAND_ADDITIONS
   VBoxClient_INCS.linux += ../wlInclude/
   VBoxClient_SOURCES.linux += \
+  	wayland-helper-xdcp-common.cpp \
   	wayland-helper-dcp.cpp \
   	wayland-helper-gtk.cpp \
   	wayland-helper.cpp \
