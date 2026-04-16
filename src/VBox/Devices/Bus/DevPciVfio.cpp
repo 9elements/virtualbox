@@ -1,4 +1,4 @@
-/* $Id: DevPciVfio.cpp 113292 2026-03-09 12:59:51Z alexander.eichner@oracle.com $ */
+/* $Id: DevPciVfio.cpp 113900 2026-04-16 11:21:41Z alexander.eichner@oracle.com $ */
 /** @file
  * PCI passthrough device emulation using VFIO/IOMMUFD.
  */
@@ -1661,7 +1661,7 @@ static int pciVfioCfgSpaceParseCapabilities(PVFIOPCI pThis, PVFIOPCIFUN pFun, PP
                 else if (bVers == 2)
                     cbCap2 = 60;
 
-                for (uint8_t i = offCap + 2; i < offCap + cbCap2; i += 2)
+                for (uint16_t i = offCap + 2; i < (uint16_t)offCap + cbCap2; i += 2)
                     pciVfioCfgSpaceSetInterceptU16(pFun, i, VFIO_PCI_CFG_SPACE_ACCESS_PASSTHROUGH, VFIO_PCI_CFG_SPACE_ACCESS_PASSTHROUGH);
                 cbCap = cbCap2;
 #endif
