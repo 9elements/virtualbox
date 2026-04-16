@@ -1,4 +1,4 @@
-/* $Id: SUPHardenedVerifyProcess-win.cpp 113874 2026-04-15 00:12:29Z knut.osmundsen@oracle.com $ */
+/* $Id: SUPHardenedVerifyProcess-win.cpp 113905 2026-04-16 12:38:17Z knut.osmundsen@oracle.com $ */
 /** @file
  * VirtualBox Support Library/Driver - Hardened Process Verification, Windows.
  */
@@ -201,6 +201,7 @@ typedef SUPHNTVPSTATE *PSUPHNTVPSTATE;
 /*********************************************************************************************************************************
 *   Global Variables                                                                                                             *
 *********************************************************************************************************************************/
+#if defined(IN_RING3) || !defined(VBOX_WITH_MINIMAL_HARDENING)
 /**
  * System DLLs allowed to be loaded into the process.
  * @remarks supHardNtVpCheckDlls assumes these are lower case.
@@ -212,26 +213,27 @@ static struct { const char *pszName; SUPHNTVPIMAGEID enmImageId; } const g_aSupN
     { "kernelbase.dll",         kSupHNtVpImageId_KernelBase },
     { "apphelp.dll",            kSupHNtVpImageId_AppHelp },
     { "apisetschema.dll",       kSupHNtVpImageId_AppSetSchema },
-#ifdef VBOX_PERMIT_VERIFIER_DLL
+# ifdef VBOX_PERMIT_VERIFIER_DLL
     { "verifier.dll",           kSupHNtVpImageId_Other },
-#endif
-#ifdef VBOX_PERMIT_MORE
-# define VBOX_PERMIT_MORE_FIRST_IDX 5
+# endif
+# ifdef VBOX_PERMIT_MORE
+#  define VBOX_PERMIT_MORE_FIRST_IDX 5
     { "sfc.dll",                kSupHNtVpImageId_Other },
     { "sfc_os.dll",             kSupHNtVpImageId_Other },
     { "user32.dll",             kSupHNtVpImageId_Other },
     { "acres.dll",              kSupHNtVpImageId_Other },
     { "acgenral.dll",           kSupHNtVpImageId_Other },
-#endif
-#ifdef VBOX_PERMIT_VISUAL_STUDIO_PROFILING
+# endif
+# ifdef VBOX_PERMIT_VISUAL_STUDIO_PROFILING
     { "psapi.dll",              kSupHNtVpImageId_Other },
     { "msvcrt.dll",             kSupHNtVpImageId_Other },
     { "advapi32.dll",           kSupHNtVpImageId_Other },
     { "sechost.dll",            kSupHNtVpImageId_Other },
     { "rpcrt4.dll",             kSupHNtVpImageId_Other },
     { "SamplingRuntime.dll",    kSupHNtVpImageId_Other },
-#endif
+# endif
 };
+#endif
 
 /**
  * VBox executables allowed to start VMs.
@@ -990,25 +992,29 @@ static int supHardNtVpVerifyImageMemoryCompare(PSUPHNTVPSTATE pThis, PSUPHNTVPIM
         rc = RTLdrGetSymbolEx(pImage->pCacheEntry->hLdrMod, pbBits, 0, UINT32_MAX, "LdrSystemDllInitBlock", &uValue);
         if (RT_SUCCESS(rc))
         {
-            uint32_t cbMax;
-            if (g_uNtVerCombined < SUP_MAKE_NT_VER_SIMPLE(6,2))
-                cbMax = 0x60 + 32;
-            else if (g_uNtVerCombined < SUP_MAKE_NT_VER_SIMPLE(6,3))
-                cbMax = 0x70 + 32;
-            else if (g_uNtVerCombined <= SUP_MAKE_NT_VER_COMBINED(10, 0, 14393, 15, 15))
-                cbMax = 0x80 + 32;
-            else if (g_uNtVerCombined <= SUP_MAKE_NT_VER_COMBINED(10, 0, 15063, 15, 15))
-                cbMax = 0xd0 + 64;
-            else if (g_uNtVerCombined <= SUP_MAKE_NT_VER_COMBINED(10, 0, 18362, 15, 15))
-                cbMax = 0xe0 + 64;
-            else if (g_uNtVerCombined <= SUP_MAKE_NT_VER_COMBINED(10, 0, 19041, 15, 15))
-                cbMax = 0xf0 + 64;
-            else if (g_uNtVerCombined <= SUP_MAKE_NT_VER_COMBINED(10, 0, 26200, 15, 15))
-                cbMax = 0x128 + 64;
+            uint32_t uRva = (uint32_t)uValue;
+            uint32_t cb   = *(uint32_t const *)&pbBits[uRva]; /* from the image file, not memory */
+            uint32_t iSh  = 0;
+            while (   iSh < cSections
+                   && uRva - pThis->aSecHdrs[iSh].VirtualAddress >= pThis->aSecHdrs[iSh].Misc.VirtualSize)
+                iSh++;
+            if (iSh < cSections)
+            {
+                uint32_t cbMax = pThis->aSecHdrs[iSh].Misc.VirtualSize - (uRva - pThis->aSecHdrs[iSh].VirtualAddress);
+                cbMax = RT_MIN(cbMax, _16K);
+                if (   cb <= cbMax
+                    && cb >= 0x40 /* initial size was 0x60 according to Geoff. */ )
+                {   /* The size seems sane, so drop it from the sanitizing. */
+                    uRva += sizeof(uint32_t);
+                    cb   -= sizeof(uint32_t);
+                }
+                else if (cb > cbMax)
+                    cb = cbMax;
+            }
             else
-                cbMax = 0x400;
-            aSkipAreas[cSkipAreas].uRva = (uint32_t)uValue;
-            aSkipAreas[cSkipAreas++].cb = RT_MAX(*(uint32_t const *)&pbBits[(uint32_t)uValue], cbMax);
+                AssertFailedStmt(cb = RT_MIN(cb, _4K));
+            aSkipAreas[cSkipAreas].uRva = uRva;
+            aSkipAreas[cSkipAreas++].cb = cb;
         }
 
         Assert(cSkipAreas <= RT_ELEMENTS(aSkipAreas));
