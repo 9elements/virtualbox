@@ -1,4 +1,4 @@
-/* $Id: SUPHardenedVerifyProcess-win.cpp 113899 2026-04-16 11:16:49Z knut.osmundsen@oracle.com $ */
+/* $Id: SUPHardenedVerifyProcess-win.cpp 113903 2026-04-16 12:35:43Z knut.osmundsen@oracle.com $ */
 /** @file
  * VirtualBox Support Library/Driver - Hardened Process Verification, Windows.
  */
@@ -1059,25 +1059,29 @@ static int supHardNtVpVerifyImageMemoryCompare(PSUPHNTVPSTATE pThis, PSUPHNTVPIM
         rc = RTLdrGetSymbolEx(pImage->pCacheEntry->hLdrMod, pbBits, 0, UINT32_MAX, "LdrSystemDllInitBlock", &uValue);
         if (RT_SUCCESS(rc))
         {
-            uint32_t cbMax;
-            if (g_uNtVerCombined < SUP_MAKE_NT_VER_SIMPLE(6,2))
-                cbMax = 0x60 + 32;
-            else if (g_uNtVerCombined < SUP_MAKE_NT_VER_SIMPLE(6,3))
-                cbMax = 0x70 + 32;
-            else if (g_uNtVerCombined <= SUP_MAKE_NT_VER_COMBINED(10, 0, 14393, 15, 15))
-                cbMax = 0x80 + 32;
-            else if (g_uNtVerCombined <= SUP_MAKE_NT_VER_COMBINED(10, 0, 15063, 15, 15))
-                cbMax = 0xd0 + 64;
-            else if (g_uNtVerCombined <= SUP_MAKE_NT_VER_COMBINED(10, 0, 18362, 15, 15))
-                cbMax = 0xe0 + 64;
-            else if (g_uNtVerCombined <= SUP_MAKE_NT_VER_COMBINED(10, 0, 19041, 15, 15))
-                cbMax = 0xf0 + 64;
-            else if (g_uNtVerCombined <= SUP_MAKE_NT_VER_COMBINED(10, 0, 26200, 15, 15))
-                cbMax = 0x128 + 64;
+            uint32_t uRva = (uint32_t)uValue;
+            uint32_t cb   = *(uint32_t const *)&pbBits[uRva]; /* from the image file, not memory */
+            uint32_t iSh  = 0;
+            while (   iSh < cSections
+                   && uRva - pThis->aSecHdrs[iSh].VirtualAddress >= pThis->aSecHdrs[iSh].Misc.VirtualSize)
+                iSh++;
+            if (iSh < cSections)
+            {
+                uint32_t cbMax = pThis->aSecHdrs[iSh].Misc.VirtualSize - (uRva - pThis->aSecHdrs[iSh].VirtualAddress);
+                cbMax = RT_MIN(cbMax, _16K);
+                if (   cb <= cbMax
+                    && cb >= 0x40 /* initial size was 0x60 according to Geoff. */ )
+                {   /* The size seems sane, so drop it from the sanitizing. */
+                    uRva += sizeof(uint32_t);
+                    cb   -= sizeof(uint32_t);
+                }
+                else if (cb > cbMax)
+                    cb = cbMax;
+            }
             else
-                cbMax = 0x400;
-            aSkipAreas[cSkipAreas].uRva = (uint32_t)uValue;
-            aSkipAreas[cSkipAreas++].cb = RT_MAX(*(uint32_t const *)&pbBits[(uint32_t)uValue], cbMax);
+                AssertFailedStmt(cb = RT_MIN(cb, _4K));
+            aSkipAreas[cSkipAreas].uRva = uRva;
+            aSkipAreas[cSkipAreas++].cb = cb;
         }
 
         Assert(cSkipAreas <= RT_ELEMENTS(aSkipAreas));
