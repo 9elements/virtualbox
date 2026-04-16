@@ -1,4 +1,4 @@
-/* $Id: UINotificationMessage.h 113893 2026-04-15 16:29:23Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationMessage.h 113908 2026-04-16 14:35:02Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationMessage declarations.
  */
@@ -870,16 +870,10 @@ public:
         /** Notifies about inability to drop data to guest.
           * @param  comDndTarget  Brings the data being dropped. */
         static void cannotDropDataToGuest(const CDnDTarget &comDndTarget);
-        /** Notifies about inability to drop data to guest.
-          * @param  comProgress  Brings the drop-progress being executed. */
-        static void cannotDropDataToGuest(const CProgress &comProgress);
 
         /** Notifies about inability to drop data to host.
           * @param  comDnDSource  Brings the data being dropped. */
         static void cannotDropDataToHost(const CDnDSource &comDnDSource);
-        /** Notifies about inability to drop data to host.
-          * @param  comProgress  Brings the drop-progress being executed. */
-        static void cannotDropDataToHost(const CProgress &comProgress);
 #endif /* VBOX_WITH_DRAG_AND_DROP */
     /** @} */
 

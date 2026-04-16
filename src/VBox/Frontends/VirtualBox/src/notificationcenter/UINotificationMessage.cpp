@@ -1,4 +1,4 @@
-/* $Id: UINotificationMessage.cpp 113893 2026-04-15 16:29:23Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationMessage.cpp 113908 2026-04-16 14:35:02Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationMessage implementations.
  */
@@ -2486,30 +2486,12 @@ void UINotificationMessage::cannotDropDataToGuest(const CDnDTarget &comDndTarget
 }
 
 /* static */
-void UINotificationMessage::cannotDropDataToGuest(const CProgress &comProgress)
-{
-    createMessage(
-        QApplication::translate("UIMessageCenter", "Can't drop data to guest ..."),
-        QApplication::translate("UIMessageCenter", "Drag and drop operation from host to guest failed.") +
-        UIErrorString::formatErrorInfo(comProgress));
-}
-
-/* static */
 void UINotificationMessage::cannotDropDataToHost(const CDnDSource &comDnDSource)
 {
     createMessage(
         QApplication::translate("UIMessageCenter", "Can't drop data to host ..."),
         QApplication::translate("UIMessageCenter", "Drag and drop operation from guest to host failed.") +
         UIErrorString::formatErrorInfo(comDnDSource));
-}
-
-/* static */
-void UINotificationMessage::cannotDropDataToHost(const CProgress &comProgress)
-{
-    createMessage(
-        QApplication::translate("UIMessageCenter", "Can't drop data to host ..."),
-        QApplication::translate("UIMessageCenter", "Drag and drop operation from guest to host failed.") +
-        UIErrorString::formatErrorInfo(comProgress));
 }
 #endif /* VBOX_WITH_DRAG_AND_DROP */
 
