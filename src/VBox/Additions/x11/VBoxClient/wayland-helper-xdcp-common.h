@@ -1,4 +1,4 @@
-/* $Id: wayland-helper-xdcp-common.h 113912 2026-04-16 17:32:27Z vadim.galitsyn@oracle.com $ */
+/* $Id: wayland-helper-xdcp-common.h 113913 2026-04-16 18:14:27Z vadim.galitsyn@oracle.com $ */
 /** @file
  * Guest Additions - Definitions for Data Control protocols family helpers.
  */
@@ -196,9 +196,7 @@ RTDECL(void) vbcl_wayland_xdcp_session_prepare(vbox_wl_dcp_session_t *pSession);
  * of mime-types which in turn later will be advertised to the host.
  *
  * @returns IPRT status code.
- * @param   enmSessionType      Session type, must be verified as
- *                              a consistency check.
- * @param   pEnmCtx             User data.
+ * @param   pEnmCtx             Format enumeration conext data.
  */
 RTDECL(int) vbcl_wayland_xdcp_add_fmt(struct vbcl_wl_dcp_enumerate_ctx *pEnmCtx);
 
