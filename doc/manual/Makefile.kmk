@@ -1,4 +1,4 @@
-# /# $Id: Makefile.kmk 113897 2026-04-16 08:48:47Z knut.osmundsen@oracle.com $
+# /# $Id: Makefile.kmk 113898 2026-04-16 08:50:13Z knut.osmundsen@oracle.com $
 ## @file
 # Sub-Makefile for the VirtualBox User Manual, SDK reference and other manuals.
 #
@@ -1092,13 +1092,13 @@ if defined(VBOX_WITH_DOCS) && (!defined(VBOX_ONLY_BUILD) || defined(VBOX_ONLY_DO
 		"$$(VBOX_PATH_MANUAL_OUTBASE)/$(1)/dita/temp_qhelp"
 	$$(call MSG_L1,dita-ot-qhelp, => $$@ ($(2)/UserManual_htmlhelp.log))
 	$$(QUIET)$$(MKDIR) -- "$$(@D)"
-  if 1
+   if 1 # bird 2026-04-16: Hack to disable the encoding & language conversion, as it is destructive (--option) and unwanted.
 	$$(QUIET)$$(MKDIR) -p -- "$$(@D)/lib/org/dita/dost/ant"
 	"$(VBOX_JAVA17PLUS_HOME)/bin/javac" \
 		-cp "$(VBOX_DITA_CLASSPATH)" \
 		-d "$$(@D)/lib" \
 		$(VBOX_PATH_MANUAL_SRC)/dita-hacks/java/org/dita/dost/ant/ConvertLang.java
-  endif
+   endif
 	$$(QUIET)$$(call VBOX_DITA_RUN_DOST, -EHHCDIR="$$(@D)", \
 		"--input=$$(VBOX_PATH_MANUAL_OUTBASE)/$(1)/dita/UserManual.ditamap" \
 		"--format=htmlhelp" \
