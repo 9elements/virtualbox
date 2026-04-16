@@ -1,4 +1,4 @@
-/* $Id: semeventmulti-win.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: semeventmulti-win.cpp 113928 2026-04-16 23:39:20Z knut.osmundsen@oracle.com $ */
 /** @file
  * IPRT - Multiple Release Event Semaphore, Windows.
  *
@@ -52,6 +52,7 @@
 #include <iprt/err.h>
 #include <iprt/lockvalidator.h>
 #include <iprt/mem.h>
+#include <iprt/stackcheck.h>
 #include <iprt/thread.h>
 #include <iprt/time.h>
 #include "internal/magics.h"
@@ -250,6 +251,7 @@ DECLINLINE(int) rtSemEventMultiWinWait(RTSEMEVENTMULTI hEventMultiSem, uint32_t 
     AssertPtrReturn(pThis, VERR_INVALID_HANDLE);
     AssertReturn(pThis->u32Magic == RTSEMEVENTMULTI_MAGIC, VERR_INVALID_HANDLE);
     AssertReturn(RTSEMWAIT_FLAGS_ARE_VALID(fFlags), VERR_INVALID_PARAMETER);
+    RT_STACK_CHECK_RET_ADDR();
 
     /*
      * Convert the timeout to a millisecond count.
