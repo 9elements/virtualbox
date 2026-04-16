@@ -1,4 +1,4 @@
-/* $Id: SUPR3HardenedMainImports-win.cpp 113920 2026-04-16 21:25:06Z knut.osmundsen@oracle.com $ */
+/* $Id: SUPR3HardenedMainImports-win.cpp 113921 2026-04-16 21:26:36Z knut.osmundsen@oracle.com $ */
 /** @file
  * VirtualBox Support Library - Hardened Main, Windows Import Trickery.
  */
@@ -183,10 +183,11 @@ typedef SUPHNTIMPDLL *PSUPHNTIMPDLL;
     extern uint32_t RT_CONCAT(g_uApiNo, a_Name); \
     extern FNRT     RT_CONCAT(a_Name, _SyscallType1); \
     extern FNRT     RT_CONCAT(a_Name, _SyscallType2);
+#define SUPHARNT_IMPORT_SYSCALL_HASH_STACK(a_Name, a_cbParamsX86) SUPHARNT_IMPORT_SYSCALL(a_Name, a_cbParamsX86)
 #define SUPHARNT_IMPORT_STDCALL(a_Name, a_cbParamsX86) \
     extern PFNRT    RT_CONCAT(g_pfn, a_Name); \
     extern FNRT     RT_CONCAT(a_Name, _Early);
-#define SUPHARNT_IMPORT_STDCALL_OPTIONAL(a_Name, a_cbParamsX86) SUPHARNT_IMPORT_STDCALL(a_Name, a_cbParamsX86)
+#define SUPHARNT_IMPORT_STDCALL_OPTIONAL(a_Name, a_cbParamsX86)   SUPHARNT_IMPORT_STDCALL(a_Name, a_cbParamsX86)
 
 RT_C_DECLS_BEGIN
 #include "import-template-ntdll.h"
@@ -197,12 +198,14 @@ RT_C_DECLS_END
  * Import functions.
  */
 #undef SUPHARNT_IMPORT_SYSCALL
+#undef SUPHARNT_IMPORT_SYSCALL_HASH_STACK
 #undef SUPHARNT_IMPORT_STDCALL_EARLY
 #undef SUPHARNT_IMPORT_STDCALL_EARLY_OPTIONAL
 #undef SUPHARNT_IMPORT_STDCALL
 #undef SUPHARNT_IMPORT_STDCALL_OPTIONAL
 #define SUPHARNT_IMPORT_SYSCALL(a_Name, a_cbParamsX86) \
     { #a_Name, &RT_CONCAT(g_pfn, a_Name), NULL, false },
+#define SUPHARNT_IMPORT_SYSCALL_HASH_STACK(a_Name, a_cbParamsX86) SUPHARNT_IMPORT_SYSCALL(a_Name, a_cbParamsX86)
 #define SUPHARNT_IMPORT_STDCALL_EARLY(a_Name, a_cbParamsX86) \
     { #a_Name, &RT_CONCAT(g_pfn, a_Name), NULL, false },
 #define SUPHARNT_IMPORT_STDCALL_EARLY_OPTIONAL(a_Name, a_cbParamsX86) \
@@ -227,6 +230,7 @@ static const SUPHNTIMPFUNC g_aSupNtImpKernel32Functions[] =
  * Syscalls in ntdll.
  */
 #undef SUPHARNT_IMPORT_SYSCALL
+#undef SUPHARNT_IMPORT_SYSCALL_STACK_HASH
 #undef SUPHARNT_IMPORT_STDCALL_EARLY
 #undef SUPHARNT_IMPORT_STDCALL_EARLY_OPTIONAL
 #undef SUPHARNT_IMPORT_STDCALL
@@ -242,6 +246,7 @@ static const SUPHNTIMPFUNC g_aSupNtImpKernel32Functions[] =
 # define SUPHARNT_IMPORT_SYSCALL(a_Name, a_cbParamsX86) \
     { &RT_CONCAT(g_uApiNo, a_Name), &RT_CONCAT(a_Name,_SyscallType1), &RT_CONCAT(a_Name, _SyscallType2), a_cbParamsX86 },
 #endif
+#define SUPHARNT_IMPORT_SYSCALL_HASH_STACK(a_Name, a_cbParamsX86)     SUPHARNT_IMPORT_SYSCALL(a_Name, a_cbParamsX86)
 #define SUPHARNT_IMPORT_STDCALL_OPTIONAL(a_Name, a_cbParamsX86)       SUPHARNT_IMPORT_STDCALL(a_Name, a_cbParamsX86)
 #define SUPHARNT_IMPORT_STDCALL_EARLY(a_Name, a_cbParamsX86)          SUPHARNT_IMPORT_STDCALL(a_Name, a_cbParamsX86)
 #define SUPHARNT_IMPORT_STDCALL_EARLY_OPTIONAL(a_Name, a_cbParamsX86) SUPHARNT_IMPORT_STDCALL(a_Name, a_cbParamsX86)
