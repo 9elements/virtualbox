@@ -1,4 +1,4 @@
-/* $Id: UIHelpBrowserWidget.cpp 113262 2026-03-04 20:12:57Z sergey.dubov@oracle.com $ */
+/* $Id: UIHelpBrowserWidget.cpp 113901 2026-04-16 12:01:08Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIHelpBrowserWidget class implementation.
  */
@@ -1389,7 +1389,7 @@ int UIHelpBrowserWidget::zoomPercentage() const
 
 bool UIHelpBrowserWidget::shouldBeMaximized() const
 {
-    return gEDataManager->logWindowShouldBeMaximized();
+    return gEDataManager->helpBrowserDialogShouldBeMaximized();
 }
 
 void UIHelpBrowserWidget::prepare()
