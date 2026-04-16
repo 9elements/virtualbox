@@ -1,4 +1,4 @@
-/* $Id: tstRecording.cpp 113743 2026-04-07 09:11:31Z andreas.loeffler@oracle.com $ */
+/* $Id: tstRecording.cpp 113909 2026-04-16 14:51:54Z andreas.loeffler@oracle.com $ */
 /** @file
  * Recording testcases.
  */
@@ -43,8 +43,10 @@
 #include "RecordingInternals.h"
 #include "RecordingRender.h"
 #include "RecordingUtils.h"
+#include "WebMWriter.h"
 
 #include <string.h>
+#include <vector>
 
 /** The release logger. */
 static PRTLOGGER    g_pRelLogger;
@@ -813,6 +815,133 @@ static void tstRecRenderer(RTTEST hTest)
     RecordingRenderDestroy(&Renderer);
 }
 
+static void tstRecWebMWriterSimpleBlockPool(RTTEST hTest)
+{
+    RTTestSub(hTest, "WebMWriter: simple block / payload pool");
+
+    typedef WebMWriter::WebMSimpleBlock WebMSimpleBlock;
+    typedef WebMWriter::WebMTrack       WebMTrack;
+    typedef WebMWriter::WebMTimecodeAbs WebMTimecodeAbs;
+    typedef WebMWriter::WebMBlockFlags  WebMBlockFlags;
+
+    static size_t const s_cMaxBlocks         = 4096;
+    static size_t const s_cbMaxRetainedBytes = 32U * _1M;
+
+    WebMWriter::WebMBlockPool BlockPool;
+
+    uint8_t abPayload1[_1K + 256];
+    RT_ZERO(abPayload1);
+
+    WebMSimpleBlock *pBlock1 = NULL;
+    WebMSimpleBlock *pBlock2 = NULL;
+
+    try
+    {
+        pBlock1 = BlockPool.allocBlock((WebMTrack *)NULL /* pTrack */, (WebMTimecodeAbs)42 /* tcAbsPTSMs */,
+                                       &abPayload1[0], sizeof(abPayload1), (WebMBlockFlags)VBOX_WEBM_BLOCK_FLAG_KEY_FRAME);
+    }
+    catch (std::bad_alloc &)
+    {
+        RTTestFailed(hTest, "Out of memory allocating first pool block");
+        return;
+    }
+
+    RTTESTI_CHECK_RETV(pBlock1 != NULL);
+    RTTESTI_CHECK_RETV(pBlock1->Data.cb == sizeof(abPayload1));
+    RTTESTI_CHECK_RETV(pBlock1->Data.pv != NULL);
+    RTTESTI_CHECK_RETV(pBlock1->cbBacking >= pBlock1->Data.cb);
+
+    void * const pvFirstPayload = pBlock1->Data.pv;
+
+    BlockPool.freeBlock(pBlock1);
+    pBlock1 = NULL;
+
+    RTTESTI_CHECK_RETV(BlockPool.freeBlockCount() == 1);
+
+    uint8_t abPayload2[_1K + 128];
+    RT_ZERO(abPayload2);
+
+    try
+    {
+        pBlock2 = BlockPool.allocBlock((WebMTrack *)NULL /* pTrack */, (WebMTimecodeAbs)43 /* tcAbsPTSMs */,
+                                       &abPayload2[0], sizeof(abPayload2), (WebMBlockFlags)VBOX_WEBM_BLOCK_FLAG_NONE);
+    }
+    catch (std::bad_alloc &)
+    {
+        RTTestFailed(hTest, "Out of memory allocating second pool block");
+        return;
+    }
+
+    RTTESTI_CHECK_RETV(pBlock2 != NULL);
+    RTTESTI_CHECK_RETV(pBlock2->Data.cb == sizeof(abPayload2));
+    RTTESTI_CHECK_RETV(pBlock2->Data.pv == pvFirstPayload);
+
+    BlockPool.freeBlock(pBlock2);
+    pBlock2 = NULL;
+
+    RTTESTI_CHECK_RETV(BlockPool.freeBlockCount() == 1);
+
+    std::vector<WebMSimpleBlock *> vecBlocks;
+
+    try
+    {
+        vecBlocks.reserve(s_cMaxBlocks + 64);
+
+        uint8_t abSmall[_1K];
+        memset(&abSmall[0], 0xa5, sizeof(abSmall));
+
+        for (size_t i = 0; i < s_cMaxBlocks + 64; i++)
+        {
+            WebMSimpleBlock *pBlock = BlockPool.allocBlock((WebMTrack *)NULL /* pTrack */, (WebMTimecodeAbs)i,
+                                                           &abSmall[0], sizeof(abSmall),
+                                                           (WebMBlockFlags)VBOX_WEBM_BLOCK_FLAG_NONE);
+            RTTESTI_CHECK_RETV(pBlock != NULL);
+            vecBlocks.push_back(pBlock);
+        }
+
+        for (size_t i = 0; i < vecBlocks.size(); i++)
+            BlockPool.freeBlock(vecBlocks[i]);
+        vecBlocks.clear();
+
+        RTTESTI_CHECK_RETV(BlockPool.freeBlockCount() <= s_cMaxBlocks);
+        RTTESTI_CHECK_RETV(BlockPool.retainedPayloadBytes() <= s_cbMaxRetainedBytes);
+
+        std::vector<uint8_t> abLarge(_1M);
+        memset(&abLarge[0], 0x5a, abLarge.size());
+
+        size_t const cLargeBlocks = s_cbMaxRetainedBytes / _1M + 16;
+        vecBlocks.reserve(cLargeBlocks);
+
+        for (size_t i = 0; i < cLargeBlocks; i++)
+        {
+            WebMSimpleBlock *pBlock = BlockPool.allocBlock((WebMTrack *)NULL /* pTrack */, (WebMTimecodeAbs)(10000 + i),
+                                                           &abLarge[0], _1M,
+                                                           (WebMBlockFlags)VBOX_WEBM_BLOCK_FLAG_NONE);
+            RTTESTI_CHECK_RETV(pBlock != NULL);
+            vecBlocks.push_back(pBlock);
+        }
+
+        for (size_t i = 0; i < vecBlocks.size(); i++)
+            BlockPool.freeBlock(vecBlocks[i]);
+        vecBlocks.clear();
+    }
+    catch (std::bad_alloc &)
+    {
+        for (size_t i = 0; i < vecBlocks.size(); i++)
+            BlockPool.freeBlock(vecBlocks[i]);
+        RTTestFailed(hTest, "Out of memory while stress-testing simple block pool limits");
+        return;
+    }
+
+    RTTESTI_CHECK_RETV(BlockPool.freeBlockCount() <= s_cMaxBlocks);
+    RTTESTI_CHECK_RETV(BlockPool.retainedPayloadBytes() <= s_cbMaxRetainedBytes);
+
+    BlockPool.clear();
+
+    RTTESTI_CHECK_RETV(BlockPool.freeBlockCount() == 0);
+    RTTESTI_CHECK_RETV(BlockPool.retainedPayloadBytes() == 0);
+}
+
 int main()
 {
     RTTEST     hTest;
@@ -828,8 +957,8 @@ int main()
     fFlags |= RTLOGFLAGS_USECRLF;
 #endif
     static const char * const s_apszLogGroups[] = VBOX_LOGGROUP_NAMES;
-    int rc = RTLogCreate(&g_pRelLogger, fFlags, "all.e.l", "TST_CLIPBOARD_HTTPSERVER_RELEASE_LOG",
-                     RT_ELEMENTS(s_apszLogGroups), s_apszLogGroups, RTLOGDEST_STDOUT, NULL /*"vkat-release.log"*/);
+    int rc = RTLogCreate(&g_pRelLogger, fFlags, "all.e.l", "TST_RECORDING_RELEASE_LOG",
+                     RT_ELEMENTS(s_apszLogGroups), s_apszLogGroups, RTLOGDEST_STDOUT, NULL);
     if (RT_SUCCESS(rc))
     {
         RTLogSetDefaultInstance(g_pRelLogger);
@@ -850,6 +979,7 @@ int main()
     tstRecCircBufRecFrames(hTest);
     tstRecRenderCropCenter(hTest);
     tstRecRenderer(hTest);
+    tstRecWebMWriterSimpleBlockPool(hTest);
 
     return RTTestSummaryAndDestroy(hTest);
 }

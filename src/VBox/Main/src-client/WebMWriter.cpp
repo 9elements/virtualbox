@@ -1,4 +1,4 @@
-/* $Id: WebMWriter.cpp 113891 2026-04-15 13:14:00Z andreas.loeffler@oracle.com $ */
+/* $Id: WebMWriter.cpp 113909 2026-04-16 14:51:54Z andreas.loeffler@oracle.com $ */
 /** @file
  * WebMWriter.cpp - WebM container handling.
  */
@@ -35,7 +35,10 @@
 #include "LoggingNew.h"
 
 #include <iprt/buildconfig.h>
+#include <iprt/cdefs.h>
 #include <iprt/errcore.h>
+
+#include <new>
 
 #include <VBox/version.h>
 
@@ -43,6 +46,341 @@
 #include "WebMWriter.h"
 
 
+/** Maximum number of free WebMSimpleBlock objects kept in the freelist. */
+static size_t const g_cWebMSimpleBlockPoolMaxBlocks   = 128;
+/** Maximum number of payload bytes kept in the freelists. */
+static size_t const g_cbWebMSimpleBlockPoolMaxPayload = _4M;
+
+
+
+/**
+ * Internal payload bucket manager for block payload reuse.
+ */
+/**
+ * Initializes an empty payload bucket manager.
+ */
+WebMWriter::WebMPayloadBuckets::WebMPayloadBuckets(void)
+    : m_cbRetained(0)
+{
+}
+
+/**
+ * Allocates payload backing storage.
+ *
+ * @returns Pointer to allocated payload backing, or NULL if @a cbReq is zero.
+ * @param   cbReq       Number of bytes requested.
+ * @param   pcbAlloc    Where to store the actual allocated backing size. Optional.
+ *
+ * @throws  std::bad_alloc if allocation fails.
+ */
+void *WebMWriter::WebMPayloadBuckets::alloc(size_t cbReq, size_t *pcbAlloc)
+{
+    if (pcbAlloc)
+        *pcbAlloc = 0;
+
+    if (!cbReq)
+        return NULL;
+
+    uint32_t const idxBucket = bucketFromSize(cbReq);
+    if (idxBucket != UINT32_MAX)
+    {
+        size_t const cbAlloc = s_acbWebMPayloadBuckets[idxBucket];
+        void        *pv = NULL;
+
+        if (!m_aFree[idxBucket].empty())
+        {
+            pv = m_aFree[idxBucket].front();
+            m_aFree[idxBucket].pop_front();
+
+            Assert(m_cbRetained >= cbAlloc);
+            m_cbRetained -= cbAlloc;
+        }
+        else
+            pv = RTMemAlloc(cbAlloc);
+
+        if (!pv)
+            throw std::bad_alloc();
+
+        if (pcbAlloc)
+            *pcbAlloc = cbAlloc;
+
+        return pv;
+    }
+
+    void *pv = RTMemAlloc(cbReq);
+    if (!pv)
+        throw std::bad_alloc();
+
+    if (pcbAlloc)
+        *pcbAlloc = cbReq;
+
+    return pv;
+}
+
+/**
+ * Releases payload backing storage.
+ *
+ * @param   pv          Payload backing pointer to release. Optional.
+ * @param   cbAlloc     Backing size associated with @a pv.
+ */
+void WebMWriter::WebMPayloadBuckets::free(void *pv, size_t cbAlloc)
+{
+    if (!pv)
+        return;
+
+    uint32_t const idxBucket = bucketFromSize(cbAlloc);
+    if (   idxBucket != UINT32_MAX
+        && s_acbWebMPayloadBuckets[idxBucket] == cbAlloc)
+    {
+        m_aFree[idxBucket].push_front(pv);
+        m_cbRetained += cbAlloc;
+    }
+    else
+        RTMemFree(pv);
+}
+
+/**
+ * Trims retained payload backing to a given limit.
+ *
+ * @param   cbMaxRetained   Maximum retained payload bytes.
+ */
+void WebMWriter::WebMPayloadBuckets::trim(size_t cbMaxRetained)
+{
+    while (m_cbRetained > cbMaxRetained)
+    {
+        bool fFreed = false;
+
+        for (size_t i = 0; i < RT_ELEMENTS(s_acbWebMPayloadBuckets); i++)
+        {
+            if (!m_aFree[i].empty())
+            {
+                void *pv = m_aFree[i].front();
+                m_aFree[i].pop_front();
+                RTMemFree(pv);
+
+                size_t const cbBucket = s_acbWebMPayloadBuckets[i];
+                Assert(m_cbRetained >= cbBucket);
+                m_cbRetained -= cbBucket;
+
+                fFreed = true;
+                break;
+            }
+        }
+
+        if (!fFreed)
+            break;
+    }
+}
+
+/**
+ * Frees all retained payload backing buffers.
+ */
+void WebMWriter::WebMPayloadBuckets::clear(void)
+{
+    for (uint32_t i = 0; i < RT_ELEMENTS(s_acbWebMPayloadBuckets); i++)
+    {
+        std::list<void *>::iterator itPayload = m_aFree[i].begin();
+        while (itPayload != m_aFree[i].end())
+        {
+            void *pv = *itPayload;
+            RTMemFree(pv);
+            ++itPayload;
+        }
+
+        m_aFree[i].clear();
+    }
+
+    m_cbRetained = 0;
+}
+
+/**
+ * Returns the currently retained payload backing size.
+ *
+ * @returns Retained payload backing in bytes.
+ */
+size_t WebMWriter::WebMPayloadBuckets::retainedBytes(void) const
+{
+    return m_cbRetained;
+}
+
+/**
+ * Converts a requested payload size to a bucket index.
+ *
+ * @returns Bucket index on success, UINT32_MAX if no bucket applies.
+ * @param   cbReq       Requested payload size in bytes.
+ */
+uint32_t WebMWriter::WebMPayloadBuckets::bucketFromSize(size_t cbReq) const
+{
+    for (uint32_t i = 0; i < RT_ELEMENTS(s_acbWebMPayloadBuckets); i++)
+        if (cbReq <= s_acbWebMPayloadBuckets[i])
+            return i;
+
+    return UINT32_MAX;
+}
+
+/**
+ * Internal simple block + payload pool.
+ */
+/**
+ * Initializes an empty simple-block pool.
+ */
+WebMWriter::WebMBlockPool::WebMBlockPool(void)
+    : m_cFreeBlocks(0)
+{
+}
+
+/**
+ * Destroys the simple-block pool and frees retained resources.
+ */
+WebMWriter::WebMBlockPool::~WebMBlockPool(void)
+{
+    clear();
+}
+
+/**
+ * Allocates and initializes a simple block.
+ *
+ * @returns Initialized simple block instance.
+ * @param   a_pTrack        Track to assign to the block. Optional.
+ * @param   a_tcAbsPTSMs    Absolute PTS of the block in milliseconds.
+ * @param   a_pvData        Payload source pointer. Optional if @a a_cbData is zero.
+ * @param   a_cbData        Payload source size in bytes.
+ * @param   a_fFlags        Block flags.
+ *
+ * @throws  std::bad_alloc on allocation failure.
+ */
+WebMWriter::WebMSimpleBlock *WebMWriter::WebMBlockPool::allocBlock(WebMWriter::WebMTrack *a_pTrack,
+                                                                    WebMWriter::WebMTimecodeAbs a_tcAbsPTSMs,
+                                                                    const void *a_pvData, size_t a_cbData,
+                                                                    WebMWriter::WebMBlockFlags a_fFlags)
+{
+    WebMSimpleBlock *pBlock = NULL;
+    if (!m_lstFreeBlocks.empty())
+    {
+        pBlock = m_lstFreeBlocks.front();
+        m_lstFreeBlocks.pop_front();
+
+        Assert(m_cFreeBlocks > 0);
+        m_cFreeBlocks--;
+    }
+    else
+        pBlock = new WebMSimpleBlock();
+
+    try
+    {
+        size_t cbBacking = 0;
+        void  *pvDataDup = m_Payload.alloc(a_cbData, &cbBacking);
+        if (a_cbData)
+        {
+            AssertPtr(a_pvData);
+            memcpy(pvDataDup, a_pvData, a_cbData);
+        }
+
+        pBlock->pTrack                = a_pTrack;
+        pBlock->Data.tcAbsPTSMs       = a_tcAbsPTSMs;
+        pBlock->Data.tcRelToClusterMs = 0;
+        pBlock->Data.pv               = pvDataDup;
+        pBlock->Data.cb               = a_cbData;
+        pBlock->Data.fFlags           = a_fFlags;
+        pBlock->cbBacking             = cbBacking;
+    }
+    catch (...)
+    {
+        m_lstFreeBlocks.push_front(pBlock);
+        m_cFreeBlocks++;
+        trim();
+        throw;
+    }
+
+    return pBlock;
+}
+
+/**
+ * Returns a simple block to the pool.
+ *
+ * @param   a_pBlock        Simple block to return. Optional.
+ */
+void WebMWriter::WebMBlockPool::freeBlock(WebMWriter::WebMSimpleBlock *a_pBlock)
+{
+    if (!a_pBlock)
+        return;
+
+    m_Payload.free(a_pBlock->Data.pv, a_pBlock->cbBacking);
+
+    a_pBlock->pTrack                = NULL;
+    a_pBlock->Data.tcAbsPTSMs       = 0;
+    a_pBlock->Data.tcRelToClusterMs = 0;
+    a_pBlock->Data.pv               = NULL;
+    a_pBlock->Data.cb               = 0;
+    a_pBlock->Data.fFlags           = VBOX_WEBM_BLOCK_FLAG_NONE;
+    a_pBlock->cbBacking             = 0;
+
+    m_lstFreeBlocks.push_front(a_pBlock);
+    m_cFreeBlocks++;
+
+    trim();
+}
+
+/**
+ * Trims the simple-block and payload freelists to configured limits.
+ */
+void WebMWriter::WebMBlockPool::trim(void)
+{
+    while (   m_cFreeBlocks > g_cWebMSimpleBlockPoolMaxBlocks
+           && !m_lstFreeBlocks.empty())
+    {
+        WebMSimpleBlock *pBlock = m_lstFreeBlocks.front();
+        m_lstFreeBlocks.pop_front();
+        delete pBlock;
+        m_cFreeBlocks--;
+    }
+
+    m_Payload.trim(g_cbWebMSimpleBlockPoolMaxPayload);
+}
+
+/**
+ * Frees all currently retained simple blocks and payload backing.
+ */
+void WebMWriter::WebMBlockPool::clear(void)
+{
+    std::list<WebMSimpleBlock *>::iterator itBlock = m_lstFreeBlocks.begin();
+    while (itBlock != m_lstFreeBlocks.end())
+    {
+        WebMSimpleBlock *pBlock = *itBlock;
+        delete pBlock;
+        ++itBlock;
+    }
+
+    m_lstFreeBlocks.clear();
+    m_cFreeBlocks = 0;
+
+    m_Payload.clear();
+}
+
+/**
+ * Returns the number of free simple blocks currently retained.
+ *
+ * @returns Number of retained free simple blocks.
+ */
+size_t WebMWriter::WebMBlockPool::freeBlockCount(void) const
+{
+    return m_cFreeBlocks;
+}
+
+/**
+ * Returns retained payload backing bytes.
+ *
+ * @returns Retained payload backing in bytes.
+ */
+size_t WebMWriter::WebMBlockPool::retainedPayloadBytes(void) const
+{
+    return m_Payload.retainedBytes();
+}
+
+
+/**
+ * Creates a WebM writer instance.
+ */
 WebMWriter::WebMWriter(void)
     : m_enmAudioCodec(RecordingAudioCodec_None)
     , m_enmVideoCodec(RecordingVideoCodec_None)
@@ -53,6 +391,9 @@ WebMWriter::WebMWriter(void)
     m_uTimecodeMax = UINT16_MAX;
 }
 
+/**
+ * Destroys the WebM writer instance.
+ */
 WebMWriter::~WebMWriter(void)
 {
     Close();
@@ -136,7 +477,10 @@ int WebMWriter::Close(void)
     LogFlowFuncEnter();
 
     if (!isOpen())
+    {
+        m_BlockPool.clear();
         return VINF_SUCCESS;
+    }
 
     /* Make sure to drain all queues. */
     processQueue(&m_CurSeg.m_queueBlocks, true /* fForce */);
@@ -161,6 +505,8 @@ int WebMWriter::Close(void)
     com::Utf8Str strFileName = getFileName().c_str();
 
     close();
+
+    m_BlockPool.clear();
 
     return VINF_SUCCESS;
 }
@@ -397,6 +743,7 @@ int WebMWriter::init(RecordingAudioCodec_T enmAudioCodec, RecordingVideoCodec_T 
  */
 void WebMWriter::destroy(void)
 {
+    m_BlockPool.clear();
     m_CurSeg.uninit();
 }
 
@@ -474,40 +821,6 @@ int WebMWriter::writeSimpleBlockEBML(WebMTrack *a_pTrack, WebMSimpleBlock *a_pBl
 }
 
 /**
- * Writes a simple block and enqueues it into the segment's render queue.
- *
- * @returns VBox status code.
- * @param   a_pTrack        Track the simple block is assigned to.
- * @param   a_pBlock        Simple block to write and enqueue.
- */
-int WebMWriter::writeSimpleBlockQueued(WebMTrack *a_pTrack, WebMSimpleBlock *a_pBlock)
-{
-    RT_NOREF(a_pTrack);
-
-    int vrc = VINF_SUCCESS;
-
-    try
-    {
-        const WebMTimecodeAbs tcAbsPTS = a_pBlock->Data.tcAbsPTSMs;
-
-        /* Use existing queue entry or create one in-place. */
-        WebMTimecodeBlocks &Blocks = m_CurSeg.m_queueBlocks.Map[tcAbsPTS];
-        Blocks.Enqueue(a_pBlock);
-
-        vrc = processQueue(&m_CurSeg.m_queueBlocks, false /* fForce */);
-    }
-    catch(...)
-    {
-        delete a_pBlock;
-        a_pBlock = NULL;
-
-        vrc = VERR_NO_MEMORY;
-    }
-
-    return vrc;
-}
-
-/**
  * Writes a data block to the specified track.
  *
  * @returns VBox status code.
@@ -538,14 +851,29 @@ int WebMWriter::WriteBlock(uint8_t uTrack, const void *pvData, size_t cbData, We
         m_fInTracksSection = false;
     }
 
+    WebMSimpleBlock *pBlock = NULL;
+
     try
     {
-        vrc = writeSimpleBlockQueued(pTrack,
-                                     new WebMSimpleBlock(pTrack,
-                                                         tcAbsPTSMs, pvData, cbData, uFlags));
+        pBlock = m_BlockPool.allocBlock(pTrack, tcAbsPTSMs, pvData, cbData, uFlags);
+
+        const WebMTimecodeAbs tcAbsPTS = pBlock->Data.tcAbsPTSMs;
+
+        /* Use existing queue entry or create one in-place. */
+        WebMTimecodeBlocks &Blocks = m_CurSeg.m_queueBlocks.Map[tcAbsPTS];
+        Blocks.Enqueue(pBlock);
+        pBlock = NULL; /* Ownership transferred to queue. */
+
+        vrc = processQueue(&m_CurSeg.m_queueBlocks, false /* fForce */);
     }
-    catch (std::bad_alloc &)
+    catch (...)
     {
+        if (pBlock)
+        {
+            m_BlockPool.freeBlock(pBlock);
+            pBlock = NULL;
+        }
+
         vrc = VERR_NO_MEMORY;
     }
 
@@ -707,7 +1035,7 @@ int WebMWriter::processQueue(WebMQueue *pQueue, bool fForce)
                 m_CurSeg.m_lstCuePoints.push_back(pCuePoint);
             }
 
-            delete pBlock;
+            m_BlockPool.freeBlock(pBlock);
             pBlock = NULL;
 
             mapBlocks.Queue.pop();

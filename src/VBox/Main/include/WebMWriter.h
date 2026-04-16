@@ -1,4 +1,4 @@
-/* $Id: WebMWriter.h 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: WebMWriter.h 113909 2026-04-16 14:51:54Z andreas.loeffler@oracle.com $ */
 /** @file
  * WebMWriter.h - WebM container handling.
  */
@@ -110,6 +110,19 @@
 # pragma pack(pop)
 #endif
 
+/** Array of payload bucket sizes in bytes.
+ *  Must be sorted by size in ascending order. */
+static size_t const s_acbWebMPayloadBuckets[] =
+{
+    _1K,
+    _2K,
+    _4K,
+    _8K,
+    _16K,
+    _32K,
+    _64K
+};
+
 class WebMWriter : public EBMLWriter
 {
 
@@ -144,42 +157,75 @@ public:
      */
     struct WebMSimpleBlock
     {
-        WebMSimpleBlock(WebMTrack *a_pTrack,
-                        WebMTimecodeAbs a_tcAbsPTSMs, const void *a_pvData, size_t a_cbData, WebMBlockFlags a_fFlags)
-            : pTrack(a_pTrack)
+        WebMSimpleBlock(void)
+            : pTrack(NULL)
+            , cbBacking(0)
         {
-            Data.tcAbsPTSMs = a_tcAbsPTSMs;
-            Data.cb         = a_cbData;
-            Data.fFlags     = a_fFlags;
-
-            if (Data.cb)
-            {
-                Data.pv = RTMemDup(a_pvData, a_cbData);
-                if (!Data.pv)
-                    throw;
-            }
+            Data.tcAbsPTSMs       = 0;
+            Data.tcRelToClusterMs = 0;
+            Data.pv               = NULL;
+            Data.cb               = 0;
+            Data.fFlags           = VBOX_WEBM_BLOCK_FLAG_NONE;
         }
 
-        virtual ~WebMSimpleBlock()
-        {
-            if (Data.pv)
-            {
-                Assert(Data.cb);
-                RTMemFree(Data.pv);
-            }
-        }
-
-        WebMTrack    *pTrack;
+        /** Pointer to the track this block belongs to. */
+        WebMTrack          *pTrack;
 
         /** Actual simple block data. */
         struct
         {
             WebMTimecodeAbs tcAbsPTSMs;
             WebMTimecodeRel tcRelToClusterMs;
-            void          *pv;
-            size_t         cb;
-            WebMBlockFlags fFlags;
+            void           *pv;
+            size_t          cb;
+            WebMBlockFlags  fFlags;
         } Data;
+
+        /** Allocated payload backing size in bytes (bucket size or exact allocation size). */
+        size_t             cbBacking;
+    };
+
+    /**
+     * Internal payload bucket manager for block payload reuse, to avoid (small) (re-)allocations.
+     */
+    class WebMPayloadBuckets
+    {
+    public:
+        WebMPayloadBuckets(void);
+        void *alloc(size_t cbReq, size_t *pcbAlloc);
+        void free(void *pv, size_t cbAlloc);
+        void trim(size_t cbMaxRetained);
+        void clear(void);
+        size_t retainedBytes(void) const;
+
+    private:
+        uint32_t bucketFromSize(size_t cbReq) const;
+
+    private:
+        std::list<void *>   m_aFree[RT_ELEMENTS(s_acbWebMPayloadBuckets)];
+        size_t              m_cbRetained;
+    };
+
+    /**
+     * Internal simple block + payload pool.
+     */
+    struct WebMBlockPool
+    {
+        WebMBlockPool(void);
+        ~WebMBlockPool(void);
+
+        WebMSimpleBlock *allocBlock(WebMTrack *a_pTrack, WebMTimecodeAbs a_tcAbsPTSMs,
+                                    const void *a_pvData, size_t a_cbData, WebMBlockFlags a_fFlags);
+        void freeBlock(WebMSimpleBlock *a_pBlock);
+        void trim(void);
+        void clear(void);
+        size_t freeBlockCount(void) const;
+        size_t retainedPayloadBytes(void) const;
+
+    private:
+        std::list<WebMSimpleBlock *> m_lstFreeBlocks;
+        size_t                       m_cFreeBlocks;
+        WebMPayloadBuckets           m_Payload;
     };
 
     /** A simple block queue.*/
@@ -495,6 +541,9 @@ public:
     /** Maximum value a timecode can have. */
     uint32_t                    m_uTimecodeMax;
 
+    /** Internal simple block / payload bucket pool. */
+    WebMBlockPool               m_BlockPool;
+
 #ifdef VBOX_WITH_LIBVPX
     /**
      * Block data for VP8-encoded video data.
@@ -567,8 +616,6 @@ protected:
     int writeFooter(void);
 
     int writeSimpleBlockEBML(WebMTrack *a_pTrack, WebMSimpleBlock *a_pBlock);
-
-    int writeSimpleBlockQueued(WebMTrack *a_pTrack, WebMSimpleBlock *a_pBlock);
 
     int processQueue(WebMQueue *pQueue, bool fForce);
 

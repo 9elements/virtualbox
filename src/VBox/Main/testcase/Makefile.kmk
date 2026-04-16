@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 113642 2026-03-30 10:11:57Z andreas.loeffler@oracle.com $
+# $Id: Makefile.kmk 113909 2026-04-16 14:51:54Z andreas.loeffler@oracle.com $
 ## @file
 # Sub-Makefile for the VBox API testcases.
 #
@@ -311,8 +311,8 @@ tstSafeArray_SOURCES  = tstSafeArray.cpp
 #
 # tstRecording
 #
-tstRecording_TEMPLATE     = VBoxMainClientTstExe
-tstRecording_DEFS       += \
+tstRecording_TEMPLATE = VBoxMainClientTstExe
+tstRecording_DEFS    += \
 	$(if $(VBOX_WITH_RECORDING_SDL_BACKEND),VBOX_WITH_RECORDING_SDL_BACKEND,) \
 	$(if $(VBOX_RECORDING_DEBUG_DUMP_FRAMES),VBOX_RECORDING_DEBUG_DUMP_FRAMES,)
 
@@ -320,7 +320,9 @@ tstRecording_SOURCES  = \
 	tstRecording.cpp \
 	../src-all/RecordingUtils.cpp \
 	../src-client/RecordingInternals.cpp \
-	../src-client/RecordingRender.cpp
+	../src-client/RecordingRender.cpp \
+	../src-client/EBMLWriter.cpp \
+	../src-client/WebMWriter.cpp
 tstRecording_INCS    += \
 	../include
 
