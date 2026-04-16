@@ -1,4 +1,4 @@
-/* $Id: UIHelpViewer.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: UIHelpViewer.cpp 113902 2026-04-16 12:12:29Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIHelpViewer class implementation.
  */
@@ -244,8 +244,6 @@ void UIContextMenuNavigationAction::prepare()
     connect(m_pReloadPageButton, &QIToolButton::pressed,
             this, &UIContextMenuNavigationAction::sltReloadPage);
     connect(m_pAddBookmarkButton, &QIToolButton::pressed,
-            this, &UIContextMenuNavigationAction::sltAddBookmark);
-    connect(m_pReloadPageButton, &QIToolButton::pressed,
             this, &UIContextMenuNavigationAction::sltAddBookmark);
 }
 
@@ -687,7 +685,7 @@ void UIHelpViewer::mouseReleaseEvent(QMouseEvent *pEvent)
             return;
         }
     }
-    QTextBrowser::mousePressEvent(pEvent);
+    QTextBrowser::mouseReleaseEvent(pEvent);
 }
 
 void UIHelpViewer::mousePressEvent(QMouseEvent *pEvent)
@@ -829,6 +827,8 @@ void UIHelpViewer::highlightFinds(int iSearchTermLength)
 
 void UIHelpViewer::selectMatch(int iMatchIndex, int iSearchStringLength)
 {
+    if (iMatchIndex >= m_matchedCursorPosition.size())
+        return;
     QTextCursor cursor = textCursor();
     /* Move the cursor to the beginning of the matched string: */
     cursor.setPosition(m_matchedCursorPosition.at(iMatchIndex), QTextCursor::MoveAnchor);
