@@ -151,4 +151,4 @@ struct RTStackCheckRet
 
 /** @} */
 
-#endif
+#endif /* !IPRT_INCLUDED_stackcheck_h */
