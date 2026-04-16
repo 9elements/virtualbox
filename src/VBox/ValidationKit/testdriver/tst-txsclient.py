@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# $Id: tst-txsclient.py 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $
+# $Id: tst-txsclient.py 113929 2026-04-16 23:39:46Z knut.osmundsen@oracle.com $
 
 """
 Simple testcase for txsclient.py.
@@ -38,15 +38,20 @@ terms and conditions of either the GPL or the CDDL or both.
 
 SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 """
-__version__ = "$Revision: 112403 $"
+__version__ = "$Revision: 113929 $"
 
 # Standard python imports.
 import os
 import sys
 
+# Figure out where the validation kit lives and make sure it's in the path.
+try:    __file__                            # pylint: disable=used-before-assignment
+except: __file__ = sys.argv[0];
+g_ksValidationKitDir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)));
+if g_ksValidationKitDir not in sys.path:
+    sys.path.append(g_ksValidationKitDir);
+
 # Validation Kit imports.
-sys.path.insert(0, '.');
-sys.path.insert(0, '..');
 from common     import utils;
 from testdriver import txsclient;
 from testdriver import reporter;
