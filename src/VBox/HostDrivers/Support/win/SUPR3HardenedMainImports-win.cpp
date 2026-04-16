@@ -1,4 +1,4 @@
-/* $Id: SUPR3HardenedMainImports-win.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: SUPR3HardenedMainImports-win.cpp 113916 2026-04-16 21:00:28Z knut.osmundsen@oracle.com $ */
 /** @file
  * VirtualBox Support Library - Hardened Main, Windows Import Trickery.
  */
@@ -45,6 +45,7 @@
 #include <iprt/ctype.h>
 #include <iprt/initterm.h>
 #include <iprt/param.h>
+#include <iprt/stackcheck.h>
 #include <iprt/string.h>
 #include <iprt/utf16.h>
 #ifdef RT_ARCH_ARM64
@@ -328,6 +329,8 @@ static void supR3HardenedFindOrLoadModule(PSUPHNTIMPDLL pDll)
 /** @sa rtR0DbgKrnlNtParseModule  */
 static void supR3HardenedParseModule(PSUPHNTIMPDLL pDll)
 {
+    RT_STACK_CHECK_RET_ADDR();
+
     /*
      * Locate the PE header, do some basic validations.
      */
@@ -413,6 +416,8 @@ static void supR3HardenedParseModule(PSUPHNTIMPDLL pDll)
 /** @sa rtR0DbgKrnlInfoLookupSymbol */
 static const char *supR3HardenedResolveImport(PSUPHNTIMPDLL pDll, PCSUPHNTIMPFUNC pImport, bool fReportErrors)
 {
+    RT_STACK_CHECK_RET_ADDR();
+
     /*
      * Binary search.
      */
@@ -470,6 +475,8 @@ static const char *supR3HardenedResolveImport(PSUPHNTIMPDLL pDll, PCSUPHNTIMPFUN
 static void supR3HardenedDirectSyscall(PSUPHNTIMPDLL pDll, PCSUPHNTIMPFUNC pImport, PCSUPHNTIMPSYSCALL pSyscall,
                                        PSUPHNTLDRCACHEENTRY pLdrEntry, uint8_t *pbBits, bool fReportErrors)
 {
+    RT_STACK_CHECK_RET_ADDR();
+
     /*
      * Skip non-syscall entries.
      */
@@ -664,6 +671,7 @@ static void supR3HardenedDirectSyscall(PSUPHNTIMPDLL pDll, PCSUPHNTIMPFUNC pImpo
  */
 DECLHIDDEN(void) supR3HardenedWinInitSyscalls(bool fReportErrors, PRTERRINFO pErrInfo)
 {
+    RT_STACK_CHECK_RET_ADDR();
     for (uint32_t iDll = 0; iDll < RT_ELEMENTS(g_aSupNtImpDlls); iDll++)
         if (g_aSupNtImpDlls[iDll].paSyscalls)
         {
@@ -707,6 +715,8 @@ DECLHIDDEN(void) supR3HardenedWinGetVeryEarlyImports(uintptr_t uNtDllAddr,
                                                      PFNNTWAITFORSINGLEOBJECT *ppfnNtWaitForSingleObject,
                                                      PFNNTSETEVENT *ppfnNtSetEvent)
 {
+    RT_STACK_CHECK_RET_ADDR();
+
     /*
      * NTDLL is the first entry in the list.  Save it and do the parsing.
      */
@@ -746,6 +756,8 @@ DECLHIDDEN(void) supR3HardenedWinGetVeryEarlyImports(uintptr_t uNtDllAddr,
  */
 DECLHIDDEN(void) supR3HardenedWinInitImportsEarly(uintptr_t uNtDllAddr)
 {
+    RT_STACK_CHECK_RET_ADDR();
+
     /*
      * NTDLL is the first entry in the list.
      */

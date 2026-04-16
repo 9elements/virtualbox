@@ -1,4 +1,4 @@
-/* $Id: SUPHardenedVerifyProcess-win.cpp 113904 2026-04-16 12:37:10Z knut.osmundsen@oracle.com $ */
+/* $Id: SUPHardenedVerifyProcess-win.cpp 113916 2026-04-16 21:00:28Z knut.osmundsen@oracle.com $ */
 /** @file
  * VirtualBox Support Library/Driver - Hardened Process Verification, Windows.
  */
@@ -53,6 +53,7 @@
 #include <iprt/alloca.h>
 #include <iprt/ctype.h>
 #include <iprt/param.h>
+#include <iprt/stackcheck.h>
 #include <iprt/string.h>
 #include <iprt/utf16.h>
 #include <iprt/zero.h>
@@ -2182,6 +2183,7 @@ DECLHIDDEN(int) supHardNtLdrCacheEntryGetBits(PSUPHNTLDRCACHEENTRY pEntry, uint8
                                               RTLDRADDR uBaseAddress, PFNRTLDRIMPORT pfnGetImport, void *pvUser,
                                               PRTERRINFO pErrInfo)
 {
+    RT_STACK_CHECK_RET_ADDR();
     int rc;
 
     /*
@@ -2414,6 +2416,8 @@ static int supHardNtLdrCacheNewEntry(PSUPHNTLDRCACHEENTRY pEntry, const char *ps
  */
 DECLHIDDEN(int) supHardNtLdrCacheOpen(const char *pszName, PSUPHNTLDRCACHEENTRY *ppEntry, PRTERRINFO pErrInfo)
 {
+    RT_STACK_CHECK_RET_ADDR();
+
     /*
      * Locate the dll.
      */
@@ -2837,6 +2841,7 @@ DECLHIDDEN(int) supHardenedWinVerifyProcess(HANDLE hProcess, HANDLE hThread, SUP
                                             uint32_t *pcFixes, PRTERRINFO pErrInfo)
 {
     RT_NOREF(hThread);
+    RT_STACK_CHECK_RET_ADDR();
     if (pcFixes)
         *pcFixes = 0;
 
