@@ -1,4 +1,4 @@
-/* $Id: UIMessageCenter.h 113910 2026-04-16 14:59:49Z sergey.dubov@oracle.com $ */
+/* $Id: UIMessageCenter.h 113935 2026-04-17 08:50:06Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMessageCenter class declaration.
  */
@@ -145,42 +145,6 @@ public:
                const QString &strMessage,
                const char *pcszAutoConfirmId = 0,
                const QString &strHelpKeyword = QString()) const;
-
-    /** Shows a 'Question' type of 'Message'.
-      * Omit details.
-      * @param  pParent            Brings the message-box parent.
-      * @param  enmType            Brings the message-box type.
-      * @param  strMessage         Brings the message.
-      * @param  pcszAutoConfirmId  Brings the auto-confirm ID.
-      * @param  iButton1           Brings the button 1 type.
-      * @param  iButton2           Brings the button 2 type.
-      * @param  iButton3           Brings the button 3 type.
-      * @param  strButtonText1     Brings the button 1 text.
-      * @param  strButtonText2     Brings the button 2 text.
-      * @param  strButtonText3     Brings the button 3 text. */
-    int question(QWidget *pParent, MessageType enmType,
-                 const QString &strMessage,
-                 const char *pcszAutoConfirmId = 0,
-                 int iButton1 = 0, int iButton2 = 0, int iButton3 = 0,
-                 const QString &strButtonText1 = QString(),
-                 const QString &strButtonText2 = QString(),
-                 const QString &strButtonText3 = QString()) const;
-
-    /** Shows a 'Binary' type of 'Question'.
-      * Omit details. Provides Ok and Cancel buttons (called same way by default).
-      * @param  pParent              Brings the message-box parent.
-      * @param  enmType              Brings the message-box type.
-      * @param  strMessage           Brings the message.
-      * @param  pcszAutoConfirmId    Brings the auto-confirm ID.
-      * @param  strOkButtonText      Brings the button 1 text.
-      * @param  strCancelButtonText  Brings the button 2 text.
-      * @param  fDefaultFocusForOk   Brings whether Ok button should be focused initially. */
-    bool questionBinary(QWidget *pParent, MessageType enmType,
-                        const QString &strMessage,
-                        const char *pcszAutoConfirmId = 0,
-                        const QString &strOkButtonText = QString(),
-                        const QString &strCancelButtonText = QString(),
-                        bool fDefaultFocusForOk = true) const;
 
 public slots:
 

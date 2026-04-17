@@ -1,4 +1,4 @@
-/* $Id: UIMessageCenter.cpp 113910 2026-04-16 14:59:49Z sergey.dubov@oracle.com $ */
+/* $Id: UIMessageCenter.cpp 113935 2026-04-17 08:50:06Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMessageCenter class implementation.
  */
@@ -150,46 +150,6 @@ void UIMessageCenter::alert(QWidget *pParent, MessageType enmType,
                            const QString &strHelpKeyword /* = QString() */) const
 {
     error(pParent, enmType, strMessage, QString(), pcszAutoConfirmId, strHelpKeyword);
-}
-
-int UIMessageCenter::question(QWidget *pParent, MessageType enmType,
-                              const QString &strMessage,
-                              const char *pcszAutoConfirmId/* = 0 */,
-                              int iButton1 /* = 0 */,
-                              int iButton2 /* = 0 */,
-                              int iButton3 /* = 0 */,
-                              const QString &strButtonText1 /* = QString() */,
-                              const QString &strButtonText2 /* = QString() */,
-                              const QString &strButtonText3 /* = QString() */) const
-{
-    return message(pParent, enmType, strMessage, QString(), pcszAutoConfirmId,
-                   iButton1, iButton2, iButton3, strButtonText1, strButtonText2, strButtonText3);
-}
-
-bool UIMessageCenter::questionBinary(QWidget *pParent, MessageType enmType,
-                                     const QString &strMessage,
-                                     const char *pcszAutoConfirmId /* = 0 */,
-                                     const QString &strOkButtonText /* = QString() */,
-                                     const QString &strCancelButtonText /* = QString() */,
-                                     bool fDefaultFocusForOk /* = true */) const
-{
-    return fDefaultFocusForOk ?
-           ((question(pParent, enmType, strMessage, pcszAutoConfirmId,
-                      AlertButton_Ok | AlertButtonOption_Default,
-                      AlertButton_Cancel | AlertButtonOption_Escape,
-                      0 /* third button */,
-                      strOkButtonText,
-                      strCancelButtonText,
-                      QString() /* third button */) &
-             AlertButtonMask) == AlertButton_Ok) :
-           ((question(pParent, enmType, strMessage, pcszAutoConfirmId,
-                      AlertButton_Ok,
-                      AlertButton_Cancel | AlertButtonOption_Default | AlertButtonOption_Escape,
-                      0 /* third button */,
-                      strOkButtonText,
-                      strCancelButtonText,
-                      QString() /* third button */) &
-             AlertButtonMask) == AlertButton_Ok);
 }
 
 void UIMessageCenter::sltShowHelpWebDialog()
