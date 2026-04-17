@@ -1,4 +1,4 @@
-/* $Id: UIExtraDataManagerWindow.cpp 113931 2026-04-17 08:14:02Z sergey.dubov@oracle.com $ */
+/* $Id: UIExtraDataManagerWindow.cpp 113932 2026-04-17 08:41:11Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIExtraDataManagerWindow class implementation.
  */
@@ -437,6 +437,7 @@ QStringList UIAddExtraDataRecordDialog::knownExtraDataKeys()
 
 UIExtraDataManagerWindow::UIExtraDataManagerWindow(QWidget *pCenterWidget)
     : m_pCenterWidget(pCenterWidget)
+    , m_pNotificationCenter(0)
     , m_pMainLayout(0), m_pToolBar(0), m_pSplitter(0)
     , m_pPaneOfChooser(0), m_pFilterOfChooser(0), m_pViewOfChooser(0)
     , m_pModelSourceOfChooser(0), m_pModelProxyOfChooser(0)
