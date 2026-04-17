@@ -1,4 +1,4 @@
-/* $Id: UINotificationQuestion.h 113931 2026-04-17 08:14:02Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationQuestion.h 113934 2026-04-17 08:47:58Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationQuestion declarations.
  */
@@ -299,6 +299,15 @@ public:
         /** Confirms switching full-screen mode.
           * @param  uMinVRAM  Brings the minimum VRAM amount required. */
         static bool confirmSwitchingScreenInFullscreen(quint64 uMinVRAM);
+    /** @} */
+
+    /** @name Runtime UI / Software Keyboard warnings.
+      * @{ */
+        /** Confirms deleting keyboard layout file. */
+        static bool confirmDeletingKeyboardLayoutFile(QWidget *pParent);
+
+        /** Confirms closing software keyboard dialog. */
+        static bool confirmClosingSoftwareKeyboardDialog(const QString &strUnsavedLayouts, QWidget *pParent);
     /** @} */
 
     /** Constructs question notification-object.

@@ -1,4 +1,4 @@
-/* $Id: UISoftKeyboard.cpp 113933 2026-04-17 08:41:38Z sergey.dubov@oracle.com $ */
+/* $Id: UISoftKeyboard.cpp 113934 2026-04-17 08:47:58Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UISoftKeyboard class implementation.
  */
@@ -2814,12 +2814,7 @@ void UISoftKeyboardWidget::deleteCurrentLayout()
     /* It might be that the layout copied but not yet saved into a file: */
     if (fFileExists)
     {
-        if (!msgCenter().questionBinary(this, MessageType_Question,
-                                        QString(UISoftKeyboard::tr("This will delete the keyboard layout file as well. Proceed?")),
-                                        0 /* auto-confirm id */,
-                                        QString("Delete") /* ok button text */,
-                                        QString() /* cancel button text */,
-                                        false /* ok button by default? */))
+        if (!UINotificationQuestion::confirmDeletingKeyboardLayoutFile(this))
             return;
 
         if (fileToDelete.remove(strFilePath))
@@ -4031,11 +4026,7 @@ void UISoftKeyboard::closeEvent(QCloseEvent *event)
     if (m_pKeyboardWidget && !strNameList.empty())
     {
         QString strJoinedString = strNameList.join("<br/>");
-        if (!msgCenter().questionBinary(this, MessageType_Warning,
-                                       tr("<p>Following layouts are edited/copied but not saved:</p>%1"
-                                          "<p>Closing this dialog will cause loosing the changes. Proceed?</p>").arg(strJoinedString),
-                                       0 /* auto-confirm id */,
-                                       "Ok", "Cancel"))
+        if (!UINotificationQuestion::confirmClosingSoftwareKeyboardDialog(strJoinedString, this))
         {
             event->ignore();
             return;

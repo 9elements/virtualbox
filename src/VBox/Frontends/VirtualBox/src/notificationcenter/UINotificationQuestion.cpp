@@ -1,4 +1,4 @@
-/* $Id: UINotificationQuestion.cpp 113931 2026-04-17 08:14:02Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationQuestion.cpp 113934 2026-04-17 08:47:58Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationQuestion implementations.
  */
@@ -1238,6 +1238,32 @@ bool UINotificationQuestion::confirmSwitchingScreenInFullscreen(quint64 uMinVRAM
                                                    .arg(UITranslator::formatSize(uMinVRAM)),
         QStringList() << QString() /* cancel button text */
                       << QApplication::translate("UIMessageCenter", "Ignore") /* ok button text */);
+}
+
+/* static */
+bool UINotificationQuestion::confirmDeletingKeyboardLayoutFile(QWidget *pParent)
+{
+    return createBlockingQuestion(
+        QApplication::translate("UIMessageCenter", "Delete keyboard layout file?"),
+        QApplication::translate("UIMessageCenter", "This will delete the keyboard layout file as well. Proceed?"),
+        QStringList() << QString() /* cancel button text */
+                      << QApplication::translate("UIMessageCenter", "Delete") /* ok button text */,
+        false /* ok button by default? */,
+        pParent);
+}
+
+/* static */
+bool UINotificationQuestion::confirmClosingSoftwareKeyboardDialog(const QString &strUnsavedLayouts, QWidget *pParent)
+{
+    return createBlockingQuestion(
+        QApplication::translate("UIMessageCenter", "Close software keyboard?"),
+        QApplication::translate("UIMessageCenter", "<p>Following layouts are edited/copied but not saved:</p>%1"
+                                                   "<p>Closing this dialog will cause loosing the changes. Proceed?</p>")
+                                                   .arg(strUnsavedLayouts),
+        QStringList() << QString() /* cancel button text */
+                      << QApplication::translate("UIMessageCenter", "Close") /* ok button text */,
+        false /* ok button by default? */,
+        pParent);
 }
 
 UINotificationQuestion::UINotificationQuestion(const QString &strName,
