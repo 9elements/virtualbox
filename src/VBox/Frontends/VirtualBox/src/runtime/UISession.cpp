@@ -1,4 +1,4 @@
-/* $Id: UISession.cpp 113893 2026-04-15 16:29:23Z sergey.dubov@oracle.com $ */
+/* $Id: UISession.cpp 113938 2026-04-17 09:37:43Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UISession class implementation.
  */
@@ -49,7 +49,6 @@
 #include "UIMachineWindow.h"
 #include "UIMedium.h"
 #include "UIMediumEnumerator.h"
-#include "UIMessageCenter.h"
 #include "UIMediumTools.h"
 #include "UIModalWindowManager.h"
 #include "UIMousePointerShapeData.h"

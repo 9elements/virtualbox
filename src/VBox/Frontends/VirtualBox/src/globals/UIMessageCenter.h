@@ -1,4 +1,4 @@
-/* $Id: UIMessageCenter.h 113937 2026-04-17 09:26:37Z sergey.dubov@oracle.com $ */
+/* $Id: UIMessageCenter.h 113938 2026-04-17 09:37:43Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMessageCenter class declaration.
  */
@@ -53,80 +53,12 @@ class SHARED_LIBRARY_STUFF UIMessageCenter : public QObject
 {
     Q_OBJECT;
 
-signals:
-
-    /** Asks to show message-box.
-      * @param  pParent           Brings the message-box parent.
-      * @param  enmType           Brings the message-box type.
-      * @param  strMessage        Brings the message.
-      * @param  strDetails        Brings the details.
-      * @param  iButton1          Brings the button 1 type.
-      * @param  iButton2          Brings the button 2 type.
-      * @param  iButton3          Brings the button 3 type.
-      * @param  strButtonText1    Brings the button 1 text.
-      * @param  strButtonText2    Brings the button 2 text.
-      * @param  strButtonText3    Brings the button 3 text.
-      * @param  strAutoConfirmId  Brings whether this message can be auto-confirmed. */
-    void sigToShowMessageBox(QWidget *pParent, MessageType enmType,
-                             const QString &strMessage, const QString &strDetails,
-                             int iButton1, int iButton2, int iButton3,
-                             const QString &strButtonText1, const QString &strButtonText2, const QString &strButtonText3,
-                             const QString &strAutoConfirmId, const QString &strHelpKeyword) const;
-
 public:
 
     /** Creates message-center singleton. */
     static void create();
     /** Destroys message-center singleton. */
     static void destroy();
-
-    /** Shows a general type of 'Message'.
-      * @param  pParent            Brings the message-box parent.
-      * @param  enmType            Brings the message-box type.
-      * @param  strMessage         Brings the message.
-      * @param  strDetails         Brings the details.
-      * @param  pcszAutoConfirmId  Brings the auto-confirm ID.
-      * @param  iButton1           Brings the button 1 type.
-      * @param  iButton2           Brings the button 2 type.
-      * @param  iButton3           Brings the button 3 type.
-      * @param  strButtonText1     Brings the button 1 text.
-      * @param  strButtonText2     Brings the button 2 text.
-      * @param  strButtonText3     Brings the button 3 text.
-      * @param  strHelpKeyword     Brings the help keyword string. */
-    int message(QWidget *pParent, MessageType enmType,
-                const QString &strMessage, const QString &strDetails,
-                const char *pcszAutoConfirmId = 0,
-                int iButton1 = 0, int iButton2 = 0, int iButton3 = 0,
-                const QString &strButtonText1 = QString(),
-                const QString &strButtonText2 = QString(),
-                const QString &strButtonText3 = QString(),
-                const QString &strHelpKeyword = QString()) const;
-
-    /** Shows an 'Error' type of 'Message'.
-      * Provides single Ok button.
-      * @param  pParent            Brings the message-box parent.
-      * @param  enmType            Brings the message-box type.
-      * @param  strMessage         Brings the message.
-      * @param  strDetails         Brings the details.
-      * @param  pcszAutoConfirmId  Brings the auto-confirm ID.
-      * @param  strHelpKeyword     Brings the help keyword string. */
-    void error(QWidget *pParent, MessageType enmType,
-               const QString &strMessage,
-               const QString &strDetails,
-               const char *pcszAutoConfirmId = 0,
-               const QString &strHelpKeyword = QString()) const;
-
-    /** Shows an 'Alert' type of 'Error'.
-      * Omit details.
-      * @param  pParent            Brings the message-box parent.
-      * @param  enmType            Brings the message-box type.
-      * @param  strMessage         Brings the message.
-      * @param  pcszAutoConfirmId  Brings the auto-confirm ID.
-      * @param  strHelpKeyword     Brings the help keyword string. */
-    void alert(QWidget *pParent, MessageType enmType,
-               const QString &strMessage,
-               const char *pcszAutoConfirmId = 0,
-               const QString &strHelpKeyword = QString()) const;
 
 public slots:
 
@@ -139,27 +71,6 @@ public slots:
     void sltShowHelpAboutDialog();
     void sltResetSuppressedMessages();
 
-private slots:
-
-    /** Shows message-box.
-      * @param  pParent           Brings the message-box parent.
-      * @param  enmType           Brings the message-box type.
-      * @param  strMessage        Brings the message.
-      * @param  strDetails        Brings the details.
-      * @param  iButton1          Brings the button 1 type.
-      * @param  iButton2          Brings the button 2 type.
-      * @param  iButton3          Brings the button 3 type.
-      * @param  strButtonText1    Brings the button 1 text.
-      * @param  strButtonText2    Brings the button 2 text.
-      * @param  strButtonText3    Brings the button 3 text.
-      * @param  strAutoConfirmId  Brings whether this message can be auto-confirmed.
-      * @param  strHelpKeyword    Brings the help keyword string. */
-    void sltShowMessageBox(QWidget *pParent, MessageType enmType,
-                           const QString &strMessage, const QString &strDetails,
-                           int iButton1, int iButton2, int iButton3,
-                           const QString &strButtonText1, const QString &strButtonText2, const QString &strButtonText3,
-                           const QString &strAutoConfirmId, const QString &strHelpKeyword) const;
-
 private:
 
     /** Constructs message-center. */
@@ -169,25 +80,6 @@ private:
 
     /** Prepares all. */
     void prepare();
-
-    /** Shows message-box.
-      * @param  pParent           Brings the message-box parent.
-      * @param  enmType           Brings the message-box type.
-      * @param  strMessage        Brings the message.
-      * @param  strDetails        Brings the details.
-      * @param  iButton1          Brings the button 1 type.
-      * @param  iButton2          Brings the button 2 type.
-      * @param  iButton3          Brings the button 3 type.
-      * @param  strButtonText1    Brings the button 1 text.
-      * @param  strButtonText2    Brings the button 2 text.
-      * @param  strButtonText3    Brings the button 3 text.
-      * @param  strAutoConfirmId  Brings whether this message can be auto-confirmed.
-      * @param  strHelpKeyword    Brings the help keyowrd. */
-    int showMessageBox(QWidget *pParent, MessageType type,
-                       const QString &strMessage, const QString &strDetails,
-                       int iButton1, int iButton2, int iButton3,
-                       const QString &strButtonText1, const QString &strButtonText2, const QString &strButtonText3,
-                       const QString &strAutoConfirmId, const QString &strHelpKeyword) const;
 
     /** Holds the singleton message-center instance. */
     static UIMessageCenter *s_pInstance;

@@ -1,4 +1,4 @@
-/* $Id: UIDnDHandler.cpp 113907 2026-04-16 14:33:46Z sergey.dubov@oracle.com $ */
+/* $Id: UIDnDHandler.cpp 113938 2026-04-17 09:37:43Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIDnDHandler class implementation.
  */
@@ -48,7 +48,6 @@
 #include "UIDnDMIMEData.h"
 #endif /* VBOX_WITH_DRAG_AND_DROP_GH */
 #include "UIMachine.h"
-#include "UIMessageCenter.h"
 #include "UINotificationCenter.h"
 #include "UISession.h"
 
