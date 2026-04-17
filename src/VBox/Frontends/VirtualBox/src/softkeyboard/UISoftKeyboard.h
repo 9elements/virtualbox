@@ -1,4 +1,4 @@
-/* $Id: UISoftKeyboard.h 112756 2026-01-29 16:42:26Z sergey.dubov@oracle.com $ */
+/* $Id: UISoftKeyboard.h 113933 2026-04-17 08:41:38Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UISoftKeyboard class declaration.
  */
@@ -40,6 +40,7 @@ class QToolButton;
 class UIKeyboardLayoutEditor;
 class UILayoutSelector;
 class UIMachine;
+class UINotificationCenter;
 class UISoftKeyboardKey;
 class UISoftKeyboardSettingsWidget;
 class UISoftKeyboardStatusBarWidget;
@@ -108,6 +109,9 @@ private:
     void configure();
     void updateStatusBarMessage(const QString &strLayoutName);
     void updateLayoutSelectorList();
+
+    /** Holds the local notification-center instance. */
+    UINotificationCenter *m_pNotificationCenter;
 
     UIMachine     *m_pMachine;
     QWidget       *m_pCenterWidget;

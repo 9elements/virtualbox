@@ -1,4 +1,4 @@
-/* $Id: UISoftKeyboard.cpp 113262 2026-03-04 20:12:57Z sergey.dubov@oracle.com $ */
+/* $Id: UISoftKeyboard.cpp 113933 2026-04-17 08:41:38Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UISoftKeyboard class implementation.
  */
@@ -61,6 +61,7 @@
 #include "UILoggingDefs.h"
 #include "UIMachine.h"
 #include "UIMessageCenter.h"
+#include "UINotificationCenter.h"
 #include "UIModalWindowManager.h"
 #include "UISoftKeyboard.h"
 #include "UITranslationEventListener.h"
@@ -3988,6 +3989,7 @@ void UISoftKeyboardSettingsWidget::sltColorSelectionButtonClicked()
 UISoftKeyboard::UISoftKeyboard(QWidget *pParent, UIMachine *pMachine,
                                QWidget *pCenterWidget, QString strMachineName /* = QString() */)
     : QIMainWindow(pParent)
+    , m_pNotificationCenter(0)
     , m_pMachine(pMachine)
     , m_pCenterWidget(pCenterWidget)
     , m_pMainLayout(0)
@@ -4275,6 +4277,14 @@ void UISoftKeyboard::sltHandleHelpRequest()
 
 void UISoftKeyboard::prepareObjects()
 {
+    /* Prepare local notification-center (parent to be assigned in the end): */
+    m_pNotificationCenter = new UINotificationCenter(0);
+    if (m_pNotificationCenter)
+    {
+        QPointer<UINotificationCenter> target = m_pNotificationCenter;
+        setProperty("notification_center", QVariant::fromValue(target));
+    }
+
     m_pSplitter = new QSplitter;
     if (!m_pSplitter)
         return;
@@ -4316,6 +4326,10 @@ void UISoftKeyboard::prepareObjects()
     statusBar()->setStyleSheet( "QStatusBar::item { border: 0px}" );
     m_pStatusBarWidget = new UISoftKeyboardStatusBarWidget;
     statusBar()->addPermanentWidget(m_pStatusBarWidget);
+
+    /* Assign notification-center parent (after everything else is done): */
+    if (m_pNotificationCenter)
+        m_pNotificationCenter->setParent(this);
 }
 
 void UISoftKeyboard::prepareConnections()
