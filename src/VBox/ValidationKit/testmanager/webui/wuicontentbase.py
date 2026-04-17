@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# $Id: wuicontentbase.py 113386 2026-03-13 12:55:16Z knut.osmundsen@oracle.com $
+# $Id: wuicontentbase.py 113945 2026-04-17 21:48:07Z knut.osmundsen@oracle.com $
 
 """
 Test Manager Web-UI - Content Base Classes.
@@ -36,7 +36,7 @@ terms and conditions of either the GPL or the CDDL or both.
 
 SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 """
-__version__ = "$Revision: 113386 $"
+__version__ = "$Revision: 113945 $"
 
 
 # Standard python imports.
@@ -86,7 +86,7 @@ class WuiLinkBase(WuiHtmlBase): # pylint: disable=too-few-public-methods
     """
 
     def __init__(self, sName, sUrlBase, dParams = None, sConfirm = None, sTitle = None,
-                 sFragmentId = None, fBracketed = True, sExtraAttrs = ''):
+                 sFragmentId = None, fBracketed = True, sExtraAttrs = '', sImgFile = None, sImgClass = 'icon'):
         WuiHtmlBase.__init__(self);
         self.sName          = sName
         self.sUrl           = sUrlBase
@@ -94,6 +94,8 @@ class WuiLinkBase(WuiHtmlBase): # pylint: disable=too-few-public-methods
         self.sTitle         = sTitle;
         self.fBracketed     = fBracketed;
         self.sExtraAttrs    = sExtraAttrs;
+        self.sImgUrl        = 'htdocs/images/' + sImgFile if sImgFile else None;
+        self.sImgClass      = sImgClass;
 
         if dParams:
             # Do some massaging of None arguments.
@@ -123,10 +125,14 @@ class WuiLinkBase(WuiHtmlBase): # pylint: disable=too-few-public-methods
         if sExtraAttrs and sExtraAttrs[-1] != ' ':
             sExtraAttrs += ' ';
 
-        sFmt = '[<a %shref="%s">%s</a>]';
-        if not self.fBracketed:
-            sFmt = '<a %shref="%s">%s</a>';
-        return sFmt % (sExtraAttrs, webutils.escapeAttr(self.sUrl), webutils.escapeElem(self.sName));
+        if not self.sImgUrl:
+            sFmt = '[<a %shref="%s">%s</a>]';
+            if not self.fBracketed:
+                sFmt = '<a %shref="%s">%s</a>';
+            return sFmt % (sExtraAttrs, webutils.escapeAttr(self.sUrl), webutils.escapeElem(self.sName));
+        return '<a %shref="%s"><img alt="%s" class="%s" src="%s"/></a>' \
+            % (sExtraAttrs, webutils.escapeAttr(self.sUrl), webutils.escapeAttr(self.sName),
+               webutils.escapeAttr(self.sImgClass), webutils.escapeAttr(self.sImgUrl));
 
     @staticmethod
     def estimateStringWidth(sString):
@@ -169,7 +175,7 @@ class WuiTmLink(WuiLinkBase): # pylint: disable=too-few-public-methods
     kdDbgParams = [];
 
     def __init__(self, sName, sUrlBase, dParams = None, sConfirm = None, sTitle = None,
-                 sFragmentId = None, fBracketed = True):
+                 sFragmentId = None, fBracketed = True, sImgFile = None):
 
         # Add debug parameters if necessary.
         if self.kdDbgParams:
@@ -181,14 +187,14 @@ class WuiTmLink(WuiLinkBase): # pylint: disable=too-few-public-methods
                     if sKey not in dParams:
                         dParams[sKey] = self.kdDbgParams[sKey];
 
-        WuiLinkBase.__init__(self, sName, sUrlBase, dParams, sConfirm, sTitle, sFragmentId, fBracketed);
+        WuiLinkBase.__init__(self, sName, sUrlBase, dParams, sConfirm, sTitle, sFragmentId, fBracketed, sImgFile = sImgFile);
 
 
 class WuiAdminLink(WuiTmLink): # pylint: disable=too-few-public-methods
     """ Local link to the test manager's admin portion. """
 
     def __init__(self, sName, sAction, tsEffectiveDate = None, dParams = None, sConfirm = None, sTitle = None,
-                 sFragmentId = None, fBracketed = True):
+                 sFragmentId = None, fBracketed = True, sImgFile = None):
         from testmanager.webui.wuiadmin import WuiAdmin;
         if not dParams:
             dParams = {};
@@ -199,12 +205,13 @@ class WuiAdminLink(WuiTmLink): # pylint: disable=too-few-public-methods
         if tsEffectiveDate is not None:
             dParams[WuiAdmin.ksParamEffectiveDate] = tsEffectiveDate;
         WuiTmLink.__init__(self, sName, WuiAdmin.ksScriptName, dParams = dParams, sConfirm = sConfirm, sTitle = sTitle,
-                           sFragmentId = sFragmentId, fBracketed = fBracketed);
+                           sFragmentId = sFragmentId, fBracketed = fBracketed, sImgFile = sImgFile);
 
 class WuiMainLink(WuiTmLink): # pylint: disable=too-few-public-methods
     """ Local link to the test manager's main portion. """
 
-    def __init__(self, sName, sAction, dParams = None, sConfirm = None, sTitle = None, sFragmentId = None, fBracketed = True):
+    def __init__(self, sName, sAction, dParams = None, sConfirm = None, sTitle = None, sFragmentId = None,
+                 fBracketed = True, sImgFile = None):
         if not dParams:
             dParams = {};
         else:
@@ -213,7 +220,7 @@ class WuiMainLink(WuiTmLink): # pylint: disable=too-few-public-methods
         if sAction is not None:
             dParams[WuiMain.ksParamAction] = sAction;
         WuiTmLink.__init__(self, sName, WuiMain.ksScriptName, dParams = dParams, sConfirm = sConfirm, sTitle = sTitle,
-                           sFragmentId = sFragmentId, fBracketed = fBracketed);
+                           sFragmentId = sFragmentId, fBracketed = fBracketed, sImgFile = sImgFile);
 
 class WuiSvnLink(WuiLinkBase): # pylint: disable=too-few-public-methods
     """

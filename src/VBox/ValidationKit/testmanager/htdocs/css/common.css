@@ -1,4 +1,4 @@
-﻿/* $Id: common.css 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+﻿/* $Id: common.css 113945 2026-04-17 21:48:07Z knut.osmundsen@oracle.com $ */
 /** @file
  * Test Manager - Common CSS.
  */
@@ -102,6 +102,11 @@ dl {
     float:          right;
 }
 
+.icon {
+    width:          1.0em;
+    height:         1.0em;
+    vertical-align: middle;
+}
 
 
 /*

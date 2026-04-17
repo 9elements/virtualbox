@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# $Id: wuitestresult.py 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $
+# $Id: wuitestresult.py 113945 2026-04-17 21:48:07Z knut.osmundsen@oracle.com $
 
 """
 Test Manager WUI - Test Results.
@@ -36,7 +36,7 @@ terms and conditions of either the GPL or the CDDL or both.
 
 SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 """
-__version__ = "$Revision: 112403 $"
+__version__ = "$Revision: 113945 $"
 
 # Python imports.
 import datetime;
@@ -79,7 +79,12 @@ class WuiTestResultsForSomethingLink(WuiTmLink):
         dParams = dict(dExtraParams) if dExtraParams else {};
         dParams[WuiMain.ksParamAction] = sGroupedBy;
         dParams[WuiMain.ksParamGroupMemberId] = idGroupMember;
-        WuiTmLink.__init__(self, sName, WuiMain.ksScriptName, dParams, fBracketed = fBracketed);
+        if sName == WuiContentBase.ksShortTestResultsLink:
+            sImgFile   = 'results.svg';
+            fBracketed = False;
+        else:
+            sImgFile = None;
+        WuiTmLink.__init__(self, sName, WuiMain.ksScriptName, dParams, fBracketed = fBracketed, sImgFile = sImgFile);
 
 
 class WuiTestResultsForTestBoxLink(WuiTestResultsForSomethingLink):

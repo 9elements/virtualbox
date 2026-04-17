@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# $Id: wuireport.py 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $
+# $Id: wuireport.py 113945 2026-04-17 21:48:07Z knut.osmundsen@oracle.com $
 
 """
 Test Manager WUI - Reports.
@@ -36,7 +36,7 @@ terms and conditions of either the GPL or the CDDL or both.
 
 SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 """
-__version__ = "$Revision: 112403 $"
+__version__ = "$Revision: 113945 $"
 
 
 # Validation Kit imports.
@@ -69,7 +69,14 @@ class WuiReportSummaryLink(WuiTmLink):
             dParams[WuiMain.ksParamReportPeriods] = cPeriods;
         if cPeriods is not None:
             dParams[WuiMain.ksParamReportPeriodInHours] = cHoursPerPeriod;
-        WuiTmLink.__init__(self, sName, WuiMain.ksScriptName, dParams, fBracketed = fBracketed);
+        sTitle = 'Statistics...';
+        if sName == WuiContentBase.ksShortReportLink:
+            sImgFile   = 'stats.svg';
+            fBracketed = False;
+        else:
+            sImgFile  = None;
+        WuiTmLink.__init__(self, sName, WuiMain.ksScriptName, dParams, fBracketed = fBracketed,
+                           sTitle = sTitle, sImgFile = sImgFile);
 
 
 class WuiReportBase(WuiContentBase):
