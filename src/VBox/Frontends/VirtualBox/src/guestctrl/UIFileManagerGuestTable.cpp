@@ -1,4 +1,4 @@
-/* $Id: UIFileManagerGuestTable.cpp 113886 2026-04-15 11:42:59Z sergey.dubov@oracle.com $ */
+/* $Id: UIFileManagerGuestTable.cpp 113939 2026-04-17 10:13:41Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIFileManagerGuestTable class implementation.
  */
@@ -721,10 +721,13 @@ void UIFileManagerGuestTable::copyHostToGuest(const QStringList &hostSourcePathL
     {
         sourcePaths[i] = UIPathOperations::removeTrailingDelimiters(sourcePaths[i]);
         KFsObjType enmFileType = UIFileManagerHostTable::fileType(sourcePaths[i]);
-        if (enmFileType == KFsObjType_Unknown)
-            emit sigLogOutput(QString("Querying information for host item %1 failed.").arg(sourcePaths[i]), m_strTableName, FileManagerLogType_Error);
         /* If the source is an directory, make sure to add the appropriate flag to make copying work
          * into existing directories on the guest. This otherwise would fail (default): */
+        if (enmFileType == KFsObjType_Unknown)
+        {
+            emit sigLogOutput(QString("Querying information for host item %1 failed.").arg(sourcePaths[i]), m_strTableName, FileManagerLogType_Error);
+            aFlags << "";
+        }
         else if (enmFileType == KFsObjType_Directory)
             aFlags << strDirectoryFlags;
         else
@@ -967,6 +970,8 @@ QString UIFileManagerGuestTable::fsObjectPropertyString()
     return propertyStringList.join(QString());;
 }
 
+/* @todo This does not call UIGuestDirectoryDiskUsageComputer::directoryStatisticsRecursive the way
+host side does. Maybe it is because it causes many API calls: */
 void UIFileManagerGuestTable::showProperties()
 {
     if (m_comGuestSession.isNull())

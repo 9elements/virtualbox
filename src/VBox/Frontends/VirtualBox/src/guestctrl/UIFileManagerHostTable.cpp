@@ -1,4 +1,4 @@
-/* $Id: UIFileManagerHostTable.cpp 113262 2026-03-04 20:12:57Z sergey.dubov@oracle.com $ */
+/* $Id: UIFileManagerHostTable.cpp 113939 2026-04-17 10:13:41Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIFileManagerHostTable class implementation.
  */
@@ -289,20 +289,23 @@ void UIFileManagerHostTable::deleteByItem(UIFileSystemItem *item)
 {
     if (item->isUpDirectory())
         return;
+    bool deleteSuccess = true;
     if (!item->isDirectory())
     {
         QDir itemToDelete;
-        itemToDelete.remove(UIPathOperations::removeTrailingDelimiters(item->path()));
+        deleteSuccess = itemToDelete.remove(UIPathOperations::removeTrailingDelimiters(item->path()));
     }
-    QDir itemToDelete(item->path());
-    itemToDelete.setFilter(QDir::NoDotAndDotDot);
-    /* Try to delete item recursively (in case of directories).
-       note that this is no good way of deleting big directory
-       trees. We need a better error reporting and a kind of progress
-       indicator: */
-    /** @todo replace this recursive delete by a better implementation: */
-    bool deleteSuccess = itemToDelete.removeRecursively();
-
+    else
+    {
+        QDir itemToDelete(item->path());
+        itemToDelete.setFilter(QDir::NoDotAndDotDot);
+        /* Try to delete item recursively (in case of directories).
+        note that this is no good way of deleting big directory
+        trees. We need a better error reporting and a kind of progress
+        indicator: */
+        /** @todo replace this recursive delete by a better implementation: */
+        deleteSuccess = itemToDelete.removeRecursively();
+    }
     if (!deleteSuccess)
         emit sigLogOutput(QString(item->path()).append(" could not be deleted"), m_strTableName, FileManagerLogType_Error);
 }
