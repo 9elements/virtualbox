@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# $Id: virtual_test_sheriff.py 113948 2026-04-17 23:42:47Z knut.osmundsen@oracle.com $
+# $Id: virtual_test_sheriff.py 113949 2026-04-17 23:48:48Z knut.osmundsen@oracle.com $
 # pylint: disable=line-too-long
 
 """
@@ -45,7 +45,7 @@ terms and conditions of either the GPL or the CDDL or both.
 
 SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 """
-__version__ = "$Revision: 113948 $"
+__version__ = "$Revision: 113949 $"
 
 
 # Standard python imports
@@ -353,7 +353,7 @@ class VirtualTestSheriff(object): # pylint: disable=too-few-public-methods
 
         if self.oConfig.sLogFile:
             self.oLogFile = open(self.oConfig.sLogFile, "a");   # pylint: disable=consider-using-with,unspecified-encoding
-            self.oLogFile.write('VirtualTestSheriff: $Revision: 113948 $ \n');
+            self.oLogFile.write('VirtualTestSheriff: $Revision: 113949 $ \n');
 
 
     def eprint(self, sText):
@@ -768,7 +768,7 @@ class VirtualTestSheriff(object): # pylint: disable=too-few-public-methods
         for idTestResult, tReason in dReasonForResultId.items():
             oFailureReason = self.getFailureReason(tReason);
             if oFailureReason is not None:
-                sComment = 'Set by $Revision: 113948 $' # Handy for reverting later.
+                sComment = 'Set by $Revision: 113949 $' # Handy for reverting later.
                 if idTestResult in dCommentForResultId:
                     sComment += ': ' + dCommentForResultId[idTestResult];
 
@@ -1136,18 +1136,18 @@ class VirtualTestSheriff(object): # pylint: disable=too-few-public-methods
     ## This we search a main log for to figure out why something went bust.
     katSimpleMainLogReasons = [
         # ( Whether to stop on hit, reason tuple, needle text. )
+        ( True,  ktReason_Host_DiskFull,                            'VERR_DISK_FULL' ),
         ( False, ktReason_Host_win32com_gen_py_not_found,           'ModuleNotFoundError: No module named \'win32com.gen_py' ),
         ( False, ktReason_Host_Python_vboxapi_not_found,            'ImportError: No module named vboxapi' ),
         ( False, ktReason_Host_Python_xpcom_not_found,              'ImportError: No module named xpcom' ),
-        ( False, ktReason_Host_DiskFull,                            'VERR_DISK_FULL' ),
     ];
 
     ## This we search a VM log  for to figure out why something went bust.
     katSimpleVmLogReasons = [
         # ( Whether to stop on hit, reason tuple, needle text. )
         # Note: Works for ATA and VD drivers.
+        ( True,  ktReason_Host_DiskFull,                            'VERR_DISK_FULL' ),
         ( False, ktReason_Host_DiskFull,                            '_DISKFULL' ),
-        ( False, ktReason_Host_DiskFull,                            'VERR_DISK_FULL' ),
     ];
 
     ## Things we search a VBoxHardening.log file for to figure out why something went bust.
