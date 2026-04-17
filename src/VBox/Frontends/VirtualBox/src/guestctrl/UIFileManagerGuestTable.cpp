@@ -1,4 +1,4 @@
-/* $Id: UIFileManagerGuestTable.cpp 113939 2026-04-17 10:13:41Z serkan.bayraktar@oracle.com $ */
+/* $Id: UIFileManagerGuestTable.cpp 113944 2026-04-17 11:45:44Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIFileManagerGuestTable class implementation.
  */
@@ -970,7 +970,7 @@ QString UIFileManagerGuestTable::fsObjectPropertyString()
     return propertyStringList.join(QString());;
 }
 
-/* @todo This does not call UIGuestDirectoryDiskUsageComputer::directoryStatisticsRecursive the way
+/** @todo This does not call UIGuestDirectoryDiskUsageComputer::directoryStatisticsRecursive the way
 host side does. Maybe it is because it causes many API calls: */
 void UIFileManagerGuestTable::showProperties()
 {
