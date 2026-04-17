@@ -1,4 +1,4 @@
-/* $Id: UINotificationQuestion.cpp 113785 2026-04-09 11:04:06Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationQuestion.cpp 113931 2026-04-17 08:14:02Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationQuestion implementations.
  */
@@ -61,6 +61,36 @@ bool UINotificationQuestion::confirmCheckingInaccessibleMedia()
         QString() /* option */,
         "confirmCheckingInaccessibleMedia" /* internal name */);
 }
+
+#ifdef VBOX_GUI_WITH_EXTRADATA_MANAGER_UI
+/* static */
+bool UINotificationQuestion::confirmOverwritingExistingKeyValue(QWidget *pParent)
+{
+    return createBlockingQuestion(
+        QString("Overwrite existing key?"),
+        QString("Overwriting already existing key, Continue?"),
+        QStringList() << QString() /* cancel button text */
+                      << QString("Overwrite") /* ok button text */,
+        false /* Ok by default? */,
+        pParent);
+}
+
+/* static */
+bool UINotificationQuestion::confirmLoadingWithInconsistentKey(const QUuid &uKey1, const QUuid &uKey2, QWidget *pParent)
+{
+    return createBlockingQuestion(
+        QString("Load value?"),
+        QString("<p>Inconsistent extra-data ID:</p>"
+                "<p>Current: {%1}</p>"
+                "<p>Loading: {%2}</p>"
+                "<p>Continue with loading?</p>")
+                .arg(uKey1.toString(), uKey2.toString()),
+        QStringList() << QString() /* cancel button text */
+                      << QString("Load") /* ok button text */,
+        true /* Ok by default? */,
+        pParent);
+}
+#endif /* VBOX_GUI_WITH_EXTRADATA_MANAGER_UI */
 
 /* static */
 bool UINotificationQuestion::confirmCreatingPath(const QString &strPath)

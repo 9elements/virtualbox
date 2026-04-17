@@ -1,4 +1,4 @@
-/* $Id: UINotificationQuestion.h 113785 2026-04-09 11:04:06Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationQuestion.h 113931 2026-04-17 08:14:02Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationQuestion declarations.
  */
@@ -80,11 +80,24 @@ public:
 
     /** @name General VirtualBox Manager warnings.
       * @{ */
-        /** Confirm checking inaccessible media. */
+        /** Confirms checking inaccessible media. */
         static bool confirmCheckingInaccessibleMedia();
     /** @} */
 
-    /** @name VirtualBox Manager warnings / Modify VM
+#ifdef VBOX_GUI_WITH_EXTRADATA_MANAGER_UI
+    /** @name VirtualBox Manager / Extra-data Manager warnings.
+      * @{ */
+        /** Confirms overwriting existing key/value pair. */
+        static bool confirmOverwritingExistingKeyValue(QWidget *pParent);
+
+        /** Confirms loading data with inconsistent key. */
+        static bool confirmLoadingWithInconsistentKey(const QUuid &uKey1,
+                                                      const QUuid &uKey2,
+                                                      QWidget *pParent);
+    /** @} */
+#endif /* VBOX_GUI_WITH_EXTRADATA_MANAGER_UI */
+
+    /** @name VirtualBox Manager / Modify VM warnings
       * @{ */
         /** Confirms creation of the @a strPath for the machine to move in. */
         static bool confirmCreatingPath(const QString &strPath);
@@ -107,7 +120,7 @@ public:
         static bool confirmSnapshotRemoval(const QString &strName);
     /** @} */
 
-    /** @name VirtualBox Manager warnings / Control VM
+    /** @name VirtualBox Manager / Control VM warnings
       * @{ */
         /** Confirms starting machines with @a strNames specified. */
         static bool confirmStartMultipleMachines(const QString &strNames);
@@ -145,7 +158,7 @@ public:
         static bool confirmSettingsReloading(QWidget *pParent);
     /** @} */
 
-    /** @name Extension Pack Manager warnings
+    /** @name VirtualBox Manager / Extension Pack Manager warnings
       * @{ */
         /** Confirms installing extension pack. */
         static bool confirmInstallExtensionPack(const QString &strPackName,
@@ -193,7 +206,7 @@ public:
         static bool confirmVisoDiscard(QWidget *pParent);
     /** @} */
 
-    /** @name Network Manager warnings.
+    /** @name VirtualBox Manager / Network Manager warnings.
       * @{ */
         /** Confirms cloud network removal. */
         static bool confirmCloudNetworkRemoval(const QString &strName,
@@ -209,7 +222,7 @@ public:
                                              QWidget *pParent);
     /** @} */
 
-    /** @name Cloud Profile Manager warnings.
+    /** @name VirtualBox Manager / Cloud Profile Manager warnings.
       * @{ */
         /** Confirms cloud profile removal. */
         static bool confirmCloudProfileRemoval(const QString &strName, QWidget *pParent);
@@ -217,7 +230,7 @@ public:
         static bool confirmCloudProfilesImport(QWidget *pParent);
     /** @} */
 
-    /** @name Cloud Console Manager warnings.
+    /** @name VirtualBox Manager / Cloud Console Manager warnings.
       * @{ */
         /** Confirms cloud console application removal. */
         static bool confirmCloudConsoleApplicationRemoval(const QString &strName);
@@ -226,7 +239,7 @@ public:
     /** @} */
 
 #ifdef VBOX_GUI_WITH_NETWORK_MANAGER
-    /** @name Downloader warnings.
+    /** @name VirtualBox Manager / Downloader warnings.
       * @{ */
         /** Confirms looking for guest additions. */
         static bool confirmLookingForGuestAdditions();
@@ -248,7 +261,7 @@ public:
     /** @} */
 #endif /* VBOX_GUI_WITH_NETWORK_MANAGER */
 
-    /** @name Wizard warnings.
+    /** @name VirtualBox Manager / Wizard warnings.
       * @{ */
         /** Confirms exporting machine in saved-state. */
         static bool confirmExportMachinesInSaveState(const QStringList &machineNames, QWidget *pParent);

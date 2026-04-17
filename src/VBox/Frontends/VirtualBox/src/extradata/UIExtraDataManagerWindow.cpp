@@ -1,4 +1,4 @@
-/* $Id: UIExtraDataManagerWindow.cpp 113930 2026-04-17 08:01:06Z sergey.dubov@oracle.com $ */
+/* $Id: UIExtraDataManagerWindow.cpp 113931 2026-04-17 08:14:02Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIExtraDataManagerWindow class implementation.
  */
@@ -642,12 +642,7 @@ void UIExtraDataManagerWindow::sltDataHandleItemChanged(QStandardItem *pItem)
         if (knownKeys.contains(itemIndex.data().toString()))
         {
             /* Show warning and ask for overwriting approval: */
-            if (!msgCenter().questionBinary(this, MessageType_Question,
-                                            QString("Overwriting already existing key, Continue?"),
-                                            0 /* auto-confirm id */,
-                                            QString("Overwrite") /* ok button text */,
-                                            QString() /* cancel button text */,
-                                            false /* ok button by default? */))
+            if (!UINotificationQuestion::confirmOverwritingExistingKeyValue(this))
             {
                 /* Cancel the operation, restore the original extra-data key: */
                 pItem->setData(itemIndex.data(Qt::UserRole).toString(), Qt::DisplayRole);
@@ -724,12 +719,7 @@ void UIExtraDataManagerWindow::sltAdd()
         if (knownKeys.contains(pInputDialog->key()))
         {
             /* Show warning and ask for overwriting approval: */
-            if (!msgCenter().questionBinary(this, MessageType_Question,
-                                            QString("Overwriting already existing key, Continue?"),
-                                            0 /* auto-confirm id */,
-                                            QString("Overwrite") /* ok button text */,
-                                            QString() /* cancel button text */,
-                                            false /* ok button by default? */))
+            if (!UINotificationQuestion::confirmOverwritingExistingKeyValue(this))
             {
                 /* Cancel the operation: */
                 fAdd = false;
@@ -932,12 +922,7 @@ void UIExtraDataManagerWindow::sltLoad()
 
             /* Check extra-data ID: */
             if (!uLoadingID.isNull() && uLoadingID != currentChooserID() &&
-                !msgCenter().questionBinary(this, MessageType_Question,
-                                            QString("<p>Inconsistent extra-data ID:</p>"
-                                                    "<p>Current: {%1}</p>"
-                                                    "<p>Loading: {%2}</p>"
-                                                    "<p>Continue with loading?</p>")
-                                                    .arg(currentChooserID().toString(), uLoadingID.toString())))
+                !UINotificationQuestion::confirmLoadingWithInconsistentKey(currentChooserID(), uLoadingID, this))
                 break;
         }
         /* Handle XML stream error: */
