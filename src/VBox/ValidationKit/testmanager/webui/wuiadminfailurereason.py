@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# $Id: wuiadminfailurereason.py 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $
+# $Id: wuiadminfailurereason.py 113947 2026-04-17 23:13:52Z knut.osmundsen@oracle.com $
 
 """
 Test Manager WUI - Failure Reasons Web content generator.
@@ -36,29 +36,30 @@ terms and conditions of either the GPL or the CDDL or both.
 
 SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 """
-__version__ = "$Revision: 112403 $"
+__version__ = "$Revision: 113947 $"
 
 
 # Validation Kit imports.
 from testmanager.webui.wuibase        import WuiException
-from testmanager.webui.wuicontentbase import WuiFormContentBase, WuiListContentBase, WuiContentBase, WuiTmLink;
+from testmanager.webui.wuicontentbase import WuiFormContentBase, WuiListContentBase, WuiContentBase, WuiTmLink, WuiTmInfoLink;
 from testmanager.core.failurereason   import FailureReasonData;
 from testmanager.core.failurecategory import FailureCategoryLogic;
 from testmanager.core.db              import TMDatabaseConnection;
 
 
 
-class WuiFailureReasonDetailsLink(WuiTmLink):
+class WuiFailureReasonDetailsLink(WuiTmInfoLink):
     """ Short link to a failure reason. """
     def __init__(self, idFailureReason, sName = WuiContentBase.ksShortDetailsLink, sTitle = None, fBracketed = None):
         if fBracketed is None:
             fBracketed = len(sName) > 2;
         from testmanager.webui.wuiadmin import WuiAdmin;
-        WuiTmLink.__init__(self, sName = sName,
-                           sUrlBase = WuiAdmin.ksScriptName,
-                           dParams = { WuiAdmin.ksParamAction: WuiAdmin.ksActionFailureReasonDetails,
-                                       FailureReasonData.ksParam_idFailureReason: idFailureReason, },
-                           fBracketed = fBracketed);
+        WuiTmInfoLink.__init__(self,
+                               sUrlBase = WuiAdmin.ksScriptName,
+                               dParams = { WuiAdmin.ksParamAction: WuiAdmin.ksActionFailureReasonDetails,
+                                           FailureReasonData.ksParam_idFailureReason: idFailureReason, },
+                               sName = sName,
+                               fBracketed = fBracketed);
         self.idFailureReason = idFailureReason;
 
 

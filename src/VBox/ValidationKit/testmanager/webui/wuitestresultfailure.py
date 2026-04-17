@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# $Id: wuitestresultfailure.py 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $
+# $Id: wuitestresultfailure.py 113947 2026-04-17 23:13:52Z knut.osmundsen@oracle.com $
 
 """
 Test Manager WUI - Dummy Test Result Failure Reason Edit Dialog - just for error handling!
@@ -36,10 +36,10 @@ terms and conditions of either the GPL or the CDDL or both.
 
 SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 """
-__version__ = "$Revision: 112403 $"
+__version__ = "$Revision: 113947 $"
 
 # Validation Kit imports.
-from testmanager.webui.wuicontentbase           import WuiFormContentBase, WuiContentBase, WuiTmLink;
+from testmanager.webui.wuicontentbase           import WuiFormContentBase, WuiContentBase, WuiTmLink, WuiTmInfoLink;
 from testmanager.webui.wuimain                  import WuiMain;
 from testmanager.webui.wuiadminfailurereason    import WuiFailureReasonDetailsLink, WuiFailureReasonAddLink;
 from testmanager.core.testresultfailures        import TestResultFailureData;
@@ -48,17 +48,18 @@ from testmanager.core.failurereason             import FailureReasonLogic;
 
 
 
-class WuiTestResultFailureDetailsLink(WuiTmLink):
+class WuiTestResultFailureDetailsLink(WuiTmInfoLink):
     """ Link for adding a failure reason. """
     def __init__(self, idTestResult, sName = WuiContentBase.ksShortDetailsLink, sTitle = None, fBracketed = None):
         if fBracketed is None:
             fBracketed = len(sName) > 2;
-        WuiTmLink.__init__(self, sName = sName,
-                           sUrlBase = WuiMain.ksScriptName,
-                           dParams = { WuiMain.ksParamAction: WuiMain.ksActionTestResultFailureDetails,
-                                       TestResultFailureData.ksParam_idTestResult: idTestResult, },
-                           fBracketed = fBracketed,
-                           sTitle = sTitle);
+        WuiTmInfoLink.__init__(self,
+                               sUrlBase = WuiMain.ksScriptName,
+                               dParams = { WuiMain.ksParamAction: WuiMain.ksActionTestResultFailureDetails,
+                                           TestResultFailureData.ksParam_idTestResult: idTestResult, },
+                               sName = sName,
+                               fBracketed = fBracketed,
+                               sTitle = sTitle);
         self.idTestResult = idTestResult;
 
 

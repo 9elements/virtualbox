@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# $Id: wuicontentbase.py 113945 2026-04-17 21:48:07Z knut.osmundsen@oracle.com $
+# $Id: wuicontentbase.py 113947 2026-04-17 23:13:52Z knut.osmundsen@oracle.com $
 
 """
 Test Manager Web-UI - Content Base Classes.
@@ -36,7 +36,7 @@ terms and conditions of either the GPL or the CDDL or both.
 
 SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 """
-__version__ = "$Revision: 113945 $"
+__version__ = "$Revision: 113947 $"
 
 
 # Standard python imports.
@@ -85,8 +85,9 @@ class WuiLinkBase(WuiHtmlBase): # pylint: disable=too-few-public-methods
     For passing links from WuiListContentBase._formatListEntry.
     """
 
-    def __init__(self, sName, sUrlBase, dParams = None, sConfirm = None, sTitle = None,
-                 sFragmentId = None, fBracketed = True, sExtraAttrs = '', sImgFile = None, sImgClass = 'icon'):
+    def __init__(self, sName, sUrlBase, dParams = None, # pylint: disable=too-many-arguments
+                 sConfirm = None, sTitle = None, sFragmentId = None, fBracketed = True,
+                 sExtraAttrs = '', sImgFile = None, sImgClass = 'icon'):
         WuiHtmlBase.__init__(self);
         self.sName          = sName
         self.sUrl           = sUrlBase
@@ -190,11 +191,28 @@ class WuiTmLink(WuiLinkBase): # pylint: disable=too-few-public-methods
         WuiLinkBase.__init__(self, sName, sUrlBase, dParams, sConfirm, sTitle, sFragmentId, fBracketed, sImgFile = sImgFile);
 
 
+class WuiTmInfoLink(WuiTmLink): # pylint: disable=too-few-public-methods
+    """ Local info link to the test manager. """
+
+    kdDbgParams = [];
+
+    def __init__(self, sUrlBase, dParams = None, sName = None, sTitle = None,
+                 sFragmentId = None, fBracketed = True, sImgFile = None):
+        if not sName:
+            sName = WuiContentBase.ksShortDetailsLink;
+            if not sImgFile:
+                sImgFile = 'info.svg';
+        elif sName == WuiContentBase.ksShortDetailsLink and not sImgFile:
+            sImgFile = 'info.svg';
+        WuiTmLink.__init__(self, sName = sName, sUrlBase = sUrlBase, dParams = dParams, sTitle = sTitle,
+                           sFragmentId = sFragmentId, fBracketed = fBracketed, sImgFile = sImgFile);
+
+
 class WuiAdminLink(WuiTmLink): # pylint: disable=too-few-public-methods
     """ Local link to the test manager's admin portion. """
 
-    def __init__(self, sName, sAction, tsEffectiveDate = None, dParams = None, sConfirm = None, sTitle = None,
-                 sFragmentId = None, fBracketed = True, sImgFile = None):
+    def __init__(self, sName, sAction, tsEffectiveDate = None, # pylint: disable=too-many-arguments
+                 dParams = None, sConfirm = None, sTitle = None, sFragmentId = None, fBracketed = True, sImgFile = None):
         from testmanager.webui.wuiadmin import WuiAdmin;
         if not dParams:
             dParams = {};

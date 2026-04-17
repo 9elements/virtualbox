@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# $Id: wuiadmintestbox.py 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $
+# $Id: wuiadmintestbox.py 113947 2026-04-17 23:13:52Z knut.osmundsen@oracle.com $
 
 """
 Test Manager WUI - TestBox.
@@ -36,7 +36,7 @@ terms and conditions of either the GPL or the CDDL or both.
 
 SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 """
-__version__ = "$Revision: 112403 $"
+__version__ = "$Revision: 113947 $"
 
 
 # Standard python imports.
@@ -45,7 +45,7 @@ import socket;
 # Validation Kit imports.
 from common                             import utils, webutils;
 from testmanager.webui.wuicontentbase   import WuiContentBase, WuiListContentWithActionBase, WuiFormContentBase, WuiLinkBase, \
-                                               WuiSvnLink, WuiTmLink, WuiSpanText, WuiRawHtml;
+                                               WuiSvnLink, WuiTmLink, WuiTmInfoLink, WuiSpanText, WuiRawHtml;
 from testmanager.core.db                import TMDatabaseConnection;
 from testmanager.core.schedgroup        import SchedGroupLogic, SchedGroupData;
 from testmanager.core.testbox           import TestBoxData, TestBoxDataEx, TestBoxLogic;
@@ -54,7 +54,7 @@ from testmanager.core.db                import isDbTimestampInfinity;
 
 
 
-class WuiTestBoxDetailsLinkById(WuiTmLink):
+class WuiTestBoxDetailsLinkById(WuiTmInfoLink):
     """  Test box details link by ID. """
 
     def __init__(self, idTestBox, sName = WuiContentBase.ksShortDetailsLink, fBracketed = False, tsNow = None, sTitle = None):
@@ -65,7 +65,7 @@ class WuiTestBoxDetailsLinkById(WuiTmLink):
         };
         if tsNow is not None:
             dParams[WuiAdmin.ksParamEffectiveDate] = tsNow; ## ??
-        WuiTmLink.__init__(self, sName, WuiAdmin.ksScriptName, dParams, fBracketed = fBracketed, sTitle = sTitle);
+        WuiTmInfoLink.__init__(self, WuiAdmin.ksScriptName, dParams, sName = sName, fBracketed = fBracketed, sTitle = sTitle);
         self.idTestBox = idTestBox;
 
 

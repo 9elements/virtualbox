@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# $Id: wuiadminfailurecategory.py 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $
+# $Id: wuiadminfailurecategory.py 113947 2026-04-17 23:13:52Z knut.osmundsen@oracle.com $
 
 """
 Test Manager WUI - Failure Categories Web content generator.
@@ -36,28 +36,30 @@ terms and conditions of either the GPL or the CDDL or both.
 
 SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 """
-__version__ = "$Revision: 112403 $"
+__version__ = "$Revision: 113947 $"
 
 
 # Validation Kit imports.
-from testmanager.webui.wuicontentbase           import WuiFormContentBase, WuiContentBase, WuiListContentBase, WuiTmLink;
+from testmanager.webui.wuicontentbase           import WuiFormContentBase, WuiContentBase, WuiListContentBase, \
+                                                       WuiTmLink, WuiTmInfoLink;
 from testmanager.webui.wuiadminfailurereason    import WuiAdminFailureReasonList;
 from testmanager.core.failurecategory           import FailureCategoryData;
 from testmanager.core.failurereason             import FailureReasonLogic;
 
 
-class WuiFailureReasonCategoryLink(WuiTmLink):
+class WuiFailureReasonCategoryLink(WuiTmInfoLink):
     """ Link to a failure category. """
     def __init__(self, idFailureCategory, sName = WuiContentBase.ksShortDetailsLink, sTitle = None, fBracketed = None):
         if fBracketed is None:
             fBracketed = len(sName) > 2;
         from testmanager.webui.wuiadmin import WuiAdmin;
-        WuiTmLink.__init__(self, sName = sName,
-                           sUrlBase = WuiAdmin.ksScriptName,
-                           dParams = { WuiAdmin.ksParamAction: WuiAdmin.ksActionFailureCategoryDetails,
-                                       FailureCategoryData.ksParam_idFailureCategory: idFailureCategory, },
-                           fBracketed = fBracketed,
-                           sTitle = sTitle);
+        WuiTmInfoLink.__init__(self,
+                               sUrlBase = WuiAdmin.ksScriptName,
+                               dParams = { WuiAdmin.ksParamAction: WuiAdmin.ksActionFailureCategoryDetails,
+                                           FailureCategoryData.ksParam_idFailureCategory: idFailureCategory, },
+                               sName = sName,
+                               fBracketed = fBracketed,
+                               sTitle = sTitle);
         self.idFailureCategory = idFailureCategory;
 
 

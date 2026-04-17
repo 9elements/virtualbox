@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# $Id: wuireport.py 113945 2026-04-17 21:48:07Z knut.osmundsen@oracle.com $
+# $Id: wuireport.py 113947 2026-04-17 23:13:52Z knut.osmundsen@oracle.com $
 
 """
 Test Manager WUI - Reports.
@@ -36,7 +36,7 @@ terms and conditions of either the GPL or the CDDL or both.
 
 SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 """
-__version__ = "$Revision: 113945 $"
+__version__ = "$Revision: 113947 $"
 
 
 # Validation Kit imports.
@@ -53,8 +53,8 @@ from testmanager.core.testresults       import TestResultFilter;
 class WuiReportSummaryLink(WuiTmLink):
     """ Generic report summary link. """
 
-    def __init__(self, sSubject, aIdSubjects, sName = WuiContentBase.ksShortReportLink,
-                 tsNow = None, cPeriods = None, cHoursPerPeriod = None, fBracketed = False, dExtraParams = None):
+    def __init__(self, sSubject, aIdSubjects,
+                 tsNow = None, cPeriods = None, cHoursPerPeriod = None, fBracketed = False, sTitle = None, dExtraParams = None):
         from testmanager.webui.wuimain import WuiMain;
         dParams = {
             WuiMain.ksParamAction:                WuiMain.ksActionReportSummary,
@@ -69,14 +69,8 @@ class WuiReportSummaryLink(WuiTmLink):
             dParams[WuiMain.ksParamReportPeriods] = cPeriods;
         if cPeriods is not None:
             dParams[WuiMain.ksParamReportPeriodInHours] = cHoursPerPeriod;
-        sTitle = 'Statistics...';
-        if sName == WuiContentBase.ksShortReportLink:
-            sImgFile   = 'stats.svg';
-            fBracketed = False;
-        else:
-            sImgFile  = None;
-        WuiTmLink.__init__(self, sName, WuiMain.ksScriptName, dParams, fBracketed = fBracketed,
-                           sTitle = sTitle, sImgFile = sImgFile);
+        WuiTmLink.__init__(self, WuiContentBase.ksShortReportLink, WuiMain.ksScriptName, dParams, fBracketed = fBracketed,
+                           sTitle = sTitle if sTitle else 'Statistics...', sImgFile = 'stats.svg');
 
 
 class WuiReportBase(WuiContentBase):
@@ -656,6 +650,7 @@ class WuiReportTestCaseFailures(WuiReportFailuresWithTotalBase):
                ( WuiTestResultsForTestCaseLink(idKey, oTestCase.sName, self._dExtraTestResultsParams).toHtml(),
                  WuiTestCaseDetailsLink(oTestCase.idTestCase).toHtml(),
                  WuiReportSummaryLink(ReportModelBase.ksSubTestCase, oTestCase.idTestCase,
+                                      sTitle = 'Testcase statistics...',
                                       dExtraParams = self._dExtraParams).toHtml(),);
 
     def _formatSeriedNameForGraph(self, oSubject):
@@ -750,6 +745,7 @@ class WuiReportTestBoxFailures(WuiReportFailuresWithTotalBase):
         sHtml += WuiTestBoxDetailsLinkShort(oTestBox).toHtml();
         sHtml += u' ';
         sHtml += WuiReportSummaryLink(ReportModelBase.ksSubTestBox, oTestBox.idTestBox,
+                                      sTitle = 'Testbox statistics...',
                                       dExtraParams = self._dExtraParams).toHtml();
         sHtml += u'</td>';
         sOsAndVer = '%s %s' % (oTestBox.sOs, oTestBox.sOsVersion.strip(),);

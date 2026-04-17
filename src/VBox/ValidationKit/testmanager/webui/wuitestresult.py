@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# $Id: wuitestresult.py 113945 2026-04-17 21:48:07Z knut.osmundsen@oracle.com $
+# $Id: wuitestresult.py 113947 2026-04-17 23:13:52Z knut.osmundsen@oracle.com $
 
 """
 Test Manager WUI - Test Results.
@@ -36,15 +36,15 @@ terms and conditions of either the GPL or the CDDL or both.
 
 SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 """
-__version__ = "$Revision: 113945 $"
+__version__ = "$Revision: 113947 $"
 
 # Python imports.
 import datetime;
 
 # Validation Kit imports.
-from testmanager.webui.wuicontentbase           import WuiContentBase, WuiListContentBase, WuiHtmlBase, WuiTmLink, WuiLinkBase, \
-                                                       WuiSvnLink, WuiSvnLinkWithTooltip, WuiBuildLogLink, WuiRawHtml, \
-                                                       WuiHtmlKeeper;
+from testmanager.webui.wuicontentbase           import WuiContentBase, WuiListContentBase, WuiHtmlBase, WuiTmLink, \
+                                                       WuiTmInfoLink, WuiLinkBase, WuiSvnLink, WuiSvnLinkWithTooltip, \
+                                                       WuiBuildLogLink, WuiRawHtml, WuiHtmlKeeper;
 from testmanager.webui.wuimain                  import WuiMain;
 from testmanager.webui.wuihlpform               import WuiHlpForm;
 from testmanager.webui.wuiadminfailurereason    import WuiFailureReasonAddLink, WuiFailureReasonDetailsLink;
@@ -62,13 +62,16 @@ from testmanager                                import config;
 from common                                     import webutils, utils;
 
 
-class WuiTestSetLink(WuiTmLink):
+class WuiTestSetLink(WuiTmInfoLink):
     """  Test set link. """
 
     def __init__(self, idTestSet, sName = WuiContentBase.ksShortDetailsLink, fBracketed = False):
-        WuiTmLink.__init__(self, sName, WuiMain.ksScriptName,
-                           { WuiMain.ksParamAction: WuiMain.ksActionTestResultDetails,
-                             TestSetData.ksParam_idTestSet: idTestSet, }, fBracketed = fBracketed);
+        WuiTmInfoLink.__init__(self, WuiMain.ksScriptName,
+                               { WuiMain.ksParamAction: WuiMain.ksActionTestResultDetails,
+                                 TestSetData.ksParam_idTestSet: idTestSet, },
+                               sName = sName,
+                               sTitle = 'Show testset #%s...' % (idTestSet,),
+                               fBracketed = fBracketed);
         self.idTestSet = idTestSet;
 
 class WuiTestResultsForSomethingLink(WuiTmLink):
@@ -540,6 +543,7 @@ class WuiTestResult(WuiContentBase):
                                       fBracketed = False),
                             WuiTestResultsForTestCaseLink(oTestCaseEx.idTestCase),
                             WuiReportSummaryLink(ReportModelBase.ksSubTestCase, oTestCaseEx.idTestCase,
+                                                 sTitle = 'Test case statistics...',
                                                  tsNow = tsReportEffectiveDate, fBracketed = False),
                           ]),
         ];
@@ -583,6 +587,7 @@ class WuiTestResult(WuiContentBase):
                                           self.oWuiAdmin.ksParamEffectiveDate:  oTestSet.tsConfig,  },
                                         fBracketed = False),
                               WuiReportSummaryLink(ReportModelBase.ksSubTestGroup, oTestGroup.idTestGroup,
+                                                   sTitle = 'Test group statistics...',
                                                    tsNow = tsReportEffectiveDate, fBracketed = False),
                               ]), ),
         ];
@@ -612,6 +617,7 @@ class WuiTestResult(WuiContentBase):
                                           fBracketed = False),
                                 WuiTestResultsForBuildRevLink(oBuildEx.iRevision),
                                 WuiReportSummaryLink(ReportModelBase.ksSubBuild, oBuildEx.idBuild,
+                                                     sTitle = 'Build statistics...',
                                                      tsNow = tsReportEffectiveDate, fBracketed = False), ]),
             ];
             self._anchorAndAppendBinaries(oBuildEx.sBinaries, aoBuildRows);
@@ -664,6 +670,7 @@ class WuiTestResult(WuiContentBase):
                                       fBracketed = False),
                             WuiTestResultsForTestBoxLink(oTestBox.idTestBox),
                             WuiReportSummaryLink(ReportModelBase.ksSubTestBox, oTestSet.idTestBox,
+                                                 sTitle = 'Testbox statistics...',
                                                  tsNow = tsReportEffectiveDate, fBracketed = False),
                             ]),
         ];
@@ -879,6 +886,7 @@ class WuiGroupedResultList(WuiListContentBase):
                                         WuiMain.ksScriptName,
                                         { WuiMain.ksParamAction: WuiMain.ksActionTestResultDetails,
                                           TestSetData.ksParam_idTestSet: oEntry.idTestSet },
+                                        sTitle = 'Show testset #%s...' % (oEntry.idTestSet,),
                                         fBracketed = False));
         if oEntry.cErrors > 0:
             aoTestSetLinks.append(WuiRawHtml('-'));
@@ -886,7 +894,9 @@ class WuiGroupedResultList(WuiListContentBase):
                                             WuiMain.ksScriptName,
                                             { WuiMain.ksParamAction: WuiMain.ksActionTestResultDetails,
                                               TestSetData.ksParam_idTestSet: oEntry.idTestSet },
-                                            sFragmentId = 'failure-0', fBracketed = False));
+                                            sFragmentId = 'failure-0',
+                                            sTitle = 'Show testset #%s...' % (oEntry.idTestSet,),
+                                            fBracketed = False));
 
 
         self._dTestBoxLinkParams[WuiMain.ksParamGroupMemberId]  = oEntry.idTestBox;
@@ -945,27 +955,32 @@ class WuiGroupedResultList(WuiListContentBase):
             [ WuiTmLink('%s %s (%s)' % (oEntry.sProduct, oEntry.sVersion, oEntry.sType,),
                         WuiMain.ksScriptName, self._dRevLinkParams, sTitle = '%s' % (oEntry.sBranch,), fBracketed = False),
               WuiSvnLinkWithTooltip(oEntry.iRevision, 'vbox'), ## @todo add sRepository TestResultListingData
-              WuiTmLink(self.ksShortDetailsLink, WuiAdmin.ksScriptName,
-                        { WuiAdmin.ksParamAction:    WuiAdmin.ksActionBuildDetails,
-                          BuildData.ksParam_idBuild: oEntry.idBuild },
-                        fBracketed = False),
+              WuiTmInfoLink(WuiAdmin.ksScriptName,
+                            { WuiAdmin.ksParamAction:    WuiAdmin.ksActionBuildDetails,
+                              BuildData.ksParam_idBuild: oEntry.idBuild },
+                            sTitle = 'Build details...',
+                            fBracketed = False),
               ],
             oValidationKit,
             [ WuiTmLink(oEntry.sTestBoxName, WuiMain.ksScriptName, self._dTestBoxLinkParams, fBracketed = False,
                         sTitle = sTestBoxTitle),
-              WuiTmLink(self.ksShortDetailsLink, WuiAdmin.ksScriptName,
-                        { WuiAdmin.ksParamAction:        WuiAdmin.ksActionTestBoxDetails,
-                          TestBoxData.ksParam_idTestBox: oEntry.idTestBox },
-                        fBracketed = False),
-              WuiReportSummaryLink(ReportModelBase.ksSubTestBox, oEntry.idTestBox, fBracketed = False), ],
+              WuiTmInfoLink(WuiAdmin.ksScriptName,
+                            { WuiAdmin.ksParamAction:        WuiAdmin.ksActionTestBoxDetails,
+                              TestBoxData.ksParam_idTestBox: oEntry.idTestBox },
+                            sTitle = 'Testbox details...',
+                            fBracketed = False),
+              WuiReportSummaryLink(ReportModelBase.ksSubTestBox, oEntry.idTestBox,
+                                   sTitle = 'Testbox statistics...', fBracketed = False), ],
             '%s.%s' % (oEntry.sOs, oEntry.sArch),
             [ WuiTmLink(sTestCaseName, WuiMain.ksScriptName, self._dTestCaseLinkParams, fBracketed = False,
                         sTitle = (oEntry.sBaseCmd + ' ' + oEntry.sArgs) if oEntry.sArgs else oEntry.sBaseCmd),
-              WuiTmLink(self.ksShortDetailsLink, WuiAdmin.ksScriptName,
-                        { WuiAdmin.ksParamAction:          WuiAdmin.ksActionTestCaseDetails,
-                          TestCaseData.ksParam_idTestCase: oEntry.idTestCase },
-                        fBracketed = False),
-              WuiReportSummaryLink(ReportModelBase.ksSubTestCase, oEntry.idTestCase, fBracketed = False), ],
+              WuiTmInfoLink(WuiAdmin.ksScriptName,
+                            { WuiAdmin.ksParamAction:          WuiAdmin.ksActionTestCaseDetails,
+                              TestCaseData.ksParam_idTestCase: oEntry.idTestCase },
+                            sTitle = 'Testcase details...',
+                            fBracketed = False),
+              WuiReportSummaryLink(ReportModelBase.ksSubTestCase, oEntry.idTestCase,
+                                   sTitle = 'Testcase statistics...', fBracketed = False), ],
             oEntry.tsElapsed,
             aoTestSetLinks,
             aoReasons
