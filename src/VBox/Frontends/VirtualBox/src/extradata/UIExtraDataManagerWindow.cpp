@@ -1,4 +1,4 @@
-/* $Id: UIExtraDataManagerWindow.cpp 113360 2026-03-11 15:21:26Z sergey.dubov@oracle.com $ */
+/* $Id: UIExtraDataManagerWindow.cpp 113930 2026-04-17 08:01:06Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIExtraDataManagerWindow class implementation.
  */
@@ -51,6 +51,7 @@
 #include "UIExtraDataManagerWindow.h"
 #include "UIGlobalSession.h"
 #include "UIIconPool.h"
+#include "UINotificationCenter.h"
 #include "UIVirtualBoxEventHandler.h"
 #include "UILoggingDefs.h"
 #include "UIMessageCenter.h"
@@ -1048,6 +1049,14 @@ void UIExtraDataManagerWindow::prepareMenu()
 
 void UIExtraDataManagerWindow::prepareCentralWidget()
 {
+    /* Prepare local notification-center (parent to be assigned in the end): */
+    m_pNotificationCenter = new UINotificationCenter(0);
+    if (m_pNotificationCenter)
+    {
+        QPointer<UINotificationCenter> target = m_pNotificationCenter;
+        setProperty("notification_center", QVariant::fromValue(target));
+    }
+
     /* Prepare central-widget: */
     setCentralWidget(new QWidget);
     AssertPtrReturnVoid(centralWidget());
@@ -1080,6 +1089,10 @@ void UIExtraDataManagerWindow::prepareCentralWidget()
         if (m_pViewOfChooser)
             m_pViewOfChooser->setFocus();
     }
+
+    /* Assign notification-center parent (after everything else is done): */
+    if (m_pNotificationCenter)
+        m_pNotificationCenter->setParent(this);
 }
 
 void UIExtraDataManagerWindow::prepareToolBar()
@@ -1331,6 +1344,10 @@ void UIExtraDataManagerWindow::cleanup()
 {
     /* Save settings: */
     saveSettings();
+
+    /* Cleanup local notification-center: */
+    delete m_pNotificationCenter;
+    m_pNotificationCenter = 0;
 }
 
 void UIExtraDataManagerWindow::updateActionsAvailability()

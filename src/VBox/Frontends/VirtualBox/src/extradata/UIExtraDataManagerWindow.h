@@ -1,4 +1,4 @@
-/* $Id: UIExtraDataManagerWindow.h 112953 2026-02-11 14:30:58Z sergey.dubov@oracle.com $ */
+/* $Id: UIExtraDataManagerWindow.h 113930 2026-04-17 08:01:06Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIExtraDataManagerWindow class declaration.
  */
@@ -62,6 +62,7 @@ class QIDialogButtonBox;
 class QISplitter;
 class QIToolBar;
 class CMachine;
+class UINotificationCenter;
 
 /** Data fields. */
 enum Field
@@ -341,6 +342,9 @@ private:
 
     /** @name General
       * @{ */
+        /** Holds the local notification-center instance. */
+        UINotificationCenter *m_pNotificationCenter;
+
         QVBoxLayout *m_pMainLayout;
         /** Data pane: Tool-bar. */
         QIToolBar   *m_pToolBar;
