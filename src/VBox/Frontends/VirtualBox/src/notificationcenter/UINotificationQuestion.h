@@ -1,4 +1,4 @@
-/* $Id: UINotificationQuestion.h 113934 2026-04-17 08:47:58Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationQuestion.h 113936 2026-04-17 08:58:30Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationQuestion declarations.
  */
@@ -94,6 +94,10 @@ public:
         static bool confirmLoadingWithInconsistentKey(const QUuid &uKey1,
                                                       const QUuid &uKey2,
                                                       QWidget *pParent);
+
+        /** Confirms removing chosen records. */
+        static bool confirmRemovingChosenRecords(const QString &strRecords,
+                                                 QWidget *pParent);
     /** @} */
 #endif /* VBOX_GUI_WITH_EXTRADATA_MANAGER_UI */
 

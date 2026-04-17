@@ -1,4 +1,4 @@
-/* $Id: UIExtraDataManagerWindow.cpp 113932 2026-04-17 08:41:11Z sergey.dubov@oracle.com $ */
+/* $Id: UIExtraDataManagerWindow.cpp 113936 2026-04-17 08:58:30Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIExtraDataManagerWindow class implementation.
  */
@@ -759,10 +759,7 @@ void UIExtraDataManagerWindow::sltDel()
     strDetails = strTableTemplate.arg(strDetails);
 
     /* Ask for user' confirmation: */
-    if (!msgCenter().errorWithQuestion(this, MessageType_Question,
-                                       QString("<p>Do you really wish to "
-                                               "remove chosen records?</p>"),
-                                       strDetails))
+    if (!UINotificationQuestion::confirmRemovingChosenRecords(strDetails, this))
         return;
 
     /* Erase all the chosen extra-data records: */

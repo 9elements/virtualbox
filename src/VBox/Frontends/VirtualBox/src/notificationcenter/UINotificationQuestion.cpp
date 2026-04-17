@@ -1,4 +1,4 @@
-/* $Id: UINotificationQuestion.cpp 113934 2026-04-17 08:47:58Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationQuestion.cpp 113936 2026-04-17 08:58:30Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationQuestion implementations.
  */
@@ -88,6 +88,19 @@ bool UINotificationQuestion::confirmLoadingWithInconsistentKey(const QUuid &uKey
         QStringList() << QString() /* cancel button text */
                       << QString("Load") /* ok button text */,
         true /* Ok by default? */,
+        pParent);
+}
+
+/* static */
+bool UINotificationQuestion::confirmRemovingChosenRecords(const QString &strRecords,
+                                                          QWidget *pParent)
+{
+    return createBlockingQuestion(
+        QString("Remove records?"),
+        QString("<p>Do you really wish to remove chosen records?</p>") + strRecords,
+        QStringList() << QString() /* cancel button text */
+                      << QString("Remove") /* ok button text */,
+        false /* Ok by default? */,
         pParent);
 }
 #endif /* VBOX_GUI_WITH_EXTRADATA_MANAGER_UI */
