@@ -1,4 +1,4 @@
-/* $Id: UIWizardNewVMSummaryPage.cpp 113268 2026-03-05 13:37:28Z sergey.dubov@oracle.com $ */
+/* $Id: UIWizardNewVMSummaryPage.cpp 113942 2026-04-17 11:44:21Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIWizardNewVMSummaryPage class implementation.
  */
@@ -203,6 +203,11 @@ bool UIWizardNewVMSummaryPage::validatePage()
          * Don't show any error message here since UIWizardNewVM::createVirtualDisk already does so. */
         if (fResult)
             fResult = pWizard->createVirtualDisk();
+    }
+    /* This should not happen since as of now we do no allow selecting an existing disk in Basic mode: */
+    else if (pWizard->diskSource() == SelectedDiskSource_Existing)
+    {
+        fResult = true;
     }
 
     /* Try to create VM: */

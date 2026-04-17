@@ -1,4 +1,4 @@
-/* $Id: UIWizardNewVM.cpp 113886 2026-04-15 11:42:59Z sergey.dubov@oracle.com $ */
+/* $Id: UIWizardNewVM.cpp 113942 2026-04-17 11:44:21Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIWizardNewVM class implementation.
  */
@@ -272,7 +272,7 @@ void UIWizardNewVM::deleteVirtualDisk()
 
 bool UIWizardNewVM::attachDefaultDevices()
 {
-    bool success = false;
+    bool success = true;
     QUuid uMachineId = m_machine.GetId();
     CSession session = openSession(uMachineId, KLockType_Write, this);
     if (!session.isNull())
@@ -289,25 +289,31 @@ bool UIWizardNewVM::attachDefaultDevices()
                 {
                     machine.AttachDevice(comHDDController.GetName(), iPortNumber, 0, KDeviceType_HardDisk, m_virtualDisk);
                     if (!machine.isOk())
+                    {
                         UINotificationMessage::cannotAttachDevice(machine, UIMediumDeviceType_HardDisk, m_strMediumPath,
                                                                   StorageSlot(enmHDDBus, iPortNumber, 0), this);
+                        success = false;
+                    }
                 }
             }
         }
         /* Save machine settings here because  portNumberForDevice needs to inquiry port attachments of the controller: */
-        if (machine.isOk())
+        if (success && machine.isOk())
         {
             machine.SaveSettings();
             if (machine.isOk())
                 success = true;
             else
+            {
                 UINotificationMessage::cannotSaveMachineSettings(machine, this);
+                success = false;
+            }
         }
 
         /* Attach optical drive: */
         KStorageBus enmDVDBus = gpGlobalSession->guestOSTypeManager().getRecommendedDVDStorageBus(m_guestOSTypeId);
         CStorageController comDVDController = machine.GetStorageControllerByInstance(enmDVDBus, 0);
-        if (!comDVDController.isNull())
+        if (success && !comDVDController.isNull())
         {
             CMedium opticalDisk;
             QString strISOFilePath = ISOFilePath();
@@ -315,49 +321,60 @@ bool UIWizardNewVM::attachDefaultDevices()
             {
                 CVirtualBox vbox = gpGlobalSession->virtualBox();
                 opticalDisk =
-                    vbox.OpenMedium(strISOFilePath, KDeviceType_DVD, KAccessMode_ReadWrite, false);
+                    vbox.OpenMedium(strISOFilePath, KDeviceType_DVD, KAccessMode_ReadOnly, false);
                 if (!vbox.isOk())
+                {
                     UINotificationMessage::cannotOpenMedium(vbox, strISOFilePath, this);
+                    success = false;
+                }
             }
             LONG iPortNumber = portNumberForDevice(comDVDController);
-            if (iPortNumber != -1)
+            if (success && iPortNumber != -1)
             {
                 machine.AttachDevice(comDVDController.GetName(), iPortNumber, 0, KDeviceType_DVD, opticalDisk);
                 if (!machine.isOk())
+                {
                     UINotificationMessage::cannotAttachDevice(machine, UIMediumDeviceType_DVD, QString(),
-                                                              StorageSlot(enmDVDBus, 1, 0), this);
+                                                              StorageSlot(enmDVDBus, iPortNumber, 0), this);
+                    success = false;
+                }
             }
         }
         /* Save machine settings here because  portNumberForDevice needs to inquiry port attachments of the controller: */
-        if (machine.isOk())
+        if (success && machine.isOk())
         {
             machine.SaveSettings();
-            if (machine.isOk())
-                success = true;
-            else
+            if (!machine.isOk())
+            {
                 UINotificationMessage::cannotSaveMachineSettings(machine, this);
+                success = false;
+            }
         }
 
         /* Attach an empty floppy drive if recommended */
-        if (gpGlobalSession->guestOSTypeManager().getRecommendedFloppy(m_guestOSTypeId))
+        if (success && gpGlobalSession->guestOSTypeManager().getRecommendedFloppy(m_guestOSTypeId))
         {
             CStorageController comFloppyController = machine.GetStorageControllerByInstance(KStorageBus_Floppy, 0);
             if (!comFloppyController.isNull())
             {
                 machine.AttachDevice(comFloppyController.GetName(), 0, 0, KDeviceType_Floppy, CMedium());
                 if (!machine.isOk())
+                {
                     UINotificationMessage::cannotAttachDevice(machine, UIMediumDeviceType_Floppy, QString(),
                                                               StorageSlot(KStorageBus_Floppy, 0, 0), this);
+                    success = false;
+                }
             }
         }
 
-        if (machine.isOk())
+        if (success && machine.isOk())
         {
             machine.SaveSettings();
-            if (machine.isOk())
-                success = true;
-            else
+            if (!machine.isOk())
+            {
                 UINotificationMessage::cannotSaveMachineSettings(machine, this);
+                success = false;
+            }
         }
 
         session.UnlockMachine();

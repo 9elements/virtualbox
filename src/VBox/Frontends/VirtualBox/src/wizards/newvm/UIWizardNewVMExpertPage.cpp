@@ -1,4 +1,4 @@
-/* $Id: UIWizardNewVMExpertPage.cpp 113062 2026-02-17 12:37:07Z sergey.dubov@oracle.com $ */
+/* $Id: UIWizardNewVMExpertPage.cpp 113942 2026-04-17 11:44:21Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIWizardNewVMExpertPage class implementation.
  */
@@ -64,7 +64,7 @@ QUuid getWithFileOpenDialog(const QString &strOSTypeID,
                                                          QString() /* strMachineName */,
                                                          strOSTypeID,
                                                          false /* don't show/enable the create action: */,
-                                                         QUuid() /* Machinie Id */, pActionPool);
+                                                         QUuid() /* Machine Id */, pActionPool);
     if (returnCode != static_cast<int>(UIMediumSelector::ReturnCode_Accepted))
         return QUuid();
     return uMediumId;

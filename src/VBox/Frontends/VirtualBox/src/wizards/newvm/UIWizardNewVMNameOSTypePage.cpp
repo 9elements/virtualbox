@@ -1,6 +1,6 @@
-/* $Id: UIWizardNewVMNameOSTypePage.cpp 113267 2026-03-05 10:14:03Z sergey.dubov@oracle.com $ */
+/* $Id: UIWizardNewVMNameOSTypePage.cpp 113942 2026-04-17 11:44:21Z serkan.bayraktar@oracle.com $ */
 /** @file
- * VBox Qt GUI - UIWizardNewVMPageBasicNameOSStype class implementation.
+ * VBox Qt GUI - UIWizardNewVMPageBasicNameOSType class implementation.
  */
 
 /*

@@ -1,4 +1,4 @@
-/* $Id: UIWizardNewVMUnattendedPage.cpp 112600 2026-01-15 11:11:39Z serkan.bayraktar@oracle.com $ */
+/* $Id: UIWizardNewVMUnattendedPage.cpp 113942 2026-04-17 11:44:21Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIWizardNewVMUnattendedPage class implementation.
  */
@@ -147,7 +147,7 @@ void UIWizardNewVMUnattendedPage::initializePage()
         {
             m_pAdditionalOptionsContainer->setHostname(pWizard->machineBaseName());
             m_pAdditionalOptionsContainer->setDomainName("myguest.virtualbox.org");
-            /* Initialize unattended hostname here since we cannot get the efault value from CUnattended this early (unlike username etc): */
+            /* Initialize unattended hostname here since we cannot get the default value from CUnattended this early (unlike username etc): */
             if (m_pAdditionalOptionsContainer->hostDomainNameComplete())
                 pWizard->setHostnameDomainName(m_pAdditionalOptionsContainer->hostnameDomainName());
         }
