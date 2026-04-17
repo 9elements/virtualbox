@@ -1,4 +1,4 @@
-/* $Id: UIMessageCenter.h 113935 2026-04-17 08:50:06Z sergey.dubov@oracle.com $ */
+/* $Id: UIMessageCenter.h 113937 2026-04-17 09:26:37Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMessageCenter class declaration.
  */
@@ -115,24 +115,6 @@ public:
                const QString &strDetails,
                const char *pcszAutoConfirmId = 0,
                const QString &strHelpKeyword = QString()) const;
-
-    /** Shows an 'Error with Question' type of 'Message'.
-      * Provides Ok and Cancel buttons (called same way by default).
-      * @param  pParent              Brings the message-box parent.
-      * @param  enmType              Brings the message-box type.
-      * @param  strMessage           Brings the message.
-      * @param  strDetails           Brings the details.
-      * @param  pcszAutoConfirmId    Brings the auto-confirm ID.
-      * @param  strOkButtonText      Brings the Ok button text.
-      * @param  strCancelButtonText  Brings the Cancel button text.
-      * @param  strHelpKeyword     Brings the help keyword string. */
-    bool errorWithQuestion(QWidget *pParent, MessageType enmType,
-                           const QString &strMessage,
-                           const QString &strDetails,
-                           const char *pcszAutoConfirmId = 0,
-                           const QString &strOkButtonText = QString(),
-                           const QString &strCancelButtonText = QString(),
-                           const QString &strHelpKeyword = QString()) const;
 
     /** Shows an 'Alert' type of 'Error'.
       * Omit details.

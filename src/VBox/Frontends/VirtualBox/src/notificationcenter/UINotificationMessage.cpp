@@ -1,4 +1,4 @@
-/* $Id: UINotificationMessage.cpp 113908 2026-04-16 14:35:02Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationMessage.cpp 113937 2026-04-17 09:26:37Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationMessage implementations.
  */
@@ -228,6 +228,26 @@ void UINotificationMessage::remindAboutExperimentalBuild()
         QApplication::translate("UIMessageCenter", "You are running an EXPERIMENTAL build of VirtualBox. "
                                                    "This version is not suitable for production use."));
 }
+
+#ifdef VBOX_GUI_WITH_EXTRADATA_MANAGER_UI
+/* static */
+void UINotificationMessage::warnAboutInvalidExtraDataId(const QString &strId, QWidget *pParent)
+{
+    createMessage(
+        QString("Invalid extra-data ID ..."),
+        QString("ID: %1").arg(strId),
+        pParent);
+}
+
+/* static */
+void UINotificationMessage::cannotReadXMLFile(int iErrorCode, QWidget *pParent)
+{
+    createMessage(
+        QString("Cannot read XML file ..."),
+        QString("Error code: %1").arg(iErrorCode),
+        pParent);
+}
+#endif /* VBOX_GUI_WITH_EXTRADATA_MANAGER_UI */
 
 #ifdef RT_OS_LINUX
 /* static */

@@ -1,4 +1,4 @@
-/* $Id: UIExtraDataManagerWindow.cpp 113936 2026-04-17 08:58:30Z sergey.dubov@oracle.com $ */
+/* $Id: UIExtraDataManagerWindow.cpp 113937 2026-04-17 09:26:37Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIExtraDataManagerWindow class implementation.
  */
@@ -54,7 +54,6 @@
 #include "UINotificationCenter.h"
 #include "UIVirtualBoxEventHandler.h"
 #include "UILoggingDefs.h"
-#include "UIMessageCenter.h"
 
 /* COM includes: */
 #include "CMachine.h"
@@ -901,9 +900,7 @@ void UIExtraDataManagerWindow::sltLoad()
                     const QString strUuid = attributes.value("uuid").toString();
                     const QUuid uLoadingID(strUuid);
                     if (uLoadingID.isNull())
-                        msgCenter().alert(this, MessageType_Warning,
-                                          QString("<p>Invalid extra-data ID:</p>"
-                                                  "<p>%1</p>").arg(strUuid));
+                        UINotificationMessage::warnAboutInvalidExtraDataId(strUuid, this);
                 }
             }
             /* Look particular extra-data entries: */
@@ -925,9 +922,7 @@ void UIExtraDataManagerWindow::sltLoad()
         }
         /* Handle XML stream error: */
         if (stream.hasError())
-            msgCenter().alert(this, MessageType_Warning,
-                              QString("<p>Error reading XML file:</p>"
-                                      "<p>%1</p>").arg(stream.error()));
+            UINotificationMessage::cannotReadXMLFile(stream.error(), this);
         /* Close file: */
         input.close();
     }

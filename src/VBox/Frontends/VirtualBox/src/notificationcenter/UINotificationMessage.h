@@ -1,4 +1,4 @@
-/* $Id: UINotificationMessage.h 113908 2026-04-16 14:35:02Z sergey.dubov@oracle.com $ */
+/* $Id: UINotificationMessage.h 113937 2026-04-17 09:26:37Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - Various UINotificationMessage declarations.
  */
@@ -120,6 +120,14 @@ public:
         static void remindAboutBetaBuild();
         /** Reminds about BETA build. */
         static void remindAboutExperimentalBuild();
+
+#ifdef VBOX_GUI_WITH_EXTRADATA_MANAGER_UI
+        /** Notifies about invalid extra-data ID. */
+        static void warnAboutInvalidExtraDataId(const QString &strId, QWidget *pParent);
+
+        /** Notifies about problems reading XML file.  */
+        static void cannotReadXMLFile(int iErrorCode, QWidget *pParent);
+#endif /* VBOX_GUI_WITH_EXTRADATA_MANAGER_UI */
 
 #ifdef RT_OS_LINUX
         /** Notifies about wrong USB mounted. */

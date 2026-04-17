@@ -1,4 +1,4 @@
-/* $Id: UIMessageCenter.cpp 113935 2026-04-17 08:50:06Z sergey.dubov@oracle.com $ */
+/* $Id: UIMessageCenter.cpp 113937 2026-04-17 09:26:37Z sergey.dubov@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIMessageCenter class implementation.
  */
@@ -123,25 +123,6 @@ void UIMessageCenter::error(QWidget *pParent, MessageType enmType,
     message(pParent, enmType, strMessage, strDetails, pcszAutoConfirmId,
             AlertButton_Ok | AlertButtonOption_Default | AlertButtonOption_Escape, 0 /* Button 2 */, 0 /* Button 3 */,
             QString() /* strButtonText1 */, QString() /* strButtonText2 */, QString() /* strButtonText3 */, strHelpKeyword);
-}
-
-bool UIMessageCenter::errorWithQuestion(QWidget *pParent, MessageType enmType,
-                                        const QString &strMessage,
-                                        const QString &strDetails,
-                                        const char *pcszAutoConfirmId /* = 0 */,
-                                        const QString &strOkButtonText /* = QString() */,
-                                        const QString &strCancelButtonText /* = QString() */,
-                                        const QString &strHelpKeyword /* = QString() */) const
-{
-    return (message(pParent, enmType, strMessage, strDetails, pcszAutoConfirmId,
-                    AlertButton_Ok | AlertButtonOption_Default,
-                    AlertButton_Cancel | AlertButtonOption_Escape,
-                    0 /* third button */,
-                    strOkButtonText,
-                    strCancelButtonText,
-                    QString() /* third button text*/,
-                    strHelpKeyword) &
-            AlertButtonMask) == AlertButton_Ok;
 }
 
 void UIMessageCenter::alert(QWidget *pParent, MessageType enmType,
