@@ -1,4 +1,4 @@
-/* $Id: FsPerf.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: FsPerf.cpp 113951 2026-04-18 20:33:23Z knut.osmundsen@oracle.com $ */
 /** @file
  * FsPerf - File System (Shared Folders) Performance Benchmark.
  */
@@ -3339,11 +3339,16 @@ static void fsPerfRm(void)
     RTTESTI_CHECK_RC(RTFileDelete(InDir(RT_STR_TUPLE("known-file" RTPATH_SLASH_STR "no-such-file" RTPATH_SLASH_STR))), VERR_PATH_NOT_FOUND);
 
     /* Existing file but specified as if it was a directory: */
+    int const rcFileSlash = RTFileDelete(InDir(RT_STR_TUPLE("known-file" RTPATH_SLASH_STR)));
 #if defined(RT_OS_WINDOWS)
-    RTTESTI_CHECK_RC(RTFileDelete(InDir(RT_STR_TUPLE("known-file" RTPATH_SLASH_STR ))), VERR_INVALID_NAME);
+    const char *pszExpected = "VERR_NOT_A_DIRECTORY or VERR_INVALID_NAME";
+    if (   rcFileSlash != VERR_NOT_A_DIRECTORY /* w11 host */
+        && rcFileSlash != VERR_INVALID_NAME) /** @todo VERR_INVALID_NAME comes from where? Old DeleteFileW based impl? */
 #else
-    RTTESTI_CHECK_RC(RTFileDelete(InDir(RT_STR_TUPLE("known-file" RTPATH_SLASH_STR))), VERR_PATH_NOT_FOUND);
+    const char *pszExpected = "VERR_PATH_NOT_FOUND";
+    if (rcFileSlash != VERR_PATH_NOT_FOUND)
 #endif
+        RTTestIFailed("RTFileDelete(\"dir/known-file/\") -> %Rrc, expected %s!", rcFileSlash, pszExpected);
 
     /* Directories: */
 #if defined(RT_OS_DARWIN) /* unlink() on xnu 16.7.0 is behaviour totally werid: */
@@ -6718,7 +6723,7 @@ int main(int argc, char *argv[])
 
             case 'V':
             {
-                char szRev[] = "$Revision: 112403 $";
+                char szRev[] = "$Revision: 113951 $";
                 szRev[RT_ELEMENTS(szRev) - 2] = '\0';
                 RTPrintf(RTStrStrip(strchr(szRev, ':') + 1));
                 return RTEXITCODE_SUCCESS;
