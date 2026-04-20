@@ -1,4 +1,4 @@
-/* $Id: FsPerf.cpp 113951 2026-04-18 20:33:23Z knut.osmundsen@oracle.com $ */
+/* $Id: FsPerf.cpp 113952 2026-04-20 08:19:55Z knut.osmundsen@oracle.com $ */
 /** @file
  * FsPerf - File System (Shared Folders) Performance Benchmark.
  */
@@ -6314,7 +6314,7 @@ static void Usage(PRTSTREAM pStrm)
 
     for (unsigned i = 0; i < RT_ELEMENTS(g_aCmdOptions); i++)
     {
-        char szHelp[80];
+        char szHelp[256];
         const char *pszHelp;
         switch (g_aCmdOptions[i].iShort)
         {
@@ -6346,8 +6346,19 @@ static void Usage(PRTSTREAM pStrm)
             case kCmdOpt_IgnoreNoCache:         pszHelp = "Ignore error wrt no-cache handle.            default: --no-ignore-no-cache"; break;
             case kCmdOpt_NoIgnoreNoCache:       pszHelp = "Do not ignore error wrt no-cache handle.     default: --no-ignore-no-cache"; break;
             case kCmdOpt_IoFileSize:            pszHelp = "Size of file used for I/O tests.             default: 512 MB"; break;
-            case kCmdOpt_SetBlockSize:          pszHelp = "Sets single I/O block size (in bytes)."; break;
             case kCmdOpt_AddBlockSize:          pszHelp = "Adds an I/O block size (in bytes)."; break;
+            case kCmdOpt_SetBlockSize:
+            {
+                size_t cch = RTStrPrintf(szHelp, sizeof(szHelp) - 4, "Sets single I/O block size (in bytes). (Cur: ");
+                for (unsigned j = 0; j < g_cIoBlocks; j++)
+                    cch += RTStrPrintf(&szHelp[cch], sizeof(szHelp) - cch - 4,
+                                       j == 0 ? "%.0Rhcb" : ", %.0Rhcb", (uint64_t)g_acbIoBlocks[j]);
+                szHelp[cch++] = ')';
+                szHelp[cch]   = '\0';
+                pszHelp = szHelp;
+                break;
+            }
+
             default:
                 if (g_aCmdOptions[i].iShort >= kCmdOpt_First)
                 {
@@ -6388,17 +6399,35 @@ static uint32_t fsPerfCalcManyTreeFiles(void)
 int main(int argc, char *argv[])
 {
     /*
-     * Init IPRT and globals.
+     * Init IPRT.
      */
     int rc = RTTestInitAndCreate("FsPerf", &g_hTest);
     if (rc)
         return rc;
     RTListInit(&g_ManyTreeHead);
 
+    /*
+     * Init globals.
+     */
     /* Query page size, offset mask and page shift of the system. */
     g_cbPage      = RTSystemGetPageSize();
     g_fPageOffset = RTSystemGetPageOffsetMask();
     g_cPageShift  = RTSystemGetPageShift();
+
+    /* Adjust the default I/O block sizes according to the RAM size. */
+    uint64_t cbTotalRam = 0;
+    rc = RTSystemQueryTotalRam(&cbTotalRam);
+    AssertRCStmt(rc, cbTotalRam = _256M);
+
+    uint64_t cbAvailableRam = cbTotalRam;
+    rc = RTSystemQueryAvailableRam(&cbAvailableRam);
+    AssertRCStmt(rc, cbAvailableRam = cbTotalRam / 2);
+
+    while (   g_cIoBlocks                    >  1
+           && g_acbIoBlocks[g_cIoBlocks - 1] >= _1M
+           && cbAvailableRam                 <  g_acbIoBlocks[g_cIoBlocks - 1]
+           && cbTotalRam                     <  g_acbIoBlocks[g_cIoBlocks - 1] * 8)
+        g_acbIoBlocks[--g_cIoBlocks] = 0;
 
     /*
      * Default values.
@@ -6430,6 +6459,9 @@ int main(int argc, char *argv[])
 
     bool fCommsSlave = false;
 
+    /*
+     * Parse arguments.
+     */
     RTGETOPTUNION ValueUnion;
     RTGETOPTSTATE GetState;
     RTGetOptInit(&GetState, argc, argv, g_aCmdOptions, RT_ELEMENTS(g_aCmdOptions), 1, 0 /* fFlags */);
@@ -6723,7 +6755,7 @@ int main(int argc, char *argv[])
 
             case 'V':
             {
-                char szRev[] = "$Revision: 113951 $";
+                char szRev[] = "$Revision: 113952 $";
                 szRev[RT_ELEMENTS(szRev) - 2] = '\0';
                 RTPrintf(RTStrStrip(strchr(szRev, ':') + 1));
                 return RTEXITCODE_SUCCESS;
