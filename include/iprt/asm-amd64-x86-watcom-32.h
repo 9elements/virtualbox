@@ -306,6 +306,46 @@
     modify exact [eax ebx ecx edx];
 #endif
 
+#undef      ASMCpuIdEx_EAX
+#ifdef IPRT_ASM_AMD64_X86_WATCOM_32_INSTANTIATE
+#pragma aux ASMCpuIdEx_EAX = \
+    ".586" \
+    "cpuid" \
+    parm [eax] [ecx] \
+    value [eax] \
+    modify exact [eax ebx ecx edx];
+#endif
+
+#undef      ASMCpuIdEx_EBX
+#ifdef IPRT_ASM_AMD64_X86_WATCOM_32_INSTANTIATE
+#pragma aux ASMCpuIdEx_EBX = \
+    ".586" \
+    "cpuid" \
+    parm [eax] [ecx] \
+    value [ebx] \
+    modify exact [eax ebx ecx edx];
+#endif
+
+#undef      ASMCpuIdEx_ECX
+#ifdef IPRT_ASM_AMD64_X86_WATCOM_32_INSTANTIATE
+#pragma aux ASMCpuIdEx_ECX = \
+    ".586" \
+    "cpuid" \
+    parm [eax] [ecx] \
+    value [ecx] \
+    modify exact [eax ebx ecx edx];
+#endif
+
+#undef      ASMCpuIdEx_EDX
+#ifdef IPRT_ASM_AMD64_X86_WATCOM_32_INSTANTIATE
+#pragma aux ASMCpuIdEx_EDX = \
+    ".586" \
+    "cpuid" \
+    parm [eax] [ecx] \
+    value [edx] \
+    modify exact [eax ebx ecx edx];
+#endif
+
 /* ASMHasCpuId: MSC inline in main source file. */
 
 #undef ASMGetApicId
