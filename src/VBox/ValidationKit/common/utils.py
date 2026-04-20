@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# $Id: utils.py 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $
+# $Id: utils.py 113958 2026-04-20 13:25:38Z knut.osmundsen@oracle.com $
 # pylint: disable=too-many-lines
 
 """
@@ -39,7 +39,7 @@ terms and conditions of either the GPL or the CDDL or both.
 
 SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 """
-__version__ = "$Revision: 112403 $"
+__version__ = "$Revision: 113958 $"
 
 
 # Standard Python imports.
@@ -1907,9 +1907,9 @@ def formatIntervalHours(cHours):
         return '%sh' % (cHours,);
 
     # Generic and a bit slower.
-    cWeeks    = cHours / (7 * 24);
+    cWeeks    = cHours // (7 * 24);
     cHours   %= 7 * 24;
-    cDays     = cHours / 24;
+    cDays     = cHours // 24;
     cHours   %= 24;
     sRet = '';
     if cWeeks > 0:
