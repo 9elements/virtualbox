@@ -1,4 +1,4 @@
-/* $Id: UIVMLogViewerWidget.h 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: UIVMLogViewerWidget.h 113960 2026-04-20 13:46:17Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVMLogViewerWidget class declaration.
  */
@@ -127,7 +127,7 @@ private slots:
 
     void sltPanelActionToggled(bool fChecked);
     /** Handles the search result highlight changes. */
-    void sltSearchResultHighLigting();
+    void sltSearchResultHighlighting();
     void sltHandleSearchUpdated();
     /** Handles the tab change of the logviewer. */
     void sltCurrentTabChanged(int tabIndex);
