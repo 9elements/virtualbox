@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# $Id: txsclient.py 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $
+# $Id: txsclient.py 113953 2026-04-20 08:51:48Z knut.osmundsen@oracle.com $
 # pylint: disable=too-many-lines
 
 """
@@ -36,7 +36,7 @@ terms and conditions of either the GPL or the CDDL or both.
 
 SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 """
-__version__ = "$Revision: 112403 $"
+__version__ = "$Revision: 113953 $"
 
 # Standard Python imports.
 import array;
@@ -592,6 +592,11 @@ class Session(TdTaskBase):
             return cMsMax
         return cMsLeft;
 
+    def getMsElapsed(self):
+        """ Get the number of milliseconds The task has run. """
+        cMsElapsed = base.timestampMilli() - self.msStart;
+        return max(cMsElapsed, 0);
+
     def recvReply(self, cMsTimeout = None, fNoDataOk = False):
         """
         Wrapper for TransportBase.recvMsg that stashes the response away
@@ -854,7 +859,7 @@ class Session(TdTaskBase):
                         if    self.hasTimedOut() \
                          and (   msPendingInputReply is None \
                               or base.timestampMilli() - msPendingInputReply > 30000):
-                            reporter.maybeErr(self.fErr, 'taskExecEx: timed out');
+                            reporter.maybeErrTimeout(self.fErr, 'taskExecEx: timed out (after %s ms)' % (self.getMsElapsed(),));
                             sFailure = 'timeout';
                             rc = None;
                             break;

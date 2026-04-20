@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# $Id: reporter.py 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $
+# $Id: reporter.py 113953 2026-04-20 08:51:48Z knut.osmundsen@oracle.com $
 # pylint: disable=too-many-lines
 
 """
@@ -39,7 +39,7 @@ terms and conditions of either the GPL or the CDDL or both.
 
 SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 """
-__version__ = "$Revision: 112403 $"
+__version__ = "$Revision: 113953 $"
 
 
 # Standard Python imports.
@@ -1547,6 +1547,12 @@ def maybeErrXcpt(fIsError, sText=None, cFrames=1):
     if fIsError is True:
         return errorXcpt(sText, cFrames);
     return logXcpt(sText, cFrames);
+
+def maybeErrTimeout(fIsError, sText):
+    """ Maybe timeout error or maybe normal log entry. """
+    if fIsError is True:
+        return errorTimeout(sText, sCaller = utils.getCallerName());
+    return log(sText, sCaller = utils.getCallerName());
 
 def maybeLog(fIsNotError, sText):
     """ Maybe error or maybe normal log entry. """
