@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# $Id: utils.py 113958 2026-04-20 13:25:38Z knut.osmundsen@oracle.com $
+# $Id: utils.py 113959 2026-04-20 13:28:18Z knut.osmundsen@oracle.com $
 # pylint: disable=too-many-lines
 
 """
@@ -39,7 +39,7 @@ terms and conditions of either the GPL or the CDDL or both.
 
 SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 """
-__version__ = "$Revision: 113958 $"
+__version__ = "$Revision: 113959 $"
 
 
 # Standard Python imports.
@@ -711,7 +711,7 @@ def getDiskUsage(sPath):
         cbFreeSpace = long(oStats.f_frsize) * oStats.f_bfree;
 
     # Convert to MB
-    cMbFreeSpace = long(cbFreeSpace) / (1024 * 1024);
+    cMbFreeSpace = long(cbFreeSpace) // (1024 * 1024);
 
     return cMbFreeSpace;
 
