@@ -1,4 +1,4 @@
-/* $Id: UISoftKeyboard.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: UISoftKeyboard.cpp 113964 2026-04-21 11:58:11Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UISoftKeyboard class implementation.
  */
@@ -564,7 +564,7 @@ public:
     QString altGrCaption(int iKeyPosition) const;
     QString shiftAltGrCaption(int iKeyPosition) const;
 
-    void setEditedBuNotSaved(bool fEditedButNotsaved);
+    void setEditedButNotSaved(bool fEditedButNotsaved);
     bool editedButNotSaved() const;
 
     void  setUid(const QUuid &uid);
@@ -668,8 +668,8 @@ public:
     void deleteCurrentLayout();
     void toggleEditMode(bool fIsEditMode);
 
-    void saveCurentLayoutToFile();
-    void copyCurentLayout();
+    void saveCurrentLayoutToFile();
+    void copyCurrentLayout();
     float layoutAspectRatio();
 
     bool hideOSMenuKeys() const;
@@ -1929,7 +1929,7 @@ QString UISoftKeyboardLayout::nameString() const
 void UISoftKeyboardLayout::setSourceFilePath(const QString& strSourceFilePath)
 {
     m_strSourceFilePath = strSourceFilePath;
-    setEditedBuNotSaved(true);
+    setEditedButNotSaved(true);
 }
 
 const QString& UISoftKeyboardLayout::sourceFilePath() const
@@ -1940,7 +1940,7 @@ const QString& UISoftKeyboardLayout::sourceFilePath() const
 void UISoftKeyboardLayout::setIsFromResources(bool fIsFromResources)
 {
     m_fIsFromResources = fIsFromResources;
-    setEditedBuNotSaved(true);
+    setEditedButNotSaved(true);
 }
 
 bool UISoftKeyboardLayout::isFromResources() const
@@ -1951,7 +1951,7 @@ bool UISoftKeyboardLayout::isFromResources() const
 void UISoftKeyboardLayout::setName(const QString &strName)
 {
     m_strName = strName;
-    setEditedBuNotSaved(true);
+    setEditedButNotSaved(true);
 }
 
 const QString &UISoftKeyboardLayout::name() const
@@ -1962,7 +1962,7 @@ const QString &UISoftKeyboardLayout::name() const
 void UISoftKeyboardLayout::setNativeName(const QString &strNativeName)
 {
     m_strNativeName = strNativeName;
-    setEditedBuNotSaved(true);
+    setEditedButNotSaved(true);
 }
 
 const QString &UISoftKeyboardLayout::nativeName() const
@@ -1973,7 +1973,7 @@ const QString &UISoftKeyboardLayout::nativeName() const
 void UISoftKeyboardLayout::setEditable(bool fEditable)
 {
     m_fEditable = fEditable;
-    setEditedBuNotSaved(true);
+    setEditedButNotSaved(true);
 }
 
 bool UISoftKeyboardLayout::editable() const
@@ -1984,7 +1984,7 @@ bool UISoftKeyboardLayout::editable() const
 void UISoftKeyboardLayout::setPhysicalLayoutUuid(const QUuid &uuid)
 {
     m_physicalLayoutUuid = uuid;
-    setEditedBuNotSaved(true);
+    setEditedButNotSaved(true);
 }
 
 const QUuid &UISoftKeyboardLayout::physicalLayoutUuid() const
@@ -1999,7 +1999,7 @@ void UISoftKeyboardLayout::addOrUpdateUIKeyCaptions(int iKeyPosition, const UIKe
     m_keyCaptionsMap[iKeyPosition] = keyCaptions;
     /* Updating the captions invalidates the cached font size. We set it to 0, thereby forcing its recomputaion: */
     m_keyCaptionsFontSizeMap[iKeyPosition] = 0;
-    setEditedBuNotSaved(true);
+    setEditedButNotSaved(true);
 }
 
 UIKeyCaptions UISoftKeyboardLayout::keyCaptions(int iKeyPosition) const
@@ -2050,7 +2050,7 @@ QString UISoftKeyboardLayout::shiftAltGrCaption(int iKeyPosition) const
     return m_keyCaptionsMap[iKeyPosition].m_strShiftAltGr;
 }
 
-void UISoftKeyboardLayout::setEditedBuNotSaved(bool fEditedButNotsaved)
+void UISoftKeyboardLayout::setEditedButNotSaved(bool fEditedButNotsaved)
 {
     m_fEditedButNotSaved = fEditedButNotsaved;
 }
@@ -2063,7 +2063,7 @@ bool UISoftKeyboardLayout::editedButNotSaved() const
 void UISoftKeyboardLayout::setUid(const QUuid &uid)
 {
     m_uid = uid;
-    setEditedBuNotSaved(true);
+    setEditedButNotSaved(true);
 }
 
 QUuid UISoftKeyboardLayout::uid() const
@@ -2509,7 +2509,7 @@ void UISoftKeyboardWidget::sltRetranslateUI()
     m_keyTooltips[306] = UISoftKeyboard::tr("Volume up");
 }
 
-void UISoftKeyboardWidget::saveCurentLayoutToFile()
+void UISoftKeyboardWidget::saveCurrentLayoutToFile()
 {
     if (!m_layouts.contains(m_uCurrentLayoutId))
         return;
@@ -2518,9 +2518,9 @@ void UISoftKeyboardWidget::saveCurentLayoutToFile()
     QDir dir(strHomeFolder);
     if (!dir.exists(strSubDirectorName))
     {
-        if (!dir.mkdir(strSubDirectorName))
+        if (!dir.mkpath(strSubDirectorName))
         {
-            sigStatusBarMessage(QString("%1 %2").arg(UISoftKeyboard::tr("Error! Could not create folder under").arg(strHomeFolder)));
+            sigStatusBarMessage(QString("%1 %2").arg(UISoftKeyboard::tr("Error! Could not create folder under")).arg(strHomeFolder));
             return;
         }
     }
@@ -2593,11 +2593,11 @@ void UISoftKeyboardWidget::saveCurentLayoutToFile()
 
    xmlFile.close();
    currentLayout.setSourceFilePath(strFileName);
-   currentLayout.setEditedBuNotSaved(false);
+   currentLayout.setEditedButNotSaved(false);
    sigStatusBarMessage(QString("%1 %2").arg(strFileName).arg(UISoftKeyboard::tr(" is saved")));
 }
 
-void UISoftKeyboardWidget::copyCurentLayout()
+void UISoftKeyboardWidget::copyCurrentLayout()
 {
     UISoftKeyboardLayout newLayout(m_layouts[m_uCurrentLayoutId]);
 
@@ -2610,7 +2610,7 @@ void UISoftKeyboardWidget::copyCurentLayout()
     }
 
     newLayout.setName(strNewName);
-    newLayout.setEditedBuNotSaved(true);
+    newLayout.setEditedButNotSaved(true);
     newLayout.setEditable(true);
     newLayout.setIsFromResources(false);
     newLayout.setSourceFilePath(QString());
@@ -3050,7 +3050,7 @@ bool UISoftKeyboardWidget::loadPhysicalLayout(const QString &strLayoutFileName, 
     else
         return false;
 
-    if (!reader.parseXMLFile(strLayoutFileName, *newPhysicalLayout))
+    if (!reader.parseXMLFile(strLayoutFileName, *newPhysicalLayout) && keyboardRegion == KeyboardRegion_Main)
     {
         m_physicalLayouts.removeLast();
         return false;
@@ -3154,18 +3154,18 @@ QUuid UISoftKeyboardWidget::loadKeyboardLayout(const QString &strLayoutFileName)
         return QUuid();
 
     UISoftKeyboardPhysicalLayout *pPhysicalLayout = findPhysicalLayout(newLayout.physicalLayoutUuid());
-    /* If no pyhsical layout with the UUID the keyboard layout refers is found then cancel loading the keyboard layout: */
+    /* If no physical layout with the UUID the keyboard layout refers is found then cancel loading the keyboard layout: */
     if (!pPhysicalLayout)
         return QUuid();
 
-    /* Make sure we have unique lay1out UUIDs: */
+    /* Make sure we have unique layout UUIDs: */
     int iCount = 0;
     foreach (const UISoftKeyboardLayout &layout, m_layouts)
     {
         if (layout.uid() == newLayout.uid())
             ++iCount;
     }
-    if (iCount > 1)
+    if (iCount > 0)
         return QUuid();
 
     newLayout.setSourceFilePath(strLayoutFileName);
@@ -3241,7 +3241,7 @@ void UISoftKeyboardWidget::loadLayouts()
     if (m_layouts.isEmpty())
         return;
     for (QMap<QUuid, UISoftKeyboardLayout>::iterator iterator = m_layouts.begin(); iterator != m_layouts.end(); ++iterator)
-        iterator.value().setEditedBuNotSaved(false);
+        iterator.value().setEditedButNotSaved(false);
     /* Block sigCurrentLayoutChange since it causes saving set layout to exra data: */
     blockSignals(true);
     if (!uUSInternationalId.isNull())
@@ -4082,7 +4082,7 @@ void UISoftKeyboard::sltLayoutSelectionChanged(const QUuid &layoutUid)
         m_pLayoutSelector->setCurrentLayoutIsEditable(m_pKeyboardWidget->currentLayout()->editable());
 }
 
-void UISoftKeyboard::sltCurentLayoutChanged()
+void UISoftKeyboard::sltCurrentLayoutChanged()
 {
     if (!m_pKeyboardWidget)
         return;
@@ -4184,14 +4184,14 @@ void UISoftKeyboard::sltCopyLayout()
 {
     if (!m_pKeyboardWidget)
         return;
-    m_pKeyboardWidget->copyCurentLayout();
+    m_pKeyboardWidget->copyCurrentLayout();
     updateLayoutSelectorList();
 }
 
 void UISoftKeyboard::sltSaveLayout()
 {
     if (m_pKeyboardWidget)
-        m_pKeyboardWidget->saveCurentLayoutToFile();
+        m_pKeyboardWidget->saveCurrentLayoutToFile();
 }
 
 void UISoftKeyboard::sltDeleteLayout()
@@ -4312,7 +4312,7 @@ void UISoftKeyboard::prepareObjects()
 
 void UISoftKeyboard::prepareConnections()
 {
-    connect(m_pKeyboardWidget, &UISoftKeyboardWidget::sigCurrentLayoutChange, this, &UISoftKeyboard::sltCurentLayoutChanged);
+    connect(m_pKeyboardWidget, &UISoftKeyboardWidget::sigCurrentLayoutChange, this, &UISoftKeyboard::sltCurrentLayoutChanged);
     connect(m_pKeyboardWidget, &UISoftKeyboardWidget::sigKeyToEdit, this, &UISoftKeyboard::sltKeyToEditChanged);
     connect(m_pKeyboardWidget, &UISoftKeyboardWidget::sigStatusBarMessage, this, &UISoftKeyboard::sltStatusBarMessage);
     connect(m_pKeyboardWidget, &UISoftKeyboardWidget::sigCurrentColorThemeChanged, this, &UISoftKeyboard::sltHandleKeyboardWidgetColorThemeChange);

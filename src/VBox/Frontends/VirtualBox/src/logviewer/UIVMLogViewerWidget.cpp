@@ -1,4 +1,4 @@
-/* $Id: UIVMLogViewerWidget.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: UIVMLogViewerWidget.cpp 113964 2026-04-21 11:58:11Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVMLogViewerWidget class implementation.
  */
@@ -308,6 +308,8 @@ void UIVMLogViewerWidget::markLabelTabs()
 
 QString UIVMLogViewerWidget::readLogFile(const CMachine &comConstMachine, int iLogFileId)
 {
+    if (!comConstMachine.isOk())
+        return QString();
     CMachine comMachine(comConstMachine); // ReadLog is non const
     QString strLogFileContent;
     ULONG uOffset = 0;
@@ -315,7 +317,6 @@ QString UIVMLogViewerWidget::readLogFile(const CMachine &comConstMachine, int iL
     while (true)
     {
         QVector<BYTE> data = comMachine.ReadLog(iLogFileId, uOffset, _1M);
-        /// @todo it's probably worth testing !comMachine.isOk() and show error message, or not :)
         if (data.size() == 0)
             break;
         strLogFileContent.append(QString::fromUtf8((char*)data.data(), data.size()));
@@ -495,7 +496,7 @@ void UIVMLogViewerWidget::sltPanelActionToggled(bool fChecked)
         m_pPanel->setCurrentIndex(pAction->data().toInt());
 }
 
-void UIVMLogViewerWidget::sltSearchResultHighLigting()
+void UIVMLogViewerWidget::sltSearchResultHighlighting()
 {
     if (!m_pPanel || !currentLogPage())
         return;
@@ -765,7 +766,7 @@ void UIVMLogViewerWidget::prepareWidgets()
     m_pPanel->setFontSizeInPoints(m_font.pointSize());
     m_pPanel->setVisible(false);
     connect(m_pPanel, &UIVMLogViewerPaneContainer::sigHighlightingUpdated,
-            this, &UIVMLogViewerWidget::sltSearchResultHighLigting);
+            this, &UIVMLogViewerWidget::sltSearchResultHighlighting);
     connect(m_pPanel, &UIVMLogViewerPaneContainer::sigSearchUpdated,
             this, &UIVMLogViewerWidget::sltHandleSearchUpdated);
     connect(m_pPanel, &UIVMLogViewerPaneContainer::sigFilterApplied,
@@ -900,7 +901,7 @@ void UIVMLogViewerWidget::keyPressEvent(QKeyEvent *pEvent)
 QVector<UIVMLogTab*> UIVMLogViewerWidget::logTabs()
 {
     QVector<UIVMLogTab*> tabs;
-    if (m_pTabWidget)
+    if (!m_pTabWidget)
         return tabs;
     for (int i = 0; i < m_pTabWidget->count(); ++i)
     {

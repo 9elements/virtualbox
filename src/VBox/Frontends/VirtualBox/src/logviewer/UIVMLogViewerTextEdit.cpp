@@ -1,4 +1,4 @@
-/* $Id: UIVMLogViewerTextEdit.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: UIVMLogViewerTextEdit.cpp 113964 2026-04-21 11:58:11Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVMLogViewer class implementation.
  */
@@ -407,7 +407,7 @@ void UIVMLogViewerTextEdit::lineNumberAreaPaintEvent(QPaintEvent *event)
 
 void UIVMLogViewerTextEdit::sltRetranslateUI()
 {
-    m_strBackgroungText = QString(UIVMLogViewerWidget::tr("Filtered"));
+    m_strBackgroundText = QString(UIVMLogViewerWidget::tr("Filtered"));
 }
 
 bool UIVMLogViewerTextEdit::eventFilter(QObject *pObject, QEvent *pEvent)

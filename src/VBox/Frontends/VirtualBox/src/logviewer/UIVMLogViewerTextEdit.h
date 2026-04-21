@@ -1,4 +1,4 @@
-/* $Id: UIVMLogViewerTextEdit.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: UIVMLogViewerTextEdit.h 113964 2026-04-21 11:58:11Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UIVMLogViewer class declaration.
  */
@@ -127,7 +127,7 @@ private:
     bool         m_bShownTextIsFiltered;
     bool         m_bShowLineNumbers;
     bool         m_bWrapLines;
-    QString      m_strBackgroungText;
+    QString      m_strBackgroundText;
     friend class UILineNumberArea;
     bool         m_bHasContextMenu;
     int          m_iVerticalScrollBarValue;
