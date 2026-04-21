@@ -1,4 +1,4 @@
-/* $Id: UISoftKeyboard.h 113933 2026-04-17 08:41:38Z sergey.dubov@oracle.com $ */
+/* $Id: UISoftKeyboard.h 113961 2026-04-21 10:16:30Z serkan.bayraktar@oracle.com $ */
 /** @file
  * VBox Qt GUI - UISoftKeyboard class declaration.
  */
@@ -73,7 +73,7 @@ private slots:
       * Selection changed is forwarded to the keyboard widget. */
     void sltLayoutSelectionChanged(const QUuid &layoutUid);
     /** Handles the signal we get from the keyboard widget. */
-    void sltCurentLayoutChanged();
+    void sltCurrentLayoutChanged();
     void sltShowLayoutSelector();
     void sltShowLayoutEditor();
     void sltKeyToEditChanged(UISoftKeyboardKey* pKey);
