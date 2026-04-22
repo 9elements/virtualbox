@@ -1,4 +1,4 @@
-/* $Id: scm.cpp 113240 2026-03-04 08:56:00Z knut.osmundsen@oracle.com $ */
+/* $Id: scm.cpp 113976 2026-04-22 20:19:20Z knut.osmundsen@oracle.com $ */
 /** @file
  * IPRT Testcase / Tool - Source Code Massager.
  */
@@ -290,9 +290,9 @@ static RTGETOPTDEF  g_aScmOpts[] =
     { "--no-rc-use",                        SCMOPT_NO_RC_USE,                       RTGETOPT_REQ_NOTHING },
     { "--unrestricted-rc-use",              SCMOPT_UNRESTRICTED_RC_USE,             RTGETOPT_REQ_NOTHING },
     { "--standardize-kmk",                  SCMOPT_STANDARDIZE_KMK,                 RTGETOPT_REQ_NOTHING },
+    { "--no-standardize-kmk",               SCMOPT_NO_STANDARDIZE_KMK,              RTGETOPT_REQ_NOTHING },
     { "--standarize-kmk",                   SCMOPT_STANDARDIZE_KMK,                 RTGETOPT_REQ_NOTHING },
     { "--no-standarize-kmk",                SCMOPT_NO_STANDARDIZE_KMK,              RTGETOPT_REQ_NOTHING },
-    { "--no-standardize-kmk",               SCMOPT_NO_STANDARDIZE_KMK,              RTGETOPT_REQ_NOTHING },
     { "--update-copyright-year",            SCMOPT_UPDATE_COPYRIGHT_YEAR,           RTGETOPT_REQ_NOTHING },
     { "--no-update-copyright-year",         SCMOPT_NO_UPDATE_COPYRIGHT_YEAR,        RTGETOPT_REQ_NOTHING },
     { "--external-copyright",               SCMOPT_EXTERNAL_COPYRIGHT,              RTGETOPT_REQ_NOTHING },
@@ -3268,6 +3268,7 @@ static int scmHelp(PCRTGETOPTDEF paOpts, size_t cOpts)
                 break;
             case SCMOPT_STANDARDIZE_KMK:
                 hlpPrntf("      Clean up kmk files (the makefile-kmk action).  Default: %RTbool\n", g_Defaults.fStandarizeKmk);
+                cExtraAdvance = 3; /* skip the typos: --standarize-kmk & --no-standarize-kmk */
                 break;
             case SCMOPT_UPDATE_COPYRIGHT_YEAR:
                 hlpPrntf("      Update the copyright year.  Default: %RTbool\n", g_Defaults.fUpdateCopyrightYear);
@@ -3438,7 +3439,7 @@ int main(int argc, char **argv)
             case 'V':
             {
                 /* The following is assuming that svn does it's job here. */
-                static const char s_szRev[] = "$Revision: 113240 $";
+                static const char s_szRev[] = "$Revision: 113976 $";
                 const char *psz = RTStrStripL(strchr(s_szRev, ' '));
                 RTPrintf("r%.*s\n", strchr(psz, ' ') - psz, psz);
                 return 0;
