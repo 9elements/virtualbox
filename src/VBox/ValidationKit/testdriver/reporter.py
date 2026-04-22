@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# $Id: reporter.py 113953 2026-04-20 08:51:48Z knut.osmundsen@oracle.com $
+# $Id: reporter.py 113971 2026-04-22 11:29:49Z knut.osmundsen@oracle.com $
 # pylint: disable=too-many-lines
 
 """
@@ -39,7 +39,7 @@ terms and conditions of either the GPL or the CDDL or both.
 
 SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 """
-__version__ = "$Revision: 113953 $"
+__version__ = "$Revision: 113971 $"
 
 
 # Standard Python imports.
@@ -1598,7 +1598,7 @@ def errorXcpt(sText=None, cFrames=1):
     logXcptWorker(0, True, '** error: ', sText, cFrames);
     return False;
 
-def errorTimeout(sText):
+def errorTimeout(sText, sCaller = None):
     """
     Flags the current test as having timed out and writes the specified message to the log.
 
@@ -1610,7 +1610,8 @@ def errorTimeout(sText):
     g_oLock.acquire();
     try:
         g_oReporter.testSetTimedOut();
-        g_oReporter.log(0, '** timeout-error: %s' % (sText), utils.getCallerName(), utils.getTimePrefix());
+        g_oReporter.log(0, '** timeout-error: %s' % (sText),
+                        sCaller if sCaller else utils.getCallerName(), utils.getTimePrefix());
     except:
         pass;
     finally:
