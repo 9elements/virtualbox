@@ -1,4 +1,4 @@
-/* $Id: VSCSILunSbc.cpp 112474 2026-01-13 12:47:27Z michal.necasek@oracle.com $ */
+/* $Id: VSCSILunSbc.cpp 113969 2026-04-22 10:59:53Z alexander.eichner@oracle.com $ */
 /** @file
  * Virtual SCSI driver: SBC LUN implementation (hard disks)
  */
@@ -160,6 +160,7 @@ static DECLCALLBACK(int) vscsiLunSbcInit(PVSCSILUNINT pVScsiLun)
     {
         PVSCSIVPDPAGESUPPORTEDPAGES pVpdPages;
 
+        cVpdPages++;
         rc = vscsiVpdPagePoolAllocNewPage(&pVScsiLunSbc->VpdPagePool, VSCSI_VPD_SUPPORTED_PAGES_NUMBER,
                                           VSCSI_VPD_SUPPORTED_PAGES_SIZE + cVpdPages, (uint8_t **)&pVpdPages);
         if (RT_SUCCESS(rc))
@@ -169,6 +170,7 @@ static DECLCALLBACK(int) vscsiLunSbcInit(PVSCSILUNINT pVScsiLun)
             pVpdPages->u3PeripheralQualifier  = SCSI_INQUIRY_DATA_PERIPHERAL_QUALIFIER_CONNECTED;
             pVpdPages->u16PageLength          = RT_H2BE_U16(cVpdPages);
 
+            pVpdPages->abVpdPages[idxVpdPage++] = VSCSI_VPD_SUPPORTED_PAGES_NUMBER;
             pVpdPages->abVpdPages[idxVpdPage++] = VSCSI_VPD_DEVID_NUMBER;
 
             if (pVScsiLun->fFeatures & VSCSI_LUN_FEATURE_UNMAP)
@@ -213,7 +215,9 @@ static DECLCALLBACK(int) vscsiLunSbcReqProcess(PVSCSILUNINT pVScsiLun, PVSCSIREQ
             /* Check for EVPD bit. */
             if (pVScsiReq->pbCDB[1] & 0x1)
             {
-                rc = vscsiVpdPagePoolQueryPage(&pVScsiLunSbc->VpdPagePool, pVScsiReq, pVScsiReq->pbCDB[2]);
+                uint16_t cbDataReq = scsiBE2H_U16(&pVScsiReq->pbCDB[3]);
+
+                rc = vscsiVpdPagePoolQueryPage(&pVScsiLunSbc->VpdPagePool, pVScsiReq, pVScsiReq->pbCDB[2], cbDataReq);
                 if (RT_UNLIKELY(rc == VERR_NOT_FOUND))
                 {
                     rcReq = vscsiLunReqSenseErrorSet(pVScsiLun, pVScsiReq, SCSI_SENSE_ILLEGAL_REQUEST,
