@@ -1,4 +1,4 @@
-# $Id: .scm-settings 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $
+# $Id: .scm-settings 113977 2026-04-22 20:32:22Z knut.osmundsen@oracle.com $
 ## @file
 # Source code massager settings for the docs.
 #
@@ -59,6 +59,11 @@
 /vp*:       --svn-sync-process-export none
 /xmi*:      --svn-sync-process-export none
 /License.*: --svn-sync-process-export none
+
+# readme.tool files may contain patches, so must conserve spaces and not convert tabs.
+/tools/*.tool:  --no-strip-trailing-blanks --no-convert-tabs
+/tools/*.patch: --treat-as plaintext
+/tools/common/dita-ot/dita-ot-bld.sh: --no-convert-tabs
 
 ## @todo export: probably not.
 /VBox-7.1-thoughts-on-ARM.txt:      --svn-sync-process-export none
