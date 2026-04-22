@@ -1,4 +1,4 @@
-# $Id: .scm-settings 113977 2026-04-22 20:32:22Z knut.osmundsen@oracle.com $
+# $Id: .scm-settings 113978 2026-04-22 20:56:35Z knut.osmundsen@oracle.com $
 ## @file
 # Source code massager settings for the docs.
 #
@@ -61,8 +61,9 @@
 /License.*: --svn-sync-process-export none
 
 # readme.tool files may contain patches, so must conserve spaces and not convert tabs.
-/tools/*.tool:  --no-strip-trailing-blanks --no-convert-tabs
-/tools/*.patch: --treat-as plaintext
+/tools/*.tool:  --no-strip-trailing-blanks --no-convert-tabs --strip-no-trailing-lines
+/tools/*.patch|/tools/*.diff: --treat-as plaintext --del-action force-native-eol --no-convert-eol \
+        --no-strip-trailing-blanks --dont-set-svn-keywords --no-fix-todos --no-force-final-eol --strip-no-trailing-lines
 /tools/common/dita-ot/dita-ot-bld.sh: --no-convert-tabs
 
 ## @todo export: probably not.
