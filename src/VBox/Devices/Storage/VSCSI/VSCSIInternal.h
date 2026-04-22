@@ -1,4 +1,4 @@
-/* $Id: VSCSIInternal.h 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: VSCSIInternal.h 113968 2026-04-22 10:58:51Z alexander.eichner@oracle.com $ */
 /** @file
  * Virtual SCSI driver: Internal defines
  */
@@ -440,8 +440,9 @@ int vscsiVpdPagePoolAllocNewPage(PVSCSIVPDPOOL pVScsiVpdPool, uint8_t uPage, siz
  * @param   pVScsiVpdPool    The VPD page pool to use.
  * @param   pVScsiReq        The SCSI request.
  * @param   uPage            Page to query.
+ * @param   cbDataReq        How many bytes from the page are requested.
  */
-int vscsiVpdPagePoolQueryPage(PVSCSIVPDPOOL pVScsiVpdPool, PVSCSIREQINT pVScsiReq, uint8_t uPage);
+int vscsiVpdPagePoolQueryPage(PVSCSIVPDPOOL pVScsiVpdPool, PVSCSIREQINT pVScsiReq, uint8_t uPage, uint16_t cbDataReq);
 
 /**
  * Inits the I/O request related state for the LUN.
