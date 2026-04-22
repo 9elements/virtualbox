@@ -1,6 +1,6 @@
-/* $Id: wayland-helper-dcp.cpp 113967 2026-04-22 09:47:12Z vadim.galitsyn@oracle.com $ */
+/* $Id: wayland-helper-edcp.cpp 113967 2026-04-22 09:47:12Z vadim.galitsyn@oracle.com $ */
 /** @file
- * Guest Additions - Data Control Protocol (DCP) helper for Wayland.
+ * Guest Additions - Ext Data Control Protocol (EDCP) helper for Wayland.
  *
  * This module implements Shared Clipboard support for Wayland guests
  * using Data Control Protocol interface.
@@ -44,7 +44,7 @@
 #include "wayland-helper-xdcp-common.h"
 
 #include "wayland-client-protocol.h"
-#include "wlr-data-control-unstable-v1.h"
+#include "ext-data-control-v1.h"
 
 /**
  * A set of objects required to handle clipboard sharing over
@@ -54,17 +54,17 @@ typedef struct
     vbox_wl_xdcp_base_ctx_t                     BaseCtx;
 
     /** Wayland Data Device object. */
-    struct zwlr_data_control_device_v1          *pDataDevice;
+    struct ext_data_control_device_v1           *pDataDevice;
 
     /** Wayland Data Control Manager object. */
-    struct zwlr_data_control_manager_v1         *pDataControlManager;
-} vbox_wl_dcp_ctx_t;
+    struct ext_data_control_manager_v1          *pDataControlManager;
+} vbox_wl_edcp_ctx_t;
 
 /** Helper context. */
-static vbox_wl_dcp_ctx_t g_DcpCtx;
+static vbox_wl_edcp_ctx_t g_EdcpCtx;
 
-static DECLCALLBACK(int) vbcl_wayland_hlp_dcp_clip_hg_report_join2_cb(vbcl_wl_session_type_t enmSessionType, void *pvUser);
-static DECLCALLBACK(int) vbcl_wayland_hlp_dcp_clip_hg_report_join3_cb(vbcl_wl_session_type_t enmSessionType, void *pvUser);
+static DECLCALLBACK(int) vbcl_wayland_hlp_edcp_clip_hg_report_join2_cb(vbcl_wl_session_type_t enmSessionType, void *pvUser);
+static DECLCALLBACK(int) vbcl_wayland_hlp_edcp_clip_hg_report_join3_cb(vbcl_wl_session_type_t enmSessionType, void *pvUser);
 
 
 /**********************************************************************************************************************************
@@ -81,7 +81,7 @@ static DECLCALLBACK(int) vbcl_wayland_hlp_dcp_clip_hg_report_join3_cb(vbcl_wl_se
  * @param   enmSessionType      Session type (unused).
  * @param   pvUser              User data.
  */
-static DECLCALLBACK(int) vbcl_wayland_hlp_dcp_session_start_generic_cb(
+static DECLCALLBACK(int) vbcl_wayland_hlp_edcp_session_start_generic_cb(
     vbcl_wl_session_type_t enmSessionType, void *pvUser)
 {
     vbox_wl_dcp_session_t *pSession = (vbox_wl_dcp_session_t *)pvUser;
@@ -90,7 +90,7 @@ static DECLCALLBACK(int) vbcl_wayland_hlp_dcp_session_start_generic_cb(
     VBCL_LOG_CALLBACK;
 
     AssertPtrReturn(pSession, VERR_INVALID_PARAMETER);
-    vbcl_wayland_xdcp_session_prepare(&g_DcpCtx.BaseCtx);
+    vbcl_wayland_xdcp_session_prepare(&g_EdcpCtx.BaseCtx);
 
     return VINF_SUCCESS;
 }
@@ -108,10 +108,10 @@ static DECLCALLBACK(int) vbcl_wayland_hlp_dcp_session_start_generic_cb(
  * @param sIface            Name of interface implemented by the object.
  * @param uVersion          Interface version.
  */
-static void vbcl_wayland_hlp_dcp_registry_global_handler(
+static void vbcl_wayland_hlp_edcp_registry_global_handler(
     void *pvUser, struct wl_registry *pRegistry, uint32_t uName, const char *sIface, uint32_t uVersion)
 {
-    vbox_wl_dcp_ctx_t *pCtx = (vbox_wl_dcp_ctx_t *)pvUser;
+    vbox_wl_edcp_ctx_t *pCtx = (vbox_wl_edcp_ctx_t *)pvUser;
 
     RT_NOREF(pRegistry);
     RT_NOREF(uVersion);
@@ -120,8 +120,8 @@ static void vbcl_wayland_hlp_dcp_registry_global_handler(
     AssertPtrReturnVoid(sIface);
 
     /* Wrappers around 'if' statement. */
-         VBCL_WAYLAND_REGISTRY_ADD_MATCH(pRegistry, sIface, uName, wl_seat_interface,                       pCtx->BaseCtx.pSeat,        struct wl_seat *,                       VBCL_WAYLAND_SEAT_VERSION_MIN)
-    else VBCL_WAYLAND_REGISTRY_ADD_MATCH(pRegistry, sIface, uName, zwlr_data_control_manager_v1_interface,  pCtx->pDataControlManager,  struct zwlr_data_control_manager_v1 *,  VBCL_WAYLAND_ZWLR_DATA_CONTROL_MANAGER_VERSION_MIN)
+         VBCL_WAYLAND_REGISTRY_ADD_MATCH(pRegistry, sIface, uName, wl_seat_interface,                      pCtx->BaseCtx.pSeat,        struct wl_seat *,                      VBCL_WAYLAND_SEAT_VERSION_MIN)
+    else VBCL_WAYLAND_REGISTRY_ADD_MATCH(pRegistry, sIface, uName, ext_data_control_manager_v1_interface,  pCtx->pDataControlManager,  struct ext_data_control_manager_v1 *,  VBCL_WAYLAND_ZWLR_DATA_CONTROL_MANAGER_VERSION_MIN)
     else
         VBClLogVerbose(5, "ignoring Wayland interface %s\n", sIface);
 }
@@ -135,7 +135,7 @@ static void vbcl_wayland_hlp_dcp_registry_global_handler(
  * @param pRegistry         Wayland Registry object.
  * @param uName             Numeric name of the global object.
  */
-static void vbcl_wayland_hlp_dcp_registry_global_remove_handler(
+static void vbcl_wayland_hlp_edcp_registry_global_remove_handler(
     void *pvUser, struct wl_registry *pRegistry, uint32_t uName)
 {
     RT_NOREF(pvUser);
@@ -146,8 +146,8 @@ static void vbcl_wayland_hlp_dcp_registry_global_remove_handler(
 /** Wayland global registry callbacks. */
 static const struct wl_registry_listener g_vbcl_wayland_hlp_registry_cb =
 {
-    &vbcl_wayland_hlp_dcp_registry_global_handler,       /* .global */
-    &vbcl_wayland_hlp_dcp_registry_global_remove_handler /* .global_remove */
+    &vbcl_wayland_hlp_edcp_registry_global_handler,       /* .global */
+    &vbcl_wayland_hlp_edcp_registry_global_remove_handler /* .global_remove */
 };
 
 
@@ -170,7 +170,7 @@ static const struct wl_registry_listener g_vbcl_wayland_hlp_registry_cb =
  *                              a consistency check.
  * @param   pvUser              User data (Wayland mime-type data).
  */
-static DECLCALLBACK(int) vbcl_wayland_hlp_dcp_gh_add_fmt_cb(
+static DECLCALLBACK(int) vbcl_wayland_hlp_edcp_gh_add_fmt_cb(
     vbcl_wl_session_type_t enmSessionType, void *pvUser)
 {
     struct vbcl_wl_dcp_enumerate_ctx *pEnmCtx =
@@ -198,12 +198,12 @@ static DECLCALLBACK(int) vbcl_wayland_hlp_dcp_gh_add_fmt_cb(
  * @param pOffer            Wayland Data Control Offer object.
  * @param sMimeType         Mime-type of newly available clipboard data.
  */
-static void vbcl_wayland_hlp_dcp_data_control_offer_offer(
-    void *pvUser, struct zwlr_data_control_offer_v1 *pOffer, const char *sMimeType)
+static void vbcl_wayland_hlp_edcp_data_control_offer_offer(
+    void *pvUser, struct ext_data_control_offer_v1 *pOffer, const char *sMimeType)
 {
     int rc;
 
-    vbox_wl_dcp_ctx_t *pCtx = (vbox_wl_dcp_ctx_t *)pvUser;
+    vbox_wl_edcp_ctx_t *pCtx = (vbox_wl_edcp_ctx_t *)pvUser;
     struct vbcl_wl_dcp_enumerate_ctx pEnmCtx;
     RT_NOREF(pOffer);
 
@@ -216,16 +216,16 @@ static void vbcl_wayland_hlp_dcp_data_control_offer_offer(
     pEnmCtx.pSession = &pCtx->BaseCtx.Session;
 
     rc = vbcl_wayland_session_join(&pCtx->BaseCtx.Session.Base,
-                                   &vbcl_wayland_hlp_dcp_gh_add_fmt_cb,
+                                   &vbcl_wayland_hlp_edcp_gh_add_fmt_cb,
                                    (void *)&pEnmCtx);
     if (RT_FAILURE(rc))
         VBClLogError("cannot save formats announced by the guest, rc=%Rrc\n", rc);
 }
 
 /** Wayland Data Control Offer interface callbacks. */
-static const struct zwlr_data_control_offer_v1_listener g_data_control_offer_listener =
+static const struct ext_data_control_offer_v1_listener g_data_control_offer_listener =
 {
-    &vbcl_wayland_hlp_dcp_data_control_offer_offer,
+    &vbcl_wayland_hlp_edcp_data_control_offer_offer,
 };
 
 
@@ -242,8 +242,8 @@ static const struct zwlr_data_control_offer_v1_listener g_data_control_offer_lis
  * @param   pOffer          Data offer object.
  * @param   pszMimeType     Requested mime-type in string representation.
  */
-static int vbcl_wayland_hlp_dcp_receive_offer(
-    vbox_wl_dcp_ctx_t *pCtx, zwlr_data_control_offer_v1 *pOffer, char *pszMimeType)
+static int vbcl_wayland_hlp_edcp_receive_offer(
+    vbox_wl_edcp_ctx_t *pCtx, ext_data_control_offer_v1 *pOffer, char *pszMimeType)
 {
     int rc = VERR_PIPE_NOT_CONNECTED;
     int aFds[2];
@@ -253,8 +253,8 @@ static int vbcl_wayland_hlp_dcp_receive_offer(
 
     if (pipe(aFds) == 0)
     {
-        zwlr_data_control_offer_v1_receive(
-            (struct zwlr_data_control_offer_v1 *)pOffer, pszMimeType, aFds[1]);
+        ext_data_control_offer_v1_receive(
+            (struct ext_data_control_offer_v1 *)pOffer, pszMimeType, aFds[1]);
 
         close(aFds[1]);
         rc = vbcl_wayland_xdcp_get_guest_clipboard(aFds[0], &pCtx->BaseCtx, pszMimeType);
@@ -273,7 +273,7 @@ static int vbcl_wayland_hlp_dcp_receive_offer(
  * @param   pList       List of mime-types in string representation.
  * @param   pOffer      Wayland offer.
  */
-static SHCLFORMATS vbcl_wayland_hlp_dcp_match_formats(vbox_wl_dcp_mime_t *pList, struct zwlr_data_control_offer_v1 *pOffer)
+static SHCLFORMATS vbcl_wayland_hlp_edcp_match_formats(vbox_wl_dcp_mime_t *pList, struct ext_data_control_offer_v1 *pOffer)
 {
     SHCLFORMATS fFmts = VBOX_SHCL_FMT_NONE;
 
@@ -294,7 +294,7 @@ static SHCLFORMATS vbcl_wayland_hlp_dcp_match_formats(vbox_wl_dcp_mime_t *pList,
 
             fFmts |= VBoxMimeConvGetIdByMime(pEntry->pszMimeType);
 
-            rc = vbcl_wayland_hlp_dcp_receive_offer(&g_DcpCtx, pOffer, pEntry->pszMimeType);
+            rc = vbcl_wayland_hlp_edcp_receive_offer(&g_EdcpCtx, pOffer, pEntry->pszMimeType);
         }
     }
 
@@ -317,10 +317,10 @@ static SHCLFORMATS vbcl_wayland_hlp_dcp_match_formats(vbox_wl_dcp_mime_t *pList,
  *                              a consistency check.
  * @param   pvUser              User data (data offer object).
  */
-static DECLCALLBACK(int) vbcl_wayland_hlp_dcp_gh_clip_report_cb(
+static DECLCALLBACK(int) vbcl_wayland_hlp_edcp_gh_clip_report_cb(
     vbcl_wl_session_type_t enmSessionType, void *pvUser)
 {
-    struct zwlr_data_control_offer_v1 *pOffer = (struct zwlr_data_control_offer_v1 *)pvUser;
+    struct ext_data_control_offer_v1 *pOffer = (struct ext_data_control_offer_v1 *)pvUser;
     SHCLFORMATS fFmts = VBOX_SHCL_FMT_NONE;
 
     int rc = (enmSessionType == VBCL_WL_CLIPBOARD_SESSION_TYPE_COPY_TO_HOST)
@@ -332,14 +332,14 @@ static DECLCALLBACK(int) vbcl_wayland_hlp_dcp_gh_clip_report_cb(
 
     if (RT_SUCCESS(rc))
     {
-        fFmts = vbcl_wayland_hlp_dcp_match_formats(&g_DcpCtx.BaseCtx.Session.clip.mimeTypesList, pOffer);
+        fFmts = vbcl_wayland_hlp_edcp_match_formats(&g_EdcpCtx.BaseCtx.Session.clip.mimeTypesList, pOffer);
         if (fFmts != VBOX_SHCL_FMT_NONE)
         {
-            g_DcpCtx.BaseCtx.Session.clip.fFmts.set(fFmts);
+            g_EdcpCtx.BaseCtx.Session.clip.fFmts.set(fFmts);
 
-            if (RT_VALID_PTR(g_DcpCtx.BaseCtx.pClipboardCtx))
+            if (RT_VALID_PTR(g_EdcpCtx.BaseCtx.pClipboardCtx))
             {
-                rc = VbglR3ClipboardReportFormats(g_DcpCtx.BaseCtx.pClipboardCtx->idClient, fFmts);
+                rc = VbglR3ClipboardReportFormats(g_EdcpCtx.BaseCtx.pClipboardCtx->idClient, fFmts);
                 if (RT_FAILURE(rc))
                     VBClLogError("cannot report formats to host, rc=%Rrc\n", rc);
             }
@@ -352,7 +352,7 @@ static DECLCALLBACK(int) vbcl_wayland_hlp_dcp_gh_clip_report_cb(
         else
             rc = VERR_NO_DATA;
 
-        zwlr_data_control_offer_v1_destroy((struct zwlr_data_control_offer_v1 *)pOffer);
+        ext_data_control_offer_v1_destroy((struct ext_data_control_offer_v1 *)pOffer);
 
         VBClLogVerbose(5, "announcing fFmts=0x%x to host, rc=%Rrc\n", fFmts, rc);
     }
@@ -364,18 +364,18 @@ static DECLCALLBACK(int) vbcl_wayland_hlp_dcp_gh_clip_report_cb(
  * Data Control Device offer callback.
  *
  * Triggered when other Wayland client advertises new clipboard content.
- * When this callback is triggered, a new zwlr_data_control_offer_v1 object
+ * When this callback is triggered, a new ext_data_control_offer_v1 object
  * is created. This callback should setup listener callbacks for this object.
  *
  * @param pvUser            Context data.
  * @param pDevice           Wayland Data Control Device object.
  * @param pOffer            Wayland Data Control Offer object.
  */
-static void vbcl_wayland_hlp_dcp_data_device_data_offer(
-    void *pvUser, struct zwlr_data_control_device_v1 *pDevice, struct zwlr_data_control_offer_v1 *pOffer)
+static void vbcl_wayland_hlp_edcp_data_device_data_offer(
+    void *pvUser, struct ext_data_control_device_v1 *pDevice, struct ext_data_control_offer_v1 *pOffer)
 {
     int rc;
-    vbox_wl_dcp_ctx_t *pCtx = (vbox_wl_dcp_ctx_t *)pvUser;
+    vbox_wl_edcp_ctx_t *pCtx = (vbox_wl_edcp_ctx_t *)pvUser;
     RT_NOREF(pDevice);
 
     VBCL_LOG_CALLBACK;
@@ -394,7 +394,7 @@ static void vbcl_wayland_hlp_dcp_data_device_data_offer(
     {
         rc = vbcl_wayland_session_start(&pCtx->BaseCtx.Session.Base,
                                         VBCL_WL_CLIPBOARD_SESSION_TYPE_COPY_TO_HOST,
-                                        &vbcl_wayland_hlp_dcp_session_start_generic_cb,
+                                        &vbcl_wayland_hlp_edcp_session_start_generic_cb,
                                         &pCtx->BaseCtx.Session);
         if (RT_SUCCESS(rc))
         {
@@ -402,14 +402,14 @@ static void vbcl_wayland_hlp_dcp_data_device_data_offer(
             if (RT_FAILURE(rc))
                 VBClLogVerbose(5, "unable to clear clipboard cache, rc=%Rrc", rc);
 
-            zwlr_data_control_offer_v1_add_listener(pOffer, &g_data_control_offer_listener, pvUser);
+            ext_data_control_offer_v1_add_listener(pOffer, &g_data_control_offer_listener, pvUser);
 
             /* Receive all the advertised mime types. */
             wl_display_roundtrip(pCtx->BaseCtx.pDisplay);
 
             /* Try to send an announcement to the host. */
             rc = vbcl_wayland_session_join(&pCtx->BaseCtx.Session.Base,
-                                           &vbcl_wayland_hlp_dcp_gh_clip_report_cb,
+                                           &vbcl_wayland_hlp_edcp_gh_clip_report_cb,
                                            pOffer);
         }
         else
@@ -429,8 +429,8 @@ static void vbcl_wayland_hlp_dcp_data_device_data_offer(
  * @param pDevice           Wayland Data Control Device object.
  * @param pOffer            Wayland Data Control Offer object.
  */
-static void vbcl_wayland_hlp_dcp_data_device_selection(
-    void *pvUser, struct zwlr_data_control_device_v1 *pDevice, struct zwlr_data_control_offer_v1 *pOffer)
+static void vbcl_wayland_hlp_edcp_data_device_selection(
+    void *pvUser, struct ext_data_control_device_v1 *pDevice, struct ext_data_control_offer_v1 *pOffer)
 {
     RT_NOREF(pDevice, pvUser, pOffer);
     VBCL_LOG_CALLBACK;
@@ -445,17 +445,17 @@ static void vbcl_wayland_hlp_dcp_data_device_selection(
  * @param pvUser            Context data.
  * @param pDevice           Wayland Data Control Device object.
  */
-static void vbcl_wayland_hlp_dcp_data_device_finished(
-    void *pvUser, struct zwlr_data_control_device_v1 *pDevice)
+static void vbcl_wayland_hlp_edcp_data_device_finished(
+    void *pvUser, struct ext_data_control_device_v1 *pDevice)
 {
-    vbox_wl_dcp_ctx_t *pCtx = (vbox_wl_dcp_ctx_t *)pvUser;
+    vbox_wl_edcp_ctx_t *pCtx = (vbox_wl_edcp_ctx_t *)pvUser;
 
     VBCL_LOG_CALLBACK;
 
     AssertPtrReturnVoid(pCtx);
     AssertPtrReturnVoid(pDevice);
 
-    zwlr_data_control_device_v1_destroy(pDevice);
+    ext_data_control_device_v1_destroy(pDevice);
     pCtx->pDataDevice = NULL;
 }
 
@@ -469,8 +469,8 @@ static void vbcl_wayland_hlp_dcp_data_device_finished(
  * @param pDevice           Wayland Data Control Device object.
  * @param pOffer            Wayland Data Control Offer object.
  */
-static void vbcl_wayland_hlp_dcp_data_device_primary_selection(
-    void *pvUser, struct zwlr_data_control_device_v1 *pDevice, struct zwlr_data_control_offer_v1 *pOffer)
+static void vbcl_wayland_hlp_edcp_data_device_primary_selection(
+    void *pvUser, struct ext_data_control_device_v1 *pDevice, struct ext_data_control_offer_v1 *pOffer)
 {
     RT_NOREF(pDevice, pvUser, pOffer);
     VBCL_LOG_CALLBACK;
@@ -478,12 +478,12 @@ static void vbcl_wayland_hlp_dcp_data_device_primary_selection(
 
 
 /** Data Control Device interface callbacks. */
-static const struct zwlr_data_control_device_v1_listener g_data_device_listener =
+static const struct ext_data_control_device_v1_listener g_data_device_listener =
 {
-    &vbcl_wayland_hlp_dcp_data_device_data_offer,
-    &vbcl_wayland_hlp_dcp_data_device_selection,
-    &vbcl_wayland_hlp_dcp_data_device_finished,
-    &vbcl_wayland_hlp_dcp_data_device_primary_selection,
+    &vbcl_wayland_hlp_edcp_data_device_data_offer,
+    &vbcl_wayland_hlp_edcp_data_device_selection,
+    &vbcl_wayland_hlp_edcp_data_device_finished,
+    &vbcl_wayland_hlp_edcp_data_device_primary_selection,
 };
 
 
@@ -503,12 +503,12 @@ static const struct zwlr_data_control_device_v1_listener g_data_device_listener 
  * @param sMimeType         A mime-type of requested data.
  * @param fd                A file descriptor to write clipboard content into.
  */
-static void vbcl_wayland_hlp_dcp_data_source_send(
-    void *pvUser, struct zwlr_data_control_source_v1 *pDataSource,
+static void vbcl_wayland_hlp_edcp_data_source_send(
+    void *pvUser, struct ext_data_control_source_v1 *pDataSource,
     const char *sMimeType, int32_t fd)
 {
     int rc;
-    vbox_wl_dcp_ctx_t *pCtx = (vbox_wl_dcp_ctx_t *)pvUser;
+    vbox_wl_edcp_ctx_t *pCtx = (vbox_wl_edcp_ctx_t *)pvUser;
     RT_NOREF(pDataSource);
 
     struct vbcl_wl_dcp_write_ctx priv;
@@ -523,10 +523,10 @@ static void vbcl_wayland_hlp_dcp_data_source_send(
     priv.fd = fd;
 
     rc = vbcl_wayland_session_join(&pCtx->BaseCtx.Session.Base,
-                                   &vbcl_wayland_hlp_dcp_clip_hg_report_join3_cb,
+                                   &vbcl_wayland_hlp_edcp_clip_hg_report_join3_cb,
                                    &priv);
 
-    VBClLogVerbose(5, "vbcl_wayland_hlp_dcp_data_source_send, rc=%Rrc\n", rc);
+    VBClLogVerbose(5, "vbcl_wayland_hlp_edcp_data_source_send, rc=%Rrc\n", rc);
     close(fd);
 }
 
@@ -539,20 +539,20 @@ static void vbcl_wayland_hlp_dcp_data_source_send(
  * @param pvData            VBox private data.
  * @param pDataSource       Wayland Data Control Source object.
  */
-static void vbcl_wayland_hlp_dcp_data_source_cancelled(
-    void *pvData, struct zwlr_data_control_source_v1 *pDataSource)
+static void vbcl_wayland_hlp_edcp_data_source_cancelled(
+    void *pvData, struct ext_data_control_source_v1 *pDataSource)
 {
     RT_NOREF(pvData);
     VBCL_LOG_CALLBACK;
-    zwlr_data_control_source_v1_destroy(pDataSource);
+    ext_data_control_source_v1_destroy(pDataSource);
 }
 
 
 /** Wayland Data Control Source interface callbacks. */
-static const struct zwlr_data_control_source_v1_listener g_data_source_listener =
+static const struct ext_data_control_source_v1_listener g_data_source_listener =
 {
-    &vbcl_wayland_hlp_dcp_data_source_send,
-    &vbcl_wayland_hlp_dcp_data_source_cancelled,
+    &vbcl_wayland_hlp_edcp_data_source_send,
+    &vbcl_wayland_hlp_edcp_data_source_cancelled,
 };
 
 
@@ -573,7 +573,7 @@ static const struct zwlr_data_control_source_v1_listener g_data_source_listener 
  * @param fShutdown         A flag to indicate if session resources
  *                          need to be deallocated.
  */
-static void vbcl_wayland_hlp_dcp_reset_ctx(vbox_wl_dcp_ctx_t *pCtx, bool fShutdown)
+static void vbcl_wayland_hlp_edcp_reset_ctx(vbox_wl_edcp_ctx_t *pCtx, bool fShutdown)
 {
     AssertReturnVoid(pCtx);
 
@@ -590,15 +590,15 @@ static void vbcl_wayland_hlp_dcp_reset_ctx(vbox_wl_dcp_ctx_t *pCtx, bool fShutdo
  *
  * @param pCtx              Context data.
  */
-static void vbcl_wayland_hlp_dcp_disconnect(vbox_wl_dcp_ctx_t *pCtx)
+static void vbcl_wayland_hlp_edcp_disconnect(vbox_wl_edcp_ctx_t *pCtx)
 {
     AssertReturnVoid(pCtx);
 
     if (RT_VALID_PTR(pCtx->pDataControlManager))
-        zwlr_data_control_manager_v1_destroy(pCtx->pDataControlManager);
+        ext_data_control_manager_v1_destroy(pCtx->pDataControlManager);
 
     if (RT_VALID_PTR(pCtx->pDataDevice))
-        zwlr_data_control_device_v1_destroy(pCtx->pDataDevice);
+        ext_data_control_device_v1_destroy(pCtx->pDataDevice);
 
     if (RT_VALID_PTR(pCtx->BaseCtx.pSeat))
         wl_seat_destroy(pCtx->BaseCtx.pSeat);
@@ -609,7 +609,7 @@ static void vbcl_wayland_hlp_dcp_disconnect(vbox_wl_dcp_ctx_t *pCtx)
     if (RT_VALID_PTR(pCtx->BaseCtx.pDisplay))
         wl_display_disconnect(pCtx->BaseCtx.pDisplay);
 
-    vbcl_wayland_hlp_dcp_reset_ctx(pCtx, true);
+    vbcl_wayland_hlp_edcp_reset_ctx(pCtx, true);
 }
 
 /**
@@ -620,7 +620,7 @@ static void vbcl_wayland_hlp_dcp_disconnect(vbox_wl_dcp_ctx_t *pCtx)
  * @returns TRUE on success, FALSE otherwise.
  * @param   pCtx                Context data.
  */
-static bool vbcl_wayland_hlp_dcp_connect(vbox_wl_dcp_ctx_t *pCtx)
+static bool vbcl_wayland_hlp_edcp_connect(vbox_wl_edcp_ctx_t *pCtx)
 {
     const char *csWaylandDisplay = RTEnvGet(VBCL_ENV_WAYLAND_DISPLAY);
     bool fConnected = false;
@@ -645,7 +645,7 @@ static bool vbcl_wayland_hlp_dcp_connect(vbox_wl_dcp_ctx_t *pCtx)
             {
                 if (RT_VALID_PTR(pCtx->BaseCtx.pSeat))
                 {
-                    pCtx->pDataDevice = zwlr_data_control_manager_v1_get_data_device(pCtx->pDataControlManager, pCtx->BaseCtx.pSeat);
+                    pCtx->pDataDevice = ext_data_control_manager_v1_get_data_device(pCtx->pDataControlManager, pCtx->BaseCtx.pSeat);
                     if (RT_VALID_PTR(pCtx->pDataDevice))
                     {
                         if (RT_VALID_PTR(pCtx->pDataControlManager))
@@ -669,7 +669,7 @@ static bool vbcl_wayland_hlp_dcp_connect(vbox_wl_dcp_ctx_t *pCtx)
         VBClLogError("cannot connect to Wayland compositor\n");
 
     if (!fConnected)
-        vbcl_wayland_hlp_dcp_disconnect(pCtx);
+        vbcl_wayland_hlp_edcp_disconnect(pCtx);
 
     return fConnected;
 }
@@ -684,17 +684,17 @@ static bool vbcl_wayland_hlp_dcp_connect(vbox_wl_dcp_ctx_t *pCtx)
  * @param   hThreadSelf         IPRT thread object.
  * @param   pvUser              Context data.
  */
-static DECLCALLBACK(int) vbcl_wayland_hlp_dcp_event_loop(RTTHREAD hThreadSelf, void *pvUser)
+static DECLCALLBACK(int) vbcl_wayland_hlp_edcp_event_loop(RTTHREAD hThreadSelf, void *pvUser)
 {
-    vbox_wl_dcp_ctx_t *pCtx = (vbox_wl_dcp_ctx_t *)pvUser;
+    vbox_wl_edcp_ctx_t *pCtx = (vbox_wl_edcp_ctx_t *)pvUser;
     int rc = VERR_TRY_AGAIN;
 
     AssertPtrReturn(pCtx, VERR_INVALID_PARAMETER);
 
-    if (vbcl_wayland_hlp_dcp_connect(pCtx))
+    if (vbcl_wayland_hlp_edcp_connect(pCtx))
     {
         /* Start listening Data Control Device interface. */
-        if (zwlr_data_control_device_v1_add_listener(pCtx->pDataDevice, &g_data_device_listener, (void *)pCtx) == 0)
+        if (ext_data_control_device_v1_add_listener(pCtx->pDataDevice, &g_data_device_listener, (void *)pCtx) == 0)
         {
             /* Tell parent thread we are ready. */
             RTThreadUserSignal(hThreadSelf);
@@ -711,7 +711,7 @@ static DECLCALLBACK(int) vbcl_wayland_hlp_dcp_event_loop(RTTHREAD hThreadSelf, v
                 if (pCtx->BaseCtx.fSendToGuest.reset())
                 {
                     rc = vbcl_wayland_session_join(&pCtx->BaseCtx.Session.Base,
-                                                   &vbcl_wayland_hlp_dcp_clip_hg_report_join2_cb,
+                                                   &vbcl_wayland_hlp_edcp_clip_hg_report_join2_cb,
                                                    NULL);
                 }
 
@@ -729,7 +729,7 @@ static DECLCALLBACK(int) vbcl_wayland_hlp_dcp_event_loop(RTTHREAD hThreadSelf, v
             VBClLogError("cannot subscribe to Data Control Device events\n");
         }
 
-        vbcl_wayland_hlp_dcp_disconnect(pCtx);
+        vbcl_wayland_hlp_edcp_disconnect(pCtx);
     }
 
     /* Notify parent thread if we failed to start, so it won't be
@@ -743,21 +743,21 @@ static DECLCALLBACK(int) vbcl_wayland_hlp_dcp_event_loop(RTTHREAD hThreadSelf, v
 /**
  * @interface_method_impl{VBCLWAYLANDHELPER,pfnProbe}
  */
-static DECLCALLBACK(int) vbcl_wayland_hlp_dcp_probe(void)
+static DECLCALLBACK(int) vbcl_wayland_hlp_edcp_probe(void)
 {
-    vbox_wl_dcp_ctx_t probeCtx;
+    vbox_wl_edcp_ctx_t probeCtx;
     int fCaps = VBOX_WAYLAND_HELPER_CAP_NONE;
     VBGHDISPLAYSERVERTYPE enmDisplayServerType = VBGHDisplayServerTypeDetect();
 
-    vbcl_wayland_hlp_dcp_reset_ctx(&probeCtx, false /* fShutdown */);
+    vbcl_wayland_hlp_edcp_reset_ctx(&probeCtx, false /* fShutdown */);
     vbcl_wayland_session_init(&probeCtx.BaseCtx.Session.Base);
 
     if (VBGHDisplayServerTypeIsWaylandAvailable(enmDisplayServerType))
     {
-        if (vbcl_wayland_hlp_dcp_connect(&probeCtx))
+        if (vbcl_wayland_hlp_edcp_connect(&probeCtx))
         {
             fCaps |= VBOX_WAYLAND_HELPER_CAP_CLIPBOARD;
-            vbcl_wayland_hlp_dcp_disconnect(&probeCtx);
+            vbcl_wayland_hlp_edcp_disconnect(&probeCtx);
         }
     }
 
@@ -767,28 +767,28 @@ static DECLCALLBACK(int) vbcl_wayland_hlp_dcp_probe(void)
 /**
  * @interface_method_impl{VBCLWAYLANDHELPER_CLIPBOARD,pfnInit}
  */
-RTDECL(int) vbcl_wayland_hlp_dcp_clip_init(void)
+RTDECL(int) vbcl_wayland_hlp_edcp_clip_init(void)
 {
-    vbcl_wayland_hlp_dcp_reset_ctx(&g_DcpCtx, false /* fShutdown */);
-    vbcl_wayland_session_init(&g_DcpCtx.BaseCtx.Session.Base);
+    vbcl_wayland_hlp_edcp_reset_ctx(&g_EdcpCtx, false /* fShutdown */);
+    vbcl_wayland_session_init(&g_EdcpCtx.BaseCtx.Session.Base);
 
-    return vbcl_wayland_thread_start(&g_DcpCtx.BaseCtx.Thread, vbcl_wayland_hlp_dcp_event_loop, "wl-dcp", &g_DcpCtx);
+    return vbcl_wayland_thread_start(&g_EdcpCtx.BaseCtx.Thread, vbcl_wayland_hlp_edcp_event_loop, "wl-dcp", &g_EdcpCtx);
 }
 
 /**
  * @interface_method_impl{VBCLWAYLANDHELPER_CLIPBOARD,pfnTerm}
  */
-RTDECL(int) vbcl_wayland_hlp_dcp_clip_term(void)
+RTDECL(int) vbcl_wayland_hlp_edcp_clip_term(void)
 {
     int rc;
     int rcThread = 0;
 
     /* Set termination flag. Wayland event loop should pick it up
      * on the next iteration. */
-    g_DcpCtx.BaseCtx.fShutdown = true;
+    g_EdcpCtx.BaseCtx.fShutdown = true;
 
     /* Wait for Wayland event loop thread to shutdown. */
-    rc = RTThreadWait(g_DcpCtx.BaseCtx.Thread, RT_MS_30SEC, &rcThread);
+    rc = RTThreadWait(g_EdcpCtx.BaseCtx.Thread, RT_MS_30SEC, &rcThread);
     if (RT_SUCCESS(rc))
         VBClLogInfo("Wayland event thread exited with status, rc=%Rrc\n", rcThread);
     else
@@ -800,15 +800,15 @@ RTDECL(int) vbcl_wayland_hlp_dcp_clip_term(void)
 /**
  * @interface_method_impl{VBCLWAYLANDHELPER_CLIPBOARD,pfnSetClipboardCtx}
  */
-static DECLCALLBACK(void) vbcl_wayland_hlp_dcp_clip_set_ctx(PVBGLR3SHCLCMDCTX pCtx)
+static DECLCALLBACK(void) vbcl_wayland_hlp_edcp_clip_set_ctx(PVBGLR3SHCLCMDCTX pCtx)
 {
-    g_DcpCtx.BaseCtx.pClipboardCtx = pCtx;
+    g_EdcpCtx.BaseCtx.pClipboardCtx = pCtx;
 }
 
 /**
  * @interface_method_impl{VBCLWAYLANDHELPER_CLIPBOARD,pfnPopup}
  */
-static DECLCALLBACK(int) vbcl_wayland_hlp_dcp_clip_popup(void)
+static DECLCALLBACK(int) vbcl_wayland_hlp_edcp_clip_popup(void)
 {
     return VINF_SUCCESS;
 }
@@ -831,7 +831,7 @@ static DECLCALLBACK(int) vbcl_wayland_hlp_dcp_clip_popup(void)
  *                              a consistency check.
  * @param   pvUser              User data (Wayland I/O context).
  */
-static DECLCALLBACK(int) vbcl_wayland_hlp_dcp_clip_hg_report_join3_cb(
+static DECLCALLBACK(int) vbcl_wayland_hlp_edcp_clip_hg_report_join3_cb(
     vbcl_wl_session_type_t enmSessionType, void *pvUser)
 {
     struct vbcl_wl_dcp_write_ctx *pPriv = (struct vbcl_wl_dcp_write_ctx *)pvUser;
@@ -846,8 +846,8 @@ static DECLCALLBACK(int) vbcl_wayland_hlp_dcp_clip_hg_report_join3_cb(
 
     if (RT_SUCCESS(rc))
     {
-        rc = vbcl_wayland_xdcp_set_guest_clipboard(pPriv->fd, &g_DcpCtx.BaseCtx, pPriv->sMimeType);
-        g_DcpCtx.BaseCtx.fIngnoreWlClipIn = false;
+        rc = vbcl_wayland_xdcp_set_guest_clipboard(pPriv->fd, &g_EdcpCtx.BaseCtx, pPriv->sMimeType);
+        g_EdcpCtx.BaseCtx.fIngnoreWlClipIn = false;
     }
 
     return rc;
@@ -864,10 +864,10 @@ static DECLCALLBACK(int) vbcl_wayland_hlp_dcp_clip_hg_report_join3_cb(
  * @param   pcszMimeType    Mime-type to advertise.
  * @param   pvUser          User data (DCP data source object).
  */
-static DECLCALLBACK(void) vbcl_wayland_hlp_dcp_send_offers(const char *pcszMimeType, void *pvUser)
+static DECLCALLBACK(void) vbcl_wayland_hlp_edcp_send_offers(const char *pcszMimeType, void *pvUser)
 {
-    zwlr_data_control_source_v1 *pDataSource = (zwlr_data_control_source_v1 *)pvUser;
-    zwlr_data_control_source_v1_offer(pDataSource, pcszMimeType);
+    ext_data_control_source_v1 *pDataSource = (ext_data_control_source_v1 *)pvUser;
+    ext_data_control_source_v1_offer(pDataSource, pcszMimeType);
 }
 
 /**
@@ -880,7 +880,7 @@ static DECLCALLBACK(void) vbcl_wayland_hlp_dcp_send_offers(const char *pcszMimeT
  * incoming clipboard advertisements before sending any data to
  * other Wayland clients (this is needed in order to avoid feedback
  * loop from our own advertisements), (2) waits for the list of clipboard
- * formats available on the host side (set by vbcl_wayland_hlp_dcp_clip_hg_report_join_cb),
+ * formats available on the host side (set by vbcl_wayland_hlp_edcp_clip_hg_report_join_cb),
  * and (3) sends data offers for available host clipboard to other clients.
  *
  * @returns IPRT status code.
@@ -888,7 +888,7 @@ static DECLCALLBACK(void) vbcl_wayland_hlp_dcp_send_offers(const char *pcszMimeT
  *                              a consistency check.
  * @param   pvUser              User data (unused).
  */
-static DECLCALLBACK(int) vbcl_wayland_hlp_dcp_clip_hg_report_join2_cb(
+static DECLCALLBACK(int) vbcl_wayland_hlp_edcp_clip_hg_report_join2_cb(
     vbcl_wl_session_type_t enmSessionType, void *pvUser)
 {
     int rc = (enmSessionType == VBCL_WL_CLIPBOARD_SESSION_TYPE_COPY_TO_GUEST)
@@ -900,24 +900,24 @@ static DECLCALLBACK(int) vbcl_wayland_hlp_dcp_clip_hg_report_join2_cb(
 
     if (RT_SUCCESS(rc))
     {
-        g_DcpCtx.BaseCtx.fIngnoreWlClipIn = true;
+        g_EdcpCtx.BaseCtx.fIngnoreWlClipIn = true;
 
-        SHCLFORMATS fFmts = g_DcpCtx.BaseCtx.Session.clip.fFmts.wait();
-        if (fFmts != g_DcpCtx.BaseCtx.Session.clip.fFmts.defaults())
+        SHCLFORMATS fFmts = g_EdcpCtx.BaseCtx.Session.clip.fFmts.wait();
+        if (fFmts != g_EdcpCtx.BaseCtx.Session.clip.fFmts.defaults())
         {
-            zwlr_data_control_source_v1 *pDataSource =
-                zwlr_data_control_manager_v1_create_data_source(g_DcpCtx.pDataControlManager);
+            ext_data_control_source_v1 *pDataSource =
+                ext_data_control_manager_v1_create_data_source(g_EdcpCtx.pDataControlManager);
 
             if (RT_VALID_PTR(pDataSource))
             {
-                zwlr_data_control_source_v1_add_listener(
-                    (struct zwlr_data_control_source_v1 *)pDataSource, &g_data_source_listener, &g_DcpCtx);
+                ext_data_control_source_v1_add_listener(
+                    (struct ext_data_control_source_v1 *)pDataSource, &g_data_source_listener, &g_EdcpCtx);
 
                 VBoxMimeConvEnumerateMimeById(fFmts,
-                                              vbcl_wayland_hlp_dcp_send_offers,
+                                              vbcl_wayland_hlp_edcp_send_offers,
                                               pDataSource);
 
-                zwlr_data_control_device_v1_set_selection(g_DcpCtx.pDataDevice, pDataSource);
+                ext_data_control_device_v1_set_selection(g_EdcpCtx.pDataDevice, pDataSource);
             }
             else
                 rc = VERR_NO_MEMORY;
@@ -947,7 +947,7 @@ static DECLCALLBACK(int) vbcl_wayland_hlp_dcp_clip_hg_report_join2_cb(
  *                              a consistency check.
  * @param   pvUser              User data (host clipboard formats).
  */
-static DECLCALLBACK(int) vbcl_wayland_hlp_dcp_clip_hg_report_join_cb(
+static DECLCALLBACK(int) vbcl_wayland_hlp_edcp_clip_hg_report_join_cb(
     vbcl_wl_session_type_t enmSessionType, void *pvUser)
 {
     SHCLFORMATS *pfFmts = (SHCLFORMATS *)pvUser;
@@ -961,7 +961,7 @@ static DECLCALLBACK(int) vbcl_wayland_hlp_dcp_clip_hg_report_join_cb(
     AssertPtrReturn(pfFmts, VERR_INVALID_PARAMETER);
 
     if (RT_SUCCESS(rc))
-        rc = vbcl_wayland_xdcp_get_host_clipboard(&g_DcpCtx.BaseCtx, *pfFmts);
+        rc = vbcl_wayland_xdcp_get_host_clipboard(&g_EdcpCtx.BaseCtx, *pfFmts);
 
     return rc;
 }
@@ -969,7 +969,7 @@ static DECLCALLBACK(int) vbcl_wayland_hlp_dcp_clip_hg_report_join_cb(
 /**
  * @interface_method_impl{VBCLWAYLANDHELPER_CLIPBOARD,pfnHGClipReport}
  */
-static DECLCALLBACK(int) vbcl_wayland_hlp_dcp_clip_hg_report(SHCLFORMATS fFormats)
+static DECLCALLBACK(int) vbcl_wayland_hlp_edcp_clip_hg_report(SHCLFORMATS fFormats)
 {
     int rc = VERR_NO_DATA;
 
@@ -977,17 +977,17 @@ static DECLCALLBACK(int) vbcl_wayland_hlp_dcp_clip_hg_report(SHCLFORMATS fFormat
 
     if (fFormats != VBOX_SHCL_FMT_NONE)
     {
-        rc = vbcl_wayland_session_end(&g_DcpCtx.BaseCtx.Session.Base, NULL, NULL);
+        rc = vbcl_wayland_session_end(&g_EdcpCtx.BaseCtx.Session.Base, NULL, NULL);
         if (RT_SUCCESS(rc))
         {
-            rc = vbcl_wayland_session_start(&g_DcpCtx.BaseCtx.Session.Base,
+            rc = vbcl_wayland_session_start(&g_EdcpCtx.BaseCtx.Session.Base,
                                             VBCL_WL_CLIPBOARD_SESSION_TYPE_COPY_TO_GUEST,
-                                            &vbcl_wayland_hlp_dcp_session_start_generic_cb,
-                                            &g_DcpCtx.BaseCtx.Session);
+                                            &vbcl_wayland_hlp_edcp_session_start_generic_cb,
+                                            &g_EdcpCtx.BaseCtx.Session);
 
             if (RT_SUCCESS(rc))
-                rc = vbcl_wayland_session_join(&g_DcpCtx.BaseCtx.Session.Base,
-                                               vbcl_wayland_hlp_dcp_clip_hg_report_join_cb,
+                rc = vbcl_wayland_session_join(&g_EdcpCtx.BaseCtx.Session.Base,
+                                               vbcl_wayland_hlp_edcp_clip_hg_report_join_cb,
                                                &fFormats);
         }
         else
@@ -1013,7 +1013,7 @@ static DECLCALLBACK(int) vbcl_wayland_hlp_dcp_clip_hg_report(SHCLFORMATS fFormat
  *                              a consistency check.
  * @param   pvUser              User data (requested format).
  */
-static DECLCALLBACK(int) vbcl_wayland_hlp_dcp_clip_gh_read_join_cb(
+static DECLCALLBACK(int) vbcl_wayland_hlp_edcp_clip_gh_read_join_cb(
     vbcl_wl_session_type_t enmSessionType, void *pvUser)
 {
     SHCLFORMAT *puFmt = (SHCLFORMAT *)pvUser;
@@ -1027,7 +1027,7 @@ static DECLCALLBACK(int) vbcl_wayland_hlp_dcp_clip_gh_read_join_cb(
     AssertPtrReturn(puFmt, VERR_INVALID_PARAMETER);
 
     if (RT_SUCCESS(rc))
-        rc = vbcl_wayland_xdcp_set_host_clipboard(&g_DcpCtx.BaseCtx, *puFmt);
+        rc = vbcl_wayland_xdcp_set_host_clipboard(&g_EdcpCtx.BaseCtx, *puFmt);
 
     return rc;
 }
@@ -1035,39 +1035,39 @@ static DECLCALLBACK(int) vbcl_wayland_hlp_dcp_clip_gh_read_join_cb(
 /**
  * @interface_method_impl{VBCLWAYLANDHELPER_CLIPBOARD,pfnGHClipRead}
  */
-static DECLCALLBACK(int) vbcl_wayland_hlp_dcp_clip_gh_read(SHCLFORMAT uFmt)
+static DECLCALLBACK(int) vbcl_wayland_hlp_edcp_clip_gh_read(SHCLFORMAT uFmt)
 {
     int rc;
 
     VBCL_LOG_CALLBACK;
 
-    rc = vbcl_wayland_session_join(&g_DcpCtx.BaseCtx.Session.Base,
-                                   &vbcl_wayland_hlp_dcp_clip_gh_read_join_cb,
+    rc = vbcl_wayland_session_join(&g_EdcpCtx.BaseCtx.Session.Base,
+                                   &vbcl_wayland_hlp_edcp_clip_gh_read_join_cb,
                                    &uFmt);
     return rc;
 }
 
-static const VBCLWAYLANDHELPER_CLIPBOARD g_WaylandHelperDcpClip =
+static const VBCLWAYLANDHELPER_CLIPBOARD g_WaylandHelperEdcpClip =
 {
-    vbcl_wayland_hlp_dcp_clip_init,             /* .pfnInit */
-    vbcl_wayland_hlp_dcp_clip_term,             /* .pfnTerm */
-    vbcl_wayland_hlp_dcp_clip_set_ctx,          /* .pfnSetClipboardCtx */
-    vbcl_wayland_hlp_dcp_clip_popup,            /* .pfnPopup */
-    vbcl_wayland_hlp_dcp_clip_hg_report,        /* .pfnHGClipReport */
-    vbcl_wayland_hlp_dcp_clip_gh_read,          /* .pfnGHClipRead */
+    vbcl_wayland_hlp_edcp_clip_init,             /* .pfnInit */
+    vbcl_wayland_hlp_edcp_clip_term,             /* .pfnTerm */
+    vbcl_wayland_hlp_edcp_clip_set_ctx,          /* .pfnSetClipboardCtx */
+    vbcl_wayland_hlp_edcp_clip_popup,            /* .pfnPopup */
+    vbcl_wayland_hlp_edcp_clip_hg_report,        /* .pfnHGClipReport */
+    vbcl_wayland_hlp_edcp_clip_gh_read,          /* .pfnGHClipRead */
 };
 
-static const VBCLWAYLANDHELPER_DND g_WaylandHelperDcpDnD =
+static const VBCLWAYLANDHELPER_DND g_WaylandHelperEdcpDnD =
 {
-    NULL,                                       /* .pfnInit */
-    NULL,                                       /* .pfnTerm */
+    NULL,                                        /* .pfnInit */
+    NULL,                                        /* .pfnTerm */
 };
 
 /* Helper callbacks. */
-const VBCLWAYLANDHELPER g_WaylandHelperDcp =
+const VBCLWAYLANDHELPER g_WaylandHelperEdcp =
 {
-    "wayland-dcp-legacy",                       /* .pszName */
-    vbcl_wayland_hlp_dcp_probe,                 /* .pfnProbe */
-    g_WaylandHelperDcpClip,                     /* .clip */
-    g_WaylandHelperDcpDnD,                      /* .dnd */
+    "wayland-ext-dcp",                           /* .pszName */
+    vbcl_wayland_hlp_edcp_probe,                 /* .pfnProbe */
+    g_WaylandHelperEdcpClip,                     /* .clip */
+    g_WaylandHelperEdcpDnD,                      /* .dnd */
 };

@@ -1,4 +1,4 @@
-/* $Id: wayland-helper-xdcp-common.h 113913 2026-04-16 18:14:27Z vadim.galitsyn@oracle.com $ */
+/* $Id: wayland-helper-xdcp-common.h 113967 2026-04-22 09:47:12Z vadim.galitsyn@oracle.com $ */
 /** @file
  * Guest Additions - Definitions for Data Control protocols family helpers.
  */
@@ -126,6 +126,9 @@ typedef struct
     /** Communication session between host event loop and Wayland. */
     vbox_wl_dcp_session_t                       Session;
 
+    /** Mime-types data cache. */
+    vbox_mime_conv_cache_t                      Cache;
+
     /** When set, incoming clipboard announcements will
      *  be ignored. This flag is used in order to prevent a feedback
      *  loop when host advertises clipboard data to Wayland. In this case,
@@ -185,9 +188,9 @@ RTDECL(int) vbcl_wayland_xdcp_next_event(vbox_wl_xdcp_base_ctx_t *pCtx);
 /**
  * Reset previously initialized session.
  *
- * @param   pSession            Session data.
+ * @param   pCtx                Context data.
  */
-RTDECL(void) vbcl_wayland_xdcp_session_prepare(vbox_wl_dcp_session_t *pSession);
+RTDECL(void) vbcl_wayland_xdcp_session_prepare(vbox_wl_xdcp_base_ctx_t *pCtx);
 
 /**
  * Collect clipboard format advertised by Wayland.
