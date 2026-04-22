@@ -1,4 +1,4 @@
-/* $Id: NEMR3Native-linux-x86.cpp 113775 2026-04-09 07:18:31Z alexander.eichner@oracle.com $ */
+/* $Id: NEMR3Native-linux-x86.cpp 113972 2026-04-22 11:47:29Z alexander.eichner@oracle.com $ */
 /** @file
  * NEM - Native execution manager, native ring-3 Linux backend.
  */
@@ -786,7 +786,8 @@ static int nemHCLnxImportState(PVMCPUCC pVCpu, uint64_t fWhat, PCPUMCTX pCtx, st
             ADD_MSR(MSR_IA32_SYSENTER_EIP, pCtx->SysEnter.eip);
             ADD_MSR(MSR_IA32_SYSENTER_ESP, pCtx->SysEnter.esp);
         }
-        if (fWhat & CPUMCTX_EXTRN_TSC_AUX)
+        if (   (fWhat & CPUMCTX_EXTRN_TSC_AUX)
+            && g_CpumHostFeatures.s.fRdTscP)
             ADD_MSR(MSR_K8_TSC_AUX, pCtxMsrs->msr.TscAux);
         if (fWhat & CPUMCTX_EXTRN_OTHER_MSRS)
         {
@@ -1234,7 +1235,8 @@ static int nemHCLnxExportState(PVM pVM, PVMCPU pVCpu, PCPUMCTX pCtx, struct kvm_
             ADD_MSR(MSR_IA32_SYSENTER_EIP, pCtx->SysEnter.eip);
             ADD_MSR(MSR_IA32_SYSENTER_ESP, pCtx->SysEnter.esp);
         }
-        if (fExtrn & CPUMCTX_EXTRN_TSC_AUX)
+        if (   (fExtrn & CPUMCTX_EXTRN_TSC_AUX)
+            && g_CpumHostFeatures.s.fRdTscP)
             ADD_MSR(MSR_K8_TSC_AUX, pCtxMsrs->msr.TscAux);
         if (fExtrn & CPUMCTX_EXTRN_OTHER_MSRS)
         {
