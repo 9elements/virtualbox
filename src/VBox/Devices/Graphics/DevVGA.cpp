@@ -1,4 +1,4 @@
-/* $Id: DevVGA.cpp 113461 2026-03-19 10:40:53Z vitali.pelenjow@oracle.com $ */
+/* $Id: DevVGA.cpp 113974 2026-04-22 13:30:46Z michal.necasek@oracle.com $ */
 /** @file
  * DevVGA - VBox VGA/VESA device.
  */
@@ -803,7 +803,7 @@ static void vga_ioport_write(PPDMDEVINS pDevIns, PVGASTATE pThis, uint32_t addr,
         if ((pThis->cr[0x11] & 0x80) && pThis->cr_index <= 7) {
             /* can always write bit 4 of CR7 */
             if (pThis->cr_index == 7)
-                pThis->cr[7] = (pThis->cr[7] & ~0x10) | (val & 0x10);
+                pThis->cr[0x07] = (pThis->cr[0x07] & ~0x10) | (val & 0x10);
             return;
         }
         pThis->cr[pThis->cr_index] = val;
@@ -1118,10 +1118,10 @@ static VBOXSTRICTRC vbe_ioport_write_data(PPDMDEVINS pDevIns, PVGASTATE pThis, P
                     pThis->sr[0x01] &= ~8; /* no double line */
                 } else {
                     shift_control = 2;
-                    pThis->sr[4] |= 0x08; /* set chain 4 mode */
-                    pThis->sr[2] |= 0x0f; /* activate all planes */
+                    pThis->sr[0x04] |= 0x08; /* set chain 4 mode */
+                    pThis->sr[0x02] |= 0x0f; /* activate all planes */
                     /* Indicate non-VGA mode in SR07. */
-                    pThis->sr[7] |= 1;
+                    pThis->sr[0x07] |= 1;
                 }
                 pThis->gr[0x05] = (pThis->gr[0x05] & ~0x60) | (shift_control << 5);
                 pThis->cr[0x09] &= ~0x9f; /* no double scan */
@@ -1228,7 +1228,7 @@ static uint32_t vga_mem_readb(PPDMDEVINS pDevIns, PVGASTATE pThis, PVGASTATECC p
     RTGCPHYS const offMmio = addr; /* save original MMIO range offset  */
 #endif
 
-    int const memory_map_mode = (pThis->gr[6] >> 2) & 3;
+    int const memory_map_mode = (pThis->gr[0x06] >> 2) & 3;
     switch(memory_map_mode) {
     case 0:
         break;
@@ -1250,11 +1250,11 @@ static uint32_t vga_mem_readb(PPDMDEVINS pDevIns, PVGASTATE pThis, PVGASTATECC p
         break;
     }
 
-    if (pThis->sr[4] & 0x08) {
+    if (pThis->sr[0x04] & 0x08) {
         /* chain 4 mode : simplest access */
 #ifndef IN_RC
         /* If all planes are accessible, then map the page to the frame buffer and make it writable. */
-        if (   (pThis->sr[2] & 3) == 3
+        if (   (pThis->sr[0x02] & 3) == 3
             && !vgaIsRemapped(pThis, offMmio)
             && pThis->GCPhysVRAM)
         {
@@ -1273,9 +1273,9 @@ static uint32_t vga_mem_readb(PPDMDEVINS pDevIns, PVGASTATE pThis, PVGASTATECC p
 #else
         ret = pThisCC->pbVRam[addr];
 #endif
-    } else if (!(pThis->sr[4] & 0x04)) {    /* Host access is controlled by SR4, not GR5! */
+    } else if (!(pThis->sr[0x04] & 0x04)) { /* Host access is controlled by SR4, not GR5! */
         /* odd/even mode (aka text mode mapping) */
-        plane = (pThis->gr[4] & 2) | (addr & 1);
+        plane = (pThis->gr[0x04] & 2) | (addr & 1);
         /* See the comment for a similar line in vga_mem_writeb. */
         RTGCPHYS off = ((addr & ~1) * 4) | plane;
         VERIFY_VRAM_READ_OFF_RETURN(pThis, off, *prc);
@@ -1294,13 +1294,13 @@ static uint32_t vga_mem_readb(PPDMDEVINS pDevIns, PVGASTATE pThis, PVGASTATECC p
 #else
         pThis->latch = ((uint32_t *)pThisCC->pbVRam)[addr];
 #endif
-        if (!(pThis->gr[5] & 0x08)) {
+        if (!(pThis->gr[0x05] & 0x08)) {
             /* read mode 0 */
-            plane = pThis->gr[4];
+            plane = pThis->gr[0x04];
             ret = GET_PLANE(pThis->latch, plane);
         } else {
             /* read mode 1 */
-            ret = (pThis->latch ^ mask16[pThis->gr[2]]) & mask16[pThis->gr[7]];
+            ret = (pThis->latch ^ mask16[pThis->gr[0x02]]) & mask16[pThis->gr[0x07]];
             ret |= ret >> 16;
             ret |= ret >> 8;
             ret = (~ret) & 0xff;
@@ -1333,7 +1333,7 @@ static VBOXSTRICTRC vga_mem_writeb(PPDMDEVINS pDevIns, PVGASTATE pThis, PVGASTAT
     RTGCPHYS const offMmio = addr; /* save original MMIO range offset  */
 #endif
 
-    int const memory_map_mode = (pThis->gr[6] >> 2) & 3;
+    int const memory_map_mode = (pThis->gr[0x06] >> 2) & 3;
     switch(memory_map_mode) {
     case 0:
         break;
@@ -1355,14 +1355,14 @@ static VBOXSTRICTRC vga_mem_writeb(PPDMDEVINS pDevIns, PVGASTATE pThis, PVGASTAT
         break;
     }
 
-    if (pThis->sr[4] & 0x08) {
+    if (pThis->sr[0x04] & 0x08) {
         /* chain 4 mode : simplest access */
         plane = addr & 3;
         mask = (1 << plane);
-        if (pThis->sr[2] & mask) {
+        if (pThis->sr[0x02] & mask) {
 #ifndef IN_RC
             /* If all planes are accessible, then map the page to the frame buffer and make it writable. */
-            if (   (pThis->sr[2] & 3) == 3
+            if (   (pThis->sr[0x02] & 3) == 3
                 && !vgaIsRemapped(pThis, offMmio)
                 && pThis->GCPhysVRAM)
             {
@@ -1390,11 +1390,11 @@ static VBOXSTRICTRC vga_mem_writeb(PPDMDEVINS pDevIns, PVGASTATE pThis, PVGASTAT
             pThis->plane_updated |= mask; /* only used to detect font change */
             vgaR3MarkDirty(pThis, addr);
         }
-    } else if (!(pThis->sr[4] & 0x04)) {    /* Host access is controlled by SR4, not GR5! */
+    } else if (!(pThis->sr[0x04] & 0x04)) { /* Host access is controlled by SR4, not GR5! */
         /* odd/even mode (aka text mode mapping); GR4 does not affect writes! */
         plane = addr & 1;
         mask = (1 << plane);
-        if (pThis->sr[2] & mask) {
+        if (pThis->sr[0x02] & mask) {
             /* 'addr' is offset in a plane, bit 0 selects the plane.
              * Mask the bit 0, convert plane index to vram offset,
              * that is multiply by the number of planes,
@@ -1423,40 +1423,40 @@ static VBOXSTRICTRC vga_mem_writeb(PPDMDEVINS pDevIns, PVGASTATE pThis, PVGASTAT
         /* standard VGA latched access */
         VERIFY_VRAM_WRITE_OFF_RETURN(pThis, addr * 4 + 3);
 
-        write_mode = pThis->gr[5] & 3;
+        write_mode = pThis->gr[0x05] & 3;
         switch(write_mode) {
         default:
         case 0:
             /* rotate */
-            b = pThis->gr[3] & 7;
+            b = pThis->gr[0x03] & 7;
             val = ((val >> b) | (val << (8 - b))) & 0xff;
             val |= val << 8;
             val |= val << 16;
 
             /* apply set/reset mask */
-            set_mask = mask16[pThis->gr[1]];
-            val = (val & ~set_mask) | (mask16[pThis->gr[0]] & set_mask);
-            bit_mask = pThis->gr[8];
+            set_mask = mask16[pThis->gr[0x01]];
+            val = (val & ~set_mask) | (mask16[pThis->gr[0x00]] & set_mask);
+            bit_mask = pThis->gr[0x08];
             break;
         case 1:
             val = pThis->latch;
             goto do_write;
         case 2:
             val = mask16[val & 0x0f];
-            bit_mask = pThis->gr[8];
+            bit_mask = pThis->gr[0x08];
             break;
         case 3:
             /* rotate */
-            b = pThis->gr[3] & 7;
+            b = pThis->gr[0x03] & 7;
             val = (val >> b) | (val << (8 - b));
 
-            bit_mask = pThis->gr[8] & val;
-            val = mask16[pThis->gr[0]];
+            bit_mask = pThis->gr[0x08] & val;
+            val = mask16[pThis->gr[0x00]];
             break;
         }
 
         /* apply logical operation */
-        func_select = pThis->gr[3] >> 3;
+        func_select = pThis->gr[0x03] >> 3;
         switch(func_select) {
         case 0:
         default:
@@ -1482,8 +1482,8 @@ static VBOXSTRICTRC vga_mem_writeb(PPDMDEVINS pDevIns, PVGASTATE pThis, PVGASTAT
         val = (val & bit_mask) | (pThis->latch & ~bit_mask);
 
     do_write:
-        /* mask data according to sr[2] */
-        mask = pThis->sr[2];
+        /* mask data according to sr[0x02] */
+        mask = pThis->sr[0x02];
         pThis->plane_updated |= mask; /* only used to detect font change */
         write_mask = mask16[mask];
 #ifdef VMSVGA_WITH_VGA_FB_BACKUP_AND_IN_RING3
@@ -1777,7 +1777,7 @@ static int vgaR3DrawText(PPDMDEVINS pDevIns, PVGASTATE pThis, PVGASTATER3 pThisC
     palette = pThis->last_palette;
 
     /* compute font data address (in plane 2) */
-    v = pThis->sr[3];
+    v = pThis->sr[0x03];
     offset = (((v >> 4) & 1) | ((v << 1) & 6)) * 8192 * 4 + 2;
     if (offset != pThis->font_offsets[0]) {
         pThis->font_offsets[0] = offset;
@@ -1826,14 +1826,14 @@ static int vgaR3DrawText(PPDMDEVINS pDevIns, PVGASTATE pThis, PVGASTATER3 pThisC
     s1 = pThisCC->pbVRam + ((pThis->start_addr * s_incr) & addr_mask);
 
     /* double scanning - not for 9-wide modes */
-    dscan = (pThis->cr[9] >> 7) & 1;
+    dscan = (pThis->cr[0x09] >> 7) & 1;
 
     /* total width & height */
-    cheight = (pThis->cr[9] & 0x1f) + 1;
+    cheight = (pThis->cr[0x09] & 0x1f) + 1;
     cw = 8;
-    if (!(pThis->sr[1] & 0x01))
+    if (!(pThis->sr[0x01] & 0x01))
         cw = 9;
-    if (pThis->sr[1] & 0x08)
+    if (pThis->sr[0x01] & 0x08)
         cw = 16; /* NOTE: no 18 pixel wide */
     width = (pThis->cr[0x01] + 1);
     if (pThis->cr[0x06] == 100) {
@@ -1893,8 +1893,8 @@ static int vgaR3DrawText(PPDMDEVINS pDevIns, PVGASTATE pThis, PVGASTATER3 pThisC
 
     cursor_offset = ((pThis->cr[0x0e] << 8) | pThis->cr[0x0f]) - pThis->start_addr;
     if (cursor_offset != pThis->cursor_offset ||
-        pThis->cr[0xa] != pThis->cursor_start ||
-        pThis->cr[0xb] != pThis->cursor_end) {
+        pThis->cr[0x0a] != pThis->cursor_start ||
+        pThis->cr[0x0b] != pThis->cursor_end) {
       /* if the cursor position changed, we update the old and new
          chars */
         if (pThis->cursor_offset < CH_ATTR_SIZE)
@@ -1902,8 +1902,8 @@ static int vgaR3DrawText(PPDMDEVINS pDevIns, PVGASTATE pThis, PVGASTATER3 pThisC
         if (cursor_offset < CH_ATTR_SIZE)
             pThis->last_ch_attr[cursor_offset] = UINT32_MAX;
         pThis->cursor_offset = cursor_offset;
-        pThis->cursor_start = pThis->cr[0xa];
-        pThis->cursor_end = pThis->cr[0xb];
+        pThis->cursor_start = pThis->cr[0x0a];
+        pThis->cursor_end = pThis->cr[0x0b];
     }
     cursor_ptr = pThisCC->pbVRam + (((pThis->start_addr + cursor_offset) * s_incr) & addr_mask);
     depth_index = vgaR3GetDepthIndex(pDrv->cBits);
@@ -2559,7 +2559,7 @@ static int vgaR3DrawGraphic(PVGASTATE pThis, PVGASTATER3 pThisCC, bool full_upda
     line_offset = pThis->line_offset;
 #if 0
     Log(("w=%d h=%d v=%d line_offset=%d cr[0x09]=0x%02x cr[0x17]=0x%02x linecmp=%d sr[0x01]=0x%02x\n",
-           width, height, v, line_offset, pThis->cr[9], pThis->cr[0x17], pThis->line_compare, pThis->sr[0x01]));
+           width, height, v, line_offset, pThis->cr[0x09], pThis->cr[0x17], pThis->line_compare, pThis->sr[0x01]));
 #endif
     addr1 = (pThis->start_addr * 4);
     bwidth = (width * bits + 7) / 8;    /* The visible width of a scanline. */
@@ -2752,7 +2752,7 @@ static int vgaR3UpdateDisplay(PPDMDEVINS pDevIns, PVGASTATE pThis, PVGASTATER3 p
         if (!(pThis->ar_index & 0x20) || (pThis->sr[0x01] & 0x20)) {
             graphic_mode = GMODE_BLANK;
         } else {
-            graphic_mode = pThis->gr[6] & 1 ? GMODE_GRAPH : GMODE_TEXT;
+            graphic_mode = pThis->gr[0x06] & 1 ? GMODE_GRAPH : GMODE_TEXT;
         }
         bool full_update = fUpdateAll || graphic_mode != *pcur_graphic_mode;
         if (full_update) {
@@ -3480,7 +3480,7 @@ vgaR3IOPortHgmsiRead(PPDMDEVINS pDevIns, void *pvUser, RTIOPORT offPort, uint32_
  */
 #define APPLY_LOGICAL_AND_MASK(pThis, val, bit_mask) \
     /* apply logical operation */ \
-    switch (pThis->gr[3] >> 3)\
+    switch (pThis->gr[0x03] >> 3)\
     { \
         case 0: \
         default:\
@@ -3533,7 +3533,7 @@ static int vgaInternalMMIOFill(PVGASTATE pThis, PVGASTATECC pThisCC, void *pvUse
     /* convert to VGA memory offset */
     /// @todo add check for the end of region
     GCPhysAddr &= 0x1ffff;
-    switch((pThis->gr[6] >> 2) & 3) {
+    switch((pThis->gr[0x06] >> 2) & 3) {
     case 0:
         break;
     case 1:
@@ -3554,28 +3554,28 @@ static int vgaInternalMMIOFill(PVGASTATE pThis, PVGASTATECC pThisCC, void *pvUse
         break;
     }
 
-    if (pThis->sr[4] & 0x08) {
+    if (pThis->sr[0x04] & 0x08) {
         /* chain 4 mode : simplest access */
         VERIFY_VRAM_WRITE_OFF_RETURN(pThis, GCPhysAddr + cItems * cbItem - 1);
 
         while (cItems-- > 0)
             for (i = 0; i < cbItem; i++)
             {
-                if (pThis->sr[2] & (1 << (GCPhysAddr & 3)))
+                if (pThis->sr[0x02] & (1 << (GCPhysAddr & 3)))
                 {
                     pThisCC->pbVRam[GCPhysAddr] = aVal[i];
                     vgaR3MarkDirty(pThis, GCPhysAddr);
                 }
                 GCPhysAddr++;
             }
-    } else if (pThis->gr[5] & 0x10) {
+    } else if (pThis->gr[0x05] & 0x10) {
         /* odd/even mode (aka text mode mapping) */
         VERIFY_VRAM_WRITE_OFF_RETURN(pThis, (GCPhysAddr + cItems * cbItem) * 4 - 1);
         while (cItems-- > 0)
             for (i = 0; i < cbItem; i++)
             {
                 unsigned plane = GCPhysAddr & 1;
-                if (pThis->sr[2] & (1 << plane)) {
+                if (pThis->sr[0x02] & (1 << plane)) {
                     RTGCPHYS PhysAddr2 = ((GCPhysAddr & ~1) * 4) | plane;
                     pThisCC->pbVRam[PhysAddr2] = aVal[i];
                     vgaR3MarkDirty(pThis, PhysAddr2);
@@ -3586,15 +3586,15 @@ static int vgaInternalMMIOFill(PVGASTATE pThis, PVGASTATECC pThisCC, void *pvUse
         /* standard VGA latched access */
         VERIFY_VRAM_WRITE_OFF_RETURN(pThis, (GCPhysAddr + cItems * cbItem) * 4 - 1);
 
-        switch(pThis->gr[5] & 3) {
+        switch(pThis->gr[0x05] & 3) {
         default:
         case 0:
             /* rotate */
-            b = pThis->gr[3] & 7;
-            bit_mask = pThis->gr[8];
+            b = pThis->gr[0x03] & 7;
+            bit_mask = pThis->gr[0x08];
             bit_mask |= bit_mask << 8;
             bit_mask |= bit_mask << 16;
-            set_mask = mask16[pThis->gr[1]];
+            set_mask = mask16[pThis->gr[0x01]];
 
             for (i = 0; i < cbItem; i++)
             {
@@ -3603,7 +3603,7 @@ static int vgaInternalMMIOFill(PVGASTATE pThis, PVGASTATECC pThisCC, void *pvUse
                 aVal[i] |= aVal[i] << 16;
 
                 /* apply set/reset mask */
-                aVal[i] = (aVal[i] & ~set_mask) | (mask16[pThis->gr[0]] & set_mask);
+                aVal[i] = (aVal[i] & ~set_mask) | (mask16[pThis->gr[0x00]] & set_mask);
 
                 APPLY_LOGICAL_AND_MASK(pThis, aVal[i], bit_mask);
             }
@@ -3613,7 +3613,7 @@ static int vgaInternalMMIOFill(PVGASTATE pThis, PVGASTATECC pThisCC, void *pvUse
                 aVal[i] = pThis->latch;
             break;
         case 2:
-            bit_mask = pThis->gr[8];
+            bit_mask = pThis->gr[0x08];
             bit_mask |= bit_mask << 8;
             bit_mask |= bit_mask << 16;
             for (i = 0; i < cbItem; i++)
@@ -3625,23 +3625,23 @@ static int vgaInternalMMIOFill(PVGASTATE pThis, PVGASTATECC pThisCC, void *pvUse
             break;
         case 3:
             /* rotate */
-            b = pThis->gr[3] & 7;
+            b = pThis->gr[0x03] & 7;
 
             for (i = 0; i < cbItem; i++)
             {
                 aVal[i] = (aVal[i] >> b) | (aVal[i] << (8 - b));
-                bit_mask = pThis->gr[8] & aVal[i];
+                bit_mask = pThis->gr[0x08] & aVal[i];
                 bit_mask |= bit_mask << 8;
                 bit_mask |= bit_mask << 16;
-                aVal[i] = mask16[pThis->gr[0]];
+                aVal[i] = mask16[pThis->gr[0x00]];
 
                 APPLY_LOGICAL_AND_MASK(pThis, aVal[i], bit_mask);
             }
             break;
         }
 
-        /* mask data according to sr[2] */
-        write_mask = mask16[pThis->sr[2]];
+        /* mask data according to sr[0x02] */
+        write_mask = mask16[pThis->sr[0x02]];
 
         /* actually write data */
         if (cbItem == 1)
@@ -4413,34 +4413,34 @@ static DECLCALLBACK(void) vgaR3InfoState(PPDMDEVINS pDevIns, PCDBGFINFOHLP pHlp,
     const char      *mem_map[] = { "A000-BFFF", "A000-AFFF", "B000-B7FF", "B800-BFFF" };
     NOREF(pszArgs);
 
-    is_graph  = pThis->gr[6] & 1;
+    is_graph  = pThis->gr[0x06] & 1;
     char_dots = is_graph ? 8 : (pThis->sr[0x01] & 1) ? 8 : 9;
-    double_scan = pThis->cr[9] >> 7;
-    pHlp->pfnPrintf(pHlp, "decoding memory at %s\n", mem_map[(pThis->gr[6] >> 2) & 3]);
+    double_scan = pThis->cr[0x09] >> 7;
+    pHlp->pfnPrintf(pHlp, "decoding memory at %s\n", mem_map[(pThis->gr[0x06] >> 2) & 3]);
     pHlp->pfnPrintf(pHlp, "Misc status reg. MSR:%02X\n", pThis->msr);
     pHlp->pfnPrintf(pHlp, "pixel clock: %s\n", clocks[(pThis->msr >> 2) & 3]);
     pHlp->pfnPrintf(pHlp, "double scanning %s\n", double_scan ? "on" : "off");
-    pHlp->pfnPrintf(pHlp, "double clocking %s\n", pThis->sr[1] & 0x08 ? "on" : "off");
-    val = pThis->cr[0] + 5;
+    pHlp->pfnPrintf(pHlp, "double clocking %s\n", pThis->sr[0x01] & 0x08 ? "on" : "off");
+    val = pThis->cr[0x00] + 5;
     pHlp->pfnPrintf(pHlp, "htotal: %d px (%d cclk)\n", val * char_dots, val);
-    val = pThis->cr[6] + ((pThis->cr[7] & 1) << 8) + ((pThis->cr[7] & 0x20) << 4) + 2;
+    val = pThis->cr[0x06] + ((pThis->cr[0x07] & 1) << 8) + ((pThis->cr[0x07] & 0x20) << 4) + 2;
     pHlp->pfnPrintf(pHlp, "vtotal: %d px\n", val);
-    val = pThis->cr[1] + 1;
+    val = pThis->cr[0x01] + 1;
     w   = val * char_dots;
     pHlp->pfnPrintf(pHlp, "hdisp : %d px (%d cclk)\n", w, val);
-    val = pThis->cr[0x12] + ((pThis->cr[7] & 2) << 7) + ((pThis->cr[7] & 0x40) << 3) + 1;
+    val = pThis->cr[0x12] + ((pThis->cr[0x07] & 2) << 7) + ((pThis->cr[0x07] & 0x40) << 3) + 1;
     h   = val;
     pHlp->pfnPrintf(pHlp, "vdisp : %d px\n", val);
-    val = ((pThis->cr[9] & 0x40) << 3) + ((pThis->cr[7] & 0x10) << 4) + pThis->cr[0x18];
+    val = ((pThis->cr[0x09] & 0x40) << 3) + ((pThis->cr[0x07] & 0x10) << 4) + pThis->cr[0x18];
     pHlp->pfnPrintf(pHlp, "split : %d ln\n", val);
-    val = (pThis->cr[0xc] << 8) + pThis->cr[0xd];
+    val = (pThis->cr[0x0c] << 8) + pThis->cr[0x0d];
     pHlp->pfnPrintf(pHlp, "start : %#x\n", val);
     if (!is_graph)
     {
         uint8_t ch_stride;
 
         ch_stride = pThis->cr[0x17] & 0x40 ? 4 : 8;
-        val = (pThis->cr[9] & 0x1f) + 1;
+        val = (pThis->cr[0x09] & 0x1f) + 1;
         char_height = val;
         pHlp->pfnPrintf(pHlp, "char height %d\n", val);
         pHlp->pfnPrintf(pHlp, "text mode %dx%d\n", w / char_dots, h / (char_height << double_scan));
@@ -4611,7 +4611,7 @@ static DECLCALLBACK(void) vgaR3InfoText(PPDMDEVINS pDevIns, PCDBGFINFOHLP pHlp, 
     /*
      * Check that we're in text mode and that the VRAM is accessible.
      */
-    if (!(pThis->gr[6] & 1))
+    if (!(pThis->gr[0x06] & 1))
     {
         uint8_t *pbSrc = pThisCC->pbVRam;
         if (pbSrc)
@@ -4633,9 +4633,9 @@ static DECLCALLBACK(void) vgaR3InfoText(PPDMDEVINS pDevIns, PCDBGFINFOHLP pHlp, 
                 cbLine = 80 * 8;
             offStart *= 8;
 
-            uint32_t uVDisp      = pThis->cr[0x12] + ((pThis->cr[7] & 2) << 7) + ((pThis->cr[7] & 0x40) << 4) + 1;
-            uint32_t uCharHeight = (pThis->cr[9] & 0x1f) + 1;
-            uint32_t uDblScan    = pThis->cr[9] >> 7;
+            uint32_t uVDisp      = pThis->cr[0x12] + ((pThis->cr[0x07] & 2) << 7) + ((pThis->cr[0x07] & 0x40) << 4) + 1;
+            uint32_t uCharHeight = (pThis->cr[0x09] & 0x1f) + 1;
+            uint32_t uDblScan    = pThis->cr[0x09] >> 7;
             uint32_t cScrRows    = uVDisp / (uCharHeight << uDblScan);
             if (cScrRows < 25)
                 cScrRows = 25;
@@ -4797,23 +4797,23 @@ static DECLCALLBACK(void) vgaR3InfoPlanar(PPDMDEVINS pDevIns, PCDBGFINFOHLP pHlp
     PVGASTATE       pThis = PDMDEVINS_2_DATA(pDevIns, PVGASTATE);
     NOREF(pszArgs);
 
-    unsigned val1 = (pThis->gr[5] >> 3) & 1;
-    unsigned val2 = pThis->gr[5] & 3;
+    unsigned val1 = (pThis->gr[0x05] >> 3) & 1;
+    unsigned val2 = pThis->gr[0x05] & 3;
     pHlp->pfnPrintf(pHlp, "read mode     : %u     write mode: %u\n", val1, val2);
-    val1 = pThis->gr[0];
-    val2 = pThis->gr[1];
+    val1 = pThis->gr[0x00];
+    val2 = pThis->gr[0x01];
     pHlp->pfnPrintf(pHlp, "set/reset data: %02X    S/R enable: %02X\n", val1, val2);
-    val1 = pThis->gr[2];
-    val2 = pThis->gr[4] & 3;
+    val1 = pThis->gr[0x02];
+    val2 = pThis->gr[0x04] & 3;
     pHlp->pfnPrintf(pHlp, "color compare : %02X    read map  : %u\n", val1, val2);
-    val1 = pThis->gr[3] & 7;
-    val2 = (pThis->gr[3] >> 3) & 3;
+    val1 = pThis->gr[0x03] & 7;
+    val2 = (pThis->gr[0x03] >> 3) & 3;
     pHlp->pfnPrintf(pHlp, "rotate        : %u     function  : %u\n", val1, val2);
-    val1 = pThis->gr[7];
-    val2 = pThis->gr[8];
+    val1 = pThis->gr[0x07];
+    val2 = pThis->gr[0x08];
     pHlp->pfnPrintf(pHlp, "don't care    : %02X    bit mask  : %02X\n", val1, val2);
-    val1 = pThis->sr[2];
-    val2 = pThis->sr[4] & 8;
+    val1 = pThis->sr[0x02];
+    val2 = pThis->sr[0x04] & 8;
     pHlp->pfnPrintf(pHlp, "seq plane mask: %02X    chain-4   : %s\n", val1, val2 ? "on" : "off");
 }
 
