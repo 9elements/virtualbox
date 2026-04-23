@@ -1,4 +1,4 @@
-/* $Id: IEMAllN8veRecompiler.cpp 112435 2026-01-13 08:49:25Z knut.osmundsen@oracle.com $ */
+/* $Id: IEMAllN8veRecompiler.cpp 113997 2026-04-23 22:52:23Z knut.osmundsen@oracle.com $ */
 /** @file
  * IEM - Native Recompiler
  *
@@ -150,6 +150,10 @@ DECL_FORCE_INLINE(bool) iemNativeHlpReturnBreakViaLookupIsIrqOrForceFlagPending(
 }
 
 
+/** @todo r=bela clang optimization of these functions produces a failing VMM. See @bugref{11078}. */
+#if RT_CLANG_PREREQ(0, 0)
+# pragma clang optimize off
+#endif
 /**
  * Used by TB code when encountering a non-zero status or rcPassUp after a call.
  */
@@ -386,6 +390,9 @@ IEM_DECL_NATIVE_HLP_DEF(uintptr_t, iemNativeHlpReturnBreakViaLookupWithTlb,(PVMC
     IRECM(pVCpu).ppTbLookupEntryR3 = ppNewTb;
     return 0;
 }
+#if RT_CLANG_PREREQ(0, 0)
+# pragma clang optimize on
+#endif
 
 
 /**

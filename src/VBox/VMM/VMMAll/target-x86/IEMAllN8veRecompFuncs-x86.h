@@ -1,4 +1,4 @@
-/* $Id: IEMAllN8veRecompFuncs-x86.h 112435 2026-01-13 08:49:25Z knut.osmundsen@oracle.com $ */
+/* $Id: IEMAllN8veRecompFuncs-x86.h 113997 2026-04-23 22:52:23Z knut.osmundsen@oracle.com $ */
 /** @file
  * IEM - Native Recompiler - Inlined Bits, x86 target.
  */
@@ -510,7 +510,7 @@ iemNativeEmitFinishInstructionWithStatus(PIEMRECOMPILERSTATE pReNative, uint32_t
 
 #else
         /* Load the index as argument #1 for the helper call at the given label. */
-        off = iemNativeEmitLoadGpr8Imm(pReNative, off, IEMNATIVE_CALL_ARG1_GREG, idxTbLookupFirst);
+        off = iemNativeEmitLoadGprImm32(pReNative, off, IEMNATIVE_CALL_ARG1_GREG, idxTbLookupFirst);
 
         /*
          * Figure out the physical address of the current instruction and see
