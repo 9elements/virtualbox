@@ -1,4 +1,4 @@
-# $Id: .scm-settings 113978 2026-04-22 20:56:35Z knut.osmundsen@oracle.com $
+# $Id: .scm-settings 113990 2026-04-23 14:00:31Z knut.osmundsen@oracle.com $
 ## @file
 # Source code massager settings for the docs.
 #
@@ -54,7 +54,6 @@
 
 /graphml*:  --svn-sync-process-export none
 /GUI*:      --svn-sync-process-export none
-/iuml*:     --svn-sync-process-export none
 /tg*:       --svn-sync-process-export none
 /vp*:       --svn-sync-process-export none
 /xmi*:      --svn-sync-process-export none

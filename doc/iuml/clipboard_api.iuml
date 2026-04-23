@@ -1,0 +1,220 @@
+' $Id: clipboard_api.iuml 113990 2026-04-23 14:00:31Z knut.osmundsen@oracle.com $
+'' @file
+' UML definition for PlantUML - VirtualBox Clipboard API - Draft
+'
+
+'
+' Copyright (C) 2025-2026 Oracle and/or its affiliates.
+'
+' This file is part of VirtualBox base platform packages, as
+' available from https://www.virtualbox.org.
+'
+' This program is free software; you can redistribute it and/or
+' modify it under the terms of the GNU General Public License
+' as published by the Free Software Foundation, in version 3 of the
+' License.
+'
+' This program is distributed in the hope that it will be useful, but
+' WITHOUT ANY WARRANTY; without even the implied warranty of
+' MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+' General Public License for more details.
+'
+' You should have received a copy of the GNU General Public License
+' along with this program; if not, see <https://www.gnu.org/licenses>.
+'
+' SPDX-License-Identifier: GPL-3.0-only
+'
+
+@startuml
+title VirtualBox Clipboard API - 7.2 Draft
+hide empty description
+
+enum ClipboardAction
+{
+    Invalid
+    Copy
+    Cut
+    Paste
+    Custom
+}
+
+abstract class IClipboardFormat
+{
+    +mimeType : wstring
+}
+
+enum ClipboardSource
+{
+    Host
+    Guest
+    Remote
+    Custom
+}
+
+note left of ClipboardSource::Remote
+  For VRDE extensions
+end note
+
+abstract class IClipboardItem
+{
+    +id : ULONG
+    +source : ClipboardSource
+    +format : IClipboardFormat
+    +buffer : Array
+    +size : ULONG
+}
+
+abstract class IClipboardTransfer
+{
+    +getId : ULONG
+    +progress : IProgress
+}
+
+' Note: Interaction state for (later) supporting 'overwrite?' actions and such.
+abstract class ClipboardTransferState
+{
+    Added
+    Removed
+    InProgress
+    Interaction
+    Completed
+    Canceled
+    Failed
+}
+
+note left of IClipboardItem::source
+  Optional source ID of the clipboard. Defaults to 0.
+  For X11 this means PRIMARY (0), SECONDARY(1) and CLIPBOARD(2).
+end note
+
+note left of IClipboardItem::id
+  Unique ID to distinguish clipboard transfers.
+end note
+
+note left of IClipboardItem::format
+  MIME Format of the clipboard  (i.e. "text/plain", "image/bmp").
+end note
+
+enum ClipboardError
+{
+    None
+    NotSupported
+    AccessDenied
+    FormatNotSupported
+    OperationFailed
+}
+
+enum ClipboardMode
+{
+    Disabled
+    HostToGuest
+    GuestToHost
+    Bidirectional
+}
+
+' Events derived from IClipboardEvent can veto the announced operation.
+abstract class IClipboardEvent
+{
+    +item : ClipboardItem
+    +veto : BOOL
+}
+
+' Already implemented < 7.2.
+abstract class IClipboardModeChangedEvent
+{
+    +mode : ClipboardMode
+}
+
+abstract class IClipboardSourceChangedEvent
+{
+    +source : ClipboardSource
+}
+note left of IClipboardSourceChangedEvent
+  When enabling / disabling VRDE extension
+end note
+
+
+abstract class IClipboardTransferEvent
+{
+    +transfer : IClipboardTransfer
+    +state : ClipboardTransferState
+    +message : wstring
+    +error : ClipboardError
+}
+
+note left of IClipboardTransferEvent::message
+  For user interaction messages.
+  For example, "Do you want to overwrite existing file?".
+end note
+
+' Clipboard events
+IEvent <|-- IClipboardEvent
+IEvent <|-- IClipboardModeChangedEvent
+IEvent <|-- IClipboardSourceChangedEvent
+IClipboardEvent <|-- IClipboardFormatChangedEvent
+IClipboardEvent <|-- IClipboardDataChangedEvent
+IEvent <|-- IClipboardTransferEvent
+
+' A single clipboard transfer
+abstract class IClipboardTransfer
+{
+    +id : ULONG
+    +action : ClipboardAction
+    +item : IClipboardItem
+}
+IClipboardTransfer <|-- IProgress
+
+' Clipboard (file) transfer manager
+abstract class IClipboardTransferManager
+{
+    +add(IClipboardTransfer) : HRESULT
+    +remove(IClipboardTransfer) : HRESULT
+    +cancel(IClipboardTransfer) : HRESULT
+    +getTranfers : SafeArray<IClipboardTransfer>
+    +reset : HRESULT
+}
+
+' Lives as part of IMachine
+' All commands in context (view) of the host side.
+abstract class IClipboard
+{
+    +setMode(ClipboardMode) : HRESULT
+    +getMode : ClipboardMode
+    +getFileList : SafeArray<wstring>
+    +setFileList(SafeArray<wstring>) : HRESULT
+    +readData(ClipboardAction) : ClipboardItem
+    +readFormats : SafeArray<ClipboardFormat>
+    +writeData(ClipboardAction, ClipboardItem) : ClipboardItem
+    +writeFormats(SafeArray<ClipboardFormat>)
+    +reset : HRESULT
+    +isFormatAvailable(ClipboardSource, ClipboardFormat) : BOOL
+    +getSupportedFormats(ClipboardSource) : SafeArray<ClipboardFormat>
+
+    __ Data / file transfers
+
+    +transfers : IClipboardTransferManager
+
+    __ Events __
+
+    +EventSource : IEventSource
+}
+
+IClipboard *-- IClipboardTransferManager
+
+note left of IClipboard::read
+  Reads current clipboard item from the guest.
+end note
+note left of IClipboard::write
+  Writes a clipboard item to the guest.
+end note
+note left of IClipboard::reset
+  Resets all clipboard data.
+end note
+
+class IMachine
+{
+    clipboard : IClipboard
+}
+
+@enduml
+' EOF

@@ -1,0 +1,84 @@
+' $Id: clipboard_sequence.iuml 113990 2026-04-23 14:00:31Z knut.osmundsen@oracle.com $
+'' @file
+' UML definition for PlantUML - VirtualBox Clipboard Sequence - Draft
+'
+
+'
+' Copyright (C) 2025-2026 Oracle and/or its affiliates.
+'
+' This file is part of VirtualBox base platform packages, as
+' available from https://www.virtualbox.org.
+'
+' This program is free software; you can redistribute it and/or
+' modify it under the terms of the GNU General Public License
+' as published by the Free Software Foundation, in version 3 of the
+' License.
+'
+' This program is distributed in the hope that it will be useful, but
+' WITHOUT ANY WARRANTY; without even the implied warranty of
+' MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+' General Public License for more details.
+'
+' You should have received a copy of the GNU General Public License
+' along with this program; if not, see <https://www.gnu.org/licenses>.
+'
+' SPDX-License-Identifier: GPL-3.0-only
+'
+
+@startuml
+title VirtualBox Clipboard API Sequence - 7.2 Draft
+hide empty description
+
+actor "User (Host)" as U
+participant Host as H
+participant "VBoSVC" as VBoxSVC
+participant "VBoxC" as VBoxC
+participant "Client" as Client
+participant VBoxService as VBoxService
+participant Guest as G
+
+== Host > Guest (Data) ==
+
+U -> H: Copy data (e.g., Ctrl+C)
+loop
+  H -> VBoxSVC: <watches host clipboard>
+end
+VBoxSVC -> VBoxC: issues IClipboardFormatChangedEvent
+VBoxC -> Client: issues IClipboardFormatChangedEvent
+Client -> VBoxC : sends format via Clipboard::write()
+VBoxC -> VBoxService  : <HGCM send format to guest>
+VBoxService -> G  : <reports format to guest clipboard>
+U -> G: Paste data (e.g., Ctrl+V)
+VBoxService -> VBoxC  : <HGCM request data>
+VBoxC -> Client : issues IClipboardDataReadEvent
+Client -> VBoxC : Clipboard::write()
+VBoxC -> VBoxService  : <HGCM send data to guest>
+VBoxService -> G  : <writes data to guest clipboard>
+
+== Guest > Host (Data) ==
+
+U -> G: Copy data (e.g., Ctrl+C)
+loop
+  Guest -> VBoxService : <watches guest clipboard>
+end
+VBoxService -> VBoxC : <HGCM report format>
+VBoxC -> Client: issues IClipboardFormatChangedEvent
+Client -> VBoxC : requests data via Clipboard::read()
+VBoxC -> VBoxService : <HGCM request data>
+VBoxService -> G : <read guest clipboard data>
+VBoxService -> VBoxC : <HGCM send data to host>
+VBoxC -> VBoxSVC : issues IClipboardDataChangedEvent
+VBoxSVC -> H : writes to host clipboard
+VBoxSVC -> VBoxC : issues IClipboardDataChangedEvent
+VBoxC -> Client : issues IClipboardDataChangedEvent
+
+== Host > Guest (Files) ==
+
+' TBD
+
+== Guest > Host (Files) ==
+
+' TBD
+
+@enduml
+' EOF
