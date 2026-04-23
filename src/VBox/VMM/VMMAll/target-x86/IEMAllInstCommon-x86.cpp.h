@@ -1,4 +1,4 @@
-/* $Id: IEMAllInstCommon-x86.cpp.h 112435 2026-01-13 08:49:25Z knut.osmundsen@oracle.com $ */
+/* $Id: IEMAllInstCommon-x86.cpp.h 114001 2026-04-23 23:05:04Z knut.osmundsen@oracle.com $ */
 /** @file
  * IEM - Instruction Decoding and Emulation, x86 target, Common Bits.
  */
@@ -982,6 +982,7 @@ FNIEMOP_DEF_2(iemOpCommonLoadSRegAndGreg, uint8_t, iSegReg, uint8_t, bRm)
                                     iemCImpl_load_SReg_Greg, uSel, offSeg, iSegRegArg, iGRegArg, enmEffOpSize);
                 IEM_MC_END();
             }
+            break;
 
         case IEMMODE_32BIT:
             if (iSegReg >= X86_SREG_FS || !IEM_IS_32BIT_CODE(pVCpu))
@@ -1028,6 +1029,7 @@ FNIEMOP_DEF_2(iemOpCommonLoadSRegAndGreg, uint8_t, iSegReg, uint8_t, bRm)
                                     iemCImpl_load_SReg_Greg, uSel, offSeg, iSegRegArg, iGRegArg, enmEffOpSize);
                 IEM_MC_END();
             }
+            break;
 
         case IEMMODE_64BIT:
             IEM_MC_BEGIN(IEM_MC_F_64BIT, 0);
@@ -1053,6 +1055,7 @@ IEM_MC_NO_NATIVE_RECOMPILE(); /** @todo sort out the IEM_IS_GUEST_CPU_AMD stuff.
                                 | RT_BIT_64(kIemNativeGstReg_SegAttribFirst + iSegReg),
                                 iemCImpl_load_SReg_Greg, uSel, offSeg, iSegRegArg, iGRegArg, enmEffOpSize);
             IEM_MC_END();
+            break;
 
         IEM_NOT_REACHED_DEFAULT_CASE_RET();
     }
