@@ -1,4 +1,4 @@
-/* $Id: vrdpdmap.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: vrdpdmap.cpp 113980 2026-04-23 07:45:13Z andreas.loeffler@oracle.com $ */
 /** @file
  * VBox Remote Desktop Protocol.
  */
@@ -690,7 +690,7 @@ VRDPClientDesktopMapMultiMon::VRDPClientDesktopMapMultiMon(VRDPTP *pTP)
 
 /* virtual */ void VRDPClientDesktopMapMultiMon::QueryClientMonitorRect (unsigned uScreenId, RGNRECT *pRect)
 {
-    if (uScreenId > m_cMonitors)
+    if (uScreenId >= m_cMonitors)
     {
         pRect->x = 0;
         pRect->y = 0;
