@@ -1,4 +1,4 @@
-/* $Id: ConsoleImplConfigX86.cpp 113260 2026-03-04 18:34:06Z alexander.eichner@oracle.com $ */
+/* $Id: ConsoleImplConfigX86.cpp 113986 2026-04-23 12:31:12Z alexander.eichner@oracle.com $ */
 /** @file
  * VBox Console COM Class implementation - VM Configuration Bits.
  *
@@ -1705,6 +1705,45 @@ int Console::i_configConstructorX86(PUVM pUVM, PVM pVM, PCVMMR3VTABLE pVMM, Auto
                 InsertConfigInteger(pCfg,  "GraphicsMode",  u32GraphicsMode);
             if (!strResolution.isEmpty())
                 InsertConfigString(pCfg,   "GraphicsResolution", strResolution);
+
+            DeviceType_T bootDevice;
+            AssertMsgReturn(SchemaDefs::MaxBootPosition <= 9,
+                ("Too many boot devices %d\n", SchemaDefs::MaxBootPosition),
+                            VERR_INVALID_PARAMETER);
+
+            for (ULONG pos = 1; pos <= SchemaDefs::MaxBootPosition; ++pos)
+            {
+                hrc = pMachine->GetBootOrder(pos, &bootDevice);
+                H();
+
+                char szParamName[] = "BootDeviceX";
+                szParamName[sizeof(szParamName) - 2] = (char)(pos - 1 + '0');
+
+                const char *pszBootDevice;
+                switch (bootDevice)
+                {
+                    case DeviceType_Null:
+                        pszBootDevice = "none";
+                        break;
+                    case DeviceType_HardDisk:
+                        pszBootDevice = "disk";
+                        break;
+                    case DeviceType_DVD:
+                        pszBootDevice = "dvd";
+                        break;
+                    case DeviceType_Floppy:
+                        pszBootDevice = "floppy";
+                        break;
+                    case DeviceType_Network:
+                        pszBootDevice = "net";
+                        break;
+                    default:
+                        AssertMsgFailed(("Invalid bootDevice=%d\n", bootDevice));
+                        return pVMM->pfnVMR3SetError(pUVM, VERR_INVALID_PARAMETER, RT_SRC_POS,
+                                                     N_("Invalid boot device '%d'"), bootDevice);
+                }
+                InsertConfigString(pCfg, szParamName, pszBootDevice);
+            }
 
             /* For OS X guests we'll force passing host's DMI info to the guest */
             if (fOsXGuest)

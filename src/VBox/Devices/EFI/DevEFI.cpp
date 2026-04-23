@@ -1,4 +1,4 @@
-/* $Id: DevEFI.cpp 106320 2024-10-15 12:08:41Z klaus.espenlaub@oracle.com $ */
+/* $Id: DevEFI.cpp 113986 2026-04-23 12:31:12Z alexander.eichner@oracle.com $ */
 /** @file
  * DevEFI - EFI <-> VirtualBox Integration Framework.
  */
@@ -165,6 +165,8 @@ typedef struct DEVEFIR3
 
     /** Boot parameters passed to the firmware. */
     char                    szBootArgs[256];
+    /** Boot devices (ordered). */
+    VBOX_EFI_BOOT_TYPE      aenmBootDevice[4];
 
     /** Host UUID (for DMI). */
     RTUUID                  aUuid;
@@ -326,6 +328,14 @@ static uint32_t efiInfoSize(PDEVEFIR3 pThisCC)
             return 8;
         case EFI_INFO_INDEX_APIC_MODE:
             return 1;
+        case EFI_INFO_INDEX_BOOTORDER_BOOT1:
+            return 8;
+        case EFI_INFO_INDEX_BOOTORDER_BOOT2:
+            return 8;
+        case EFI_INFO_INDEX_BOOTORDER_BOOT3:
+            return 8;
+        case EFI_INFO_INDEX_BOOTORDER_BOOT4:
+            return 8;
     }
     return UINT32_MAX;
 }
@@ -427,6 +437,10 @@ static uint8_t efiInfoNextByte(PDEVEFIR3 pThisCC)
         case EFI_INFO_INDEX_APIC_MODE:          return efiInfoNextByteU8(pThisCC, pThisCC->u8APIC);
         case EFI_INFO_INDEX_TPM_PPI_BASE:       return efiInfoNextByteU64(pThisCC, pThisCC->u64TpmPpiBase);
 
+        case EFI_INFO_INDEX_BOOTORDER_BOOT1:    return efiInfoNextByteU64(pThisCC, (uint64_t) pThisCC->aenmBootDevice[0]);
+        case EFI_INFO_INDEX_BOOTORDER_BOOT2:    return efiInfoNextByteU64(pThisCC, (uint64_t) pThisCC->aenmBootDevice[1]);
+        case EFI_INFO_INDEX_BOOTORDER_BOOT3:    return efiInfoNextByteU64(pThisCC, (uint64_t) pThisCC->aenmBootDevice[2]);
+        case EFI_INFO_INDEX_BOOTORDER_BOOT4:    return efiInfoNextByteU64(pThisCC, (uint64_t) pThisCC->aenmBootDevice[3]);
         default:
             PDMDevHlpDBGFStop(pThisCC->pDevIns, RT_SRC_POS, "%#x", pThisCC->iInfoSelector);
             return 0;
@@ -1449,6 +1463,44 @@ static uint8_t efiGetHalfByte(char ch)
     return val;
 }
 
+static int efiBootTypeFromConfig(PPDMDEVINS pDevIns, PCFGMNODE pCfg, const char *pszParam, VBOX_EFI_BOOT_TYPE *penmBoot)
+{
+	char *pszBootOption;
+	PCPDMDEVHLPR3   pHlp    = pDevIns->pHlpR3;
+	int rc = pHlp->pfnCFGMQueryStringAlloc(pCfg, pszParam, &pszBootOption);
+	if (RT_FAILURE(rc))
+	    return PDMDevHlpVMSetError(pDevIns, rc, RT_SRC_POS,
+                                       N_("Configuration error: Querying \"%s\" as a string failed"),
+                                       pszParam);
+
+	if (strncmp(pszBootOption, "disk", 4) == 0) {
+		*penmBoot = VBOX_EFI_BOOT_TYPE_HDD;
+	} else if (strncmp(pszBootOption, "dvd", 3) == 0) {
+		*penmBoot = VBOX_EFI_BOOT_TYPE_CD_DVD;
+	} else if (strncmp(pszBootOption, "floppy", 6) == 0) {
+		*penmBoot = VBOX_EFI_BOOT_TYPE_FLOPPY;
+	} else if (strncmp(pszBootOption, "net", 3) == 0) {
+		*penmBoot = VBOX_EFI_BOOT_TYPE_PXE;
+	} else if (strncmp(pszBootOption, "pxe", 3) == 0) {
+		*penmBoot = VBOX_EFI_BOOT_TYPE_PXE;
+	} else if (strncmp(pszBootOption, "https", 5) == 0) {
+		*penmBoot = VBOX_EFI_BOOT_TYPE_HTTPS;
+	} else if (strncmp(pszBootOption, "http", 4) == 0) {
+		*penmBoot = VBOX_EFI_BOOT_TYPE_HTTP;
+	} else if (strncmp(pszBootOption, "shell", 5) == 0) {
+		*penmBoot = VBOX_EFI_BOOT_TYPE_SHELL;
+	} else if (strncmp(pszBootOption, "none", 4) == 0) {
+		*penmBoot = VBOX_EFI_BOOT_TYPE_NONE;
+	} else {
+		PDMDevHlpVMSetError(pDevIns, rc, RT_SRC_POS,
+		                    N_("Configuration error: The \"%s\" value \"%s\" is unknown"),
+		                    pszParam, pszBootOption);
+                rc = VERR_INTERNAL_ERROR;
+	}
+
+	PDMDevHlpMMHeapFree(pDevIns, pszBootOption);
+	return rc;
+}
 
 /**
  * Converts a hex string into a binary data blob located at
@@ -1514,6 +1566,10 @@ static DECLCALLBACK(int)  efiConstruct(PPDMDEVINS pDevIns, int iInstance, PCFGMN
      * Validate and read the configuration.
      */
     PDMDEV_VALIDATE_CONFIG_RETURN(pDevIns,
+                                  "BootDevice0|"
+                                  "BootDevice1|"
+                                  "BootDevice2|"
+                                  "BootDevice3|"
                                   "EfiRom|"
                                   "NumCPUs|"
                                   "McfgBase|"
@@ -1761,6 +1817,15 @@ static DECLCALLBACK(int)  efiConstruct(PPDMDEVINS pDevIns, int iInstance, PCFGMN
     if (RT_FAILURE(rc) && rc != VERR_CFGM_VALUE_NOT_FOUND)
         return PDMDEV_SET_ERROR(pDevIns, rc,
                                 N_("Configuration error: Querying \"NvramFile\" as a string failed"));
+    
+    static const char * const s_apszBootDevices[] = { "BootDevice0", "BootDevice1", "BootDevice2", "BootDevice3" };
+    Assert(RT_ELEMENTS(s_apszBootDevices) == RT_ELEMENTS(pThisCC->aenmBootDevice));
+    for (unsigned i = 0; i < RT_ELEMENTS(pThisCC->aenmBootDevice); i++)
+    {
+        rc = efiBootTypeFromConfig(pDevIns, pCfg, s_apszBootDevices[i], &pThisCC->aenmBootDevice[i]);
+        if (RT_FAILURE(rc))
+            return rc;
+    }
 
     rc = pHlp->pfnCFGMQueryU64Def(pCfg, "TpmPpiBase", &pThisCC->u64TpmPpiBase, 0);
     if (RT_FAILURE(rc))
