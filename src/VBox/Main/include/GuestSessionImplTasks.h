@@ -1,4 +1,4 @@
-/* $Id: GuestSessionImplTasks.h 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: GuestSessionImplTasks.h 113984 2026-04-23 09:05:56Z andreas.loeffler@oracle.com $ */
 /** @file
  * VirtualBox Main - Guest session tasks header.
  */
@@ -406,17 +406,6 @@ public:
 protected:
 
     /**
-     * Suported OS types for automatic updating.
-     */
-    enum eOSType
-    {
-        eOSType_Unknown = 0,
-        eOSType_Windows = 1,
-        eOSType_Linux   = 2,
-        eOSType_Solaris = 3
-    };
-
-    /**
      * Structure representing a file to
      * get off the .ISO, copied to the guest.
      */
@@ -460,8 +449,8 @@ protected:
     HRESULT setUpdateErrorMsg(HRESULT hrc, const Utf8Str &strMsg);
     HRESULT setUpdateErrorMsg(HRESULT hrc, const Utf8Str &strMsg, const GuestErrorInfo &guestErrorInfo);
 
-    int checkGuestAdditionsStatus(GuestSession *pSession, eOSType osType);
-    int waitForGuestSession(ComObjPtr<Guest> pGuest, eOSType osType, ComObjPtr<GuestSession> &pNewSession);
+    int checkGuestAdditionsStatus(GuestSession *pSession, VBOXOSTYPE enmGuestOSType);
+    int waitForGuestSession(ComObjPtr<Guest> pGuest, VBOXOSTYPE enmGuestOSType, ComObjPtr<GuestSession> &pNewSession);
 
     PlatformArchitecture_T getPlatformArch(void);
 

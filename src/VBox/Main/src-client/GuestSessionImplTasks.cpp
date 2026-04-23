@@ -1,4 +1,4 @@
-/* $Id: GuestSessionImplTasks.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: GuestSessionImplTasks.cpp 113984 2026-04-23 09:05:56Z andreas.loeffler@oracle.com $ */
 /** @file
  * VirtualBox Main - Guest session tasks.
  */
@@ -2815,14 +2815,23 @@ int GuestSessionTaskUpdateAdditions::runFileOnGuest(GuestSession *pSession, Gues
  * Helper function which checks Guest Additions installation status.
  *
  * @returns IPRT status code.
- * @param   pSession    Guest session to use.
- * @param   osType      Guest type.
+ * @param   pSession            Guest session to use.
+ * @param   enmGuestOSType      Guest type.
  */
-int GuestSessionTaskUpdateAdditions::checkGuestAdditionsStatus(GuestSession *pSession, eOSType osType)
+int GuestSessionTaskUpdateAdditions::checkGuestAdditionsStatus(GuestSession *pSession, VBOXOSTYPE enmGuestOSType)
 {
     int vrc = VINF_SUCCESS;
 
-    if (osType == eOSType_Linux)
+    bool fIsLinux = false;
+    const char *pszGuestOSTypeId = Global::OSTypeId(enmGuestOSType);
+    if (pszGuestOSTypeId)
+    {
+        uint32_t const idxOSType = Global::getOSTypeIndexFromId(pszGuestOSTypeId);
+        if (idxOSType < Global::cOSTypes)
+            fIsLinux = Utf8Str(Global::sOSTypes[idxOSType].familyId) == "Linux";
+    }
+
+    if (fIsLinux)
     {
         const Utf8Str ksStatusScript = Utf8Str("/sbin/rcvboxadd");
 
@@ -2867,10 +2876,10 @@ int GuestSessionTaskUpdateAdditions::checkGuestAdditionsStatus(GuestSession *pSe
  * @returns VBox status code.
  * @retval  VERR_TIMEOUT if VBoxService on the guest was not started within time.
  * @param   pGuest          Guest interface to use.
- * @param   osType          Guest type.
+ * @param   enmGuestOSType  Guest type.
  * @param   pNewSession     Output parameter for newly established guest type.
  */
-int GuestSessionTaskUpdateAdditions::waitForGuestSession(ComObjPtr<Guest> pGuest, eOSType osType,
+int GuestSessionTaskUpdateAdditions::waitForGuestSession(ComObjPtr<Guest> pGuest, VBOXOSTYPE enmGuestOSType,
                                                          ComObjPtr<GuestSession> &pNewSession)
 {
     AssertReturn(!pGuest.isNull(), VERR_TIMEOUT);
@@ -2901,7 +2910,7 @@ int GuestSessionTaskUpdateAdditions::waitForGuestSession(ComObjPtr<Guest> pGuest
                 if (RT_SUCCESS(vrc))
                 {
                     /* Make sure Guest Additions were reloaded on the guest side. */
-                    vrc = checkGuestAdditionsStatus(pNewSession, osType);
+                    vrc = checkGuestAdditionsStatus(pNewSession, enmGuestOSType);
                     if (RT_SUCCESS(vrc))
                         LogRel(("Guest Additions Update: Guest Additions were successfully reloaded after installation.\n"));
                     else
@@ -3047,46 +3056,61 @@ int GuestSessionTaskUpdateAdditions::Run(void)
         }
     }
 
-    Utf8Str strOSVer;
-    eOSType osType = eOSType_Unknown;
+    VBOXOSTYPE enmGuestOSType  = VBOXOSTYPE_Unknown;
+
+    bool       fGuestIsWindows = false;
+    bool       fGuestIsLinux   = false;
+    bool       fGuestIsSolaris = false;
+
     if (RT_SUCCESS(vrc))
     {
         /*
          * Determine guest OS type and the required installer image.
          */
-/** @todo r=bird: Why are we using the guest properties for this instead of the
- * reported guest VBOXOSTYPE/ID?  Since we've got guest properties, we must
- * have GAs, so the guest additions must've reported the guest OS type. That
- * would allow proper OS categorization by family ID instead of this ridiculous
- * naive code assuming anything that isn't windows or solaris must be linux.  */
         Utf8Str strOSType;
-        vrc = getGuestProperty(pGuest, "/VirtualBox/GuestInfo/OS/Product", strOSType);
+        enmGuestOSType = pGuest->i_getGuestOSType();
+        if (enmGuestOSType != VBOXOSTYPE_Unknown)
+        {
+            const char *pszGuestOSTypeId = Global::OSTypeId(enmGuestOSType);
+            if (pszGuestOSTypeId)
+            {
+                uint32_t const idxOSType = Global::getOSTypeIndexFromId(pszGuestOSTypeId);
+                if (idxOSType < Global::cOSTypes)
+                {
+                    strOSType = Global::sOSTypes[idxOSType].description;
+                    if (strOSType.isEmpty())
+                        strOSType = pszGuestOSTypeId;
+
+                    Utf8Str const strFamilyId(Global::sOSTypes[idxOSType].familyId);
+                    fGuestIsWindows = strFamilyId == "Windows";
+                    fGuestIsLinux   = strFamilyId == "Linux";
+                    fGuestIsSolaris = strFamilyId == "Solaris";
+                }
+            }
+        }
+
         if (RT_SUCCESS(vrc))
         {
-            if (   strOSType.contains(GUEST_OS_ID_STR_PARTIAL("Microsoft"), Utf8Str::CaseInsensitive)
-                || strOSType.contains(GUEST_OS_ID_STR_PARTIAL("Windows"), Utf8Str::CaseInsensitive))
+            if (fGuestIsWindows)
             {
-                osType = eOSType_Windows;
-
                 /*
-                 * Determine guest OS version.
+                 * Determine whether this is supported for automatic update.
                  */
-                vrc = getGuestProperty(pGuest, "/VirtualBox/GuestInfo/OS/Release", strOSVer);
-                if (RT_FAILURE(vrc))
+                if (enmGuestOSType < VBOXOSTYPE_Win2k)
                 {
                     hrc = setUpdateErrorMsg(VBOX_E_NOT_SUPPORTED,
-                                            Utf8StrFmt(tr("Unable to detected guest OS version, please update manually")));
+                                            Utf8StrFmt(tr("%s not supported for automatic updating, please update manually"),
+                                                       strOSType.c_str()));
                     vrc = VERR_NOT_SUPPORTED;
                 }
 
                 /* Because Windows 2000 + XP and is bitching with WHQL popups even if we have signed drivers we
                  * can't do automated updates here. */
                 /* Windows XP 64-bit (5.2) is a Windows 2003 Server actually, so skip this here. */
-                if (   RT_SUCCESS(vrc)
-                    && RTStrVersionCompare(strOSVer.c_str(), "5.0") >= 0)
+                if (RT_SUCCESS(vrc))
                 {
-                    if (   strOSVer.startsWith("5.0") /* Exclude the build number. */
-                        || strOSVer.startsWith("5.1") /* Exclude the build number. */)
+                    if (   enmGuestOSType == VBOXOSTYPE_Win2k
+                        || enmGuestOSType == VBOXOSTYPE_WinXP)
                     {
                         /* If we don't have AdditionsUpdateFlag_WaitForUpdateStartOnly set we can't continue
                          * because the Windows Guest Additions installer will fail because of WHQL popups. If the
@@ -3100,24 +3124,11 @@ int GuestSessionTaskUpdateAdditions::Run(void)
                         }
                     }
                 }
-                else
-                {
-                    hrc = setUpdateErrorMsg(VBOX_E_NOT_SUPPORTED,
-                                            Utf8StrFmt(tr("%s (%s) not supported for automatic updating, please update manually"),
-                                                       strOSType.c_str(), strOSVer.c_str()));
-                    vrc = VERR_NOT_SUPPORTED;
-                }
             }
-            else if (strOSType.contains(GUEST_OS_ID_STR_PARTIAL("Solaris"), Utf8Str::CaseInsensitive))
-            {
-                osType = eOSType_Solaris;
-            }
-            else /* Everything else hopefully means Linux :-). */
-                osType = eOSType_Linux;
 
             if (   RT_SUCCESS(vrc)
-                && (   osType != eOSType_Windows
-                    && osType != eOSType_Linux))
+                && (   !fGuestIsWindows
+                    && !fGuestIsLinux))
                 /** @todo Support Solaris. */
             {
                 hrc = setUpdateErrorMsg(VBOX_E_NOT_SUPPORTED,
@@ -3168,7 +3179,7 @@ int GuestSessionTaskUpdateAdditions::Run(void)
                                                    true /* fDirectory */, strUpdateDir, 755 /* Mode */, false /* fSecure */, &vrcGuest);
                     if (RT_SUCCESS(vrc))
                     {
-                        if (osType == eOSType_Windows)
+                        if (fGuestIsWindows)
                             strUpdateDir.append("\\");
                         else
                             strUpdateDir.append("/");
@@ -3200,172 +3211,167 @@ int GuestSessionTaskUpdateAdditions::Run(void)
                 {
                     /* Prepare the file(s) we want to copy over to the guest and
                      * (maybe) want to run. */
-                    switch (osType)
+                    if (fGuestIsWindows)
                     {
-                        case eOSType_Windows:
+                        /* Do we need to install our certificates? We do this for W2K and up. */
+                        bool fInstallCert = false;
+
+                        /* Only Windows 2000 and up need certificates to be installed. */
+                        if (enmGuestOSType >= VBOXOSTYPE_Win2k)
                         {
-                            /* Do we need to install our certificates? We do this for W2K and up. */
-                            bool fInstallCert = false;
-
-                            /* Only Windows 2000 and up need certificates to be installed. */
-                            if (RTStrVersionCompare(strOSVer.c_str(), "5.0") >= 0)
-                            {
-                                fInstallCert = true;
-                                LogRel(("Guest Additions Update: Certificates for auto updating WHQL drivers will be installed\n"));
-                            }
-                            else
-                                LogRel(("Guest Additions Update: Skipping installation of certificates for WHQL drivers\n"));
-
-                            if (fInstallCert)
-                            {
-                                static struct { const char *pszDst, *pszIso; } const s_aCertFiles[] =
-                                {
-                                    { "vbox.cer",           "/CERT/VBOX.CER" },
-                                    { "vbox-sha1.cer",      "/CERT/VBOX-SHA1.CER" },
-                                    { "vbox-sha256.cer",    "/CERT/VBOX-SHA256.CER" },
-                                    { "vbox-sha256-r3.cer", "/CERT/VBOX-SHA256-R3.CER" },
-                                    { "oracle-vbox.cer",    "/CERT/ORACLE-VBOX.CER" },
-                                };
-                                uint32_t fCopyCertUtil = ISOFILE_FLAG_COPY_FROM_ISO;
-                                for (uint32_t i = 0; i < RT_ELEMENTS(s_aCertFiles); i++)
-                                {
-                                    /* Skip if not present on the ISO. */
-                                    RTFSOBJINFO ObjInfo;
-                                    vrc = RTVfsQueryPathInfo(hVfsIso, s_aCertFiles[i].pszIso, &ObjInfo, RTFSOBJATTRADD_NOTHING,
-                                                             RTPATH_F_ON_LINK);
-                                    if (RT_FAILURE(vrc))
-                                        continue;
-
-                                    /* Copy the certificate certificate. */
-                                    Utf8Str const strDstCert(strUpdateDir + s_aCertFiles[i].pszDst);
-                                    mFiles.push_back(ISOFile(s_aCertFiles[i].pszIso,
-                                                             strDstCert,
-                                                             ISOFILE_FLAG_COPY_FROM_ISO | ISOFILE_FLAG_OPTIONAL));
-
-                                    /* Out certificate installation utility. */
-                                    /* First pass: Copy over the file (first time only) + execute it to remove any
-                                     *             existing VBox certificates. */
-                                    UpdateAdditionsStartupInfo siCertUtilRem;
-                                    siCertUtilRem.mName = "VirtualBox Certificate Utility, removing old VirtualBox certificates";
-                                    /* The argv[0] should contain full path to the executable module */
-                                    siCertUtilRem.mArguments.push_back(strUpdateDir + "VBoxCertUtil.exe");
-                                    siCertUtilRem.mArguments.push_back(Utf8Str("remove-trusted-publisher"));
-                                    siCertUtilRem.mArguments.push_back(Utf8Str("--root")); /* Add root certificate as well. */
-                                    siCertUtilRem.mArguments.push_back(strDstCert);
-                                    siCertUtilRem.mArguments.push_back(strDstCert);
-                                    mFiles.push_back(ISOFile("CERT/VBOXCERTUTIL.EXE",
-                                                             strUpdateDir + "VBoxCertUtil.exe",
-                                                             fCopyCertUtil | ISOFILE_FLAG_EXECUTE | ISOFILE_FLAG_OPTIONAL,
-                                                             siCertUtilRem));
-                                    fCopyCertUtil = 0;
-                                    /* Second pass: Only execute (but don't copy) again, this time installng the
-                                     *              recent certificates just copied over. */
-                                    UpdateAdditionsStartupInfo siCertUtilAdd;
-                                    siCertUtilAdd.mName = "VirtualBox Certificate Utility, installing VirtualBox certificates";
-                                    /* The argv[0] should contain full path to the executable module */
-                                    siCertUtilAdd.mArguments.push_back(strUpdateDir + "VBoxCertUtil.exe");
-                                    siCertUtilAdd.mArguments.push_back(Utf8Str("add-trusted-publisher"));
-                                    siCertUtilAdd.mArguments.push_back(Utf8Str("--root")); /* Add root certificate as well. */
-                                    siCertUtilAdd.mArguments.push_back(strDstCert);
-                                    siCertUtilAdd.mArguments.push_back(strDstCert);
-                                    mFiles.push_back(ISOFile("CERT/VBOXCERTUTIL.EXE",
-                                                             strUpdateDir + "VBoxCertUtil.exe",
-                                                             ISOFILE_FLAG_EXECUTE | ISOFILE_FLAG_OPTIONAL,
-                                                             siCertUtilAdd));
-                                }
-                            }
-                            /* The installers in different flavors, as we don't know (and can't assume)
-                             * the guest's bitness. */
-                            mFiles.push_back(ISOFile("VBOXWINDOWSADDITIONS-X86.EXE",
-                                                     strUpdateDir + "VBoxWindowsAdditions-x86.exe",
-                                                     ISOFILE_FLAG_COPY_FROM_ISO));
-                            mFiles.push_back(ISOFile("VBOXWINDOWSADDITIONS-AMD64.EXE",
-                                                     strUpdateDir + "VBoxWindowsAdditions-amd64.exe",
-                                                     ISOFILE_FLAG_COPY_FROM_ISO));
-                            /* Note: Guest Additions for ARM64 don't exist on older Guest Additions .ISOs,
-                                     so mark them as optional. */
-                            mFiles.push_back(ISOFile("VBOXWINDOWSADDITIONS-ARM64.EXE",
-                                                     strUpdateDir + "VBoxWindowsAdditions-arm64.exe",
-                                                     ISOFILE_FLAG_COPY_FROM_ISO | ISOFILE_FLAG_OPTIONAL));
-                            /* The stub loader which decides which flavor to run. */
-                            UpdateAdditionsStartupInfo siInstaller;
-                            siInstaller.mName = "VirtualBox Windows Guest Additions Installer";
-                            /* Set a running timeout of 5 minutes -- the Windows Guest Additions
-                             * setup can take quite a while, so be on the safe side. */
-                            siInstaller.mTimeoutMS = 5 * 60 * 1000;
-
-                            /* The argv[0] should contain full path to the executable module */
-                            siInstaller.mArguments.push_back(strUpdateDir + "VBoxWindowsAdditions.exe");
-                            siInstaller.mArguments.push_back(Utf8Str("/S")); /* We want to install in silent mode. */
-                            siInstaller.mArguments.push_back(Utf8Str("/l")); /* ... and logging enabled. */
-                            /* Don't quit VBoxService during upgrade because it still is used for this
-                             * piece of code we're in right now (that is, here!) ... */
-                            siInstaller.mArguments.push_back(Utf8Str("/no_vboxservice_exit"));
-                            /* Tell the installer to report its current installation status
-                             * using a running VBoxTray instance via balloon messages in the
-                             * Windows taskbar. */
-                            siInstaller.mArguments.push_back(Utf8Str("/post_installstatus"));
-                            /* Add optional installer command line arguments from the API to the
-                             * installer's startup info. */
-                            vrc = addProcessArguments(siInstaller.mArguments, mArguments);
-                            AssertRC(vrc);
-                            /* If the caller does not want to wait for out guest update process to end,
-                             * complete the progress object now so that the caller can do other work. */
-                            if (mFlags & AdditionsUpdateFlag_WaitForUpdateStartOnly)
-                                siInstaller.mFlags |= ProcessCreateFlag_WaitForProcessStartOnly;
-                            mFiles.push_back(ISOFile("VBOXWINDOWSADDITIONS.EXE",
-                                                     strUpdateDir + "VBoxWindowsAdditions.exe",
-                                                     ISOFILE_FLAG_COPY_FROM_ISO | ISOFILE_FLAG_EXECUTE, siInstaller));
-                            break;
+                            fInstallCert = true;
+                            LogRel(("Guest Additions Update: Certificates for auto updating WHQL drivers will be installed\n"));
                         }
-                        case eOSType_Linux:
+                        else
+                            LogRel(("Guest Additions Update: Skipping installation of certificates for WHQL drivers\n"));
+
+                        if (fInstallCert)
                         {
-                            bool const fIsArm = getPlatformArch() == PlatformArchitecture_ARM;
+                            static struct { const char *pszDst, *pszIso; } const s_aCertFiles[] =
+                            {
+                                { "vbox.cer",           "/CERT/VBOX.CER" },
+                                { "vbox-sha1.cer",      "/CERT/VBOX-SHA1.CER" },
+                                { "vbox-sha256.cer",    "/CERT/VBOX-SHA256.CER" },
+                                { "vbox-sha256-r3.cer", "/CERT/VBOX-SHA256-R3.CER" },
+                                { "oracle-vbox.cer",    "/CERT/ORACLE-VBOX.CER" },
+                            };
+                            uint32_t fCopyCertUtil = ISOFILE_FLAG_COPY_FROM_ISO;
+                            for (uint32_t i = 0; i < RT_ELEMENTS(s_aCertFiles); i++)
+                            {
+                                /* Skip if not present on the ISO. */
+                                RTFSOBJINFO ObjInfo;
+                                vrc = RTVfsQueryPathInfo(hVfsIso, s_aCertFiles[i].pszIso, &ObjInfo, RTFSOBJATTRADD_NOTHING,
+                                                         RTPATH_F_ON_LINK);
+                                if (RT_FAILURE(vrc))
+                                    continue;
 
-                            const Utf8Str strInstallerBinUC("VBOXLINUXADDITIONS" + Utf8Str(fIsArm ? "-ARM64" : "") + ".RUN");
-                            const Utf8Str strInstallerBin  ("VBoxLinuxAdditions" + Utf8Str(fIsArm ? "-arm64" : "") + ".run");
+                                /* Copy the certificate certificate. */
+                                Utf8Str const strDstCert(strUpdateDir + s_aCertFiles[i].pszDst);
+                                mFiles.push_back(ISOFile(s_aCertFiles[i].pszIso,
+                                                         strDstCert,
+                                                         ISOFILE_FLAG_COPY_FROM_ISO | ISOFILE_FLAG_OPTIONAL));
 
-                            /**
-                             * Copy over the installer to the guest but don't execute it.
-                             * Execution will be done by the shell instead.
-                             *
-                             * Note: Guest Additions for ARM64 don't exist on older Guest Additions .ISOs,
-                             *       so mark them as optional.
-                             */
-                            mFiles.push_back(ISOFile(strInstallerBinUC, strUpdateDir + strInstallerBin,
-                                                       ISOFILE_FLAG_COPY_FROM_ISO
-                                                     | (fIsArm ? ISOFILE_FLAG_OPTIONAL : ISOFILE_FLAG_NONE)));
-
-                            UpdateAdditionsStartupInfo siInstaller;
-                            siInstaller.mName = "VirtualBox Linux Guest Additions Installer";
-                            /* Set a running timeout of 5 minutes -- compiling modules and stuff for the Linux Guest Additions
-                             * setup can take quite a while, so be on the safe side. */
-                            siInstaller.mTimeoutMS = 5 * 60 * 1000;
-                            /* The argv[0] should contain full path to the shell we're using to execute the installer. */
-                            siInstaller.mArguments.push_back("/bin/sh");
-                            /* Now add the stuff we need in order to execute the installer.  */
-                            siInstaller.mArguments.push_back(strUpdateDir + strInstallerBin);
-                            /* Make sure to add "--nox11" to the makeself wrapper in order to not getting any blocking xterm
-                             * window spawned when doing any unattended Linux GA installations. */
-                            siInstaller.mArguments.push_back("--nox11");
-                            siInstaller.mArguments.push_back("--");
-                            /* Force the upgrade. Needed in order to skip the confirmation dialog about warning to upgrade. */
-                            siInstaller.mArguments.push_back("--force"); /** @todo We might want a dedicated "--silent" switch here. */
-                            /* If the caller does not want to wait for out guest update process to end,
-                             * complete the progress object now so that the caller can do other work. */
-                            if (mFlags & AdditionsUpdateFlag_WaitForUpdateStartOnly)
-                                siInstaller.mFlags |= ProcessCreateFlag_WaitForProcessStartOnly;
-                            mFiles.push_back(ISOFile("/bin/sh" /* Source */, "/bin/sh" /* Dest */,
-                                                     ISOFILE_FLAG_EXECUTE, siInstaller));
-                            break;
+                                /* Out certificate installation utility. */
+                                /* First pass: Copy over the file (first time only) + execute it to remove any
+                                 *             existing VBox certificates. */
+                                UpdateAdditionsStartupInfo siCertUtilRem;
+                                siCertUtilRem.mName = "VirtualBox Certificate Utility, removing old VirtualBox certificates";
+                                /* The argv[0] should contain full path to the executable module */
+                                siCertUtilRem.mArguments.push_back(strUpdateDir + "VBoxCertUtil.exe");
+                                siCertUtilRem.mArguments.push_back(Utf8Str("remove-trusted-publisher"));
+                                siCertUtilRem.mArguments.push_back(Utf8Str("--root")); /* Add root certificate as well. */
+                                siCertUtilRem.mArguments.push_back(strDstCert);
+                                siCertUtilRem.mArguments.push_back(strDstCert);
+                                mFiles.push_back(ISOFile("CERT/VBOXCERTUTIL.EXE",
+                                                         strUpdateDir + "VBoxCertUtil.exe",
+                                                         fCopyCertUtil | ISOFILE_FLAG_EXECUTE | ISOFILE_FLAG_OPTIONAL,
+                                                         siCertUtilRem));
+                                fCopyCertUtil = 0;
+                                /* Second pass: Only execute (but don't copy) again, this time installng the
+                                 *              recent certificates just copied over. */
+                                UpdateAdditionsStartupInfo siCertUtilAdd;
+                                siCertUtilAdd.mName = "VirtualBox Certificate Utility, installing VirtualBox certificates";
+                                /* The argv[0] should contain full path to the executable module */
+                                siCertUtilAdd.mArguments.push_back(strUpdateDir + "VBoxCertUtil.exe");
+                                siCertUtilAdd.mArguments.push_back(Utf8Str("add-trusted-publisher"));
+                                siCertUtilAdd.mArguments.push_back(Utf8Str("--root")); /* Add root certificate as well. */
+                                siCertUtilAdd.mArguments.push_back(strDstCert);
+                                siCertUtilAdd.mArguments.push_back(strDstCert);
+                                mFiles.push_back(ISOFile("CERT/VBOXCERTUTIL.EXE",
+                                                         strUpdateDir + "VBoxCertUtil.exe",
+                                                         ISOFILE_FLAG_EXECUTE | ISOFILE_FLAG_OPTIONAL,
+                                                         siCertUtilAdd));
+                            }
                         }
-                        case eOSType_Solaris:
-                            /** @todo Add Solaris support. */
-                            break;
-                        default:
-                            AssertReleaseMsgFailed(("Unsupported guest type: %d\n", osType));
-                            break;
+                        /* The installers in different flavors, as we don't know (and can't assume)
+                         * the guest's bitness. */
+                        mFiles.push_back(ISOFile("VBOXWINDOWSADDITIONS-X86.EXE",
+                                                 strUpdateDir + "VBoxWindowsAdditions-x86.exe",
+                                                 ISOFILE_FLAG_COPY_FROM_ISO));
+                        mFiles.push_back(ISOFile("VBOXWINDOWSADDITIONS-AMD64.EXE",
+                                                 strUpdateDir + "VBoxWindowsAdditions-amd64.exe",
+                                                 ISOFILE_FLAG_COPY_FROM_ISO));
+                        /* Note: Guest Additions for ARM64 don't exist on older Guest Additions .ISOs,
+                                 so mark them as optional. */
+                        mFiles.push_back(ISOFile("VBOXWINDOWSADDITIONS-ARM64.EXE",
+                                                 strUpdateDir + "VBoxWindowsAdditions-arm64.exe",
+                                                 ISOFILE_FLAG_COPY_FROM_ISO | ISOFILE_FLAG_OPTIONAL));
+                        /* The stub loader which decides which flavor to run. */
+                        UpdateAdditionsStartupInfo siInstaller;
+                        siInstaller.mName = "VirtualBox Windows Guest Additions Installer";
+                        /* Set a running timeout of 5 minutes -- the Windows Guest Additions
+                         * setup can take quite a while, so be on the safe side. */
+                        siInstaller.mTimeoutMS = 5 * 60 * 1000;
+
+                        /* The argv[0] should contain full path to the executable module */
+                        siInstaller.mArguments.push_back(strUpdateDir + "VBoxWindowsAdditions.exe");
+                        siInstaller.mArguments.push_back(Utf8Str("/S")); /* We want to install in silent mode. */
+                        siInstaller.mArguments.push_back(Utf8Str("/l")); /* ... and logging enabled. */
+                        /* Don't quit VBoxService during upgrade because it still is used for this
+                         * piece of code we're in right now (that is, here!) ... */
+                        siInstaller.mArguments.push_back(Utf8Str("/no_vboxservice_exit"));
+                        /* Tell the installer to report its current installation status
+                         * using a running VBoxTray instance via balloon messages in the
+                         * Windows taskbar. */
+                        siInstaller.mArguments.push_back(Utf8Str("/post_installstatus"));
+                        /* Add optional installer command line arguments from the API to the
+                         * installer's startup info. */
+                        vrc = addProcessArguments(siInstaller.mArguments, mArguments);
+                        AssertRC(vrc);
+                        /* If the caller does not want to wait for out guest update process to end,
+                         * complete the progress object now so that the caller can do other work. */
+                        if (mFlags & AdditionsUpdateFlag_WaitForUpdateStartOnly)
+                            siInstaller.mFlags |= ProcessCreateFlag_WaitForProcessStartOnly;
+                        mFiles.push_back(ISOFile("VBOXWINDOWSADDITIONS.EXE",
+                                                 strUpdateDir + "VBoxWindowsAdditions.exe",
+                                                 ISOFILE_FLAG_COPY_FROM_ISO | ISOFILE_FLAG_EXECUTE, siInstaller));
                     }
+                    else if (fGuestIsLinux)
+                    {
+                        bool const fIsArm = getPlatformArch() == PlatformArchitecture_ARM;
+
+                        const Utf8Str strInstallerBinUC("VBOXLINUXADDITIONS" + Utf8Str(fIsArm ? "-ARM64" : "") + ".RUN");
+                        const Utf8Str strInstallerBin  ("VBoxLinuxAdditions" + Utf8Str(fIsArm ? "-arm64" : "") + ".run");
+
+                        /**
+                         * Copy over the installer to the guest but don't execute it.
+                         * Execution will be done by the shell instead.
+                         *
+                         * Note: Guest Additions for ARM64 don't exist on older Guest Additions .ISOs,
+                         *       so mark them as optional.
+                         */
+                        mFiles.push_back(ISOFile(strInstallerBinUC, strUpdateDir + strInstallerBin,
+                                                   ISOFILE_FLAG_COPY_FROM_ISO
+                                                 | (fIsArm ? ISOFILE_FLAG_OPTIONAL : ISOFILE_FLAG_NONE)));
+
+                        UpdateAdditionsStartupInfo siInstaller;
+                        siInstaller.mName = "VirtualBox Linux Guest Additions Installer";
+                        /* Set a running timeout of 5 minutes -- compiling modules and stuff for the Linux Guest Additions
+                         * setup can take quite a while, so be on the safe side. */
+                        siInstaller.mTimeoutMS = 5 * 60 * 1000;
+                        /* The argv[0] should contain full path to the shell we're using to execute the installer. */
+                        siInstaller.mArguments.push_back("/bin/sh");
+                        /* Now add the stuff we need in order to execute the installer.  */
+                        siInstaller.mArguments.push_back(strUpdateDir + strInstallerBin);
+                        /* Make sure to add "--nox11" to the makeself wrapper in order to not getting any blocking xterm
+                         * window spawned when doing any unattended Linux GA installations. */
+                        siInstaller.mArguments.push_back("--nox11");
+                        siInstaller.mArguments.push_back("--");
+                        /* Force the upgrade. Needed in order to skip the confirmation dialog about warning to upgrade. */
+                        siInstaller.mArguments.push_back("--force"); /** @todo We might want a dedicated "--silent" switch here. */
+                        /* If the caller does not want to wait for out guest update process to end,
+                         * complete the progress object now so that the caller can do other work. */
+                        if (mFlags & AdditionsUpdateFlag_WaitForUpdateStartOnly)
+                            siInstaller.mFlags |= ProcessCreateFlag_WaitForProcessStartOnly;
+                        mFiles.push_back(ISOFile("/bin/sh" /* Source */, "/bin/sh" /* Dest */,
+                                                 ISOFILE_FLAG_EXECUTE, siInstaller));
+                    }
+                    else if (fGuestIsSolaris)
+                    {
+                        /** @todo Add Solaris support. */
+                    }
+                    else
+                        AssertReleaseMsgFailed(("Unsupported guest type: %d\n", enmGuestOSType));
                 }
 
                 if (RT_SUCCESS(vrc))
@@ -3442,14 +3448,14 @@ int GuestSessionTaskUpdateAdditions::Run(void)
                      * kernel modules will be rebuilt, loaded and new VBoxService restarted.
                      * Handle this case here: check if old connection was terminated and
                      * new one has started. */
-                    if (osType == eOSType_Linux)
+                    if (fGuestIsLinux)
                     {
                         if (pSession->i_isTerminated())
                         {
                             LogRel(("Guest Additions Update: Old guest session has terminated, waiting updated guest services to start\n"));
 
                             /* Wait for VBoxService to restart and re-establish guest session. */
-                            vrc = waitForGuestSession(pSession->i_getParent(), osType, pSession);
+                            vrc = waitForGuestSession(pSession->i_getParent(), enmGuestOSType, pSession);
                             if (RT_FAILURE(vrc))
                                 hrc = setUpdateErrorMsg(VBOX_E_IPRT_ERROR,
                                                         Utf8StrFmt(tr("Guest services were not restarted, please reinstall Guest Additions manually")));
@@ -3466,7 +3472,7 @@ int GuestSessionTaskUpdateAdditions::Run(void)
                     /* Remove temporary update files on the guest side before reporting completion.
                      * Only enabled for Linux guest for now. Windows has issues w/ deletting temporary
                       * installation directory. */
-                    if ((osType == eOSType_Linux) && !pSession->i_isTerminated())
+                    if (fGuestIsLinux && !pSession->i_isTerminated())
                     {
                         hrc = pSession->i_directoryRemove(strUpdateDir, DIRREMOVEREC_FLAG_RECURSIVE | DIRREMOVEREC_FLAG_CONTENT_AND_DIR, &vrc);
                         LogRel(("Cleanup Guest Additions update directory '%s', hrc=%Rrc, vrc=%Rrc\n",
