@@ -1,4 +1,4 @@
-/* $Id: IEMAllN8veRecompiler.cpp 113997 2026-04-23 22:52:23Z knut.osmundsen@oracle.com $ */
+/* $Id: IEMAllN8veRecompiler.cpp 113998 2026-04-23 22:53:23Z knut.osmundsen@oracle.com $ */
 /** @file
  * IEM - Native Recompiler
  *
@@ -7002,7 +7002,7 @@ static uint32_t iemNativeEmitCoreRcFiddling(PIEMRECOMPILERSTATE pReNative, uint3
 #ifdef RT_ARCH_AMD64
 # ifdef RT_OS_WINDOWS
 #  ifdef IEMNATIVE_WITH_INSTRUCTION_COUNTING
-    off = iemNativeEmitLoadGprFromGpr(pReNative, off, X86_GREG_x8,  X86_GREG_xCX); /* cl = instruction number */
+    off = iemNativeEmitLoadGprFromGpr(pReNative, off, X86_GREG_x8,  X86_GREG_xCX); /* cl = instruction number; upper bits ignored */
 #  endif
     off = iemNativeEmitLoadGprFromGpr(pReNative, off, X86_GREG_xCX, IEMNATIVE_REG_FIXED_PVMCPU);
     off = iemNativeEmitLoadGprFromGpr(pReNative, off, X86_GREG_xDX, X86_GREG_xAX);
@@ -7010,11 +7010,11 @@ static uint32_t iemNativeEmitCoreRcFiddling(PIEMRECOMPILERSTATE pReNative, uint3
     off = iemNativeEmitLoadGprFromGpr(pReNative, off, X86_GREG_xDI, IEMNATIVE_REG_FIXED_PVMCPU);
     off = iemNativeEmitLoadGprFromGpr(pReNative, off, X86_GREG_xSI, X86_GREG_xAX);
 #  ifdef IEMNATIVE_WITH_INSTRUCTION_COUNTING
-    off = iemNativeEmitLoadGprFromGpr(pReNative, off, X86_GREG_xDX, X86_GREG_xCX); /* cl = instruction number */
+    off = iemNativeEmitLoadGprFromGpr8(pReNative, off, X86_GREG_xDX, X86_GREG_xCX); /* cl = instruction number; zero upper bits */
 #  endif
 # endif
 # ifndef IEMNATIVE_WITH_INSTRUCTION_COUNTING
-    off = iemNativeEmitLoadGpr8Imm(pReNative, off, X86_GREG_xCX, 0);
+    off = iemNativeEmitLoadArgGprImm8(pReNative, off, X86_GREG_xCX, 0);
 # endif
 
 #else

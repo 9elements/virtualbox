@@ -1,4 +1,4 @@
-/* $Id: IEMN8veRecompilerEmit.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: IEMN8veRecompilerEmit.h 113998 2026-04-23 22:53:23Z knut.osmundsen@oracle.com $ */
 /** @file
  * IEM - Interpreted Execution Manager - Native Recompiler Inlined Emitters.
  */
@@ -509,6 +509,29 @@ iemNativeEmitLoadGprImm32(PIEMRECOMPILERSTATE pReNative, uint32_t off, uint8_t i
 
 
 /**
+ * Emits loading an 8-bit unsigned constant into a 32-bit GPR
+ * @note The top 32 bits will be cleared.
+ */
+DECL_INLINE_THROW(uint32_t)
+iemNativeEmitLoadGprImm8(PIEMRECOMPILERSTATE pReNative, uint32_t off, uint8_t iGpr, uint8_t uImm8)
+{
+#ifdef RT_ARCH_AMD64
+    off = iemNativeEmitLoadGpr32ImmEx(iemNativeInstrBufEnsure(pReNative, off, 6), off, iGpr, uImm8);
+
+#elif defined(RT_ARCH_ARM64)
+    /* movz gpr, imm16, lsl #0 */
+    uint32_t * const pu32CodeBuf = iemNativeInstrBufEnsure(pReNative, off, 1);
+    pu32CodeBuf[off++] = UINT32_C(0xd2800000) | (UINT32_C(0) << 21) | ((uint32_t)uImm8 << 5) | iGpr;
+
+#else
+# error "port me"
+#endif
+    IEMNATIVE_ASSERT_INSTR_BUF_ENSURE(pReNative, off);
+    return off;
+}
+
+
+/**
  * Emits loading a constant into a 8-bit GPR
  * @note The AMD64 version does *NOT* clear any bits in the 8..63 range,
  *       only the ARM64 version does that.
@@ -536,6 +559,25 @@ iemNativeEmitLoadGpr8Imm(PIEMRECOMPILERSTATE pReNative, uint32_t off, uint8_t iG
 #endif
     IEMNATIVE_ASSERT_INSTR_BUF_ENSURE(pReNative, off);
     return off;
+}
+
+
+/**
+ * Emits loading an 8-bit unsigned constant into an argument GPR.
+ *
+ * This takes the host calling convention into account.  For AMD64 the microsoft
+ * and System V convensions differs regarding the upper bits (63:8). The System
+ * V AMD64 ABI requires the upper bits to be clearned, whereas the microsoft
+ * does not.  Thus this wrapper function.
+ */
+DECL_INLINE_THROW(uint32_t)
+iemNativeEmitLoadArgGprImm8(PIEMRECOMPILERSTATE pReNative, uint32_t off, uint8_t iGpr, uint8_t uImm8)
+{
+#if defined(RT_ARCH_AMD64) && !defined(RT_OS_WINDOWS)
+    return iemNativeEmitLoadGprImm8(pReNative, off, iGpr, uImm8);
+#else
+    return  iemNativeEmitLoadGpr8Imm(pReNative, off, iGpr, uImm8);
+#endif
 }
 
 

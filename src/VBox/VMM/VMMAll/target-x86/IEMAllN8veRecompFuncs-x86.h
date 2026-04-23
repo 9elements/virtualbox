@@ -1,4 +1,4 @@
-/* $Id: IEMAllN8veRecompFuncs-x86.h 113997 2026-04-23 22:52:23Z knut.osmundsen@oracle.com $ */
+/* $Id: IEMAllN8veRecompFuncs-x86.h 113998 2026-04-23 22:53:23Z knut.osmundsen@oracle.com $ */
 /** @file
  * IEM - Native Recompiler - Inlined Bits, x86 target.
  */
@@ -510,7 +510,7 @@ iemNativeEmitFinishInstructionWithStatus(PIEMRECOMPILERSTATE pReNative, uint32_t
 
 #else
         /* Load the index as argument #1 for the helper call at the given label. */
-        off = iemNativeEmitLoadGprImm32(pReNative, off, IEMNATIVE_CALL_ARG1_GREG, idxTbLookupFirst);
+        off = iemNativeEmitLoadArgGprImm8(pReNative, off, IEMNATIVE_CALL_ARG1_GREG, idxTbLookupFirst);
 
         /*
          * Figure out the physical address of the current instruction and see
@@ -4161,10 +4161,10 @@ iemNativeEmitCallCImplCommon(PIEMRECOMPILERSTATE pReNative, uint32_t off, uint8_
 #if defined(VBOXSTRICTRC_STRICT_ENABLED) && defined(RT_OS_WINDOWS) && (defined(RT_ARCH_AMD64) || defined(RT_ARCH_ARM64))
     off = iemNativeEmitLeaGprByBp(pReNative, off, IEMNATIVE_CALL_ARG0_GREG, IEMNATIVE_FP_OFF_VBOXSTRICRC); /* rcStrict */
     off = iemNativeEmitLoadGprFromGpr(pReNative, off, IEMNATIVE_CALL_ARG1_GREG, IEMNATIVE_REG_FIXED_PVMCPU);
-    off = iemNativeEmitLoadGpr8Imm(pReNative, off, IEMNATIVE_CALL_ARG2_GREG, cbInstr);
+    off = iemNativeEmitLoadArgGprImm8(pReNative, off, IEMNATIVE_CALL_ARG2_GREG, cbInstr);
 #else
     off = iemNativeEmitLoadGprFromGpr(pReNative, off, IEMNATIVE_CALL_ARG0_GREG, IEMNATIVE_REG_FIXED_PVMCPU);
-    off = iemNativeEmitLoadGpr8Imm(pReNative, off, IEMNATIVE_CALL_ARG1_GREG, cbInstr);
+    off = iemNativeEmitLoadArgGprImm8(pReNative, off, IEMNATIVE_CALL_ARG1_GREG, cbInstr);
 #endif
 
     /*
@@ -7466,7 +7466,7 @@ iemNativeEmitMemFetchStoreDataCommon(PIEMRECOMPILERSTATE pReNative, uint32_t off
     {
         /* IEMNATIVE_CALL_ARG2_GREG = iSegReg */
         AssertStmt(iSegReg < 6, IEMNATIVE_DO_LONGJMP(pReNative, VERR_IEM_EMIT_BAD_SEG_REG_NO));
-        off = iemNativeEmitLoadGpr8Imm(pReNative, off, IEMNATIVE_CALL_ARG2_GREG, iSegReg);
+        off = iemNativeEmitLoadArgGprImm8(pReNative, off, IEMNATIVE_CALL_ARG2_GREG, iSegReg);
     }
 
 #ifdef IEMNATIVE_WITH_EFLAGS_POSTPONING
@@ -9320,7 +9320,7 @@ iemNativeEmitMemMapCommon(PIEMRECOMPILERSTATE pReNative, uint32_t off, uint8_t i
     if RT_CONSTEXPR_IF(!a_fFlat)
     {
         AssertStmt(iSegReg < 6, IEMNATIVE_DO_LONGJMP(pReNative, VERR_IEM_EMIT_BAD_SEG_REG_NO));
-        off = iemNativeEmitLoadGpr8Imm(pReNative, off, IEMNATIVE_CALL_ARG3_GREG, iSegReg);
+        off = iemNativeEmitLoadArgGprImm8(pReNative, off, IEMNATIVE_CALL_ARG3_GREG, iSegReg);
     }
 
 #ifdef IEMNATIVE_WITH_EFLAGS_POSTPONING
