@@ -1,4 +1,4 @@
-# $Id: .scm-settings 113990 2026-04-23 14:00:31Z knut.osmundsen@oracle.com $
+# $Id: .scm-settings 113991 2026-04-23 14:01:44Z knut.osmundsen@oracle.com $
 ## @file
 # Source code massager settings for the docs.
 #
@@ -46,13 +46,11 @@
 /*.txvComponentDiagram20:       --treat-as xml --external-copyright --no-convert-eol
 /*.xmi:                         --treat-as xml --external-copyright --no-convert-eol
 /*.tpx:                         --treat-as xml --external-copyright --no-convert-eol
-/*.graphml:                     --treat-as xml --external-copyright --no-convert-eol
 
 /*.iuml:                        --treat-as plaintext --add-action copyright-tick-style
 
 /*.*: --svn-sync-process-export all
 
-/graphml*:  --svn-sync-process-export none
 /GUI*:      --svn-sync-process-export none
 /tg*:       --svn-sync-process-export none
 /vp*:       --svn-sync-process-export none
