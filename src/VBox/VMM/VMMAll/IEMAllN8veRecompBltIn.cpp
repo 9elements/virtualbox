@@ -1,4 +1,4 @@
-/* $Id: IEMAllN8veRecompBltIn.cpp 113484 2026-03-20 05:10:38Z bela.lubkin@oracle.com $ */
+/* $Id: IEMAllN8veRecompBltIn.cpp 113995 2026-04-23 22:41:07Z knut.osmundsen@oracle.com $ */
 /** @file
  * IEM - Native Recompiler, Emitters for Built-In Threaded Functions.
  */
@@ -1449,8 +1449,8 @@ iemNativeEmitBltLoadTlbForNewPage(PIEMRECOMPILERSTATE pReNative, uint32_t off, P
     off = iemNativeDoPostponedEFlagsAtTlbMiss<0>(pReNative, off, &TlbState, fHstRegsNotToSave);
 #endif
 
-    /* IEMNATIVE_CALL_ARG1_GREG = offInstr */
-    off = iemNativeEmitLoadGprImm32(pReNative, off, IEMNATIVE_CALL_ARG1_GREG, offInstr);
+    /* IEMNATIVE_CALL_ARG1_GREG = offInstr (amd64/linux/clang: must clear bits 31:8)*/
+    off = iemNativeEmitLoadArgGprImm8(pReNative, off, IEMNATIVE_CALL_ARG1_GREG, offInstr);
 
     /* IEMNATIVE_CALL_ARG0_GREG = pVCpu */
     off = iemNativeEmitLoadGprFromGpr(pReNative, off, IEMNATIVE_CALL_ARG0_GREG, IEMNATIVE_REG_FIXED_PVMCPU);
