@@ -337,7 +337,7 @@
 #endif
 /** @name RT_MSC_VER_XXX - _MSC_VER values to use with RT_MSC_PREREQ.
  * @remarks The VCxxx values are derived from the CRT DLLs shipping with the
- *          compilers.
+ *          compilers. Microsoft refers to them as "MSVC Build Tools version".
  * @{ */
 #define RT_MSC_VER_VC50         (1100)                  /**< Visual C++ 5.0. */
 #define RT_MSC_VER_VC60         (1200)                  /**< Visual C++ 6.0. */
@@ -346,7 +346,7 @@
 #define RT_MSC_VER_VS2003       (1310)                  /**< Visual Studio 2003, aka Visual C++ 7.1. */
 #define RT_MSC_VER_VC71         RT_MSC_VER_VS2003       /**< Visual C++ 7.1, aka Visual Studio 2003. */
 #define RT_MSC_VER_VS2005       (1400)                  /**< Visual Studio 2005. */
-#define RT_MSC_VER_VC80         RT_MSC_VER_VS2005       /**< Visual C++ 8.0, aka Visual Studio 2008. */
+#define RT_MSC_VER_VC80         RT_MSC_VER_VS2005       /**< Visual C++ 8.0, aka Visual Studio 2005. */
 #define RT_MSC_VER_VS2008       (1500)                  /**< Visual Studio 2008. */
 #define RT_MSC_VER_VC90         RT_MSC_VER_VS2008       /**< Visual C++ 9.0, aka Visual Studio 2008. */
 #define RT_MSC_VER_VS2010       (1600)                  /**< Visual Studio 2010. */
@@ -1203,6 +1203,31 @@
 #else
 # define RT_NO_WARN_UNUSED_INLINE_PROTOTYPE_BEGIN
 # define RT_NO_WARN_UNUSED_INLINE_PROTOTYPE_END
+#endif
+
+/** @def RT_NO_WARN_MSC_PREFAST
+ * Used to disable one or more Visual C++ /analyze warnings for the rest of the
+ * source file.
+ * (This is a noop when /analyze isn't used or with a different compiler.)
+ * @note must use __pragma here as _Pragma doesn't do string concatenation.  */
+#if defined(_MSC_VER) && defined(_PREFAST_)
+# define RT_NO_WARN_MSC_PREFAST(a_WarningNumbers) __pragma(warning(disable : a_WarningNumbers))
+#else
+# define RT_NO_WARN_MSC_PREFAST(a_WarningNumbers) typedef int RT_NO_WARN_IGNORE_TYPE
+#endif
+
+/** @def RT_NO_WARN_MSC_PREFAST_BEGIN
+ * Used to disable one or more Visual C++ /analyze warnings for a block of code.
+ * Must be matched by RT_NO_WARN_MSC_PREFAST_END().
+ * This is a noop when /analyze isn't used or with a different compiler. */
+#if defined(_MSC_VER) && defined(_PREFAST_)
+# define RT_NO_WARN_MSC_PREFAST_BEGIN(a_WarningNumbers) \
+   _Pragma("warning(push)") __pragma(warning(disable : a_WarningNumbers))
+# define RT_NO_WARN_MSC_PREFAST_END() \
+   _Pragma("warning(pop)")
+#else
+# define RT_NO_WARN_MSC_PREFAST_BEGIN(a_WarningNumbers) typedef int RT_NO_WARN_IGNORE_TYPE
+# define RT_NO_WARN_MSC_PREFAST_END()                   typedef int RT_NO_WARN_IGNORE_TYPE
 #endif
 
 /** @def RT_COMPILER_GROKS_64BIT_BITFIELDS
@@ -3430,8 +3455,8 @@
 #define RT_MAKE_U64_FROM_U16(w0, w1, w2, w3) \
     ((uint64_t)(  (uint64_t)((uint16_t)(w3)) << 48 \
                 | (uint64_t)((uint16_t)(w2)) << 32 \
-                | (uint32_t)((uint16_t)(w1)) << 16 \
-                |            (uint16_t)(w0) ))
+                | (uint64_t)((uint16_t)(w1)) << 16 \
+                | (uint64_t) (uint16_t)(w0) ))
 
 /** @def RT_MAKE_U64_FROM_U16
  * Constructs a uint64_t value from four uint16_t values, with parameters in

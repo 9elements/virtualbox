@@ -1,4 +1,4 @@
-/* $Id: GuestSessionImpl.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: GuestSessionImpl.cpp 113992 2026-04-23 21:38:42Z knut.osmundsen@oracle.com $ */
 /** @file
  * VirtualBox Main - Guest session handling.
  */
@@ -4146,7 +4146,7 @@ HRESULT GuestSession::copyFromGuest(const std::vector<com::Utf8Str> &aSources, c
     std::vector<com::Utf8Str>::const_iterator itFilter = aFilters.begin();
     std::vector<com::Utf8Str>::const_iterator itFlags  = aFlags.begin();
 
-    const bool fContinueOnErrors = false; /** @todo Do we want a flag for that? */
+    //const bool fContinueOnErrors = false; /** @todo Do we want a flag for that? */
     const bool fFollowSymlinks   = true;  /** @todo Ditto. */
 
     while (itSource != aSources.end())
@@ -4155,7 +4155,7 @@ HRESULT GuestSession::copyFromGuest(const std::vector<com::Utf8Str> &aSources, c
         int vrcGuest = VERR_IPE_UNINITIALIZED_STATUS;
         int vrc = i_fsObjQueryInfo(*(itSource), fFollowSymlinks, objData, &vrcGuest);
         if (   RT_FAILURE(vrc)
-            && !fContinueOnErrors)
+            ) //&& !fContinueOnErrors)
         {
             if (GuestProcess::i_isGuestError(vrc))
             {
@@ -4217,17 +4217,15 @@ HRESULT GuestSession::copyToGuest(const std::vector<com::Utf8Str> &aSources, con
     std::vector<com::Utf8Str>::const_iterator itFilter = aFilters.begin();
     std::vector<com::Utf8Str>::const_iterator itFlags  = aFlags.begin();
 
-    const bool fContinueOnErrors = false; /** @todo Do we want a flag for that? */
+    //const bool fContinueOnErrors = false; /** @todo Do we want a flag for that? */
 
     while (itSource != aSources.end())
     {
         RTFSOBJINFO objInfo;
         int vrc = RTPathQueryInfo((*itSource).c_str(), &objInfo, RTFSOBJATTRADD_NOTHING);
         if (   RT_FAILURE(vrc)
-            && !fContinueOnErrors)
-        {
+            ) //&& !fContinueOnErrors)
             return setError(E_FAIL, tr("Unable to query type for source '%s' (%Rrc)"), (*itSource).c_str(), vrc);
-        }
 
         Utf8Str strFlags;
         if (itFlags != aFlags.end())

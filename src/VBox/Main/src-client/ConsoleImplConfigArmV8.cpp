@@ -1,4 +1,4 @@
-/* $Id: ConsoleImplConfigArmV8.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: ConsoleImplConfigArmV8.cpp 113992 2026-04-23 21:38:42Z knut.osmundsen@oracle.com $ */
 /** @file
  * VBox Console COM Class implementation - VM Configuration Bits for ARMv8.
  */
@@ -82,6 +82,8 @@
 #undef PVM
 
 #ifdef VBOX_WITH_VIRT_ARMV8
+/* warning C6262: Function uses '71832' bytes of stack.  Consider moving some data to heap. (VS2022: must be disabled for the rest of the file) */
+RT_NO_WARN_MSC_PREFAST(6262); /** @todo see VBOXPLATFORMARMV8 todo further down; */
 /**
  * Worker for configConstructor.
  *
@@ -995,26 +997,27 @@ int Console::i_configConstructorArmV8(PUVM pUVM, PVM pVM, PCVMMR3VTABLE pVMM, Au
     AssertRelease(hVfsIosDesc != NIL_RTVFSIOSTREAM);
 
     /* Initialize the VBox platform descriptor. */
-    VBOXPLATFORMARMV8 ArmV8Platform; RT_ZERO(ArmV8Platform);
-
     vrc = RTFdtDumpToVfsIoStrm(hFdt, RTFDTTYPE_DTB, 0 /*fFlags*/, hVfsIosDesc, NULL /*pErrInfo*/);
     uint64_t cbFdt = 0;
     if (RT_SUCCESS(vrc))
         vrc = RTVfsFileQuerySize(hVfsFileDesc, &cbFdt);
+/** @todo r=bird: leaking hVfsIosDesc among other stuff here. */
     AssertRCReturnStmt(vrc, RTFdtDestroy(hFdt), vrc);
 
     vrc = RTVfsIoStrmZeroFill(hVfsIosDesc, (RTFOFF)(RT_ALIGN_64(cbFdt, _64K) - cbFdt));
+/** @todo r=bird: Leaks everything here (just restructure the code;
+ *        what if we throw errors?) */
     AssertRCReturn(vrc, vrc);
 
     cbFdt = RT_ALIGN_64(cbFdt, _64K);
 
-    RTGCPHYS GCPhysMmioStart;
-    RTGCPHYS cbMmio;
+    RTGCPHYS GCPhysMmioStart = NIL_RTGCPHYS;
+    RTGCPHYS cbMmio = 0;
     hrc = pResMgr->queryMmioRegion(&GCPhysMmioStart, &cbMmio);
     Assert(SUCCEEDED(hrc));
 
-    RTGCPHYS GCPhysMmio32Start;
-    RTGCPHYS cbMmio32;
+    RTGCPHYS GCPhysMmio32Start = NIL_RTGCPHYS;
+    RTGCPHYS cbMmio32 = 0;
     hrc = pResMgr->queryMmio32Region(&GCPhysMmio32Start, &cbMmio32);
     Assert(SUCCEEDED(hrc));
 
@@ -1037,6 +1040,7 @@ int Console::i_configConstructorArmV8(PUVM pUVM, PVM pVM, PCVMMR3VTABLE pVMM, Au
             && SysTblsDumpVal.isNotEmpty())
         {
             vrc = pSysTblsBldAcpi->dumpTables(Utf8Str(SysTblsDumpVal).c_str());
+/** @todo r=bird: Leaks everything here */
             AssertRCReturn(vrc, vrc);
         }
 
@@ -1049,13 +1053,16 @@ int Console::i_configConstructorArmV8(PUVM pUVM, PVM pVM, PCVMMR3VTABLE pVMM, Au
     }
 
     /* Fill the room until the end where the platform descriptor lives. */
-    vrc = RTVfsIoStrmZeroFill(hVfsIosDesc, cbPlatformDesc - sizeof(ArmV8Platform) - cbFdt - cbAcpi);
+    vrc = RTVfsIoStrmZeroFill(hVfsIosDesc, cbPlatformDesc - sizeof(VBOXPLATFORMARMV8) - cbFdt - cbAcpi);
+/** @todo r=bird: Leaks hVfsIosDesc and more */
     AssertRCReturnStmt(vrc, RTFdtDestroy(hFdt), vrc);
 
     RTGCPHYS GCPhysMmio    = 0;
     RTGCPHYS cbMmioAbove4G = 0;
     pResMgr->queryMmioRegion(&GCPhysMmio, &cbMmioAbove4G);
 
+    VBOXPLATFORMARMV8 ArmV8Platform; RT_ZERO(ArmV8Platform);
+    AssertCompile(sizeof(ArmV8Platform) < _128K); /** @todo ArmV8Platform is mostly zeros... Core structure w/ zero fill? */
     ArmV8Platform.u32Magic            = VBOXPLATFORMARMV8_MAGIC;
     ArmV8Platform.u32Version          = VBOXPLATFORMARMV8_VERSION;
     ArmV8Platform.cbDesc              = sizeof(ArmV8Platform);

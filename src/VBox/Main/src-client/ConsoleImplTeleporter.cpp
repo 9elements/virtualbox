@@ -1,4 +1,4 @@
-/* $Id: ConsoleImplTeleporter.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: ConsoleImplTeleporter.cpp 113992 2026-04-23 21:38:42Z knut.osmundsen@oracle.com $ */
 /** @file
  * VBox Console COM Class implementation, The Teleporter Part.
  */
@@ -674,8 +674,7 @@ HRESULT Console::i_teleporterSrc(TeleporterStateSrc *pState)
     AssertRC(vrc);
 
     /* Read and check the welcome message. */
-    char szLine[RT_MAX(128, sizeof(g_szWelcome))];
-    RT_ZERO(szLine);
+    char szLine[RT_MAX(128, sizeof(g_szWelcome))] = {0};
     vrc = RTTcpRead(pState->mhSocket, szLine, sizeof(g_szWelcome) - 1, NULL);
     if (RT_FAILURE(vrc))
         return setErrorBoth(E_FAIL, vrc, tr("Failed to read welcome message: %Rrc"), vrc);
