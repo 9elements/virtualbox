@@ -1,4 +1,4 @@
-/* $Id: IEMAllN8veEmit-x86.h 112537 2026-01-13 16:15:07Z knut.osmundsen@oracle.com $ */
+/* $Id: IEMAllN8veEmit-x86.h 114000 2026-04-23 23:03:49Z knut.osmundsen@oracle.com $ */
 /** @file
  * IEM - Native Recompiler, x86 Target - Code Emitters.
  */
@@ -912,7 +912,7 @@ iemNativeEmitEFlagsForLogical(PIEMRECOMPILERSTATE pReNative, uint32_t off, uint8
         pReNative->PostponedEfl.cOpBits  = cOpBits;
         pReNative->PostponedEfl.idxReg1  = iemNativeRegAllocTmpExPreferNonVolatile(pReNative, &off, IEMNATIVE_POSTPONING_REG_MASK);
         /** @todo it would normally be possible to use idxRegResult, iff it is
-         *        already a non-volatile register and we can be user the caller
+         *        already a non-volatile register and we can be sure the caller
          *        doesn't modify it.  That'll save a register move and allocation. */
         off = iemNativeEmitLoadGprFromGpr(pReNative, off, pReNative->PostponedEfl.idxReg1, idxRegResult);
         Log5(("EFLAGS: Postponing %#x op=%u bits=%u reg1=%u - iemNativeEmitEFlagsForLogical\n", X86_EFL_STATUS_BITS,
