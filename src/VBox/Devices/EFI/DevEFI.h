@@ -1,4 +1,4 @@
-/* $Id: DevEFI.h 113986 2026-04-23 12:31:12Z alexander.eichner@oracle.com $ */
+/* $Id: DevEFI.h 113987 2026-04-23 12:32:21Z alexander.eichner@oracle.com $ */
 /** @file
  * EFI for VirtualBox Common Definitions.
  *
@@ -85,10 +85,6 @@ typedef enum
     EFI_INFO_INDEX_CPU_COUNT_CURRENT,
     EFI_INFO_INDEX_CPU_COUNT_MAX,
     EFI_INFO_INDEX_TPM_PPI_BASE,
-    EFI_INFO_INDEX_BOOTORDER_BOOT1,
-    EFI_INFO_INDEX_BOOTORDER_BOOT2,
-    EFI_INFO_INDEX_BOOTORDER_BOOT3,
-    EFI_INFO_INDEX_BOOTORDER_BOOT4,
     EFI_INFO_INDEX_END
 } EfiInfoIndex;
 
@@ -98,20 +94,6 @@ typedef enum
 #define EFI_APIC_MODE_APIC              1
 #define EFI_APIC_MODE_X2APIC            2
 /** @} */
-
-typedef enum
-{
-    VBOX_EFI_BOOT_TYPE_INVALID = 0,
-    VBOX_EFI_BOOT_TYPE_HDD,
-    VBOX_EFI_BOOT_TYPE_CD_DVD,
-    VBOX_EFI_BOOT_TYPE_FLOPPY,
-    VBOX_EFI_BOOT_TYPE_PXE,
-    VBOX_EFI_BOOT_TYPE_HTTP,
-    VBOX_EFI_BOOT_TYPE_HTTPS,
-    VBOX_EFI_BOOT_TYPE_SHELL,
-    VBOX_EFI_BOOT_TYPE_NONE,
-    VBOX_EFI_BOOT_TYPE_INDEX_END
-} VBOX_EFI_BOOT_TYPE;
 
 /** Panic port.
  * Write causes action to be taken according to the value written,
