@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+# $Id: Makefile.kmk 114002 2026-04-23 23:07:16Z knut.osmundsen@oracle.com $
 ## @file
 # Top-level sub-makefile for the devices, drivers and services.
 #
@@ -1333,8 +1333,7 @@ if !defined(VBOX_ONLY_EXTPACKS) && "$(intersects $(KBUILD_TARGET_ARCH),$(VBOX_SU
   	Makefile-wrapper.gmk=>../common/Makefile-wrapper.gmk
   vbox_vboxddr0-src_SOURCES = \
   	$(PATH_ROOT)/src/VBox/HostDrivers/Support/linux/Makefile-vbox_vboxddr0.gmk=>Makefile \
-  	$(VBoxDDR0_0_OUTDIR)/VBoxDDR0.r0=>VBoxDDR0.r0 \
-  	$(VBoxDDR0_0_OUTDIR)/VBoxDDR0.debug=>VBoxDDR0.debug
+  	$(VBoxDDR0_0_OUTDIR)/VBoxDDR0.r0=>VBoxDDR0.r0
  endif
 
  #

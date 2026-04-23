@@ -1,4 +1,4 @@
-/* $Id: SUPWrapperMod-linux.c 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: SUPWrapperMod-linux.c 114002 2026-04-23 23:07:16Z knut.osmundsen@oracle.com $ */
 /** @file
  * Linux .r0 wrapper module template.
  */
@@ -133,8 +133,26 @@ static void __exit VBoxWrapperModUnload(void);
 /*********************************************************************************************************************************
 *   Global Variables                                                                                                             *
 *********************************************************************************************************************************/
-extern char vboxr0mod_start[];  /**< start of text in the .r0 module. */
-extern char vboxr0mod_end[];    /**< end of bss in the .r0 module. */
+/** @name Start & End pairs for the standard segments.
+ * @note Looks like Linux KASLR will reorder these and insert extra space and
+ *       whatnot, so we just supply a list to SUPDrv and let it figure out the
+ *       lowest and highest.
+ * @{ */
+extern char vboxr0mod_text_start[];
+extern char vboxr0mod_text_end[];
+extern char vboxr0mod_rodata_start[];
+extern char vboxr0mod_rodata_end[];
+extern char vboxr0mod_rodata_str8_start[];
+extern char vboxr0mod_rodata_str8_end[];
+extern char vboxr0mod_rodata_str1_start[];
+extern char vboxr0mod_rodata_str1_end[];
+extern char vboxr0mod_rodata_cst2_start[];
+extern char vboxr0mod_rodata_cst2_end[];
+extern char vboxr0mod_data_start[];
+extern char vboxr0mod_data_end[];
+extern char vboxr0mod_bss_start[];
+extern char vboxr0mod_bss_end[];
+/** @} */
 
 /** The symbol table. */
 static SUPLDRWRAPMODSYMBOL const g_aSymbols[] =
@@ -150,8 +168,11 @@ static SUPLDRWRAPPEDMODULE const g_WrappedMod =
     /* .uMagic = */             SUPLDRWRAPPEDMODULE_MAGIC,
     /* .uVersion = */           SUPLDRWRAPPEDMODULE_VERSION,
     /* .fFlags = */             WRAPPED_MODULE_FLAGS,
-    /* .pvImageStart = */       &vboxr0mod_start[0],
-    /* .pvImageEnd = */         &vboxr0mod_end[0],
+
+#define SEGP(nm) { &vboxr0mod_ ## nm ## _start[0], &vboxr0mod_ ## nm ## _end[0] }
+    /* .aImageSegs = */
+    { SEGP(text), SEGP(rodata), SEGP(rodata_str8), SEGP(rodata_str1), SEGP(rodata_cst2), SEGP(data), SEGP(bss) },
+#undef SEGP
 
     /* .pfnModuleInit = */      WRAPPED_MODULE_INIT,
     /* .pfnModuleTerm = */      WRAPPED_MODULE_TERM,

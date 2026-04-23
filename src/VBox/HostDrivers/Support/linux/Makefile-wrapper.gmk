@@ -1,4 +1,4 @@
-# $Id: Makefile-wrapper.gmk 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+# $Id: Makefile-wrapper.gmk 114002 2026-04-23 23:07:16Z knut.osmundsen@oracle.com $
 ## @file
 # Makefile template for a wrapper module.
 #
@@ -148,19 +148,41 @@ $(VBOX_MODULE_SRC_DIR)$(WRAPPED_MODULE_NAME).mangle-symbols: \
 		"$<" \
 		> "$@"
 
-$(VBOX_MODULE_SRC_DIR)$(WRAPPED_MODULE_NAME).o: \
+$(VBOX_MODULE_SRC_DIR)$(WRAPPED_MODULE_NAME).strip-symbols: \
+		$(VBOX_MODULE_SRC_DIR)$(WRAPPED_MODULE_NAME).r0 \
+		$(VBOX_MODULE_SRC_DIR)Makefile-wrapper.gmk \
+		$(VBOX_MODULE_SRC_DIR)Makefile
+	nm -U -- "$(VBOX_MODULE_SRC_DIR)$(WRAPPED_MODULE_NAME).r0" > "$@-tmp"
+	sed	-nE \
+		-e '/\.cold/d' \
+		-e '/\.constprop\./d' \
+		-e '/\.part\./d' \
+		-e '/\.isra\./d' \
+		-e 's/^00[0123456789aAbBcCdDeEfF]* [t] (\.\.@[0-9].*|[^_.].*[.][^.]*)$$/\1/p' \
+		-- "$@-tmp" > "$@"
+	echo 'ThereIsDefinitelyNoSuchSymbolThisIsJustToMakeLdHappy' >> "$@"
+	rm -f -- "$@-tmp"
+
+$(WRAPPED_MODULE_NAME).o: \
 		$(VBOX_MODULE_SRC_DIR)$(WRAPPED_MODULE_NAME).r0 \
 		$(VBOX_MODULE_SRC_DIR)$(WRAPPED_MODULE_NAME).debug \
 		$(VBOX_MODULE_SRC_DIR)$(WRAPPED_MODULE_NAME).mangle-symbols \
+		$(VBOX_MODULE_SRC_DIR)$(WRAPPED_MODULE_NAME).strip-symbols \
 		$(VBOX_MODULE_SRC_DIR)Makefile-wrapper.gmk \
 		$(VBOX_MODULE_SRC_DIR)Makefile \
                $(if $(CONFIG_UNWINDER_ORC),$(objtool_dep),)
 	rm -f -- "$@" "$@-tmp"
-	eu-unstrip -o "$@-tmp" $(VBOX_MODULE_SRC_DIR)$(WRAPPED_MODULE_NAME).r0 $(VBOX_MODULE_SRC_DIR)$(WRAPPED_MODULE_NAME).debug
-	objcopy --redefine-syms=$(VBOX_MODULE_SRC_DIR)$(WRAPPED_MODULE_NAME).mangle-symbols "$@-tmp" "$@"
+	cp -f -- "$(VBOX_MODULE_SRC_DIR)$(WRAPPED_MODULE_NAME).r0" "$@-tmp"
+	objcopy \
+		--redefine-syms=$(VBOX_MODULE_SRC_DIR)$(WRAPPED_MODULE_NAME).mangle-symbols \
+		--strip-unneeded-symbols=$(VBOX_MODULE_SRC_DIR)$(WRAPPED_MODULE_NAME).strip-symbols \
+		"$@-tmp" "$@"
 	rm -f -- "$@-tmp"
 ifdef CONFIG_UNWINDER_ORC # Must generate the ORC sections.
-	$(__objtool_obj) $(objtool_args)  $@
+	$(cmd_objtool)
 endif
 	touch $(VBOX_MODULE_SRC_DIR).$(WRAPPED_MODULE_NAME).o.cmd
+
+# This doesn't seem to have much effect on 6.17.7...
+OBJECT_FILES_NON_STANDARD := y
 
