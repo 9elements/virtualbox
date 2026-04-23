@@ -1,4 +1,4 @@
-/* $Id: IEMAllN8veRecompiler.cpp 113995 2026-04-23 22:41:07Z knut.osmundsen@oracle.com $ */
+/* $Id: IEMAllN8veRecompiler.cpp 113999 2026-04-23 23:03:24Z knut.osmundsen@oracle.com $ */
 /** @file
  * IEM - Native Recompiler
  *
@@ -6725,7 +6725,7 @@ iemNativeEmitCImplCall(PIEMRECOMPILERSTATE pReNative, uint32_t off, uint8_t idxI
 #if defined(RT_OS_WINDOWS) && defined(VBOXSTRICTRC_STRICT_ENABLED) && (defined(RT_ARCH_AMD64) || defined(RT_ARCH_ARM64))
     /* Special code the hidden VBOXSTRICTRC pointer. */
     off = iemNativeEmitLoadGprFromGpr(  pReNative, off, IEMNATIVE_CALL_ARG1_GREG, IEMNATIVE_REG_FIXED_PVMCPU);
-    off = iemNativeEmitLoadGprImm64(    pReNative, off, IEMNATIVE_CALL_ARG2_GREG, cbInstr); /** @todo 8-bit reg load opt for amd64 */
+    off = iemNativeEmitLoadArgGprImm8(  pReNative, off, IEMNATIVE_CALL_ARG2_GREG, cbInstr);
     if (cAddParams > 0)
         off = iemNativeEmitLoadGprImm64(pReNative, off, IEMNATIVE_CALL_ARG3_GREG, uParam0);
     if (cAddParams > 1)
@@ -6745,7 +6745,7 @@ iemNativeEmitCImplCall(PIEMRECOMPILERSTATE pReNative, uint32_t off, uint8_t idxI
 #else
     AssertCompile(IEMNATIVE_CALL_ARG_GREG_COUNT >= 4);
     off = iemNativeEmitLoadGprFromGpr(  pReNative, off, IEMNATIVE_CALL_ARG0_GREG, IEMNATIVE_REG_FIXED_PVMCPU);
-    off = iemNativeEmitLoadGprImm64(    pReNative, off, IEMNATIVE_CALL_ARG1_GREG, cbInstr); /** @todo 8-bit reg load opt for amd64 */
+    off = iemNativeEmitLoadArgGprImm8(  pReNative, off, IEMNATIVE_CALL_ARG1_GREG, cbInstr);
     if (cAddParams > 0)
         off = iemNativeEmitLoadGprImm64(pReNative, off, IEMNATIVE_CALL_ARG2_GREG, uParam0);
     if (cAddParams > 1)
