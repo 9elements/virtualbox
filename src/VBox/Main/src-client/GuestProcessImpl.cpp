@@ -1,4 +1,4 @@
-/* $Id: GuestProcessImpl.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: GuestProcessImpl.cpp 113979 2026-04-23 06:25:28Z andreas.loeffler@oracle.com $ */
 /** @file
  * VirtualBox Main - Guest process handling.
  */
@@ -2567,9 +2567,8 @@ int GuestProcessWrapper::wait(int *pvrcGuest)
     if (mStartupInfo.mFlags & ProcessCreateFlag_WaitForStdErr)
         fProcWaitForFlags |= ProcessWaitForFlag_StdErr;
 
-    /** @todo Decrease timeout while running. */
-    uint64_t u64StartMS = RTTimeMilliTS();
-    uint32_t uTimeoutMS = mStartupInfo.mTimeoutMS;
+    uint64_t const u64StartMS = RTTimeMilliTS();
+    uint32_t const uTimeoutMS = mStartupInfo.mTimeoutMS;
 
     int vrcGuest = VINF_SUCCESS;
     bool fDone = false;
@@ -2760,9 +2759,8 @@ int GuestProcessToolbox::waitEx(uint32_t fToolWaitFlags, GuestToolboxStreamBlock
     if (mStartupInfo.mFlags & ProcessCreateFlag_WaitForStdErr)
         fProcWaitForFlags |= ProcessWaitForFlag_StdErr;
 
-    /** @todo Decrease timeout while running. */
-    uint64_t u64StartMS = RTTimeMilliTS();
-    uint32_t uTimeoutMS = mStartupInfo.mTimeoutMS;
+    uint64_t const u64StartMS = RTTimeMilliTS();
+    uint32_t const uTimeoutMS = mStartupInfo.mTimeoutMS;
 
     int vrcGuest = VINF_SUCCESS;
     bool fDone = false;
