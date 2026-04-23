@@ -278,7 +278,25 @@
 #define DW_FORM_sec_offset                  UINT16_C(0x17)
 #define DW_FORM_exprloc                     UINT16_C(0x18)
 #define DW_FORM_flag_present                UINT16_C(0x19)
+#define DW_FORM_strx                        UINT16_C(0x1a) /**< (DWARF 5) */
+#define DW_FORM_addrx                       UINT16_C(0x1b) /**< (DWARF 5) */
+#define DW_FORM_ref_sup4                    UINT16_C(0x1c) /**< (DWARF 5) */
+#define DW_FORM_strp_sup                    UINT16_C(0x1d) /**< (DWARF 5) */
+#define DW_FORM_data16                      UINT16_C(0x1e) /**< (DWARF 5) */
+#define DW_FORM_line_strp                   UINT16_C(0x1f) /**< (DWARF 5) */
 #define DW_FORM_ref_sig8                    UINT16_C(0x20)
+#define DW_FORM_implicit_const              UINT16_C(0x21) /**< Takes an extra signed LEB128 number! (DWARF 5) */
+#define DW_FORM_loclistx                    UINT16_C(0x22) /**< (DWARF 5) */
+#define DW_FORM_rnglistx                    UINT16_C(0x23) /**< (DWARF 5) */
+#define DW_FORM_ref_sup8                    UINT16_C(0x24) /**< (DWARF 5) */
+#define DW_FORM_strx1                       UINT16_C(0x25) /**< (DWARF 5) */
+#define DW_FORM_strx2                       UINT16_C(0x26) /**< (DWARF 5) */
+#define DW_FORM_strx3                       UINT16_C(0x27) /**< (DWARF 5) */
+#define DW_FORM_strx4                       UINT16_C(0x28) /**< (DWARF 5) */
+#define DW_FORM_addrx1                      UINT16_C(0x29) /**< (DWARF 5) */
+#define DW_FORM_addrx2                      UINT16_C(0x2a) /**< (DWARF 5) */
+#define DW_FORM_addrx3                      UINT16_C(0x2b) /**< (DWARF 5) */
+#define DW_FORM_addrx4                      UINT16_C(0x2c) /**< (DWARF 5) */
 /** @} */
 
 /** @name Address classes.
@@ -419,6 +437,30 @@
 #define DW_CFA_GNU_args_size        UINT8_C(0x2e) /**< op1: ??; op2: ?? */
 #define DW_CFA_GNU_negative_offset_extended UINT8_C(0x2f) /**< op1: ??; op2: ?? */
 #define DW_CFA_hi_user              UINT8_C(0x3f) /**< User defined operands. */
+/** @} */
+
+/** @name Unit header type (DWARF 5)
+ * @{ */
+#define DW_UT_compile               UINT8_C(0x01)
+#define DW_UT_type                  UINT8_C(0x02)
+#define DW_UT_partial               UINT8_C(0x03)
+#define DW_UT_skeleton              UINT8_C(0x04)
+#define DW_UT_split_compile         UINT8_C(0x05)
+#define DW_UT_split_type            UINT8_C(0x06)
+#define DW_UT_lo_user               UINT8_C(0x80)
+#define DW_UT_hi_user               UINT8_C(0xff)
+/** @} */
+
+
+/** @name Line number header entry types (DWARF 5).
+ * @{ */
+#define DW_LNCT_path                UINT16_C(0x0001)
+#define DW_LNCT_directory_index     UINT16_C(0x0002)
+#define DW_LNCT_timestamp           UINT16_C(0x0003)
+#define DW_LNCT_size                UINT16_C(0x0004)
+#define DW_LNCT_MD5                 UINT16_C(0x0005)
+#define DW_LNCT_lo_user             UINT16_C(0x2000)
+#define DW_LNCT_hi_user             UINT16_C(0x3fff)
 /** @} */
 
 
