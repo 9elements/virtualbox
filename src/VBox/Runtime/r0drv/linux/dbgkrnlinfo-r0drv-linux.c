@@ -1,4 +1,4 @@
-/* $Id: dbgkrnlinfo-r0drv-linux.c 113607 2026-03-27 07:59:32Z knut.osmundsen@oracle.com $ */
+/* $Id: dbgkrnlinfo-r0drv-linux.c 113985 2026-04-23 12:30:22Z alexander.eichner@oracle.com $ */
 /** @file
  * IPRT - Kernel Debug Information, R0 Driver, Linux.
  */
@@ -61,12 +61,14 @@
 #include <iprt/dbg.h>
 
 #include <iprt/asm.h>
+#include <iprt/asm-amd64-x86.h>
 #include <iprt/assert.h>
 #include <iprt/ctype.h>
 #include <iprt/err.h>
 #include <iprt/file.h>
 #include <iprt/mem.h>
 #include <iprt/string.h>
+#include <iprt/thread.h>
 #include "internal/magics.h"
 
 
@@ -83,6 +85,18 @@
 
 #if defined(IPRT_LNX_CAN_USE_PROC_KALLSYMS) || defined(IPRT_LNX_CAN_USE_KPROBES)
 # define IPRT_LNX_HAVE_IMPLEMENTATION
+#endif
+
+
+#define X86_CPUID_STEXT_FEATURE_EDX_CET_IBT RT_BIT_32(20)
+#ifndef MSR_IA32_S_CET
+# define MSR_IA32_S_CET                     0x6a2
+#endif
+#ifndef MSR_IA32_CET_ENDBR_EN
+# define MSR_IA32_CET_ENDBR_EN              RT_BIT_64(2)
+#endif
+#ifndef MSR_IA32_CET_SUPPRESS
+# define MSR_IA32_CET_SUPPRESS              RT_BIT_64(10)
 #endif
 
 
@@ -577,7 +591,29 @@ RTR0DECL(int) RTR0DbgKrnlInfoQuerySymbol(RTDBGKRNLINFO hKrnlInfo, const char *ps
     if (!g_pfnKallsymsLookupName)
         return rtR0DbgKrnlInfoLnxQuerySymbolKprobe(pszSymbol, ppvSymbol);
 
-    if ((*ppvSymbol = (void *)g_pfnKallsymsLookupName(pszSymbol)) != NULL)
+    /*
+     * Note! kallsyms_lookup_name isn't exported, so we have to temporarily disable the
+     *       indirect branch track machinery in order to call it safely.
+     *       (Setting the SUPPRESS bit to 1 probably won't help much here, as
+     *       the call is done via __x86_indirect_thunk_xxx.)
+     */
+    RTTHREADPREEMPTSTATE Preempt = RTTHREADPREEMPTSTATE_INITIALIZER;
+    uint32_t const uLeaves = ASMCpuId_EAX(0);
+    RTThreadPreemptDisable(&Preempt);
+    if (   uLeaves >= 7
+        && RTX86IsValidStdRange(uLeaves)
+        && (ASMCpuIdEx_EDX(7, 0) & X86_CPUID_STEXT_FEATURE_EDX_CET_IBT))
+    {
+        uint64_t const fSupCet = ASMRdMsr(MSR_IA32_S_CET);
+        ASMWrMsr(MSR_IA32_S_CET, fSupCet & ~MSR_IA32_CET_ENDBR_EN);
+        *ppvSymbol = (void *)g_pfnKallsymsLookupName(pszSymbol);
+        ASMWrMsr(MSR_IA32_S_CET, fSupCet);
+    }
+    else
+        *ppvSymbol = (void *)g_pfnKallsymsLookupName(pszSymbol);
+    RTThreadPreemptRestore(&Preempt);
+
+    if (*ppvSymbol != NULL)
         return VINF_SUCCESS;
 #endif
 
