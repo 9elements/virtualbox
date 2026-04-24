@@ -1,4 +1,4 @@
-/* $Id: DevE1000.cpp 114008 2026-04-24 08:12:31Z aleksey.ilyushin@oracle.com $ */
+/* $Id: DevE1000.cpp 114019 2026-04-24 14:25:35Z aleksey.ilyushin@oracle.com $ */
 /** @file
  * DevE1000 - Intel 82540EM Ethernet Controller Emulation.
  *
@@ -261,7 +261,7 @@ typedef uint32_t E1KCHIP;
 static const struct E1kChips
 {
     uint16_t uPCIVendorId;
-    uint16_t uPCIDeviceId;  
+    uint16_t uPCIDeviceId;
     uint16_t uPCISubsystemVendorId;
     uint16_t uPCISubsystemId;
     uint16_t uPhyId2;
@@ -4873,7 +4873,7 @@ static int e1kRegWriteRDTR(PPDMDEVINS pDevIns, PE1KSTATE pThis, uint32_t offset,
 
 /**
  * Returns the number of TX descriptors available between the cached values of TDT and TDH.
- * 
+ *
  * @param   pTxdc       The TxD context pointer.
  */
 DECLINLINE(uint32_t) e1kGetTxLen(PE1KTXDC pTxdc)
@@ -6876,7 +6876,7 @@ static int e1kRegWriteRETA(PPDMDEVINS pDevIns, PE1KSTATE pThis, uint32_t offset,
 {
     RT_NOREF_PV(pDevIns);
     AssertReturn(offset - g_aE1kRegMap[index].offset < sizeof(pThis->auReTa), VINF_SUCCESS);
-    *(uint32_t*)&pThis->auReTa[offset - g_aE1kRegMap[index].offset] = value;    // @todo Offset will always be aligned, right?
+    *(uint32_t*)&pThis->auReTa[offset - g_aE1kRegMap[index].offset] = value;    /// @todo Offset will always be aligned, right?
 
     return VINF_SUCCESS;
 }

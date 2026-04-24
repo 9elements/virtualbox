@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 114003 2026-04-24 06:30:09Z aleksey.ilyushin@oracle.com $
+# $Id: Makefile.kmk 114019 2026-04-24 14:25:35Z aleksey.ilyushin@oracle.com $
 ## @file
 # Top-level sub-makefile for the devices, drivers and services.
 #
@@ -1408,7 +1408,7 @@ if !defined(VBOX_ONLY_EXTPACKS) && "$(intersects $(KBUILD_TARGET_ARCH),$(VBOX_SU
   tstDevRss_DEFS        = RSS_UNIT_TEST
   tstDevRss_SOURCES     = \
   	Network/testcase/tstDevRss.cpp \
- 	Network/DevE1000Rss.cpp
+  	Network/DevE1000Rss.cpp
  endif
 
  #

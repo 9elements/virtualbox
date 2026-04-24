@@ -1,4 +1,4 @@
-/* $Id: tstDevRss.cpp 114004 2026-04-24 06:45:59Z aleksey.ilyushin@oracle.com $ */
+/* $Id: tstDevRss.cpp 114019 2026-04-24 14:25:35Z aleksey.ilyushin@oracle.com $ */
 /** @file
  * RSS hash unit tests.
  */
@@ -31,7 +31,7 @@
 *********************************************************************************************************************************/
 #include <iprt/asm.h>
 #include <iprt/cdefs.h>
-#include <iprt/err.h>
+#include <iprt/errcore.h>
 #include <iprt/initterm.h>
 #include <iprt/net.h>
 #include <iprt/stream.h>
@@ -53,7 +53,7 @@ struct TestCaseParams
     uint32_t uIpTcp;
 };
 
-struct TestCaseParams testCaseIPv4[] = 
+struct TestCaseParams testCaseIPv4[] =
 {
     {"161.142.100.80", 1766, "66.9.149.187",    2794, 0x323e8fc2, 0x51ccc178},
     {"65.69.140.83",   4739, "199.92.111.2",   14230, 0xd718262a, 0xc626b0ea},
@@ -62,7 +62,7 @@ struct TestCaseParams testCaseIPv4[] =
     {"202.188.127.2",  1303, "153.39.163.191", 44251, 0x5d1809c5, 0x10e828a2}
 };
 
-struct TestCaseParams testCaseIPv6[] = 
+struct TestCaseParams testCaseIPv6[] =
 {
     {"3ffe:2501:200:3::1",        1766, "3ffe:2501:200:1fff::7",                2794, 0x2cc18cd5, 0x40207d3d},
     {"ff02::1",                   4739, "3ffe:501:8::260:97ff:fe40:efab",      14230, 0x0f0c461c, 0xdde51bbf},
