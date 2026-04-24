@@ -1,8 +1,9 @@
-# $Id: .scm-settings 114016 2026-04-24 13:18:04Z andreas.loeffler@oracle.com $
+# $Id: .scm-settings 114022 2026-04-24 15:00:23Z andreas.loeffler@oracle.com $
 ## @file
 # Source code massager settings for the Validation Kit, docker container creation.
 #
 
+#
 #
 #
 # Copyright (C) 2019-2026 Oracle and/or its affiliates.
