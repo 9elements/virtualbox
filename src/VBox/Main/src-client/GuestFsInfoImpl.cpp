@@ -1,4 +1,4 @@
-/* $Id: GuestFsInfoImpl.cpp 114011 2026-04-24 10:14:36Z andreas.loeffler@oracle.com $ */
+/* $Id: GuestFsInfoImpl.cpp 114018 2026-04-24 13:38:52Z andreas.loeffler@oracle.com $ */
 /** @file
  * VirtualBox Main - Guest file system information handling.
  */
@@ -285,5 +285,4 @@ HRESULT GuestFsInfo::getMountPoint(com::Utf8Str &aMountPoint)
         aMountPoint.assignEx(mData.szMountpoint, mData.cbMountpoint);
     return S_OK;
 }
-
 
