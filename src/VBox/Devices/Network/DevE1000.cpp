@@ -1,4 +1,4 @@
-/* $Id: DevE1000.cpp 114005 2026-04-24 06:55:22Z aleksey.ilyushin@oracle.com $ */
+/* $Id: DevE1000.cpp 114008 2026-04-24 08:12:31Z aleksey.ilyushin@oracle.com $ */
 /** @file
  * DevE1000 - Intel 82540EM Ethernet Controller Emulation.
  *
@@ -3068,19 +3068,6 @@ DECLINLINE(bool) e1kUpdateRxDContext(PPDMDEVINS pDevIns, PE1KSTATE pThis, PE1KRX
 }
 #endif /* E1K_WITH_RXD_CACHE */
 
-/**
- * Compute the physical address of the descriptor.
- *
- * @returns the physical address of the descriptor.
- *
- * @param   baseAddr        Descriptor table address.
- * @param   idxDesc         The descriptor index in the table.
- */
-DECLINLINE(RTGCPHYS) e1kRxDescAddr(PE1KRXDC pRxdc, uint32_t idxDesc)
-{
-    return pRxdc->ba + idxDesc * sizeof(E1KRXLDESC);
-}
-
 #ifdef E1K_WITH_RXD_CACHE
 /**
  * Return the number of RX descriptors that belong to the hardware.
@@ -3180,6 +3167,19 @@ DECLINLINE(unsigned) e1kRxDPrefetch(PPDMDEVINS pDevIns, PE1KSTATE pThis, PE1KRXD
 }
 
 # ifdef IN_RING3 /* currently only used in ring-3 due to stack space requirements of the caller */
+/**
+ * Compute the physical address of the descriptor.
+ *
+ * @returns the physical address of the descriptor.
+ *
+ * @param   baseAddr        Descriptor table address.
+ * @param   idxDesc         The descriptor index in the table.
+ */
+DECLINLINE(RTGCPHYS) e1kRxDescAddr(PE1KRXDC pRxdc, uint32_t idxDesc)
+{
+    return pRxdc->ba + idxDesc * sizeof(E1KRXLDESC);
+}
+
 /**
  * Dump receive descriptor to debug log.
  *
