@@ -1,4 +1,4 @@
-/* $Id: tstDevRss.cpp 114003 2026-04-24 06:30:09Z aleksey.ilyushin@oracle.com $ */
+/* $Id: tstDevRss.cpp 114004 2026-04-24 06:45:59Z aleksey.ilyushin@oracle.com $ */
 /** @file
  * RSS hash unit tests.
  */
@@ -38,145 +38,11 @@
 #include <iprt/string.h>
 #include "../DevE1000Rss.h"
 
-DECLINLINE(const char *) vboxEthTypeStr(uint16_t uType)
-{
-    switch (uType)
-    {
-        case RTNET_ETHERTYPE_IPV4: return "IP";
-        case RTNET_ETHERTYPE_IPV6: return "IPv6";
-        case RTNET_ETHERTYPE_ARP:  return "ARP";
-    }
-    return "unknown";
-}
-
-
-DECLINLINE(void) vboxEthPacketDump(const char *pcszInstance, const char *pcszText, const uint8_t *pcPacket, uint32_t cb)
-{
-    AssertReturnVoid(cb >= 14);
-
-    const uint8_t *pHdr = pcPacket;
-    const uint8_t *pEnd = pcPacket + cb;
-    AssertReturnVoid(pEnd - pHdr >= 14);
-    uint16_t uEthType = RT_N2H_U16(*(uint16_t*)(pHdr+12));
-    RTPrintf("%s: %s (%d bytes), %RTmac => %RTmac, EthType=%s(0x%x)\n", pcszInstance,
-          pcszText, cb, pHdr+6, pHdr, vboxEthTypeStr(uEthType), uEthType);
-    pHdr += sizeof(RTNETETHERHDR);
-    if (uEthType == RTNET_ETHERTYPE_VLAN)
-    {
-        AssertReturnVoid(pEnd - pHdr >= 4);
-        uEthType = RT_N2H_U16(*(uint16_t*)(pHdr+2));
-        RTPrintf(" + VLAN: id=%d EthType=%s(0x%x)\n", RT_N2H_U16(*(uint16_t*)(pHdr)) & 0xFFF,
-              vboxEthTypeStr(uEthType), uEthType);
-        pHdr += 2 * sizeof(uint16_t);
-    }
-    uint8_t uProto = 0xFF;
-    switch (uEthType)
-    {
-        case RTNET_ETHERTYPE_IPV6:
-            AssertReturnVoid(pEnd - pHdr >= 40);
-            uProto = pHdr[6];
-            RTPrintf(" + IPv6: %RTnaipv6 => %RTnaipv6\n", pHdr+8, pHdr+24);
-            pHdr += 40;
-            break;
-        case RTNET_ETHERTYPE_IPV4:
-            AssertReturnVoid(pEnd - pHdr >= 20);
-            uProto = pHdr[9];
-            RTPrintf(" + IP: %RTnaipv4 => %RTnaipv4\n", *(uint32_t*)(pHdr+12), *(uint32_t*)(pHdr+16));
-            pHdr += (pHdr[0] & 0xF) * 4;
-            break;
-        case RTNET_ETHERTYPE_ARP:
-            AssertReturnVoid(pEnd - pHdr >= 28);
-            AssertReturnVoid(RT_N2H_U16(*(uint16_t*)(pHdr+2)) == RTNET_ETHERTYPE_IPV4);
-            switch (RT_N2H_U16(*(uint16_t*)(pHdr+6)))
-            {
-                case 1: /* ARP request */
-                    RTPrintf(" + ARP-REQ: who-has %RTnaipv4 tell %RTnaipv4\n",
-                          *(uint32_t*)(pHdr+24), *(uint32_t*)(pHdr+14));
-                    break;
-                case 2: /* ARP reply */
-                    RTPrintf(" + ARP-RPL: %RTnaipv4 is-at %RTmac\n",
-                          *(uint32_t*)(pHdr+14), pHdr+8);
-                    break;
-                default:
-                    RTPrintf(" + ARP: unknown op %d\n", RT_N2H_U16(*(uint16_t*)(pHdr+6)));
-                    break;
-            }
-            break;
-        /* There is no default case as uProto is initialized with 0xFF */
-    }
-    while (uProto != 0xFF)
-    {
-        switch (uProto)
-        {
-            case 0:  /* IPv6 Hop-by-Hop option*/
-            case 60: /* IPv6 Destination option*/
-            case 43: /* IPv6 Routing option */
-            case 44: /* IPv6 Fragment option */
-                RTPrintf(" + IPv6 option (%d): <not implemented>\n", uProto);
-                uProto = pHdr[0];
-                pHdr += pHdr[1] * 8 + 8; /* Skip to the next extension/protocol */
-                break;
-            case 51: /* IPv6 IPsec AH */
-                RTPrintf(" + IPv6 IPsec AH: <not implemented>\n");
-                uProto = pHdr[0];
-                pHdr += (pHdr[1] + 2) * 4; /* Skip to the next extension/protocol */
-                break;
-            case 50: /* IPv6 IPsec ESP */
-                /* Cannot decode IPsec, fall through */
-                RTPrintf(" + IPv6 IPsec ESP: <not implemented>\n");
-                uProto = 0xFF;
-                break;
-            case 59: /* No Next Header */
-                RTPrintf(" + IPv6 No Next Header\n");
-                uProto = 0xFF;
-                break;
-            case 58: /* IPv6-ICMP */
-                switch (pHdr[0])
-                {
-                    case 1:   RTPrintf(" + IPv6-ICMP: destination unreachable, code %d\n", pHdr[1]); break;
-                    case 128: RTPrintf(" + IPv6-ICMP: echo request\n"); break;
-                    case 129: RTPrintf(" + IPv6-ICMP: echo reply\n"); break;
-                    default:  RTPrintf(" + IPv6-ICMP: unknown type %d, code %d\n", pHdr[0], pHdr[1]); break;
-                }
-                uProto = 0xFF;
-                break;
-            case 1: /* ICMP */
-                switch (pHdr[0])
-                {
-                    case 0:  RTPrintf(" + ICMP: echo reply\n"); break;
-                    case 8:  RTPrintf(" + ICMP: echo request\n"); break;
-                    case 3:  RTPrintf(" + ICMP: destination unreachable, code %d\n", pHdr[1]); break;
-                    default: RTPrintf(" + ICMP: unknown type %d, code %d\n", pHdr[0], pHdr[1]); break;
-                }
-                uProto = 0xFF;
-                break;
-            case 6: /* TCP */
-                RTPrintf(" + TCP: src=%d dst=%d seq=%x ack=%x\n",
-                      RT_N2H_U16(*(uint16_t*)(pHdr)), RT_N2H_U16(*(uint16_t*)(pHdr+2)),
-                      RT_N2H_U32(*(uint32_t*)(pHdr+4)), RT_N2H_U32(*(uint32_t*)(pHdr+8)));
-                uProto = 0xFF;
-                break;
-            case 17: /* UDP */
-                RTPrintf(" + UDP: src=%d dst=%d\n",
-                      RT_N2H_U16(*(uint16_t*)(pHdr)), RT_N2H_U16(*(uint16_t*)(pHdr+2)));
-                uProto = 0xFF;
-                break;
-            default:
-                RTPrintf(" + Unknown: proto=0x%x\n", uProto);
-                uProto = 0xFF;
-                break;
-        }
-    }
-    RTPrintf("%.*Rhxd\n", cb, pcPacket);
-}
-
-
 /*********************************************************************************************************************************
 *   Global Variables                                                                                                             *
 *********************************************************************************************************************************/
 static int      g_cErrors = 0;
 
-    //uint32_t uHashType;
 struct TestCaseParams
 {
     const char *pcszDestAddr;
@@ -218,30 +84,6 @@ struct TestPacketIPv6
     RTNETTCP      tcp;
 };
 #pragma pack()
-
-
-#if 0
-/**
- * Error reporting wrapper.
- *
- * @param   pErrStrm        The stream to write the error message to. Can be NULL.
- * @param   pszFormat       The message format string.
- * @param   ...             Format arguments.
- */
-static void tstIntNetError(PRTSTREAM pErrStrm, const char *pszFormat, ...)
-{
-    if (!pErrStrm)
-        pErrStrm = g_pStdOut;
-
-    va_list va;
-    va_start(va, pszFormat);
-    RTStrmPrintf(pErrStrm, "tstIntNet-1: ERROR - ");
-    RTStrmPrintfV(pErrStrm, pszFormat, va);
-    va_end(va);
-
-    g_cErrors++;
-}
-#endif
 
 
 /**

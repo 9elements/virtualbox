@@ -1,4 +1,4 @@
-/* $Id: DevE1000.cpp 114003 2026-04-24 06:30:09Z aleksey.ilyushin@oracle.com $ */
+/* $Id: DevE1000.cpp 114004 2026-04-24 06:45:59Z aleksey.ilyushin@oracle.com $ */
 /** @file
  * DevE1000 - Intel 82540EM Ethernet Controller Emulation.
  *
@@ -3156,7 +3156,7 @@ DECLINLINE(unsigned) e1kRxDPrefetch(PPDMDEVINS pDevIns, PE1KSTATE pThis, PE1KRXD
     //     pThis->aRxDescAddr[i] = addrBase + (nFirstNotLoaded + i - pThis->nRxDFetched) * sizeof(E1KRXLDESC);
     //     E1kLog3(("%s aRxDescAddr[%d] = %p\n", pThis->szPrf, i, pThis->aRxDescAddr[i]));
     // }
-    E1kLog3(("%s Fetched %u RX descriptors at %08x%08x(0x%x), RDLEN=%08x, RDH=%08x, RDT=%08x\n",
+    E1kLog3(("%s Fetched %u RX descriptors at %016llx(0x%x), RDLEN=%08x, RDH=%08x, RDT=%08x\n",
              pThis->szPrf, nDescsInSingleRead,
              pRxdc->ba + pRxdc->rdh * sizeof(E1KRXLDESC),
              nFirstNotLoaded, pRxdc->rdlen, pRxdc->rdh, pRxdc->rdt));
@@ -3290,7 +3290,7 @@ static void e1kPrintRDesc(PE1KSTATE pThis, E1KRXDESC *pDesc, unsigned uLevel = R
              E1K_SPEC_VLAN(pDesc->legacy.status.u16Special),
              E1K_SPEC_PRI(pDesc->legacy.status.u16Special)));
 #else
-    RT_NOREF2(pThis, pDesc);
+    RT_NOREF2(pThis, pDesc, uLevel);
 #endif
 }
 # endif /* IN_RING3 */
