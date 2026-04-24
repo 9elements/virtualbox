@@ -1,10 +1,11 @@
-# $Id: .scm-settings 114023 2026-04-24 15:20:58Z andreas.loeffler@oracle.com $
+# $Id: compose.yaml 114023 2026-04-24 15:20:58Z andreas.loeffler@oracle.com $
 ## @file
-# Source code massager settings for the Validation Kit, docker container creation.
+# VirtualBox Validation Kit - docker-compose file for the Testmanager running
+#                             inside a Docker container.
 #
 
 #
-# Copyright (C) 2019-2026 Oracle and/or its affiliates.
+# Copyright (C) 2020-2026 Oracle and/or its affiliates.
 #
 # This file is part of VirtualBox base platform packages, as
 # available from https://www.virtualbox.org.
@@ -34,7 +35,33 @@
 # SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 #
 
+version: '3'
 
-/Dockerfile:    --treat-as .kmk --no-standardize-kmk
-/compose.yaml:  --treat-as .pl
-/*.env:         --treat-as shell --external-copyright
+services:
+  vbox-testmgr-db:
+    image: postgres:alpine
+    restart: unless-stopped
+    ports:
+      - 5432:5432
+    volumes:
+      - vbox-testmgr-db:/var/lib/postgresql/data
+    env_file:
+      - vbox-testmgr-db.env
+
+  vbox-testmgr-web:
+    image: vbox-testmgr:dev
+    restart: unless-stopped
+    ports:
+      - 8080:80
+    links:
+      - "vbox-testmgr-db:database"
+    env_file:
+      - vbox-testmgr-db.env
+    volumes:
+      - ${VBOX_TESTMGR_DATA}:/vbox
+    depends_on:
+      - vbox-testmgr-db
+
+volumes:
+  vbox-testmgr-db:
+  vbox-testmgr-web:

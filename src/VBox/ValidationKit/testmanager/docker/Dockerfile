@@ -1,11 +1,8 @@
-# $Id: Dockerfile 114022 2026-04-24 15:00:23Z andreas.loeffler@oracle.com $
+# $Id: Dockerfile 114023 2026-04-24 15:20:58Z andreas.loeffler@oracle.com $
 ## @file
 # VirtualBox Validation Kit - Dockerfile for running a local Testmanager instance
 #                             inside a Docker container.
 
-#
-#
-#
 #
 # Copyright (C) 2019-2026 Oracle and/or its affiliates.
 #

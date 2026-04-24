@@ -1,10 +1,13 @@
-# $Id: .scm-settings 114023 2026-04-24 15:20:58Z andreas.loeffler@oracle.com $
+#!/bin/sh
+
+# $Id: testmgr-update.sh 114023 2026-04-24 15:20:58Z andreas.loeffler@oracle.com $
 ## @file
-# Source code massager settings for the Validation Kit, docker container creation.
+# VirtualBox Validation Kit - Update script for the Testmanager running
+#                             inside a Docker container.
 #
 
 #
-# Copyright (C) 2019-2026 Oracle and/or its affiliates.
+# Copyright (C) 2020-2026 Oracle and/or its affiliates.
 #
 # This file is part of VirtualBox base platform packages, as
 # available from https://www.virtualbox.org.
@@ -34,7 +37,6 @@
 # SPDX-License-Identifier: GPL-3.0-only OR CDDL-1.0
 #
 
+source /testmgr-env.sh
 
-/Dockerfile:    --treat-as .kmk --no-standardize-kmk
-/compose.yaml:  --treat-as .pl
-/*.env:         --treat-as shell --external-copyright
+svn up ${MY_VBOX_TESTMGR_ROOT}

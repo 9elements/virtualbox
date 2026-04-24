@@ -1,13 +1,11 @@
 #!/bin/sh
 
-# $Id: testmgr-env.sh 114022 2026-04-24 15:00:23Z andreas.loeffler@oracle.com $
+# $Id: testmgr-env.sh 114023 2026-04-24 15:20:58Z andreas.loeffler@oracle.com $
 ## @file
 # VirtualBox Validation Kit - Environment setup script for the Testmanager running
 #                             inside a Docker container.
 #
 
-#
-#
 #
 # Copyright (C) 2020-2026 Oracle and/or its affiliates.
 #
