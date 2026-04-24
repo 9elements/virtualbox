@@ -1,4 +1,4 @@
-/* $Id: NetworkAdapterImpl.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: NetworkAdapterImpl.cpp 114003 2026-04-24 06:30:09Z aleksey.ilyushin@oracle.com $ */
 /** @file
  * Implementation of INetworkAdapter in VBoxSVC.
  */
@@ -258,6 +258,7 @@ HRESULT NetworkAdapter::setAdapterType(NetworkAdapterType_T aAdapterType)
         case NetworkAdapterType_I82543GC:
         case NetworkAdapterType_I82545EM:
         case NetworkAdapterType_I82583V:
+        case NetworkAdapterType_I82574:
 #endif
 #ifdef VBOX_WITH_VIRTIO
         case NetworkAdapterType_Virtio:
@@ -1394,6 +1395,7 @@ void NetworkAdapter::i_applyDefaults(GuestOSType *aOsType)
     if (defaultType == NetworkAdapterType_I82540EM ||
         defaultType == NetworkAdapterType_I82543GC ||
         defaultType == NetworkAdapterType_I82583V ||
+        defaultType == NetworkAdapterType_I82574 ||
         defaultType == NetworkAdapterType_I82545EM)
     {
         if (e1000enabled)

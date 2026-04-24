@@ -1,4 +1,4 @@
-/* $Id: ConsoleImpl.cpp 113400 2026-03-13 23:50:18Z knut.osmundsen@oracle.com $ */
+/* $Id: ConsoleImpl.cpp 114003 2026-04-24 06:30:09Z aleksey.ilyushin@oracle.com $ */
 /** @file
  * VBox Console COM Class implementation
  */
@@ -1707,6 +1707,7 @@ inline static const char *networkAdapterTypeToName(NetworkAdapterType_T adapterT
         case NetworkAdapterType_I82543GC:
         case NetworkAdapterType_I82545EM:
         case NetworkAdapterType_I82583V:
+        case NetworkAdapterType_I82574:
             return "e1000";
 #endif
 #ifdef VBOX_WITH_VIRTIO

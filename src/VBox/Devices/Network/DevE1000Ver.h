@@ -1,4 +1,4 @@
-/** $Id: DevE1000Ver.h 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/** $Id: DevE1000Ver.h 114003 2026-04-24 06:30:09Z aleksey.ilyushin@oracle.com $ */
 /** @file
  * DevE1000Ver - Intel 82540EM Ethernet Controller saved state versions, Header.
  */
@@ -32,11 +32,21 @@
 #endif
 
 /** The current Saved state version. */
-# define E1K_SAVEDSTATE_VERSION               6
+# define E1K_SAVEDSTATE_VERSION               E1K_SAVEDSTATE_VERSION_82574
+# define E1K_SAVEDSTATE_VERSION_82574         7
+# define E1K_SAVEDSTATE_VERSION_82583V_struct 6
 /** Saved state version at the introduction of 82583V support. */
 # define E1K_SAVEDSTATE_VERSION_82583V        5
 /** Saved state version before the introduction of 82583V support. */
 # define E1K_SAVEDSTATE_VERSION_PRE_82583V    4
+/** Saved state version for VirtualBox 4.2 with VLAN tag fields.  */
+# define E1K_SAVEDSTATE_VERSION_VBOX_42_VTAG  3
+/** Saved state version for VirtualBox 4.1 and earlier.
+ * These did not include VLAN tag fields.  */
+#define E1K_SAVEDSTATE_VERSION_VBOX_41  2
+/** Saved state version for VirtualBox 3.0 and earlier.
+ * This did not include the configuration part nor the E1kEEPROM.  */
+#define E1K_SAVEDSTATE_VERSION_VBOX_30  1
 
 #endif /* !VBOX_INCLUDED_SRC_Network_DevE1000Ver_h */
 

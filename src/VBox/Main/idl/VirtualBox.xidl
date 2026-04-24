@@ -22694,6 +22694,9 @@ Snapshot 1 (B.vdi)            Snapshot 1 (B.vdi)
     <const name="I82583V"               value="15">
         <desc>Intel 82583V Gigabit Network Connection [EXPERIMENTAL].</desc>
     </const>
+    <const name="I82574"                value="16">
+        <desc>Intel 82574L Gigabit Network Connection [EXPERIMENTAL].</desc>
+    </const>
   </enum>
 
   <enum

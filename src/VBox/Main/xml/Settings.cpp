@@ -1,4 +1,4 @@
-/* $Id: Settings.cpp 113544 2026-03-24 16:07:08Z andreas.loeffler@oracle.com $ */
+/* $Id: Settings.cpp 114003 2026-04-24 06:30:09Z aleksey.ilyushin@oracle.com $ */
 /** @file
  * Settings File Manipulation API.
  *
@@ -4777,6 +4777,8 @@ void MachineConfigFile::readNetworkAdapters(const xml::ElementNode &elmNetwork,
                 nic.type = NetworkAdapterType_I82545EM;
             else if (strTemp == "82583V")
                 nic.type = NetworkAdapterType_I82583V;
+            else if (strTemp == "82574")
+                nic.type = NetworkAdapterType_I82574;
             else if (strTemp == "virtio")
                 nic.type = NetworkAdapterType_Virtio;
             else if (strTemp == "NE1000")
@@ -8212,6 +8214,7 @@ void MachineConfigFile::buildHardwareXML(xml::ElementNode &elmParent,
                         case NetworkAdapterType_I82543GC:   pcszType = "82543GC"; break;
                         case NetworkAdapterType_I82545EM:   pcszType = "82545EM"; break;
                         case NetworkAdapterType_I82583V:    pcszType = "82583V"; break;
+                        case NetworkAdapterType_I82574:     pcszType = "82574"; break;
                         case NetworkAdapterType_Virtio:     pcszType = "virtio"; break;
                         case NetworkAdapterType_NE1000:     pcszType = "NE1000"; break;
                         case NetworkAdapterType_NE2000:     pcszType = "NE2000"; break;

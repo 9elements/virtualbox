@@ -14,6 +14,8 @@
 #define INTEL_82540EM_PCI_DEVICE_ID 0x100e
 #define INTEL_82543GC_PCI_DEVICE_ID 0x1004
 #define INTEL_82545EM_PCI_DEVICE_ID 0x100f
+#define INTEL_82583V_PCI_DEVICE_ID  0x150C
+#define INTEL_82574_PCI_DEVICE_ID   0x10D3
 
 //
 // Receive descriptor.
@@ -64,6 +66,7 @@ typedef struct {
 #define E1K_REG_EECD              0x00000010
 #define E1K_REG_EERD              0x00000014
 # define E1K_REG_EERD_START       BIT0
+# define E1K_REG_EERD_DONE_82574  BIT1
 # define E1K_REG_EERD_DONE        BIT4
 # define E1K_REG_EERD_DATA_GET(x) (((x) >> 16) & 0xffff)
 #define E1K_REG_ICR               0x000000c0

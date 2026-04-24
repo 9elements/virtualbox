@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 113492 2026-03-21 23:03:40Z knut.osmundsen@oracle.com $
+# $Id: Makefile.kmk 114003 2026-04-24 06:30:09Z aleksey.ilyushin@oracle.com $
 ## @file
 # Top-level sub-makefile for the devices, drivers and services.
 #
@@ -604,6 +604,7 @@ if !defined(VBOX_ONLY_EXTPACKS) && "$(intersects $(KBUILD_TARGET_ARCH),$(VBOX_SU
   VBoxDD_SOURCES        += \
   	Network/DevE1000.cpp \
   	Network/DevE1000Phy.cpp \
+  	Network/DevE1000Rss.cpp \
   	Network/DevEEPROM.cpp
  endif
 
@@ -1401,6 +1402,13 @@ if !defined(VBOX_ONLY_EXTPACKS) && "$(intersects $(KBUILD_TARGET_ARCH),$(VBOX_SU
   tstDevPhy_SOURCES     = \
   	Network/testcase/tstDevPhy.cpp \
   	Network/DevE1000Phy.cpp
+
+  PROGRAMS += tstDevRss
+  tstDevRss_TEMPLATE    = VBoxR3TstExe
+  tstDevRss_DEFS        = RSS_UNIT_TEST
+  tstDevRss_SOURCES     = \
+  	Network/testcase/tstDevRss.cpp \
+ 	Network/DevE1000Rss.cpp
  endif
 
  #

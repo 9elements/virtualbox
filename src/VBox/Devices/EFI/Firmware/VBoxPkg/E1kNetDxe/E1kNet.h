@@ -96,6 +96,8 @@ typedef struct {
   UINT16                      TxLastUsed;        // E1kNetInitTx
   UINT32                      TdhLastSeen;       // E1kNetInitTx
   ORDERED_COLLECTION          *TxBufCollection;  // E1kNetInitTx
+
+  BOOLEAN                     E1000e;            // VirtioNetDriverBindingStart
 } E1K_NET_DEV;
 
 

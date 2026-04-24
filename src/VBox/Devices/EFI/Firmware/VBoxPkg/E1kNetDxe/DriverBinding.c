@@ -35,13 +35,13 @@ E1kNetEepromRead (
   EFI_STATUS Status;
   UINT32     RegEerd = 0;
 
-  Status = E1kNetRegWrite32(Dev, E1K_REG_EERD, ((UINT32)Offset << 8) | E1K_REG_EERD_START);
+  Status = E1kNetRegWrite32(Dev, E1K_REG_EERD, ((UINT32)Offset << (Dev->E1000e ? 2 : 8)) | E1K_REG_EERD_START);
   if (EFI_ERROR (Status))
     return Status;
 
   // Wait for the read to complete
   while (   !EFI_ERROR (Status)
-         && !(RegEerd & E1K_REG_EERD_DONE)) {
+         && !(RegEerd & (Dev->E1000e ? E1K_REG_EERD_DONE_82574 : E1K_REG_EERD_DONE))) {
     gBS->Stall(1);
     Status = E1kNetRegRead32(Dev, E1K_REG_EERD, &RegEerd);
   }
@@ -163,6 +163,7 @@ E1kNetSnpPopulate (
   if (EFI_ERROR (Status)) {
     goto CloseWaitForPacket;
   }
+  DEBUG((DEBUG_INFO, "E1kNetSnpPopulate: read STATUS=%x\n", RegSts));
 
   Dev->Snm.MediaPresent = (BOOLEAN)((RegSts & E1K_REG_STATUS_LU) != 0);
 
@@ -315,7 +316,9 @@ E1kNetDriverBindingSupported (
   if (Pci.Hdr.VendorId == INTEL_PCI_VENDOR_ID &&
       (Pci.Hdr.DeviceId == INTEL_82540EM_PCI_DEVICE_ID ||
        Pci.Hdr.DeviceId == INTEL_82543GC_PCI_DEVICE_ID ||
-       Pci.Hdr.DeviceId == INTEL_82545EM_PCI_DEVICE_ID)) {
+       Pci.Hdr.DeviceId == INTEL_82545EM_PCI_DEVICE_ID ||
+       Pci.Hdr.DeviceId == INTEL_82583V_PCI_DEVICE_ID ||
+       Pci.Hdr.DeviceId == INTEL_82574_PCI_DEVICE_ID)) {
     Status = EFI_SUCCESS;
   } else {
     Status = EFI_UNSUPPORTED;
@@ -391,6 +394,7 @@ E1kNetDriverBindingStart (
   E1K_NET_DEV              *Dev;
   EFI_DEVICE_PATH_PROTOCOL *DevicePath;
   MAC_ADDR_DEVICE_PATH     MacNode;
+  PCI_TYPE00               Pci;
 
   DEBUG((DEBUG_INFO, "E1kNetControllerStart:\n"));
 
@@ -412,6 +416,19 @@ E1kNetDriverBindingStart (
   if (EFI_ERROR (Status)) {
     goto FreePool;
   }
+
+  Status = Dev->PciIo->Pci.Read (
+                        Dev->PciIo,
+                        EfiPciIoWidthUint32,
+                        0,
+                        sizeof (Pci) / sizeof (UINT32),
+                        &Pci
+                        );
+  if (EFI_ERROR (Status)) {
+    goto CloseProtocol;
+  }
+
+  Dev->E1000e = Pci.Hdr.DeviceId == INTEL_82583V_PCI_DEVICE_ID || Pci.Hdr.DeviceId == INTEL_82574_PCI_DEVICE_ID;
 
   Status = Dev->PciIo->Attributes (
                          Dev->PciIo,
@@ -473,8 +490,10 @@ E1kNetDriverBindingStart (
   DEBUG((DEBUG_INFO, "E1kNetControllerStart: Populating SNP interface\n"));
   Status = E1kNetSnpPopulate (Dev);
   if (EFI_ERROR (Status)) {
+    DEBUG((DEBUG_ERROR, "E1kNetControllerStart: Error populating SNP interface\n"));
     goto UninitDev;
   }
+  DEBUG((DEBUG_INFO, "E1kNetControllerStart: Done populating SNP interface\n"));
 
   //
   // get the device path of the e1000 device -- one-shot open

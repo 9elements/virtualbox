@@ -1,4 +1,4 @@
-/* $Id: ConsoleImplConfigCommon.cpp 113442 2026-03-17 09:21:49Z alexander.eichner@oracle.com $ */
+/* $Id: ConsoleImplConfigCommon.cpp 114003 2026-04-24 06:30:09Z aleksey.ilyushin@oracle.com $ */
 /** @file
  * VBox Console COM Class implementation - VM Configuration Bits.
  *
@@ -4716,6 +4716,7 @@ int Console::i_configNetworkCtrls(ComPtr<IMachine> pMachine, ComPtr<IPlatformPro
             case NetworkAdapterType_I82543GC:
             case NetworkAdapterType_I82545EM:
             case NetworkAdapterType_I82583V:
+            case NetworkAdapterType_I82574:
                 pDev = pDevE1000;
                 pszAdapterName = "e1000";
                 break;
@@ -4839,6 +4840,9 @@ int Console::i_configNetworkCtrls(ComPtr<IMachine> pMachine, ComPtr<IPlatformPro
                     break;
                 case NetworkAdapterType_I82583V:
                     InsertConfigInteger(pCfg, "AdapterType", 3);
+                    break;
+                case NetworkAdapterType_I82574:
+                    InsertConfigInteger(pCfg, "AdapterType", 4);
                     break;
                 case NetworkAdapterType_Virtio:
                     break;

@@ -1,4 +1,4 @@
-/* $Id: VBoxManageInfo.cpp 113442 2026-03-17 09:21:49Z alexander.eichner@oracle.com $ */
+/* $Id: VBoxManageInfo.cpp 114003 2026-04-24 06:30:09Z aleksey.ilyushin@oracle.com $ */
 /** @file
  * VBoxManage - The 'showvminfo' command and helper routines.
  */
@@ -1962,6 +1962,7 @@ HRESULT showVMInfo(ComPtr<IVirtualBox> pVirtualBox,
                     case NetworkAdapterType_I82543GC:   pszNICType = "82543GC";     break;
                     case NetworkAdapterType_I82545EM:   pszNICType = "82545EM";     break;
                     case NetworkAdapterType_I82583V:    pszNICType = "82583V";      break;
+                    case NetworkAdapterType_I82574:     pszNICType = "82574";      break;
 #endif
 #ifdef VBOX_WITH_VIRTIO
                     case NetworkAdapterType_Virtio:     pszNICType = "virtio";      break;

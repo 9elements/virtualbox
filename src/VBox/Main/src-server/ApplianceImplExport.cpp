@@ -1,4 +1,4 @@
-/* $Id: ApplianceImplExport.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: ApplianceImplExport.cpp 114003 2026-04-24 06:30:09Z aleksey.ilyushin@oracle.com $ */
 /** @file
  * IAppliance and IVirtualSystem COM class implementations.
  */
@@ -2073,6 +2073,7 @@ void Appliance::i_buildXMLForOneVirtualSystem(AutoWriteLockBase& writeLock,
                             case NetworkAdapterType_I82540EM:
                             case NetworkAdapterType_I82545EM:
                             case NetworkAdapterType_I82583V:
+                            case NetworkAdapterType_I82574:
                             case NetworkAdapterType_I82543GC: strResourceSubType = "E1000"; break;
 #endif /* VBOX_WITH_E1000 */
                         }
