@@ -1,4 +1,4 @@
-/** $Id: DevE1000Ver.h 114003 2026-04-24 06:30:09Z aleksey.ilyushin@oracle.com $ */
+/** $Id: DevE1000Ver.h 114026 2026-04-24 18:41:25Z aleksey.ilyushin@oracle.com $ */
 /** @file
  * DevE1000Ver - Intel 82540EM Ethernet Controller saved state versions, Header.
  */
@@ -33,7 +33,9 @@
 
 /** The current Saved state version. */
 # define E1K_SAVEDSTATE_VERSION               E1K_SAVEDSTATE_VERSION_82574
+/** Saved state version at the introduction of 82574 support. */
 # define E1K_SAVEDSTATE_VERSION_82574         7
+/** Saved state version for struct versioning support. */
 # define E1K_SAVEDSTATE_VERSION_82583V_struct 6
 /** Saved state version at the introduction of 82583V support. */
 # define E1K_SAVEDSTATE_VERSION_82583V        5

@@ -1,4 +1,4 @@
-/* $Id: DevE1000.cpp 114019 2026-04-24 14:25:35Z aleksey.ilyushin@oracle.com $ */
+/* $Id: DevE1000.cpp 114026 2026-04-24 18:41:25Z aleksey.ilyushin@oracle.com $ */
 /** @file
  * DevE1000 - Intel 82540EM Ethernet Controller Emulation.
  *
@@ -8424,6 +8424,7 @@ static DECLCALLBACK(int) e1kR3LoadExec(PPDMDEVINS pDevIns, PSSMHANDLE pSSM, uint
     int             rc;
 
     if (    uVersion != E1K_SAVEDSTATE_VERSION
+        &&  uVersion != E1K_SAVEDSTATE_VERSION_82583V_struct
         &&  uVersion != E1K_SAVEDSTATE_VERSION_82583V
         &&  uVersion != E1K_SAVEDSTATE_VERSION_PRE_82583V
         &&  uVersion != E1K_SAVEDSTATE_VERSION_VBOX_42_VTAG
