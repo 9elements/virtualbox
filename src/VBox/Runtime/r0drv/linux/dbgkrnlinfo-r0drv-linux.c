@@ -1,4 +1,4 @@
-/* $Id: dbgkrnlinfo-r0drv-linux.c 113985 2026-04-23 12:30:22Z alexander.eichner@oracle.com $ */
+/* $Id: dbgkrnlinfo-r0drv-linux.c 114013 2026-04-24 12:38:05Z vadim.galitsyn@oracle.com $ */
 /** @file
  * IPRT - Kernel Debug Information, R0 Driver, Linux.
  */
@@ -362,7 +362,7 @@ static int rtR0DbgKrnlInfoLnxQuerySymbolKprobe(const char *pszSymbol, void **ppv
                skips after symbol resolving for register_kprobe(). */
             uint32_t u32EndBr = 0;
             __get_kernel_nofault(&u32EndBr, ((u32 *)&pbAddr[-4]), u32, l_fault);
-#  if RTLNX_VER_MIN(6,15,0)
+#  if RTLNX_VER_MIN(6,15,0) || RTLNX_SUSE_ADLP_MAJ_LNX_PREREQ(6, 12)
             if (__is_endbr(u32EndBr))
 #  else
             if (is_endbr(u32EndBr))
