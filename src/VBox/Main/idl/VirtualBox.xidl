@@ -6246,12 +6246,10 @@
       <desc>Performs scaling via nearest-neighbor interpolation.</desc>
     </const>
     <const name="Bilinear"              value="2">
-      <desc>Performs scaling via bilinear interpolation.
-        Not yet implemented.</desc>
+      <desc>Performs scaling via bilinear interpolation.</desc>
     </const>
     <const name="Bicubic"               value="3">
-      <desc>Performs scaling via bicubic interpolation.
-        Not yet implemented.</desc>
+      <desc>Performs scaling via bicubic interpolation.</desc>
     </const>
   </enum>
 
