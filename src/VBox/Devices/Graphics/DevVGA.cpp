@@ -1,4 +1,4 @@
-/* $Id: DevVGA.cpp 113974 2026-04-22 13:30:46Z michal.necasek@oracle.com $ */
+/* $Id: DevVGA.cpp 114010 2026-04-24 09:17:23Z michal.necasek@oracle.com $ */
 /** @file
  * DevVGA - VBox VGA/VESA device.
  */
@@ -1273,20 +1273,46 @@ static uint32_t vga_mem_readb(PPDMDEVINS pDevIns, PVGASTATE pThis, PVGASTATECC p
 #else
         ret = pThisCC->pbVRam[addr];
 #endif
-    } else if (!(pThis->sr[0x04] & 0x04)) { /* Host access is controlled by SR4, not GR5! */
-        /* odd/even mode (aka text mode mapping) */
-        plane = (pThis->gr[0x04] & 2) | (addr & 1);
-        /* See the comment for a similar line in vga_mem_writeb. */
-        RTGCPHYS off = ((addr & ~1) * 4) | plane;
-        VERIFY_VRAM_READ_OFF_RETURN(pThis, off, *prc);
-#ifdef VMSVGA_WITH_VGA_FB_BACKUP_AND_IN_RING3
-        ret = !pThis->svga.fEnabled           ? pThisCC->pbVRam[off]
-            : off < VMSVGA_VGA_FB_BACKUP_SIZE ? pThisCC->svga.pbVgaFrameBufferR3[off] : 0xff;
-#else
-        ret = pThisCC->pbVRam[off];
-#endif
     } else {
-        /* standard VGA latched access */
+        /* standard VGA latched access, odd/even or not */
+
+        /* NB: Odd/Even plane access (text mode) is controlled by SR4[2] for writes and
+         * by GR5[4] for reads, according to Compaq EGA TRG. Most VGA references just
+         * say that SR4[2] should always be the opposite of GR5[4] without explaining
+         * why there are two separate bits.
+         * Chain Odd/Even addressing is separately controlled by GR6[1] for both
+         * reads and writes. Most VGA references likewise do not explain what GR6[1]
+         * really does and just say it's part of the odd/even machinery.
+         */
+
+        /* figure out plane select for read mode 0 based on GR5[4] (Odd/Even) before we modify address */
+        if (pThis->gr[0x05] & 0x10)
+            plane = (pThis->gr[0x04] & 2) | (addr & 1); /* A0 is plane select bit 0; bit 1 comes from GR4 */
+        else
+            plane = pThis->gr[0x04];
+
+        /** @todo We are not fully implementing GR6[1]. According to the Compaq EGA TRG,
+         * if GR6[1] is set then bit A0 coming from the CPU "is replaced by a higher
+         * CPU bit or the page select bit (bit <5>) from the Control and Status
+         * Miscellaneous Output register". Compaq offers no hint as to which higher order
+         * address bit or how to decide when MSR[5] should be used instead.
+         * The Matrox MGA-2064W spec says that if the VGA is decoding the entire
+         * 128K range (A000-BFFF, extremely unusual), bit A16 replaces A0; otherwise,
+         * MSR[5] replaces A0.
+         * The MSR[5] bit is extremely poorly documented and various vendors contradict
+         * each other as to the polarity of the bit.
+         * We do not implement MSR[5] because it has no known use and to be useful,
+         * text mode drawing would have to correctly deal with all CR17 bits as well.
+         * If it were implemented the way Compaq and Matrox say it works (MSR[5] replacing
+         * A0 in Chain Odd/Even mode), it would actively break text modes. If A0 were to
+         * be replaced by inverted MSR[5], it would make much more sense.
+         */
+
+        /* drop address bit 0 if GR6[1] (Chain Odd/Even) is set */
+        addr &= ~((pThis->gr[0x06] & 2) >> 1);
+//        addr |= (~(pThis->msr & 0x20) >> 5) & ((pThis->gr[0x06] & 2) >> 1);   // see todo above
+
+        /* validate address once we're done adjusting it */
         VERIFY_VRAM_READ_OFF_RETURN(pThis, addr * 4 + 3, *prc);
 #ifdef VMSVGA_WITH_VGA_FB_BACKUP_AND_IN_RING3
         pThis->latch = !pThis->svga.fEnabled                    ? ((uint32_t *)pThisCC->pbVRam)[addr]
@@ -1296,7 +1322,6 @@ static uint32_t vga_mem_readb(PPDMDEVINS pDevIns, PVGASTATE pThis, PVGASTATECC p
 #endif
         if (!(pThis->gr[0x05] & 0x08)) {
             /* read mode 0 */
-            plane = pThis->gr[0x04];
             ret = GET_PLANE(pThis->latch, plane);
         } else {
             /* read mode 1 */
@@ -1390,37 +1415,18 @@ static VBOXSTRICTRC vga_mem_writeb(PPDMDEVINS pDevIns, PVGASTATE pThis, PVGASTAT
             pThis->plane_updated |= mask; /* only used to detect font change */
             vgaR3MarkDirty(pThis, addr);
         }
-    } else if (!(pThis->sr[0x04] & 0x04)) { /* Host access is controlled by SR4, not GR5! */
-        /* odd/even mode (aka text mode mapping); GR4 does not affect writes! */
-        plane = addr & 1;
-        mask = (1 << plane);
-        if (pThis->sr[0x02] & mask) {
-            /* 'addr' is offset in a plane, bit 0 selects the plane.
-             * Mask the bit 0, convert plane index to vram offset,
-             * that is multiply by the number of planes,
-             * and select the plane byte in the vram offset.
-             */
-            addr = ((addr & ~1) * 4) | plane;
-            VERIFY_VRAM_WRITE_OFF_RETURN(pThis, addr);
-#ifdef VMSVGA_WITH_VGA_FB_BACKUP_AND_IN_RING3
-            if (!pThis->svga.fEnabled)
-                pThisCC->pbVRam[addr]      = val;
-            else if (addr < VMSVGA_VGA_FB_BACKUP_SIZE)
-                pThisCC->svga.pbVgaFrameBufferR3[addr] = val;
-            else
-            {
-                Log(("vga: odd/even: out of vmsvga VGA framebuffer bounds! addr=%#x\n", addr));
-                return VINF_SUCCESS;
-            }
-#else
-            pThisCC->pbVRam[addr] = val;
-#endif
-            Log3(("vga: odd/even: [0x%x]\n", addr));
-            pThis->plane_updated |= mask; /* only used to detect font change */
-            vgaR3MarkDirty(pThis, addr);
-        }
     } else {
-        /* standard VGA latched access */
+        /* standard unchained VGA latched access, odd/even or regular */
+
+        /* preset mask according to SR4[2] (Odd/Even) before we modify address */
+        mask  = (0xf0 | (5 << (addr & 1))) >> (pThis->sr[0x04] & 4);
+        mask &= pThis->sr[0x02];    /* determine final plane mask using SR2 */
+
+        /* drop address bit 0 if GR6[1] (Chain Odd/Even) is set */
+        addr &= ~((pThis->gr[0x06] & 2) >> 1);
+//        addr |= (~(pThis->msr & 0x20) >> 5) & ((pThis->gr[0x06] & 2) >> 1);   // see todo above
+
+        /* validate address once we're done adjusting it */
         VERIFY_VRAM_WRITE_OFF_RETURN(pThis, addr * 4 + 3);
 
         write_mode = pThis->gr[0x05] & 3;
@@ -1482,10 +1488,9 @@ static VBOXSTRICTRC vga_mem_writeb(PPDMDEVINS pDevIns, PVGASTATE pThis, PVGASTAT
         val = (val & bit_mask) | (pThis->latch & ~bit_mask);
 
     do_write:
-        /* mask data according to sr[0x02] */
-        mask = pThis->sr[0x02];
-        pThis->plane_updated |= mask; /* only used to detect font change */
+        /* apply plane write mask */
         write_mask = mask16[mask];
+        pThis->plane_updated |= mask; /* only used to detect font change */
 #ifdef VMSVGA_WITH_VGA_FB_BACKUP_AND_IN_RING3
         uint32_t *pu32Dst;
         if (!pThis->svga.fEnabled)
@@ -1821,6 +1826,12 @@ static int vgaR3DrawText(PPDMDEVINS pDevIns, PVGASTATE pThis, PVGASTATER3 pThisC
         addr_mask = 0xffff;     /* Wrap at 64K, for CGA and 64K EGA compatibility. */
     else
         addr_mask = 0x3ffff;    /* Wrap at 256K, standard VGA. */
+
+    /** @todo memory addressing is not fully implemented; in word mode,
+     *  memory address bit MA0 should be replaced by CRTC address bit
+     *  A13 or A15. This would probably only be useful if MSR[5] support
+     *  were implemented in host memory access path.
+     */
 
     line_offset = pThis->line_offset;
     s1 = pThisCC->pbVRam + ((pThis->start_addr * s_incr) & addr_mask);
