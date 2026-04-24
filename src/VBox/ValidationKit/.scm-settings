@@ -1,4 +1,4 @@
-# $Id: .scm-settings 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $
+# $Id: .scm-settings 114016 2026-04-24 13:18:04Z andreas.loeffler@oracle.com $
 ## @file
 # Source code massager settings for the Validation Kit.
 #
@@ -37,8 +37,6 @@
 # Most of this should be exported.
 --svn-sync-process-export all
 /tests/api/tdOci*|/tests/api/oci*|/tests/api/tdCloud*:   --svn-sync-process-export none
-## @todo export: Why is the docker stuff kept private?
-/testmanager/docker*:                   --svn-sync-process-export none
 ## @todo export: Why is the usbtest.service kept private?
 /utils/usb/linux/usbtest.service:       --svn-sync-process-export none
 
