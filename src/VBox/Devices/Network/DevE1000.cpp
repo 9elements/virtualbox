@@ -1,4 +1,4 @@
-/* $Id: DevE1000.cpp 114004 2026-04-24 06:45:59Z aleksey.ilyushin@oracle.com $ */
+/* $Id: DevE1000.cpp 114005 2026-04-24 06:55:22Z aleksey.ilyushin@oracle.com $ */
 /** @file
  * DevE1000 - Intel 82540EM Ethernet Controller Emulation.
  *
@@ -3290,7 +3290,7 @@ static void e1kPrintRDesc(PE1KSTATE pThis, E1KRXDESC *pDesc, unsigned uLevel = R
              E1K_SPEC_VLAN(pDesc->legacy.status.u16Special),
              E1K_SPEC_PRI(pDesc->legacy.status.u16Special)));
 #else
-    RT_NOREF2(pThis, pDesc, uLevel);
+    RT_NOREF(pThis, pDesc, uLevel);
 #endif
 }
 # endif /* IN_RING3 */
