@@ -1,4 +1,4 @@
-/* $Id: NEMR3Native-win-x86.cpp 113614 2026-03-27 10:17:36Z ramshankar.venkataraman@oracle.com $ */
+/* $Id: NEMR3Native-win-x86.cpp 114006 2026-04-24 07:17:58Z alexander.eichner@oracle.com $ */
 /** @file
  * NEM - Native execution manager, native ring-3 Windows backend.
  *
@@ -835,6 +835,7 @@ static int nemR3WinInitCheckCapabilities(PVM pVM, PRTERRINFO pErrInfo)
         NEM_LOG_REL_CAP_SUB_EX("Unknown features", "%#RX64", Caps.ExtendedVmExits.AsUINT64 & ~fKnownFeatures);
     pVM->nem.s.fSpeculationControl = RT_BOOL(Caps.Features.SpeculationControl);
     pVM->nem.s.fLocalApicEmulation = RT_BOOL(Caps.Features.LocalApicEmulation);
+    pVM->nem.s.fXsaveSupported     = RT_BOOL(Caps.Features.Xsave);
     /** @todo RECHECK: WHV_CAPABILITY_FEATURES typedef. */
 
     /*
