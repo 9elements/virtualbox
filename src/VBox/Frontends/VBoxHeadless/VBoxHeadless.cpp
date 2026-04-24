@@ -1,4 +1,4 @@
-/* $Id: VBoxHeadless.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: VBoxHeadless.cpp 114014 2026-04-24 12:38:59Z alexander.eichner@oracle.com $ */
 /** @file
  * VBoxHeadless - The VirtualBox Headless frontend for running VMs on servers.
  */
@@ -1679,12 +1679,64 @@ extern "C" DECLEXPORT(int) TrustedMain(int argc, char **argv, char **envp)
 
 
 #ifndef VBOX_WITH_HARDENING
+
+# if defined(RT_OS_DARWIN)
+
+extern "C" const char *_dyld_get_image_name(uint32_t);
+
+/** Init runtime with the executable path pointing into the
+ * VirtualBox.app/Contents/MacOS/ rather than
+ * VirtualBox.app/Contents/Resource/VBoxHeadless.app/Contents/MacOS/.
+ *
+ * This is a HACK to make codesign and friends happy on OS X.   The idea is to
+ * improve and eliminate this over time.
+ */
+DECL_NO_INLINE(static, int) initIprtForDarwinHelperApp(int cArgs, char ***ppapszArgs, uint32_t fFlags)
+{
+    const char *pszImageName = _dyld_get_image_name(0);
+    AssertReturn(pszImageName, VERR_INTERNAL_ERROR);
+
+    char szTmpPath[RTPATH_MAX + 1];
+    const char *psz = realpath(pszImageName, szTmpPath);
+    int rc;
+    if (psz)
+    {
+        char *pszFilename = RTPathFilename(szTmpPath);
+        if (pszFilename)
+        {
+            char const chSavedFilename0 = *pszFilename;
+            *pszFilename = '\0';
+            RTPathStripTrailingSlash(szTmpPath); /* VirtualBox.app/Contents/Resources/VBoxHeadless.app/Contents/MacOS */
+            RTPathStripFilename(szTmpPath);      /* VirtualBox.app/Contents/Resources/VBoxHeadless.app/Contents/ */
+            RTPathStripFilename(szTmpPath);      /* VirtualBox.app/Contents/Resources/VBoxHeadless.app */
+            RTPathStripFilename(szTmpPath);      /* VirtualBox.app/Contents/Resources */
+            RTPathStripFilename(szTmpPath);      /* VirtualBox.app/Contents */
+            char *pszDst = strchr(szTmpPath, '\0');
+            pszDst = (char *)memcpy(pszDst, RT_STR_TUPLE("/MacOS/")) + sizeof("/MacOS/") - 1; /** @todo where is mempcpy? */
+            *pszFilename = chSavedFilename0;
+            memmove(pszDst, pszFilename, strlen(pszFilename) + 1);
+
+            return RTR3InitEx(RTR3INIT_VER_CUR, fFlags, cArgs, ppapszArgs, szTmpPath);
+        }
+        rc = VERR_INVALID_NAME;
+    }
+    else
+        rc = RTErrConvertFromErrno(errno);
+    AssertMsgRCReturn(rc, ("rc=%Rrc pszLink=\"%s\"\nhex: %.*Rhxs\n", rc, pszImageName, strlen(pszImageName), pszImageName), rc);
+    return rc;
+}
+# endif
+
 /**
  * Main entry point.
  */
 int main(int argc, char **argv, char **envp)
 {
+# if defined(RT_OS_DARWIN)
+    int rc = initIprtForDarwinHelperApp(argc, &argv, RTR3INIT_FLAGS_TRY_SUPLIB);
+# else
     int rc = RTR3InitExe(argc, &argv, RTR3INIT_FLAGS_TRY_SUPLIB);
+# endif
     if (RT_SUCCESS(rc))
         return TrustedMain(argc, argv, envp);
     RTPrintf("VBoxHeadless: Runtime initialization failed: %Rrc - %Rrf\n", rc, rc);

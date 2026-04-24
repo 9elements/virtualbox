@@ -1,4 +1,4 @@
-/* $Id: MachineLaunchVMCommonWorker.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: MachineLaunchVMCommonWorker.cpp 114014 2026-04-24 12:38:59Z alexander.eichner@oracle.com $ */
 /** @file
  * VirtualBox Main - VM process launcher helper for VBoxSVC & VBoxSDS.
  */
@@ -248,9 +248,36 @@ int MachineLaunchVMCommonWorker(const Utf8Str &aNameOrId,
          * Only if a VRDE has been installed and the VM enables it, the "headless" will work
          * differently in 4.0 and 3.x.
          */
+# ifdef RT_OS_DARWIN /* Avoid Launch Services confusing this with the selector by using a helper app. */
+
+#  define OSX_HEADLESS_PATH_FMT       "/Resources/%s.app/Contents/MacOS/VBoxHeadless"
+#  define OSX_HEADLESS_PATH_WITH_NAME "/Resources/VBoxHeadless.app/Contents/MacOS/VBoxHeadless"
+
+        /* Modify the base path so that we don't need to use ".." below. */
+        RTPathStripTrailingSlash(szPath);
+        RTPathStripFilename(szPath);
+        cbBufLeft = strlen(szPath);
+        pszNamePart = &szPath[cbBufLeft]; Assert(!*pszNamePart);
+        cbBufLeft = sizeof(szPath) - cbBufLeft;
+
+        if (aFilename.isNotEmpty() && strpbrk(aFilename.c_str(), "./\\:") == NULL)
+        {
+            ssize_t cch = RTStrPrintf2(pszNamePart, cbBufLeft, OSX_HEADLESS_PATH_FMT, aFilename.c_str());
+            AssertReturn(cch > 0, VERR_FILENAME_TOO_LONG);
+            /* there is a race, but people using this deserve the failure */
+            if (!RTFileExists(szPath))
+                *pszNamePart = '\0';
+        }
+        if (!*pszNamePart)
+        {
+            vrc = RTStrCopy(pszNamePart, cbBufLeft, OSX_HEADLESS_PATH_WITH_NAME);
+            AssertRCReturn(vrc, vrc);
+        }
+# else
         static const char s_szVBoxHeadless_exe[] = "VBoxHeadless" HOSTSUFF_EXE;
         vrc = RTStrCopy(pszNamePart, cbBufLeft, s_szVBoxHeadless_exe);
         AssertRCReturn(vrc, vrc);
+# endif
 
         const char *apszArgs[] =
         {

@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $
+# $Id: Makefile.kmk 114014 2026-04-24 12:38:59Z alexander.eichner@oracle.com $
 ## @file
 # Install misc stuff and create dist packages for Mac OS X.
 #
@@ -403,7 +403,7 @@ VBOX_INSTALL_LANG_LPROJ  := $(addsuffix .lproj,$(VBOX_APPROVED_GUI_LANGUAGES))
 #
 
 VBOX_DI_VBAPP_PROGS_HARDENED = \
-	MacOS/VBoxHeadless \
+ 	Resources/VBoxHeadless.app/Contents/MacOS/VBoxHeadless \
 	MacOS/VBoxNetDHCP \
 	MacOS/VBoxNetNAT \
 	MacOS/VBoxVMMPreload
@@ -563,7 +563,9 @@ ifdef VBOX_WITH_QTGUI # Yeah, the output w/o the qt gui is a bit useless. But we
  	$(addprefix Resources/VirtualBoxVM.app/Contents/,$(VBOX_DI_VBAPP_DUPLICATED_RESOURCE_FILES)) \
  	Resources/vmstarter.app/Contents/Info.plist \
  	Resources/vmstarter.app/Contents/PkgInfo \
- 	$(addprefix Resources/vmstarter.app/Contents/,$(VBOX_DI_VBAPP_DUPLICATED_RESOURCE_FILES))
+ 	$(addprefix Resources/vmstarter.app/Contents/,$(VBOX_DI_VBAPP_DUPLICATED_RESOURCE_FILES)) \
+ 	Resources/VBoxHeadless.app/Contents/Info.plist \
+ 	Resources/VBoxHeadless.app/Contents/PkgInfo
 endif
 ifdef VBOX_WITH_DOCS_PACKING
  VBOX_DI_VBAPP_MISC_FILES += \
@@ -621,6 +623,8 @@ ifdef VBOX_WITH_INTNET_SERVICE_IN_R3
   VBOX_DI_VBAPP_SYMLINKS += \
   	Resources/VirtualBoxVM.app/Contents/XPCServices=>../../../XPCServices
  endif
+ VBOX_DI_VBAPP_SYMLINKS += \
+ 	Resources/VBoxHeadless.app/Contents/XPCServices=>../../../XPCServices
 endif
 
 VBOX_VIRTUALBOX_APP_ENTITLEMENTS := $(VBOX_DARWIN_ENTITLEMENTS_FILE)
@@ -679,6 +683,8 @@ $(VBOX_PATH_PACK_TMP)/Packages/VirtualBox.pkg: \
 		$$(wildcard $(VBOX_PATH_DIST)/VirtualBox.app/Contents/Resources/vmstarter.app/Contents/*) \
 		$$(wildcard $(VBOX_PATH_DIST)/VirtualBox.app/Contents/Resources/vmstarter.app/Contents/Resources/*) \
 		$$(wildcard $(VBOX_PATH_DIST)/VirtualBox.app/Contents/Resources/vmstarter.app/Contents/Resources/*.lproj/*) \
+		$$(wildcard $(VBOX_PATH_DIST)/VirtualBox.app/Contents/Resources/VBoxHeadless.app/Contents/*) \
+		$$(wildcard $(VBOX_PATH_DIST)/VirtualBox.app/Contents/Resources/VBoxHeadless.app/Contents/Resources/*) \
 		$$(wildcard $(VBOX_PATH_DIST)/VirtualBox.app/Contents/Resources/*.lproj/*) \
 		$$(wildcard $(VBOX_PATH_DIST)/VirtualBox.app/Contents/MacOS/*) \
 		$$(wildcard $(VBOX_PATH_DIST)/VirtualBox.app/Contents/MacOS/additions/*) \
@@ -726,6 +732,8 @@ $(VBOX_PATH_PACK_TMP)/Packages/VirtualBox.pkg: \
 		$(VBOX_PATH_VBOX_APP_TMP)/Contents/MacOS/nls \
 		$(VBOX_PATH_VBOX_APP_TMP)/Contents/MacOS/accessible \
 		$(VBOX_PATH_VBOX_APP_TMP)/Contents/Resources \
+		$(VBOX_PATH_VBOX_APP_TMP)/Contents/Resources/VBoxHeadless.app \
+		$(VBOX_PATH_VBOX_APP_TMP)/Contents/Resources/VBoxHeadless.app/Contents \
 		$(if-expr defined(VBOX_WITH_QTGUI), \
 			$(VBOX_PATH_VBOX_APP_TMP)/Contents/Resources/VirtualBoxVM.app \
 			$(VBOX_PATH_VBOX_APP_TMP)/Contents/Resources/VirtualBoxVM.app/Contents \
@@ -1003,9 +1011,9 @@ $(VBOX_PATH_PACK_TMP)/Packages/VirtualBoxCLI.pkg: \
 	$(APPEND) -tn  $(VBOX_PATH_PACK_TMP)/VirtualBoxCLI.pkg.root/usr/local/bin/VBoxManage \
 		'#!/bin/bash' 'exec /Applications/VirtualBox.app/Contents/MacOS/VBoxManage "$$@"'
 	$(APPEND) -tn $(VBOX_PATH_PACK_TMP)/VirtualBoxCLI.pkg.root/usr/local/bin/VBoxVRDP \
-		'#!/bin/bash' 'exec /Applications/VirtualBox.app/Contents/MacOS/VBoxHeadless "$$@"'
+		'#!/bin/bash' 'exec /Applications/VirtualBox.app/Contents/Resources/VBoxHeadless.app/Contents/MacOS/VBoxHeadless "$$@"'
 	$(APPEND) -tn $(VBOX_PATH_PACK_TMP)/VirtualBoxCLI.pkg.root/usr/local/bin/VBoxHeadless \
-		'#!/bin/bash' 'exec /Applications/VirtualBox.app/Contents/MacOS/VBoxHeadless "$$@"'
+		'#!/bin/bash' 'exec /Applications/VirtualBox.app/Contents/Resources/VBoxHeadless.app/Contents/MacOS/VBoxHeadless "$$@"'
 ifdef VBOX_WITH_WEBSERVICES
 	$(APPEND) -tn $(VBOX_PATH_PACK_TMP)/VirtualBoxCLI.pkg.root/usr/local/bin/vboxwebsrv \
 		'#!/bin/bash' 'exec /Applications/VirtualBox.app/Contents/MacOS/vboxwebsrv "$$@"'
