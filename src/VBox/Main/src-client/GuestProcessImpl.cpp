@@ -1,4 +1,4 @@
-/* $Id: GuestProcessImpl.cpp 113979 2026-04-23 06:25:28Z andreas.loeffler@oracle.com $ */
+/* $Id: GuestProcessImpl.cpp 114011 2026-04-24 10:14:36Z andreas.loeffler@oracle.com $ */
 /** @file
  * VirtualBox Main - Guest process handling.
  */
@@ -182,12 +182,20 @@ VBOX_LISTENER_DECLARE(GuestProcessListenerImpl)
 
 DEFINE_EMPTY_CTOR_DTOR(GuestProcess)
 
+/**
+ * Called by the COM class factory after construction.
+ *
+ * @returns COM status code.
+ */
 HRESULT GuestProcess::FinalConstruct(void)
 {
     LogFlowThisFuncEnter();
     return BaseFinalConstruct();
 }
 
+/**
+ * Called by the COM runtime before object destruction.
+ */
 void GuestProcess::FinalRelease(void)
 {
     LogFlowThisFuncEnter();
@@ -325,6 +333,13 @@ void GuestProcess::uninit(void)
 
 // implementation of public getters/setters for attributes
 /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Returns the process argument list.
+ *
+ * @returns COM status code.
+ * @param   aArguments          Where to return the UTF-8 process arguments.
+ */
 HRESULT GuestProcess::getArguments(std::vector<com::Utf8Str> &aArguments)
 {
     LogFlowThisFuncEnter();
@@ -334,6 +349,12 @@ HRESULT GuestProcess::getArguments(std::vector<com::Utf8Str> &aArguments)
     return S_OK;
 }
 
+/**
+ * Returns the effective process environment.
+ *
+ * @returns COM status code.
+ * @param   aEnvironment        Where to return the effective UTF-8 environment.
+ */
 HRESULT GuestProcess::getEnvironment(std::vector<com::Utf8Str> &aEnvironment)
 {
 #ifndef VBOX_WITH_GUEST_CONTROL
@@ -366,6 +387,12 @@ HRESULT GuestProcess::getEnvironment(std::vector<com::Utf8Str> &aEnvironment)
 #endif
 }
 
+/**
+ * Returns the event source associated with this guest process.
+ *
+ * @returns COM status code.
+ * @param   aEventSource        Where to return the event source interface.
+ */
 HRESULT GuestProcess::getEventSource(ComPtr<IEventSource> &aEventSource)
 {
     LogFlowThisFuncEnter();
@@ -377,6 +404,12 @@ HRESULT GuestProcess::getEventSource(ComPtr<IEventSource> &aEventSource)
     return S_OK;
 }
 
+/**
+ * Returns the executable path of this guest process.
+ *
+ * @returns COM status code.
+ * @param   aExecutablePath     Where to return the UTF-8 executable path.
+ */
 HRESULT GuestProcess::getExecutablePath(com::Utf8Str &aExecutablePath)
 {
     LogFlowThisFuncEnter();
@@ -388,6 +421,12 @@ HRESULT GuestProcess::getExecutablePath(com::Utf8Str &aExecutablePath)
     return S_OK;
 }
 
+/**
+ * Returns the guest-reported process exit code.
+ *
+ * @returns COM status code.
+ * @param   aExitCode           Where to return the exit code.
+ */
 HRESULT GuestProcess::getExitCode(LONG *aExitCode)
 {
     LogFlowThisFuncEnter();
@@ -399,6 +438,12 @@ HRESULT GuestProcess::getExitCode(LONG *aExitCode)
     return S_OK;
 }
 
+/**
+ * Returns the process name.
+ *
+ * @returns COM status code.
+ * @param   aName               Where to return the UTF-8 process name.
+ */
 HRESULT GuestProcess::getName(com::Utf8Str &aName)
 {
     LogFlowThisFuncEnter();
@@ -410,6 +455,12 @@ HRESULT GuestProcess::getName(com::Utf8Str &aName)
     return S_OK;
 }
 
+/**
+ * Returns the guest process identifier (PID).
+ *
+ * @returns COM status code.
+ * @param   aPID                Where to return the PID.
+ */
 HRESULT GuestProcess::getPID(ULONG *aPID)
 {
     LogFlowThisFuncEnter();
@@ -421,6 +472,12 @@ HRESULT GuestProcess::getPID(ULONG *aPID)
     return S_OK;
 }
 
+/**
+ * Returns the current process status.
+ *
+ * @returns COM status code.
+ * @param   aStatus             Where to return the current status.
+ */
 HRESULT GuestProcess::getStatus(ProcessStatus_T *aStatus)
 {
     LogFlowThisFuncEnter();
@@ -1903,6 +1960,14 @@ int GuestProcess::i_waitForStatusChange(GuestWaitEvent *pEvent, uint32_t uTimeou
 }
 
 #if 0 /* Unused */
+/**
+ * Checks whether a wait result implies a specific process status.
+ *
+ * @returns @c true if \a waitResult implies \a procStatus, @c false otherwise.
+ * @param   waitResult          Wait result to evaluate.
+ * @param   procStatus          Process status to test against.
+ * @param   uProtocol           Guest Control protocol version.
+ */
 /* static */
 bool GuestProcess::i_waitResultImpliesEx(ProcessWaitResult_T waitResult, ProcessStatus_T procStatus, uint32_t uProtocol)
 {
@@ -2031,6 +2096,15 @@ int GuestProcess::i_writeData(uint32_t uHandle, uint32_t uFlags,
 // implementation of public methods
 /////////////////////////////////////////////////////////////////////////////
 
+/**
+ * Reads data from a guest process handle.
+ *
+ * @returns COM status code.
+ * @param   aHandle             Handle to read from (typically stdout/stderr).
+ * @param   aToRead             Number of bytes to read.
+ * @param   aTimeoutMS          Timeout (in ms) to wait.
+ * @param   aData               Where to return the read data.
+ */
 HRESULT GuestProcess::read(ULONG aHandle, ULONG aToRead, ULONG aTimeoutMS, std::vector<BYTE> &aData)
 {
     AutoCaller autoCaller(this);
@@ -2079,6 +2153,11 @@ HRESULT GuestProcess::read(ULONG aHandle, ULONG aToRead, ULONG aTimeoutMS, std::
     return hrc;
 }
 
+/**
+ * Requests termination of the guest process.
+ *
+ * @returns COM status code.
+ */
 HRESULT GuestProcess::terminate()
 {
     AutoCaller autoCaller(this);
@@ -2143,7 +2222,16 @@ HRESULT GuestProcess::terminate()
     return hrc;
 }
 
-/* Deprecated; use GuestProcess::waitForArray() instead. */
+/**
+ * Waits for selected process events.
+ *
+ * @returns COM status code.
+ * @param   aWaitFor            Bitmask of ProcessWaitForFlag_T values.
+ * @param   aTimeoutMS          Timeout (in ms) to wait.
+ * @param   aReason             Where to return the wait result.
+ *
+ * @note    Deprecated; use GuestProcess::waitForArray() instead.
+ */
 HRESULT GuestProcess::waitFor(ULONG aWaitFor, ULONG aTimeoutMS, ProcessWaitResult_T *aReason)
 {
     AutoCaller autoCaller(this);
@@ -2196,16 +2284,35 @@ HRESULT GuestProcess::waitFor(ULONG aWaitFor, ULONG aTimeoutMS, ProcessWaitResul
     return hrc;
 }
 
+/**
+ * Waits for selected process events.
+ *
+ * @returns COM status code.
+ * @param   aWaitFor            List of wait flags to combine.
+ * @param   aTimeoutMS          Timeout (in ms) to wait.
+ * @param   aReason             Where to return the wait result.
+ */
 HRESULT GuestProcess::waitForArray(const std::vector<ProcessWaitForFlag_T> &aWaitFor,
                                    ULONG aTimeoutMS, ProcessWaitResult_T *aReason)
 {
     uint32_t fWaitFor = ProcessWaitForFlag_None;
+    /* Convert the API flag list to the internal bitmask form used by waitFor(). */
     for (size_t i = 0; i < aWaitFor.size(); i++)
         fWaitFor |= aWaitFor[i];
 
     return WaitFor(fWaitFor, aTimeoutMS, aReason);
 }
 
+/**
+ * Writes data to a guest process handle.
+ *
+ * @returns COM status code.
+ * @param   aHandle             Handle to write to (typically stdin).
+ * @param   aFlags              Process input flags.
+ * @param   aData               Data to write.
+ * @param   aTimeoutMS          Timeout (in ms) to wait.
+ * @param   aWritten            Where to return the number of bytes written.
+ */
 HRESULT GuestProcess::write(ULONG aHandle, ULONG aFlags, const std::vector<BYTE> &aData,
                             ULONG aTimeoutMS, ULONG *aWritten)
 {
@@ -2253,12 +2360,23 @@ HRESULT GuestProcess::write(ULONG aHandle, ULONG aFlags, const std::vector<BYTE>
     return hrc;
 }
 
+/**
+ * Writes data to a guest process handle using a flag array.
+ *
+ * @returns COM status code.
+ * @param   aHandle             Handle to write to (typically stdin).
+ * @param   aFlags              List of input flags to combine.
+ * @param   aData               Data to write.
+ * @param   aTimeoutMS          Timeout (in ms) to wait.
+ * @param   aWritten            Where to return the number of bytes written.
+ */
 HRESULT GuestProcess::writeArray(ULONG aHandle, const std::vector<ProcessInputFlag_T> &aFlags,
                                  const std::vector<BYTE> &aData, ULONG aTimeoutMS, ULONG *aWritten)
 {
     LogFlowThisFuncEnter();
 
     ULONG fWrite = ProcessInputFlag_None;
+    /* Convert the API flag list to the internal bitmask form used by write(). */
     for (size_t i = 0; i < aFlags.size(); i++)
         fWrite |= aFlags[i];
 

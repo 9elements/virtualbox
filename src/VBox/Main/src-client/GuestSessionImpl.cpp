@@ -1,4 +1,4 @@
-/* $Id: GuestSessionImpl.cpp 113407 2026-03-14 00:12:20Z knut.osmundsen@oracle.com $ */
+/* $Id: GuestSessionImpl.cpp 114011 2026-04-24 10:14:36Z andreas.loeffler@oracle.com $ */
 /** @file
  * VirtualBox Main - Guest session handling.
  */
@@ -177,12 +177,20 @@ VBOX_LISTENER_DECLARE(GuestSessionListenerImpl)
 
 DEFINE_EMPTY_CTOR_DTOR(GuestSession)
 
+/**
+ * Called by the COM class factory after construction.
+ *
+ * @returns COM status code.
+ */
 HRESULT GuestSession::FinalConstruct(void)
 {
     LogFlowThisFuncEnter();
     return BaseFinalConstruct();
 }
 
+/**
+ * Called by the COM runtime before object destruction.
+ */
 void GuestSession::FinalRelease(void)
 {
     LogFlowThisFuncEnter();
@@ -357,6 +365,12 @@ void GuestSession::uninit(void)
 // implementation of public getters/setters for attributes
 /////////////////////////////////////////////////////////////////////////////
 
+/**
+ * Returns the guest account user name configured for this session.
+ *
+ * @returns COM status code.
+ * @param   aUser               Where to return the user name.
+ */
 HRESULT GuestSession::getUser(com::Utf8Str &aUser)
 {
     LogFlowThisFuncEnter();
@@ -369,6 +383,12 @@ HRESULT GuestSession::getUser(com::Utf8Str &aUser)
     return S_OK;
 }
 
+/**
+ * Returns the guest account domain configured for this session.
+ *
+ * @returns COM status code.
+ * @param   aDomain             Where to return the domain name.
+ */
 HRESULT GuestSession::getDomain(com::Utf8Str &aDomain)
 {
     LogFlowThisFuncEnter();
@@ -381,6 +401,12 @@ HRESULT GuestSession::getDomain(com::Utf8Str &aDomain)
     return S_OK;
 }
 
+/**
+ * Returns the session name.
+ *
+ * @returns COM status code.
+ * @param   aName               Where to return the session name.
+ */
 HRESULT GuestSession::getName(com::Utf8Str &aName)
 {
     LogFlowThisFuncEnter();
@@ -393,6 +419,12 @@ HRESULT GuestSession::getName(com::Utf8Str &aName)
     return S_OK;
 }
 
+/**
+ * Returns the session ID.
+ *
+ * @returns COM status code.
+ * @param   aId                 Where to return the session ID.
+ */
 HRESULT GuestSession::getId(ULONG *aId)
 {
     LogFlowThisFuncEnter();
@@ -405,6 +437,12 @@ HRESULT GuestSession::getId(ULONG *aId)
     return S_OK;
 }
 
+/**
+ * Returns the current session status.
+ *
+ * @returns COM status code.
+ * @param   aStatus             Where to return the session status.
+ */
 HRESULT GuestSession::getStatus(GuestSessionStatus_T *aStatus)
 {
     LogFlowThisFuncEnter();
@@ -417,6 +455,12 @@ HRESULT GuestSession::getStatus(GuestSessionStatus_T *aStatus)
     return S_OK;
 }
 
+/**
+ * Returns the session timeout value.
+ *
+ * @returns COM status code.
+ * @param   aTimeout            Where to return the timeout in milliseconds.
+ */
 HRESULT GuestSession::getTimeout(ULONG *aTimeout)
 {
     LogFlowThisFuncEnter();
@@ -429,6 +473,12 @@ HRESULT GuestSession::getTimeout(ULONG *aTimeout)
     return S_OK;
 }
 
+/**
+ * Sets the session timeout value.
+ *
+ * @returns COM status code.
+ * @param   aTimeout            Timeout in milliseconds.
+ */
 HRESULT GuestSession::setTimeout(ULONG aTimeout)
 {
     LogFlowThisFuncEnter();
@@ -441,6 +491,12 @@ HRESULT GuestSession::setTimeout(ULONG aTimeout)
     return S_OK;
 }
 
+/**
+ * Returns the guest control protocol version for this session.
+ *
+ * @returns COM status code.
+ * @param   aProtocolVersion    Where to return the protocol version.
+ */
 HRESULT GuestSession::getProtocolVersion(ULONG *aProtocolVersion)
 {
     LogFlowThisFuncEnter();
@@ -453,6 +509,12 @@ HRESULT GuestSession::getProtocolVersion(ULONG *aProtocolVersion)
     return S_OK;
 }
 
+/**
+ * Returns pending environment variable changes for this session.
+ *
+ * @returns COM status code.
+ * @param   aEnvironmentChanges Where to return the change list.
+ */
 HRESULT GuestSession::getEnvironmentChanges(std::vector<com::Utf8Str> &aEnvironmentChanges)
 {
     LogFlowThisFuncEnter();
@@ -467,6 +529,12 @@ HRESULT GuestSession::getEnvironmentChanges(std::vector<com::Utf8Str> &aEnvironm
     return Global::vboxStatusCodeToCOM(vrc);
 }
 
+/**
+ * Replaces pending environment variable changes for this session.
+ *
+ * @returns COM status code.
+ * @param   aEnvironmentChanges Putenv-style change list to apply.
+ */
 HRESULT GuestSession::setEnvironmentChanges(const std::vector<com::Utf8Str> &aEnvironmentChanges)
 {
     LogFlowThisFuncEnter();
@@ -489,6 +557,12 @@ HRESULT GuestSession::setEnvironmentChanges(const std::vector<com::Utf8Str> &aEn
                         aEnvironmentChanges[idxError].c_str(), idxError, vrc);
 }
 
+/**
+ * Returns the base environment reported by the guest.
+ *
+ * @returns COM status code.
+ * @param   aEnvironmentBase    Where to return the base environment as putenv entries.
+ */
 HRESULT GuestSession::getEnvironmentBase(std::vector<com::Utf8Str> &aEnvironmentBase)
 {
     LogFlowThisFuncEnter();
@@ -509,6 +583,12 @@ HRESULT GuestSession::getEnvironmentBase(std::vector<com::Utf8Str> &aEnvironment
     return hrc;
 }
 
+/**
+ * Returns currently tracked guest processes for this session.
+ *
+ * @returns COM status code.
+ * @param   aProcesses          Where to return process interfaces.
+ */
 HRESULT GuestSession::getProcesses(std::vector<ComPtr<IGuestProcess> > &aProcesses)
 {
     LogFlowThisFuncEnter();
@@ -528,24 +608,52 @@ HRESULT GuestSession::getProcesses(std::vector<ComPtr<IGuestProcess> > &aProcess
     return S_OK;
 }
 
+/**
+ * Returns the guest path style used by this session.
+ *
+ * @returns COM status code.
+ * @param   aPathStyle          Where to return the path style.
+ */
 HRESULT GuestSession::getPathStyle(PathStyle_T *aPathStyle)
 {
     *aPathStyle = i_getGuestPathStyle();
     return S_OK;
 }
 
+/**
+ * Returns the current directory of this session.
+ *
+ * @returns COM status code.
+ * @param   aCurrentDirectory   Where to return the current directory.
+ *
+ * @note    Not implemented.
+ */
 HRESULT GuestSession::getCurrentDirectory(com::Utf8Str &aCurrentDirectory)
 {
     RT_NOREF(aCurrentDirectory);
     ReturnComNotImplemented();
 }
 
+/**
+ * Sets the current directory of this session.
+ *
+ * @returns COM status code.
+ * @param   aCurrentDirectory   Current directory to set.
+ *
+ * @note    Not implemented.
+ */
 HRESULT GuestSession::setCurrentDirectory(const com::Utf8Str &aCurrentDirectory)
 {
     RT_NOREF(aCurrentDirectory);
     ReturnComNotImplemented();
 }
 
+/**
+ * Returns the guest user's home directory.
+ *
+ * @returns COM status code.
+ * @param   aUserHome           Where to return the home directory path.
+ */
 HRESULT GuestSession::getUserHome(com::Utf8Str &aUserHome)
 {
     HRESULT hrc = i_isStartedExternal();
@@ -584,6 +692,12 @@ HRESULT GuestSession::getUserHome(com::Utf8Str &aUserHome)
     return hrc;
 }
 
+/**
+ * Returns the guest user's documents directory.
+ *
+ * @returns COM status code.
+ * @param   aUserDocuments      Where to return the documents directory path.
+ */
 HRESULT GuestSession::getUserDocuments(com::Utf8Str &aUserDocuments)
 {
     HRESULT hrc = i_isStartedExternal();
@@ -622,6 +736,12 @@ HRESULT GuestSession::getUserDocuments(com::Utf8Str &aUserDocuments)
     return hrc;
 }
 
+/**
+ * Returns mount points reported by the guest.
+ *
+ * @returns COM status code.
+ * @param   aMountPoints        Where to return mount point paths.
+ */
 HRESULT GuestSession::getMountPoints(std::vector<com::Utf8Str> &aMountPoints)
 {
     HRESULT hrc = i_isStartedExternal();
@@ -660,6 +780,12 @@ HRESULT GuestSession::getMountPoints(std::vector<com::Utf8Str> &aMountPoints)
     return hrc;
 }
 
+/**
+ * Returns currently tracked guest directory handles for this session.
+ *
+ * @returns COM status code.
+ * @param   aDirectories        Where to return directory interfaces.
+ */
 HRESULT GuestSession::getDirectories(std::vector<ComPtr<IGuestDirectory> > &aDirectories)
 {
     LogFlowThisFuncEnter();
@@ -677,6 +803,12 @@ HRESULT GuestSession::getDirectories(std::vector<ComPtr<IGuestDirectory> > &aDir
     return S_OK;
 }
 
+/**
+ * Returns currently tracked guest file handles for this session.
+ *
+ * @returns COM status code.
+ * @param   aFiles              Where to return file interfaces.
+ */
 HRESULT GuestSession::getFiles(std::vector<ComPtr<IGuestFile> > &aFiles)
 {
     LogFlowThisFuncEnter();
@@ -693,6 +825,12 @@ HRESULT GuestSession::getFiles(std::vector<ComPtr<IGuestFile> > &aFiles)
     return S_OK;
 }
 
+/**
+ * Returns the event source associated with this guest session.
+ *
+ * @returns COM status code.
+ * @param   aEventSource        Where to return the event source interface.
+ */
 HRESULT GuestSession::getEventSource(ComPtr<IEventSource> &aEventSource)
 {
     LogFlowThisFuncEnter();
@@ -3982,6 +4120,11 @@ int GuestSession::i_waitForStatusChange(GuestWaitEvent *pEvent, uint32_t fWaitFl
 // implementation of public methods
 /////////////////////////////////////////////////////////////////////////////
 
+/**
+ * Closes this guest session.
+ *
+ * @returns COM status code.
+ */
 HRESULT GuestSession::close()
 {
     AutoCaller autoCaller(this);
@@ -4063,6 +4206,17 @@ HRESULT GuestSession::close()
     return S_OK;
 }
 
+/**
+ * Copies a file from one guest location to another guest location.
+ *
+ * @returns COM status code.
+ * @param   aSource             Source file path on the guest.
+ * @param   aDestination        Destination file path on the guest.
+ * @param   aFlags              Copy flags.
+ * @param   aProgress           Where to return the progress object.
+ *
+ * @note    Not implemented.
+ */
 HRESULT GuestSession::fileCopy(const com::Utf8Str &aSource, const com::Utf8Str &aDestination,
                                const std::vector<FileCopyFlag_T> &aFlags, ComPtr<IProgress> &aProgress)
 {
@@ -4070,6 +4224,15 @@ HRESULT GuestSession::fileCopy(const com::Utf8Str &aSource, const com::Utf8Str &
     ReturnComNotImplemented();
 }
 
+/**
+ * Copies a file from the guest to the host.
+ *
+ * @returns COM status code.
+ * @param   aSource             Source file path on the guest.
+ * @param   aDestination        Destination path on the host.
+ * @param   aFlags              Copy flags.
+ * @param   aProgress           Where to return the progress object.
+ */
 HRESULT GuestSession::fileCopyFromGuest(const com::Utf8Str &aSource, const com::Utf8Str &aDestination,
                                         const std::vector<FileCopyFlag_T> &aFlags,
                                         ComPtr<IProgress> &aProgress)
@@ -4100,6 +4263,15 @@ HRESULT GuestSession::fileCopyFromGuest(const com::Utf8Str &aSource, const com::
     return i_copyFromGuest(SourceSet, aDestination, aProgress);
 }
 
+/**
+ * Copies a file from the host to the guest.
+ *
+ * @returns COM status code.
+ * @param   aSource             Source file path on the host.
+ * @param   aDestination        Destination path on the guest.
+ * @param   aFlags              Copy flags.
+ * @param   aProgress           Where to return the progress object.
+ */
 HRESULT GuestSession::fileCopyToGuest(const com::Utf8Str &aSource, const com::Utf8Str &aDestination,
                                       const std::vector<FileCopyFlag_T> &aFlags, ComPtr<IProgress> &aProgress)
 {
@@ -4129,6 +4301,16 @@ HRESULT GuestSession::fileCopyToGuest(const com::Utf8Str &aSource, const com::Ut
     return i_copyToGuest(SourceSet, aDestination, aProgress);
 }
 
+/**
+ * Copies one or more filesystem objects from guest to host.
+ *
+ * @returns COM status code.
+ * @param   aSources            Source paths on the guest.
+ * @param   aFilters            Optional source filters (per source).
+ * @param   aFlags              Optional flag strings (per source).
+ * @param   aDestination        Destination path on the host.
+ * @param   aProgress           Where to return the progress object.
+ */
 HRESULT GuestSession::copyFromGuest(const std::vector<com::Utf8Str> &aSources, const std::vector<com::Utf8Str> &aFilters,
                                     const std::vector<com::Utf8Str> &aFlags, const com::Utf8Str &aDestination,
                                     ComPtr<IProgress> &aProgress)
@@ -4200,6 +4382,16 @@ HRESULT GuestSession::copyFromGuest(const std::vector<com::Utf8Str> &aSources, c
     return i_copyFromGuest(SourceSet, aDestination, aProgress);
 }
 
+/**
+ * Copies one or more filesystem objects from host to guest.
+ *
+ * @returns COM status code.
+ * @param   aSources            Source paths on the host.
+ * @param   aFilters            Optional source filters (per source).
+ * @param   aFlags              Optional flag strings (per source).
+ * @param   aDestination        Destination path on the guest.
+ * @param   aProgress           Where to return the progress object.
+ */
 HRESULT GuestSession::copyToGuest(const std::vector<com::Utf8Str> &aSources, const std::vector<com::Utf8Str> &aFilters,
                                   const std::vector<com::Utf8Str> &aFlags, const com::Utf8Str &aDestination,
                                   ComPtr<IProgress> &aProgress)
@@ -4267,6 +4459,17 @@ HRESULT GuestSession::copyToGuest(const std::vector<com::Utf8Str> &aSources, con
     return i_copyToGuest(SourceSet, aDestination, aProgress);
 }
 
+/**
+ * Copies a directory from one guest location to another guest location.
+ *
+ * @returns COM status code.
+ * @param   aSource             Source directory path on the guest.
+ * @param   aDestination        Destination path on the guest.
+ * @param   aFlags              Directory copy flags.
+ * @param   aProgress           Where to return the progress object.
+ *
+ * @note    Not implemented.
+ */
 HRESULT GuestSession::directoryCopy(const com::Utf8Str &aSource, const com::Utf8Str &aDestination,
                                     const std::vector<DirectoryCopyFlag_T> &aFlags, ComPtr<IProgress> &aProgress)
 {
@@ -4274,6 +4477,15 @@ HRESULT GuestSession::directoryCopy(const com::Utf8Str &aSource, const com::Utf8
     ReturnComNotImplemented();
 }
 
+/**
+ * Copies a directory from guest to host.
+ *
+ * @returns COM status code.
+ * @param   aSource             Source directory path on the guest.
+ * @param   aDestination        Destination path on the host.
+ * @param   aFlags              Directory copy flags.
+ * @param   aProgress           Where to return the progress object.
+ */
 HRESULT GuestSession::directoryCopyFromGuest(const com::Utf8Str &aSource, const com::Utf8Str &aDestination,
                                              const std::vector<DirectoryCopyFlag_T> &aFlags, ComPtr<IProgress> &aProgress)
 {
@@ -4304,6 +4516,15 @@ HRESULT GuestSession::directoryCopyFromGuest(const com::Utf8Str &aSource, const 
     return i_copyFromGuest(SourceSet, aDestination, aProgress);
 }
 
+/**
+ * Copies a directory from host to guest.
+ *
+ * @returns COM status code.
+ * @param   aSource             Source directory path on the host.
+ * @param   aDestination        Destination path on the guest.
+ * @param   aFlags              Directory copy flags.
+ * @param   aProgress           Where to return the progress object.
+ */
 HRESULT GuestSession::directoryCopyToGuest(const com::Utf8Str &aSource, const com::Utf8Str &aDestination,
                                            const std::vector<DirectoryCopyFlag_T> &aFlags, ComPtr<IProgress> &aProgress)
 {
@@ -4334,6 +4555,14 @@ HRESULT GuestSession::directoryCopyToGuest(const com::Utf8Str &aSource, const co
     return i_copyToGuest(SourceSet, aDestination, aProgress);
 }
 
+/**
+ * Creates a directory on the guest.
+ *
+ * @returns COM status code.
+ * @param   aPath               Directory path to create.
+ * @param   aMode               Creation mode (octal).
+ * @param   aFlags              Directory creation flags.
+ */
 HRESULT GuestSession::directoryCreate(const com::Utf8Str &aPath, ULONG aMode,
                                       const std::vector<DirectoryCreateFlag_T> &aFlags)
 {
@@ -4386,6 +4615,16 @@ HRESULT GuestSession::directoryCreate(const com::Utf8Str &aPath, ULONG aMode,
     return hrc;
 }
 
+/**
+ * Creates a temporary directory on the guest.
+ *
+ * @returns COM status code.
+ * @param   aTemplateName       Name template.
+ * @param   aMode               Creation mode (octal, unless secure mode is requested).
+ * @param   aPath               Base path on the guest.
+ * @param   aSecure             Whether to request secure creation.
+ * @param   aDirectory          Where to return the created directory path.
+ */
 HRESULT GuestSession::directoryCreateTemp(const com::Utf8Str &aTemplateName, ULONG aMode, const com::Utf8Str &aPath,
                                           BOOL aSecure, com::Utf8Str &aDirectory)
 {
@@ -4426,6 +4665,14 @@ HRESULT GuestSession::directoryCreateTemp(const com::Utf8Str &aTemplateName, ULO
     return hrc;
 }
 
+/**
+ * Checks whether a directory exists on the guest.
+ *
+ * @returns COM status code.
+ * @param   aPath               Directory path to check.
+ * @param   aFollowSymlinks     Whether to follow symbolic links.
+ * @param   aExists             Where to return existence information.
+ */
 HRESULT GuestSession::directoryExists(const com::Utf8Str &aPath, BOOL aFollowSymlinks, BOOL *aExists)
 {
     if (RT_UNLIKELY(aPath.isEmpty()))
@@ -4481,6 +4728,15 @@ HRESULT GuestSession::directoryExists(const com::Utf8Str &aPath, BOOL aFollowSym
     return hrc;
 }
 
+/**
+ * Opens a guest directory and returns a directory object.
+ *
+ * @returns COM status code.
+ * @param   aPath               Directory path to open.
+ * @param   aFilter             Optional filter string.
+ * @param   aFlags              Directory open flags.
+ * @param   aDirectory          Where to return the opened directory object.
+ */
 HRESULT GuestSession::directoryOpen(const com::Utf8Str &aPath, const com::Utf8Str &aFilter,
                                     const std::vector<DirectoryOpenFlag_T> &aFlags, ComPtr<IGuestDirectory> &aDirectory)
 {
@@ -4543,6 +4799,12 @@ HRESULT GuestSession::directoryOpen(const com::Utf8Str &aPath, const com::Utf8St
     return hrc;
 }
 
+/**
+ * Removes a guest directory.
+ *
+ * @returns COM status code.
+ * @param   aPath               Directory path to remove.
+ */
 HRESULT GuestSession::directoryRemove(const com::Utf8Str &aPath)
 {
     if (RT_UNLIKELY(aPath.c_str() == NULL || *aPath.c_str() == '\0'))
@@ -4584,6 +4846,14 @@ HRESULT GuestSession::directoryRemove(const com::Utf8Str &aPath)
     return hrc;
 }
 
+/**
+ * Removes a guest directory recursively.
+ *
+ * @returns COM status code.
+ * @param   aPath               Directory path to remove.
+ * @param   aFlags              Recursive removal flags.
+ * @param   aProgress           Where to return the progress object.
+ */
 HRESULT GuestSession::directoryRemoveRecursive(const com::Utf8Str &aPath, const std::vector<DirectoryRemoveRecFlag_T> &aFlags,
                                                ComPtr<IProgress> &aProgress)
 {
@@ -4670,6 +4940,13 @@ HRESULT GuestSession::directoryRemoveRecursive(const com::Utf8Str &aPath, const 
     return hrc;
 }
 
+/**
+ * Schedules setting an environment variable for subsequently created processes.
+ *
+ * @returns COM status code.
+ * @param   aName               Environment variable name.
+ * @param   aValue              Environment variable value.
+ */
 HRESULT GuestSession::environmentScheduleSet(const com::Utf8Str &aName, const com::Utf8Str &aValue)
 {
     LogFlowThisFuncEnter();
@@ -4690,6 +4967,12 @@ HRESULT GuestSession::environmentScheduleSet(const com::Utf8Str &aName, const co
     return hrc;
 }
 
+/**
+ * Schedules unsetting an environment variable for subsequently created processes.
+ *
+ * @returns COM status code.
+ * @param   aName               Environment variable name.
+ */
 HRESULT GuestSession::environmentScheduleUnset(const com::Utf8Str &aName)
 {
     LogFlowThisFuncEnter();
@@ -4710,6 +4993,13 @@ HRESULT GuestSession::environmentScheduleUnset(const com::Utf8Str &aName)
     return hrc;
 }
 
+/**
+ * Gets a variable from the base environment reported by the guest.
+ *
+ * @returns COM status code.
+ * @param   aName               Environment variable name.
+ * @param   aValue              Where to return the variable value.
+ */
 HRESULT GuestSession::environmentGetBaseVariable(const com::Utf8Str &aName, com::Utf8Str &aValue)
 {
     LogFlowThisFuncEnter();
@@ -4735,6 +5025,13 @@ HRESULT GuestSession::environmentGetBaseVariable(const com::Utf8Str &aName, com:
     return hrc;
 }
 
+/**
+ * Checks whether a variable exists in the base environment reported by the guest.
+ *
+ * @returns COM status code.
+ * @param   aName               Environment variable name.
+ * @param   aExists             Where to return existence information.
+ */
 HRESULT GuestSession::environmentDoesBaseVariableExist(const com::Utf8Str &aName, BOOL *aExists)
 {
     LogFlowThisFuncEnter();
@@ -4756,6 +5053,18 @@ HRESULT GuestSession::environmentDoesBaseVariableExist(const com::Utf8Str &aName
     return hrc;
 }
 
+/**
+ * Creates a temporary file on the guest.
+ *
+ * @returns COM status code.
+ * @param   aTemplateName       Name template.
+ * @param   aMode               Creation mode.
+ * @param   aPath               Base path on the guest.
+ * @param   aSecure             Whether to request secure creation.
+ * @param   aFile               Where to return the created file object.
+ *
+ * @note    Not implemented.
+ */
 HRESULT GuestSession::fileCreateTemp(const com::Utf8Str &aTemplateName, ULONG aMode, const com::Utf8Str &aPath, BOOL aSecure,
                                      ComPtr<IGuestFile> &aFile)
 {
@@ -4763,6 +5072,14 @@ HRESULT GuestSession::fileCreateTemp(const com::Utf8Str &aTemplateName, ULONG aM
     ReturnComNotImplemented();
 }
 
+/**
+ * Checks whether a file exists on the guest.
+ *
+ * @returns COM status code.
+ * @param   aPath               File path to check.
+ * @param   aFollowSymlinks     Whether to follow symbolic links.
+ * @param   aExists             Where to return existence information.
+ */
 HRESULT GuestSession::fileExists(const com::Utf8Str &aPath, BOOL aFollowSymlinks, BOOL *aExists)
 {
     /* By default we return non-existent. */
@@ -4821,6 +5138,16 @@ HRESULT GuestSession::fileExists(const com::Utf8Str &aPath, BOOL aFollowSymlinks
     return hrc;
 }
 
+/**
+ * Opens a guest file using the legacy open parameters.
+ *
+ * @returns COM status code.
+ * @param   aPath               File path to open.
+ * @param   aAccessMode         File access mode.
+ * @param   aOpenAction         File open action.
+ * @param   aCreationMode       File creation mode.
+ * @param   aFile               Where to return the opened file object.
+ */
 HRESULT GuestSession::fileOpen(const com::Utf8Str &aPath, FileAccessMode_T aAccessMode, FileOpenAction_T aOpenAction,
                                ULONG aCreationMode, ComPtr<IGuestFile> &aFile)
 {
@@ -4830,6 +5157,18 @@ HRESULT GuestSession::fileOpen(const com::Utf8Str &aPath, FileAccessMode_T aAcce
     return fileOpenEx(aPath, aAccessMode, aOpenAction, FileSharingMode_All, aCreationMode, EmptyFlags, aFile);
 }
 
+/**
+ * Opens a guest file using extended open parameters.
+ *
+ * @returns COM status code.
+ * @param   aPath               File path to open.
+ * @param   aAccessMode         File access mode.
+ * @param   aOpenAction         File open action.
+ * @param   aSharingMode        File sharing mode.
+ * @param   aCreationMode       File creation mode.
+ * @param   aFlags              Extended file open flags.
+ * @param   aFile               Where to return the opened file object.
+ */
 HRESULT GuestSession::fileOpenEx(const com::Utf8Str &aPath, FileAccessMode_T aAccessMode, FileOpenAction_T aOpenAction,
                                  FileSharingMode_T aSharingMode, ULONG aCreationMode,
                                  const std::vector<FileOpenExFlag_T> &aFlags, ComPtr<IGuestFile> &aFile)
@@ -4934,6 +5273,14 @@ HRESULT GuestSession::fileOpenEx(const com::Utf8Str &aPath, FileAccessMode_T aAc
     return hrc;
 }
 
+/**
+ * Queries the size of a guest file.
+ *
+ * @returns COM status code.
+ * @param   aPath               File path to query.
+ * @param   aFollowSymlinks     Whether to follow symbolic links.
+ * @param   aSize               Where to return the file size in bytes.
+ */
 HRESULT GuestSession::fileQuerySize(const com::Utf8Str &aPath, BOOL aFollowSymlinks, LONG64 *aSize)
 {
     if (aPath.isEmpty())
@@ -4964,6 +5311,13 @@ HRESULT GuestSession::fileQuerySize(const com::Utf8Str &aPath, BOOL aFollowSymli
     return hrc;
 }
 
+/**
+ * Queries free space for the file system containing the given path.
+ *
+ * @returns COM status code.
+ * @param   aPath               Path used to identify the target file system.
+ * @param   aFreeSpace          Where to return free space in bytes.
+ */
 HRESULT GuestSession::fsQueryFreeSpace(const com::Utf8Str &aPath, LONG64 *aFreeSpace)
 {
     ComPtr<IGuestFsInfo> pFsInfo;
@@ -4974,6 +5328,13 @@ HRESULT GuestSession::fsQueryFreeSpace(const com::Utf8Str &aPath, LONG64 *aFreeS
     return hrc;
 }
 
+/**
+ * Queries file system information for the given guest path.
+ *
+ * @returns COM status code.
+ * @param   aPath               Path used to identify the target file system.
+ * @param   aInfo               Where to return the file system info object.
+ */
 HRESULT GuestSession::fsQueryInfo(const com::Utf8Str &aPath, ComPtr<IGuestFsInfo> &aInfo)
 {
     if (aPath.isEmpty())
@@ -5014,6 +5375,14 @@ HRESULT GuestSession::fsQueryInfo(const com::Utf8Str &aPath, ComPtr<IGuestFsInfo
     return hrc;
 }
 
+/**
+ * Checks whether a filesystem object exists on the guest.
+ *
+ * @returns COM status code.
+ * @param   aPath               Path to check.
+ * @param   aFollowSymlinks     Whether to follow symbolic links.
+ * @param   aExists             Where to return existence information.
+ */
 HRESULT GuestSession::fsObjExists(const com::Utf8Str &aPath, BOOL aFollowSymlinks, BOOL *aExists)
 {
     if (aPath.isEmpty())
@@ -5055,6 +5424,14 @@ HRESULT GuestSession::fsObjExists(const com::Utf8Str &aPath, BOOL aFollowSymlink
     return hrc;
 }
 
+/**
+ * Queries information for a guest filesystem object.
+ *
+ * @returns COM status code.
+ * @param   aPath               Path to query.
+ * @param   aFollowSymlinks     Whether to follow symbolic links.
+ * @param   aInfo               Where to return the filesystem object info object.
+ */
 HRESULT GuestSession::fsObjQueryInfo(const com::Utf8Str &aPath, BOOL aFollowSymlinks, ComPtr<IGuestFsObjInfo> &aInfo)
 {
     if (aPath.isEmpty())
@@ -5097,6 +5474,12 @@ HRESULT GuestSession::fsObjQueryInfo(const com::Utf8Str &aPath, BOOL aFollowSyml
     return hrc;
 }
 
+/**
+ * Removes a filesystem object from the guest.
+ *
+ * @returns COM status code.
+ * @param   aPath               Path to remove.
+ */
 HRESULT GuestSession::fsObjRemove(const com::Utf8Str &aPath)
 {
     if (RT_UNLIKELY(aPath.isEmpty()))
@@ -5125,12 +5508,29 @@ HRESULT GuestSession::fsObjRemove(const com::Utf8Str &aPath)
     return hrc;
 }
 
+/**
+ * Removes multiple filesystem objects from the guest.
+ *
+ * @returns COM status code.
+ * @param   aPaths              Paths to remove.
+ * @param   aProgress           Where to return the progress object.
+ *
+ * @note    Not implemented.
+ */
 HRESULT GuestSession::fsObjRemoveArray(const std::vector<com::Utf8Str> &aPaths, ComPtr<IProgress> &aProgress)
 {
     RT_NOREF(aPaths, aProgress);
     return E_NOTIMPL;
 }
 
+/**
+ * Renames a filesystem object on the guest.
+ *
+ * @returns COM status code.
+ * @param   aSource             Source path.
+ * @param   aDestination        Destination path.
+ * @param   aFlags              Rename flags.
+ */
 HRESULT GuestSession::fsObjRename(const com::Utf8Str &aSource,
                                   const com::Utf8Str &aDestination,
                                   const std::vector<FsObjRenameFlag_T> &aFlags)
@@ -5191,6 +5591,17 @@ HRESULT GuestSession::fsObjRename(const com::Utf8Str &aSource,
     return hrc;
 }
 
+/**
+ * Moves a filesystem object on the guest.
+ *
+ * @returns COM status code.
+ * @param   aSource             Source path.
+ * @param   aDestination        Destination path.
+ * @param   aFlags              Move flags.
+ * @param   aProgress           Where to return the progress object.
+ *
+ * @note    Not implemented.
+ */
 HRESULT GuestSession::fsObjMove(const com::Utf8Str &aSource, const com::Utf8Str &aDestination,
                                 const std::vector<FsObjMoveFlag_T> &aFlags, ComPtr<IProgress> &aProgress)
 {
@@ -5198,6 +5609,17 @@ HRESULT GuestSession::fsObjMove(const com::Utf8Str &aSource, const com::Utf8Str 
     ReturnComNotImplemented();
 }
 
+/**
+ * Moves multiple filesystem objects on the guest.
+ *
+ * @returns COM status code.
+ * @param   aSource             Source paths.
+ * @param   aDestination        Destination path.
+ * @param   aFlags              Move flags.
+ * @param   aProgress           Where to return the progress object.
+ *
+ * @note    Not implemented.
+ */
 HRESULT GuestSession::fsObjMoveArray(const std::vector<com::Utf8Str> &aSource,
                                      const com::Utf8Str &aDestination,
                                      const std::vector<FsObjMoveFlag_T> &aFlags,
@@ -5207,6 +5629,17 @@ HRESULT GuestSession::fsObjMoveArray(const std::vector<com::Utf8Str> &aSource,
     ReturnComNotImplemented();
 }
 
+/**
+ * Copies multiple filesystem objects on the guest.
+ *
+ * @returns COM status code.
+ * @param   aSource             Source paths.
+ * @param   aDestination        Destination path.
+ * @param   aFlags              Copy flags.
+ * @param   aProgress           Where to return the progress object.
+ *
+ * @note    Not implemented.
+ */
 HRESULT GuestSession::fsObjCopyArray(const std::vector<com::Utf8Str> &aSource,
                                      const com::Utf8Str &aDestination,
                                      const std::vector<FileCopyFlag_T> &aFlags,
@@ -5216,6 +5649,17 @@ HRESULT GuestSession::fsObjCopyArray(const std::vector<com::Utf8Str> &aSource,
     ReturnComNotImplemented();
 }
 
+/**
+ * Sets an ACL on a guest filesystem object.
+ *
+ * @returns COM status code.
+ * @param   aPath               Path to modify.
+ * @param   aFollowSymlinks     Whether to follow symbolic links.
+ * @param   aAcl                ACL string.
+ * @param   aMode               ACL mode/format selector.
+ *
+ * @note    Not implemented.
+ */
 HRESULT GuestSession::fsObjSetACL(const com::Utf8Str &aPath, BOOL aFollowSymlinks, const com::Utf8Str &aAcl, ULONG aMode)
 {
     RT_NOREF(aPath, aFollowSymlinks, aAcl, aMode);
@@ -5223,6 +5667,18 @@ HRESULT GuestSession::fsObjSetACL(const com::Utf8Str &aPath, BOOL aFollowSymlink
 }
 
 
+/**
+ * Creates a guest process object and starts it with default priority settings.
+ *
+ * @returns COM status code.
+ * @param   aExecutable         Executable path.
+ * @param   aArguments          Process arguments.
+ * @param   aCwd                Optional working directory.
+ * @param   aEnvironment        Environment changes.
+ * @param   aFlags              Process creation flags.
+ * @param   aTimeoutMS          Timeout in milliseconds.
+ * @param   aGuestProcess       Where to return the created process object.
+ */
 HRESULT GuestSession::processCreate(const com::Utf8Str &aExecutable, const std::vector<com::Utf8Str> &aArguments,
                                     const com::Utf8Str &aCwd,
                                     const std::vector<com::Utf8Str> &aEnvironment,
@@ -5236,6 +5692,20 @@ HRESULT GuestSession::processCreate(const com::Utf8Str &aExecutable, const std::
                            ProcessPriority_Default, affinityIgnored, aGuestProcess);
 }
 
+/**
+ * Creates a guest process object and starts it using extended settings.
+ *
+ * @returns COM status code.
+ * @param   aExecutable         Executable path.
+ * @param   aArguments          Process arguments.
+ * @param   aCwd                Optional working directory.
+ * @param   aEnvironment        Environment changes.
+ * @param   aFlags              Process creation flags.
+ * @param   aTimeoutMS          Timeout in milliseconds.
+ * @param   aPriority           Process priority.
+ * @param   aAffinity           CPU affinity list.
+ * @param   aGuestProcess       Where to return the created process object.
+ */
 HRESULT GuestSession::processCreateEx(const com::Utf8Str &aExecutable, const std::vector<com::Utf8Str> &aArguments,
                                       const com::Utf8Str &aCwd,
                                       const std::vector<com::Utf8Str> &aEnvironment,
@@ -5362,6 +5832,13 @@ HRESULT GuestSession::processCreateEx(const com::Utf8Str &aExecutable, const std
     return hrc;
 }
 
+/**
+ * Returns a tracked guest process by PID.
+ *
+ * @returns COM status code.
+ * @param   aPid                Guest PID.
+ * @param   aGuestProcess       Where to return the process object.
+ */
 HRESULT GuestSession::processGet(ULONG aPid, ComPtr<IGuestProcess> &aGuestProcess)
 
 {
@@ -5388,12 +5865,31 @@ HRESULT GuestSession::processGet(ULONG aPid, ComPtr<IGuestProcess> &aGuestProces
     return hrc;
 }
 
+/**
+ * Creates a symbolic link on the guest.
+ *
+ * @returns COM status code.
+ * @param   aSource             Source path.
+ * @param   aTarget             Symlink target path.
+ * @param   aType               Symlink type.
+ *
+ * @note    Not implemented.
+ */
 HRESULT GuestSession::symlinkCreate(const com::Utf8Str &aSource, const com::Utf8Str &aTarget, SymlinkType_T aType)
 {
     RT_NOREF(aSource, aTarget, aType);
     ReturnComNotImplemented();
 }
 
+/**
+ * Checks whether a symbolic link exists on the guest.
+ *
+ * @returns COM status code.
+ * @param   aSymlink            Symlink path.
+ * @param   aExists             Where to return existence information.
+ *
+ * @note    Not implemented.
+ */
 HRESULT GuestSession::symlinkExists(const com::Utf8Str &aSymlink, BOOL *aExists)
 
 {
@@ -5401,6 +5897,16 @@ HRESULT GuestSession::symlinkExists(const com::Utf8Str &aSymlink, BOOL *aExists)
     ReturnComNotImplemented();
 }
 
+/**
+ * Reads a symbolic link target on the guest.
+ *
+ * @returns COM status code.
+ * @param   aSymlink            Symlink path to read.
+ * @param   aFlags              Symlink read flags.
+ * @param   aTarget             Where to return the target path.
+ *
+ * @note    Not implemented.
+ */
 HRESULT GuestSession::symlinkRead(const com::Utf8Str &aSymlink, const std::vector<SymlinkReadFlag_T> &aFlags,
                                   com::Utf8Str &aTarget)
 {
@@ -5408,7 +5914,16 @@ HRESULT GuestSession::symlinkRead(const com::Utf8Str &aSymlink, const std::vecto
     ReturnComNotImplemented();
 }
 
-/* Deprecated; use GuestSession::waitForArray() instead. */
+/**
+ * Waits for selected guest session events.
+ *
+ * @returns COM status code.
+ * @param   aWaitFor            Bitmask of GuestSessionWaitForFlag_T values.
+ * @param   aTimeoutMS          Timeout in milliseconds.
+ * @param   aReason             Where to return the wait result.
+ *
+ * @note    Deprecated; use GuestSession::waitForArray() instead.
+ */
 HRESULT GuestSession::waitFor(ULONG aWaitFor, ULONG aTimeoutMS, GuestSessionWaitResult_T *aReason)
 {
     /* Note: No call to i_isStartedExternal() needed here, as the session might not has been started (yet). */
@@ -5454,6 +5969,14 @@ HRESULT GuestSession::waitFor(ULONG aWaitFor, ULONG aTimeoutMS, GuestSessionWait
     return hrc;
 }
 
+/**
+ * Waits for selected guest session events.
+ *
+ * @returns COM status code.
+ * @param   aWaitFor            List of wait flags to combine.
+ * @param   aTimeoutMS          Timeout in milliseconds.
+ * @param   aReason             Where to return the wait result.
+ */
 HRESULT GuestSession::waitForArray(const std::vector<GuestSessionWaitForFlag_T> &aWaitFor, ULONG aTimeoutMS,
                                    GuestSessionWaitResult_T *aReason)
 {
@@ -5465,6 +5988,7 @@ HRESULT GuestSession::waitForArray(const std::vector<GuestSessionWaitForFlag_T> 
      * Note: Do not hold any locks here while waiting!
      */
     uint32_t fWaitFor = GuestSessionWaitForFlag_None;
+    /* Convert the API flag list to the internal bitmask form used by waitFor(). */
     for (size_t i = 0; i < aWaitFor.size(); i++)
         fWaitFor |= aWaitFor[i];
 

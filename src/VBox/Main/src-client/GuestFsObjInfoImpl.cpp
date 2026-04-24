@@ -1,4 +1,4 @@
-/* $Id: GuestFsObjInfoImpl.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: GuestFsObjInfoImpl.cpp 114011 2026-04-24 10:14:36Z andreas.loeffler@oracle.com $ */
 /** @file
  * VirtualBox Main - Guest file system object information handling.
  */
@@ -50,12 +50,20 @@
 
 DEFINE_EMPTY_CTOR_DTOR(GuestFsObjInfo)
 
+/**
+ * Called by the COM class factory after construction.
+ *
+ * @returns COM status code.
+ */
 HRESULT GuestFsObjInfo::FinalConstruct(void)
 {
     LogFlowThisFuncEnter();
     return BaseFinalConstruct();
 }
 
+/**
+ * Called by the COM runtime before object destruction.
+ */
 void GuestFsObjInfo::FinalRelease(void)
 {
     LogFlowThisFuncEnter();
@@ -67,6 +75,12 @@ void GuestFsObjInfo::FinalRelease(void)
 // public initializer/uninitializer for internal purposes only
 /////////////////////////////////////////////////////////////////////////////
 
+/**
+ * Initializes this guest file system object information instance.
+ *
+ * @returns VBox status code.
+ * @param   objData             Source object information to copy.
+ */
 int GuestFsObjInfo::init(const GuestFsObjData &objData)
 {
     LogFlowThisFuncEnter();
@@ -100,6 +114,12 @@ void GuestFsObjInfo::uninit(void)
 // implementation of wrapped private getters/setters for attributes
 /////////////////////////////////////////////////////////////////////////////
 
+/**
+ * Returns the last access time.
+ *
+ * @returns COM status code.
+ * @param   aAccessTime         Where to return the access time.
+ */
 HRESULT GuestFsObjInfo::getAccessTime(LONG64 *aAccessTime)
 {
     *aAccessTime = mData.mAccessTime;
@@ -107,6 +127,12 @@ HRESULT GuestFsObjInfo::getAccessTime(LONG64 *aAccessTime)
     return S_OK;
 }
 
+/**
+ * Returns the allocated size on disk.
+ *
+ * @returns COM status code.
+ * @param   aAllocatedSize      Where to return the allocated size in bytes.
+ */
 HRESULT GuestFsObjInfo::getAllocatedSize(LONG64 *aAllocatedSize)
 {
     *aAllocatedSize = mData.mAllocatedSize;
@@ -114,6 +140,12 @@ HRESULT GuestFsObjInfo::getAllocatedSize(LONG64 *aAllocatedSize)
     return S_OK;
 }
 
+/**
+ * Returns the object creation (birth) time.
+ *
+ * @returns COM status code.
+ * @param   aBirthTime          Where to return the birth time.
+ */
 HRESULT GuestFsObjInfo::getBirthTime(LONG64 *aBirthTime)
 {
     *aBirthTime = mData.mBirthTime;
@@ -121,6 +153,12 @@ HRESULT GuestFsObjInfo::getBirthTime(LONG64 *aBirthTime)
     return S_OK;
 }
 
+/**
+ * Returns the metadata change time.
+ *
+ * @returns COM status code.
+ * @param   aChangeTime         Where to return the change time.
+ */
 HRESULT GuestFsObjInfo::getChangeTime(LONG64 *aChangeTime)
 {
     *aChangeTime = mData.mChangeTime;
@@ -130,6 +168,12 @@ HRESULT GuestFsObjInfo::getChangeTime(LONG64 *aChangeTime)
 
 
 
+/**
+ * Returns the device number for special files.
+ *
+ * @returns COM status code.
+ * @param   aDeviceNumber       Where to return the device number.
+ */
 HRESULT GuestFsObjInfo::getDeviceNumber(ULONG *aDeviceNumber)
 {
     *aDeviceNumber = mData.mDeviceNumber;
@@ -137,6 +181,12 @@ HRESULT GuestFsObjInfo::getDeviceNumber(ULONG *aDeviceNumber)
     return S_OK;
 }
 
+/**
+ * Returns platform-specific file attributes as a string.
+ *
+ * @returns COM status code.
+ * @param   aFileAttributes     Where to return the UTF-8 attribute string.
+ */
 HRESULT GuestFsObjInfo::getFileAttributes(com::Utf8Str &aFileAttributes)
 {
     aFileAttributes = mData.mFileAttrs;
@@ -144,6 +194,12 @@ HRESULT GuestFsObjInfo::getFileAttributes(com::Utf8Str &aFileAttributes)
     return S_OK;
 }
 
+/**
+ * Returns the generation identifier.
+ *
+ * @returns COM status code.
+ * @param   aGenerationId       Where to return the generation ID.
+ */
 HRESULT GuestFsObjInfo::getGenerationId(ULONG *aGenerationId)
 {
     *aGenerationId = mData.mGenerationID;
@@ -151,6 +207,12 @@ HRESULT GuestFsObjInfo::getGenerationId(ULONG *aGenerationId)
     return S_OK;
 }
 
+/**
+ * Returns the group identifier.
+ *
+ * @returns COM status code.
+ * @param   aGID                Where to return the group ID.
+ */
 HRESULT GuestFsObjInfo::getGID(LONG *aGID)
 {
     *aGID = mData.mGID;
@@ -158,6 +220,12 @@ HRESULT GuestFsObjInfo::getGID(LONG *aGID)
     return S_OK;
 }
 
+/**
+ * Returns the group name.
+ *
+ * @returns COM status code.
+ * @param   aGroupName          Where to return the UTF-8 group name.
+ */
 HRESULT GuestFsObjInfo::getGroupName(com::Utf8Str &aGroupName)
 {
     aGroupName = mData.mGroupName;
@@ -165,6 +233,12 @@ HRESULT GuestFsObjInfo::getGroupName(com::Utf8Str &aGroupName)
     return S_OK;
 }
 
+/**
+ * Returns the hard link count.
+ *
+ * @returns COM status code.
+ * @param   aHardLinks          Where to return the hard link count.
+ */
 HRESULT GuestFsObjInfo::getHardLinks(ULONG *aHardLinks)
 {
     *aHardLinks = mData.mNumHardLinks;
@@ -172,6 +246,12 @@ HRESULT GuestFsObjInfo::getHardLinks(ULONG *aHardLinks)
     return S_OK;
 }
 
+/**
+ * Returns the content modification time.
+ *
+ * @returns COM status code.
+ * @param   aModificationTime   Where to return the modification time.
+ */
 HRESULT GuestFsObjInfo::getModificationTime(LONG64 *aModificationTime)
 {
     *aModificationTime = mData.mModificationTime;
@@ -179,6 +259,12 @@ HRESULT GuestFsObjInfo::getModificationTime(LONG64 *aModificationTime)
     return S_OK;
 }
 
+/**
+ * Returns the object name.
+ *
+ * @returns COM status code.
+ * @param   aName               Where to return the UTF-8 object name.
+ */
 HRESULT GuestFsObjInfo::getName(com::Utf8Str &aName)
 {
     aName = mData.mName;
@@ -186,6 +272,12 @@ HRESULT GuestFsObjInfo::getName(com::Utf8Str &aName)
     return S_OK;
 }
 
+/**
+ * Returns the file-system node identifier.
+ *
+ * @returns COM status code.
+ * @param   aNodeId             Where to return the node ID.
+ */
 HRESULT GuestFsObjInfo::getNodeId(LONG64 *aNodeId)
 {
     *aNodeId = mData.mNodeID;
@@ -193,6 +285,12 @@ HRESULT GuestFsObjInfo::getNodeId(LONG64 *aNodeId)
     return S_OK;
 }
 
+/**
+ * Returns the device identifier associated with the node ID.
+ *
+ * @returns COM status code.
+ * @param   aNodeIdDevice       Where to return the node-ID device value.
+ */
 HRESULT GuestFsObjInfo::getNodeIdDevice(ULONG *aNodeIdDevice)
 {
     *aNodeIdDevice = mData.mNodeIDDevice;
@@ -200,6 +298,12 @@ HRESULT GuestFsObjInfo::getNodeIdDevice(ULONG *aNodeIdDevice)
     return S_OK;
 }
 
+/**
+ * Returns the logical object size.
+ *
+ * @returns COM status code.
+ * @param   aObjectSize         Where to return the object size in bytes.
+ */
 HRESULT GuestFsObjInfo::getObjectSize(LONG64 *aObjectSize)
 {
     *aObjectSize = mData.mObjectSize;
@@ -207,6 +311,12 @@ HRESULT GuestFsObjInfo::getObjectSize(LONG64 *aObjectSize)
     return S_OK;
 }
 
+/**
+ * Returns the file system object type.
+ *
+ * @returns COM status code.
+ * @param   aType               Where to return the object type.
+ */
 HRESULT GuestFsObjInfo::getType(FsObjType_T *aType)
 {
     *aType = mData.mType;
@@ -214,6 +324,12 @@ HRESULT GuestFsObjInfo::getType(FsObjType_T *aType)
     return S_OK;
 }
 
+/**
+ * Returns the user identifier.
+ *
+ * @returns COM status code.
+ * @param   aUID                Where to return the user ID.
+ */
 HRESULT GuestFsObjInfo::getUID(LONG *aUID)
 {
     *aUID = mData.mUID;
@@ -221,6 +337,12 @@ HRESULT GuestFsObjInfo::getUID(LONG *aUID)
     return S_OK;
 }
 
+/**
+ * Returns user-defined flags.
+ *
+ * @returns COM status code.
+ * @param   aUserFlags          Where to return the user flags.
+ */
 HRESULT GuestFsObjInfo::getUserFlags(ULONG *aUserFlags)
 {
     *aUserFlags = mData.mUserFlags;
@@ -228,10 +350,15 @@ HRESULT GuestFsObjInfo::getUserFlags(ULONG *aUserFlags)
     return S_OK;
 }
 
+/**
+ * Returns the user name.
+ *
+ * @returns COM status code.
+ * @param   aUserName           Where to return the UTF-8 user name.
+ */
 HRESULT GuestFsObjInfo::getUserName(com::Utf8Str &aUserName)
 {
     aUserName = mData.mUserName;
 
     return S_OK;
 }
-

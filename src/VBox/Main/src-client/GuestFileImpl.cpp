@@ -1,4 +1,4 @@
-/* $Id: GuestFileImpl.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: GuestFileImpl.cpp 114011 2026-04-24 10:14:36Z andreas.loeffler@oracle.com $ */
 /** @file
  * VirtualBox Main - Guest file handling.
  */
@@ -122,12 +122,20 @@ VBOX_LISTENER_DECLARE(GuestFileListenerImpl)
 
 DEFINE_EMPTY_CTOR_DTOR(GuestFile)
 
+/**
+ * Called by the COM class factory after construction.
+ *
+ * @returns COM status code.
+ */
 HRESULT GuestFile::FinalConstruct(void)
 {
     LogFlowThisFuncEnter();
     return BaseFinalConstruct();
 }
 
+/**
+ * Called by the COM runtime before object destruction.
+ */
 void GuestFile::FinalRelease(void)
 {
     LogFlowThisFuncEnter();
@@ -251,6 +259,12 @@ void GuestFile::uninit(void)
 // implementation of public getters/setters for attributes
 /////////////////////////////////////////////////////////////////////////////
 
+/**
+ * Returns the file creation mode used when opening this guest file.
+ *
+ * @returns COM status code.
+ * @param   aCreationMode       Where to return the creation mode.
+ */
 HRESULT GuestFile::getCreationMode(ULONG *aCreationMode)
 {
     AutoReadLock alock(this COMMA_LOCKVAL_SRC_POS);
@@ -260,6 +274,12 @@ HRESULT GuestFile::getCreationMode(ULONG *aCreationMode)
     return S_OK;
 }
 
+/**
+ * Returns the file open action used when opening this guest file.
+ *
+ * @returns COM status code.
+ * @param   aOpenAction         Where to return the open action.
+ */
 HRESULT GuestFile::getOpenAction(FileOpenAction_T *aOpenAction)
 {
     AutoReadLock alock(this COMMA_LOCKVAL_SRC_POS);
@@ -269,6 +289,12 @@ HRESULT GuestFile::getOpenAction(FileOpenAction_T *aOpenAction)
     return S_OK;
 }
 
+/**
+ * Returns the event source associated with this guest file.
+ *
+ * @returns COM status code.
+ * @param   aEventSource        Where to return the event source interface.
+ */
 HRESULT GuestFile::getEventSource(ComPtr<IEventSource> &aEventSource)
 {
     /* No need to lock - lifetime constant. */
@@ -277,6 +303,12 @@ HRESULT GuestFile::getEventSource(ComPtr<IEventSource> &aEventSource)
     return S_OK;
 }
 
+/**
+ * Returns the guest file name/path used to open this guest file.
+ *
+ * @returns COM status code.
+ * @param   aFilename           Where to return the UTF-8 file name/path.
+ */
 HRESULT GuestFile::getFilename(com::Utf8Str &aFilename)
 {
     AutoReadLock alock(this COMMA_LOCKVAL_SRC_POS);
@@ -286,6 +318,12 @@ HRESULT GuestFile::getFilename(com::Utf8Str &aFilename)
     return S_OK;
 }
 
+/**
+ * Returns the object identifier of this guest file object.
+ *
+ * @returns COM status code.
+ * @param   aId                 Where to return the object ID.
+ */
 HRESULT GuestFile::getId(ULONG *aId)
 {
     AutoReadLock alock(this COMMA_LOCKVAL_SRC_POS);
@@ -295,6 +333,12 @@ HRESULT GuestFile::getId(ULONG *aId)
     return S_OK;
 }
 
+/**
+ * Returns the file size recorded when the guest file was opened.
+ *
+ * @returns COM status code.
+ * @param   aInitialSize        Where to return the initial file size in bytes.
+ */
 HRESULT GuestFile::getInitialSize(LONG64 *aInitialSize)
 {
     AutoReadLock alock(this COMMA_LOCKVAL_SRC_POS);
@@ -304,12 +348,18 @@ HRESULT GuestFile::getInitialSize(LONG64 *aInitialSize)
     return S_OK;
 }
 
+/**
+ * Returns the current guest file offset as tracked by Main.
+ *
+ * @returns COM status code.
+ * @param   aOffset             Where to return the current file offset in bytes.
+ */
 HRESULT GuestFile::getOffset(LONG64 *aOffset)
 {
     AutoReadLock alock(this COMMA_LOCKVAL_SRC_POS);
 
     /*
-     * This is updated by GuestFile::i_onFileNotify() when read, write and seek
+     * This is updated by GuestFile::i_onNotify() when read, write and seek
      * confirmation messages are recevied.
      *
      * Note! This will not be accurate with older (< 5.2.32, 6.0.0 - 6.0.9)
@@ -321,6 +371,12 @@ HRESULT GuestFile::getOffset(LONG64 *aOffset)
     return S_OK;
 }
 
+/**
+ * Returns the file access mode used when opening this guest file.
+ *
+ * @returns COM status code.
+ * @param   aAccessMode         Where to return the access mode.
+ */
 HRESULT GuestFile::getAccessMode(FileAccessMode_T *aAccessMode)
 {
     AutoReadLock alock(this COMMA_LOCKVAL_SRC_POS);
@@ -330,6 +386,12 @@ HRESULT GuestFile::getAccessMode(FileAccessMode_T *aAccessMode)
     return S_OK;
 }
 
+/**
+ * Returns the current guest file status.
+ *
+ * @returns COM status code.
+ * @param   aStatus             Where to return the current file status.
+ */
 HRESULT GuestFile::getStatus(FileStatus_T *aStatus)
 {
     LogFlowThisFuncEnter();
@@ -1340,6 +1402,16 @@ int GuestFile::i_waitForStatusChange(GuestWaitEvent *pEvent, uint32_t uTimeoutMS
     return vrc;
 }
 
+/**
+ * Waits for a guest file write completion event.
+ *
+ * @returns VBox status code.
+ * @retval  VERR_GSTCTL_GUEST_ERROR when an error from the guest side has been received.
+ * @param   pEvent              Guest wait event to wait for.
+ * @param   uTimeoutMS          Timeout (in ms) to wait.
+ * @param   pcbWritten          Where to return the number of bytes written on success.
+ *                              Optional and can be NULL.
+ */
 int GuestFile::i_waitForWrite(GuestWaitEvent *pEvent,
                               uint32_t uTimeoutMS, uint32_t *pcbWritten)
 {
@@ -1518,6 +1590,11 @@ int GuestFile::i_writeDataAt(uint64_t uOffset, uint32_t uTimeoutMS,
 
 // Wrapped IGuestFile methods
 /////////////////////////////////////////////////////////////////////////////
+/**
+ * Closes this guest file.
+ *
+ * @returns COM status code.
+ */
 HRESULT GuestFile::close()
 {
     AutoCaller autoCaller(this);
@@ -1544,6 +1621,12 @@ HRESULT GuestFile::close()
     return S_OK;
 }
 
+/**
+ * Queries file system metadata for this guest file path.
+ *
+ * @returns COM status code.
+ * @param   aObjInfo            Where to return the queried file object information.
+ */
 HRESULT GuestFile::queryInfo(ComPtr<IFsObjInfo> &aObjInfo)
 {
     AutoCaller autoCaller(this);
@@ -1594,6 +1677,12 @@ HRESULT GuestFile::queryInfo(ComPtr<IFsObjInfo> &aObjInfo)
     return hrc;
 }
 
+/**
+ * Queries the current size of this guest file.
+ *
+ * @returns COM status code.
+ * @param   aSize               Where to return the current file size in bytes.
+ */
 HRESULT GuestFile::querySize(LONG64 *aSize)
 {
     AutoCaller autoCaller(this);
@@ -1632,6 +1721,14 @@ HRESULT GuestFile::querySize(LONG64 *aSize)
     return hrc;
 }
 
+/**
+ * Reads data from this guest file at the current file position.
+ *
+ * @returns COM status code.
+ * @param   aToRead             Number of bytes to read.
+ * @param   aTimeoutMS          Timeout (in ms) to wait.
+ * @param   aData               Where to return the read data.
+ */
 HRESULT GuestFile::read(ULONG aToRead, ULONG aTimeoutMS, std::vector<BYTE> &aData)
 {
     AutoCaller autoCaller(this);
@@ -1680,6 +1777,15 @@ HRESULT GuestFile::read(ULONG aToRead, ULONG aTimeoutMS, std::vector<BYTE> &aDat
     return hrc;
 }
 
+/**
+ * Reads data from this guest file starting at a given file offset.
+ *
+ * @returns COM status code.
+ * @param   aOffset             Offset in bytes where reading starts.
+ * @param   aToRead             Number of bytes to read.
+ * @param   aTimeoutMS          Timeout (in ms) to wait.
+ * @param   aData               Where to return the read data.
+ */
 HRESULT GuestFile::readAt(LONG64 aOffset, ULONG aToRead, ULONG aTimeoutMS, std::vector<BYTE> &aData)
 {
     AutoCaller autoCaller(this);
@@ -1727,6 +1833,14 @@ HRESULT GuestFile::readAt(LONG64 aOffset, ULONG aToRead, ULONG aTimeoutMS, std::
     return hrc;
 }
 
+/**
+ * Moves the current guest file position.
+ *
+ * @returns COM status code.
+ * @param   aOffset             Offset in bytes relative to \a aWhence.
+ * @param   aWhence             Origin used for \a aOffset.
+ * @param   aNewOffset          Where to return the resulting absolute offset in bytes.
+ */
 HRESULT GuestFile::seek(LONG64 aOffset, FileSeekOrigin_T aWhence, LONG64 *aNewOffset)
 {
     AutoCaller autoCaller(this);
@@ -1768,12 +1882,27 @@ HRESULT GuestFile::seek(LONG64 aOffset, FileSeekOrigin_T aWhence, LONG64 *aNewOf
     return hrc;
 }
 
+/**
+ * Sets ACL information on this guest file.
+ *
+ * @returns COM status code.
+ * @param   aAcl                ACL string in guest format.
+ * @param   aMode               ACL mode flags.
+ *
+ * @note    Currently not implemented.
+ */
 HRESULT GuestFile::setACL(const com::Utf8Str &aAcl, ULONG aMode)
 {
     RT_NOREF(aAcl, aMode);
     ReturnComNotImplemented();
 }
 
+/**
+ * Changes the size of this guest file.
+ *
+ * @returns COM status code.
+ * @param   aSize               New file size in bytes.
+ */
 HRESULT GuestFile::setSize(LONG64 aSize)
 {
     LogFlowThisFuncEnter();
@@ -1853,6 +1982,15 @@ HRESULT GuestFile::setSize(LONG64 aSize)
     return hrc;
 }
 
+/**
+ * Writes data to this guest file at the current file position.
+ *
+ * @returns COM status code.
+ * @param   aData               Data to write.
+ * @param   aTimeoutMS          Timeout (in ms) to wait.
+ * @param   aWritten            Where to return the number of bytes written.
+ *                              Optional.
+ */
 HRESULT GuestFile::write(const std::vector<BYTE> &aData, ULONG aTimeoutMS, ULONG *aWritten)
 {
     AutoCaller autoCaller(this);
@@ -1876,6 +2014,16 @@ HRESULT GuestFile::write(const std::vector<BYTE> &aData, ULONG aTimeoutMS, ULONG
     return hrc;
 }
 
+/**
+ * Writes data to this guest file at the specified file offset.
+ *
+ * @returns COM status code.
+ * @param   aOffset             Offset in bytes where writing starts.
+ * @param   aData               Data to write.
+ * @param   aTimeoutMS          Timeout (in ms) to wait.
+ * @param   aWritten            Where to return the number of bytes written.
+ *                              Optional.
+ */
 HRESULT GuestFile::writeAt(LONG64 aOffset, const std::vector<BYTE> &aData, ULONG aTimeoutMS, ULONG *aWritten)
 {
     AutoCaller autoCaller(this);
@@ -1899,4 +2047,3 @@ HRESULT GuestFile::writeAt(LONG64 aOffset, const std::vector<BYTE> &aData, ULONG
     LogFlowFuncLeaveRC(vrc);
     return hrc;
 }
-
