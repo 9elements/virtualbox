@@ -1,4 +1,4 @@
-# $Id: .scm-settings 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $
+# $Id: .scm-settings 114037 2026-04-27 21:54:59Z knut.osmundsen@oracle.com $
 ## @file
 # Source code massager settings for PC devices/drivers.
 #
@@ -66,22 +66,6 @@
 /BIOS/VBoxBiosAlternative*.asm: --external-copyright --no-update-license --allow-lgpl-without-disclaimer ## @todo the latter is a bug in the generator.
 /BIOS/VBoxBiosAlternative*.asm: --no-strip-trailing-blanks # why trailing blanks?
 /BIOS/VBoxBiosAlternative*.md5sum: --treat-as plaintext
-
-# PXE
-/PXE*:          --svn-sync-process-export none
-/PXE/*.asm:     --external-copyright --no-convert-tabs --no-strip-trailing-blanks
-/PXE/*.c:       --external-copyright --no-convert-tabs --no-strip-trailing-blanks
-/PXE/*.h:       --external-copyright --no-convert-tabs --no-strip-trailing-blanks --dont-set-svn-keywords --no-fix-header-guards
-/PXE/*.inc:     --external-copyright --no-convert-tabs --no-strip-trailing-blanks
-/PXE/*.i:       --external-copyright --no-convert-tabs --no-strip-trailing-blanks --strip-no-trailing-lines --treat-as .inc
-/PXE/*.r:       --external-copyright --no-convert-tabs --no-strip-trailing-blanks --strip-no-trailing-lines --treat-as .inc
-/PXE/*makefile: --external-copyright --no-convert-tabs --no-strip-trailing-blanks --treat-as Makefile
-/PXE/romcfg:    --external-copyright --no-convert-tabs --no-strip-trailing-blanks --treat-as Makefile
-/PXE/defrules:  --external-copyright --no-convert-tabs --no-strip-trailing-blanks --treat-as Makefile
-/PXE/defrules:  --external-copyright --no-convert-tabs --no-strip-trailing-blanks --treat-as Makefile
-/PXE/deftargs:  --external-copyright --no-convert-tabs --no-strip-trailing-blanks --treat-as Makefile
-/PXE/hostcfg:   --external-copyright --no-convert-tabs --no-strip-trailing-blanks --treat-as Makefile
-/PXE/PXE-Intel.rom: --treat-as binary
 
 # iPXE
 /ipxe/src/*:                    --external-copyright --lgpl-disclaimer --no-convert-tabs --no-strip-trailing-blanks --dont-set-svn-keywords --no-fix-todos --strip-no-trailing-lines --no-convert-eol
