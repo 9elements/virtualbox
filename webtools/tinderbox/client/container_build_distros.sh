@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: container_build_distros.sh 114033 2026-04-27 09:34:52Z knut.osmundsen@oracle.com $
+# $Id: container_build_distros.sh 114035 2026-04-27 18:22:02Z vadim.galitsyn@oracle.com $
 ## @file
 # Starts tinderclient.pl on a tinderbox.
 #
@@ -98,6 +98,7 @@ distros="
     ubuntu24.04-amd64
     ubuntu25.04-amd64
     ubuntu25.10-amd64
+    ubuntu26.04-amd64
     fedora40.0-amd64
     debian11.0-amd64
     debian12.0-amd64
