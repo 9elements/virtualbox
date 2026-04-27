@@ -1,4 +1,4 @@
-/* $Id: scmrw.cpp 112551 2026-01-13 21:41:12Z knut.osmundsen@oracle.com $ */
+/* $Id: scmrw.cpp 114030 2026-04-27 07:57:13Z knut.osmundsen@oracle.com $ */
 /** @file
  * IPRT Testcase / Tool - Source Code Massager.
  */
@@ -1440,7 +1440,7 @@ rewrite_Copyright_CommentCallback(PCSCMCOMMENTINFO pInfo, const char *pszBody, s
     pState->cComments++;
 
     uint32_t cBlankLinesBefore = pInfo->cBlankLinesBefore;
-    uint32_t iLine = pInfo->iLineStart + pInfo->cBlankLinesBefore;
+    uint32_t iLine = pInfo->iLineStart /*+ pInfo->cBlankLinesBefore*/;
 
     /*
      * For UEFI sources, we will have to skip leading @file + desc stuff to
