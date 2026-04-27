@@ -1,4 +1,4 @@
-/* $Id: DevE1000.cpp 114026 2026-04-24 18:41:25Z aleksey.ilyushin@oracle.com $ */
+/* $Id: DevE1000.cpp 114028 2026-04-27 06:30:18Z alexander.eichner@oracle.com $ */
 /** @file
  * DevE1000 - Intel 82540EM Ethernet Controller Emulation.
  *
@@ -7722,6 +7722,7 @@ static DECLCALLBACK(void) e1kR3Info(PPDMDEVINS pDevIns, PCDBGFINFOHLP pHlp, cons
     e1kCsLeave(pThis);
 }
 
+#if 0
 static DECLCALLBACK(void) e1kLog_Printf(PCDBGFINFOHLP pHlp, const char *pszFormat, ...)
 {
     RT_NOREF(pHlp);
@@ -7736,6 +7737,7 @@ static DECLCALLBACK(void) e1kLog_PrintfV(PCDBGFINFOHLP pHlp, const char *pszForm
     RT_NOREF(pHlp);
     RTLogPrintfV(pszFormat, args);
 }
+#endif
 
 /**
  * Dump complete device state to log.
@@ -7745,6 +7747,8 @@ static DECLCALLBACK(void) e1kLog_PrintfV(PCDBGFINFOHLP pHlp, const char *pszForm
 static void e1kDumpState(PPDMDEVINS pDevIns, PE1KSTATE pThis)
 {
     RT_NOREF(pThis);
+
+#if 0
     {
         DBGFINFOHLP DbgHlp;
 
@@ -7754,6 +7758,7 @@ static void e1kDumpState(PPDMDEVINS pDevIns, PE1KSTATE pThis)
 
         e1kR3Info(pDevIns, &DbgHlp, "");
     }
+#endif
 # ifdef E1K_INT_STATS
     LogRel(("%s: Interrupt attempts: %d\n", pThis->szPrf, pThis->uStatIntTry));
     LogRel(("%s: Interrupts raised : %d\n", pThis->szPrf, pThis->uStatInt));
