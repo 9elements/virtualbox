@@ -1,4 +1,4 @@
-/* $Id: DevE1000.cpp 114028 2026-04-27 06:30:18Z alexander.eichner@oracle.com $ */
+/* $Id: DevE1000.cpp 114029 2026-04-27 06:35:05Z alexander.eichner@oracle.com $ */
 /** @file
  * DevE1000 - Intel 82540EM Ethernet Controller Emulation.
  *
@@ -7758,6 +7758,8 @@ static void e1kDumpState(PPDMDEVINS pDevIns, PE1KSTATE pThis)
 
         e1kR3Info(pDevIns, &DbgHlp, "");
     }
+#else
+    RT_NOREF(pDevIns);
 #endif
 # ifdef E1K_INT_STATS
     LogRel(("%s: Interrupt attempts: %d\n", pThis->szPrf, pThis->uStatIntTry));
