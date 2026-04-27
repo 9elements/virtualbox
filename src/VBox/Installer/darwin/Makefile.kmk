@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 114014 2026-04-24 12:38:59Z alexander.eichner@oracle.com $
+# $Id: Makefile.kmk 114032 2026-04-27 08:13:52Z alexander.eichner@oracle.com $
 ## @file
 # Install misc stuff and create dist packages for Mac OS X.
 #
@@ -910,6 +910,8 @@ ifdef VBOX_SIGNING_MODE
 		, $(NLTAB)$(call VBOX_SIGN_MACHO_FN,$(VBOX_PATH_VBOX_APP_TMP)/Contents/$(bin),org.virtualbox.app.macos.$(notdir $(bin)), \
 				--entitlements="$(VBOX_VIRTUALBOXVM_APP_ENTITLEMENTS)"))
 	$(call VBOX_SIGN_BUNDLE_FN,$(VBOX_PATH_VBOX_APP_TMP)/Contents/Resources/VirtualBoxVM.app,,\
+		--entitlements="$(VBOX_VIRTUALBOXVM_APP_ENTITLEMENTS)",)
+	$(call VBOX_SIGN_BUNDLE_FN,$(VBOX_PATH_VBOX_APP_TMP)/Contents/Resources/VBoxHeadless.app,,\
 		--entitlements="$(VBOX_VIRTUALBOXVM_APP_ENTITLEMENTS)",)
 	$(call VBOX_SIGN_BUNDLE_FN,$(VBOX_PATH_VBOX_APP_TMP),,\
 		--entitlements="$(VBOX_VIRTUALBOX_APP_ENTITLEMENTS)",)
