@@ -1,4 +1,4 @@
-/* $Id: VirtualBoxBase.h 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: VirtualBoxBase.h 114038 2026-04-28 04:53:52Z valery.portnyagin@oracle.com $ */
 /** @file
  * VirtualBox COM base classes definition
  */
@@ -700,7 +700,6 @@ protected:
      void BaseFinalRelease();
 
      HRESULT getObjectId(com::Guid &aId);
-     HRESULT setTracked(uint64_t aLifeTime = 0, uint64_t afterLifeTime = 0);
      HRESULT invalidateTracked();
 
 public:
@@ -719,6 +718,8 @@ public:
      */
     virtual void uninit()
     { }
+
+    HRESULT setTracked(uint64_t aLifeTime = 0, uint64_t afterLifeTime = 0);
 
     /**
      */

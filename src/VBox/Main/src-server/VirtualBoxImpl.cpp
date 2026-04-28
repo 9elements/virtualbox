@@ -1,4 +1,4 @@
-/* $Id: VirtualBoxImpl.cpp 113542 2026-03-24 15:42:24Z andreas.loeffler@oracle.com $ */
+/* $Id: VirtualBoxImpl.cpp 114038 2026-04-28 04:53:52Z valery.portnyagin@oracle.com $ */
 /** @file
  * Implementation of IVirtualBox in VBoxSVC.
  */
@@ -108,9 +108,8 @@
 #include "CloudProviderManagerImpl.h"
 #include "ThreadTask.h"
 #include "VBoxEvents.h"
-#ifdef VBOX_WITH_MAIN_OBJECT_TRACKER
-# include "ObjectsTracker.h"
-#endif
+
+#include "ObjectsTracker.h"
 
 #include <QMTranslator.h>
 
@@ -134,9 +133,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifdef VBOX_WITH_MAIN_OBJECT_TRACKER
 extern TrackedObjectsCollector gTrackedObjectsCollector;
-#endif
 
 // static
 com::Utf8Str VirtualBox::sVersion;
@@ -292,9 +289,7 @@ struct VirtualBox::Data
 #if defined(RT_OS_WINDOWS) && defined(VBOXSVC_WITH_CLIENT_WATCHER)
         , fWatcherIsReliable(RTSystemGetNtVersion() >= RTSYSTEM_MAKE_NT_VERSION(6, 0, 0))
 #endif
-#ifdef VBOX_WITH_MAIN_OBJECT_TRACKER
         , objectTrackerTask(NULL)
-#endif
     {
 #if defined(RT_OS_WINDOWS) && defined(VBOXSVC_WITH_CLIENT_WATCHER)
         RTCritSectRwInit(&WatcherCritSect);
@@ -423,10 +418,8 @@ struct VirtualBox::Data
     bool                                fWatcherIsReliable;
 #endif
 
-#ifdef VBOX_WITH_MAIN_OBJECT_TRACKER
     /** The tracked object collector (better if it'll be a singleton) */
     ObjectTracker                      *objectTrackerTask;
-#endif
 };
 
 
@@ -521,7 +514,6 @@ HRESULT VirtualBox::init()
 
     LogFlowThisFunc(("Version: %s, Package: %s, API Version: %s\n", sVersion.c_str(), sPackageType.c_str(), sAPIVersion.c_str()));
 
-#ifdef VBOX_WITH_MAIN_OBJECT_TRACKER
     /* Try to start Object tracker thread as earlier as possible (same code in VirtualBoxClientImpl.cpp). */
     {
         int vrc = VERR_GENERAL_FAILURE;
@@ -550,7 +542,6 @@ HRESULT VirtualBox::init()
         else
             LogRel(("Failed to start the Object tracker thread (%Rrc)\n", vrc));
     }
-#endif
 
     /* Important: DO NOT USE any kind of "early return" (except the single
      * one above, checking the init span success) in this method. It is vital
@@ -1147,7 +1138,6 @@ void VirtualBox::uninit()
 
     m->mapProgressOperations.clear();
 
-#ifdef VBOX_WITH_MAIN_OBJECT_TRACKER
     /*
      * Call gTrackedObjectsCollector uninitialization before ExtPackManager uninitialization!!!
      * Otherwise, this results in an error when releasing resources (in ComPtr::cleanup).
@@ -1159,7 +1149,6 @@ void VirtualBox::uninit()
         delete m->objectTrackerTask;//waiting the thread termination is going in the m_objectTrackerTask destructor
         gTrackedObjectsCollector.uninit();
     }
-#endif
 
 #ifdef VBOX_WITH_EXTPACK
     if (m->ptrExtPackManager)
@@ -6617,7 +6606,6 @@ HRESULT VirtualBox::getTrackedObject(const com::Utf8Str &aTrObjId,
                                      LONG64 *aCreationTime,
                                      LONG64 *aDeletionTime)
 {
-#ifdef VBOX_WITH_MAIN_OBJECT_TRACKER
     TrackedObjectData trObjData;
     HRESULT hrc = gTrackedObjectsCollector.getObj(aTrObjId, trObjData);
     if (SUCCEEDED(hrc))
@@ -6637,19 +6625,11 @@ HRESULT VirtualBox::getTrackedObject(const com::Utf8Str &aTrObjId,
     }
 
     return hrc;
-
-#else
-    RT_NOREF(aTrObjId, aPIface, aState, aCreationTime, aDeletionTime);
-    return E_NOTIMPL;
-#endif
 }
 
-
-#ifdef VBOX_WITH_MAIN_OBJECT_TRACKER
 static std::map<com::Utf8Str, com::Utf8Str> const g_lMapInterfaceNameToIID = {
     {"IProgress", Guid(IID_IProgress).toString()},
 };
-#endif
 
 /**
  * Get the tracked object Ids list by the interface name.
@@ -6662,7 +6642,6 @@ static std::map<com::Utf8Str, com::Utf8Str> const g_lMapInterfaceNameToIID = {
 HRESULT VirtualBox::getTrackedObjectIds(const com::Utf8Str &aName,
                                         std::vector<com::Utf8Str> &aObjIdsList)
 {
-#ifdef VBOX_WITH_MAIN_OBJECT_TRACKER
     HRESULT hrc = S_OK;
 
     try
@@ -6684,11 +6663,6 @@ HRESULT VirtualBox::getTrackedObjectIds(const com::Utf8Str &aName,
     }
 
     return hrc;
-
-#else
-    RT_NOREF(aName, aObjIdsList);
-    return E_NOTIMPL;
-#endif
 }
 
 extern DECL_HIDDEN_CONST(VBOXCRYPTOIF) g_VBoxCryptoIf;

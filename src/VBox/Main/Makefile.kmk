@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 113625 2026-03-27 13:46:36Z andreas.loeffler@oracle.com $
+# $Id: Makefile.kmk 114038 2026-04-28 04:53:52Z valery.portnyagin@oracle.com $
 ## @file
 # Makefile for the VBox Main module.
 #
@@ -214,9 +214,10 @@ endif
 ifdef VBOX_WITH_ARM_ON_X86_ENABLED
  VBOX_MAIN_DEFS += VBOX_WITH_ARM_ON_X86_ENABLED
 endif
-ifdef VBOX_WITH_MAIN_OBJECT_TRACKER
+# Unconditionally enable Object tracker (testing)
+#ifdef VBOX_WITH_MAIN_OBJECT_TRACKER
  VBOX_MAIN_DEFS += VBOX_WITH_MAIN_OBJECT_TRACKER
-endif
+#endif
 ifdef VBOX_WITH_LIBLZMA
  VBOX_MAIN_DEFS += VBOX_WITH_LIBLZMA
 endif

@@ -1,4 +1,4 @@
-/* $Id: VirtualBoxClientImpl.cpp 113404 2026-03-13 23:58:06Z knut.osmundsen@oracle.com $ */
+/* $Id: VirtualBoxClientImpl.cpp 114038 2026-04-28 04:53:52Z valery.portnyagin@oracle.com $ */
 /** @file
  * VirtualBox COM class implementation
  */
@@ -61,9 +61,7 @@ uint32_t VirtualBoxClient::g_cInstances = 0;
 
 LONG VirtualBoxClient::s_cUnnecessaryAtlModuleLocks = 0;
 
-#ifdef VBOX_WITH_MAIN_OBJECT_TRACKER
 extern TrackedObjectsCollector gTrackedObjectsCollector;
-#endif
 
 #ifdef VBOX_WITH_MAIN_NLS
 
@@ -207,7 +205,6 @@ HRESULT VirtualBoxClient::init()
             throw hrc;
 #endif
 
-#ifdef VBOX_WITH_MAIN_OBJECT_TRACKER
         /////////////// Try to start Object tracker thread as earlier as possible ///////////////
         {
             int vrc = VERR_GENERAL_FAILURE;
@@ -217,7 +214,7 @@ HRESULT VirtualBoxClient::init()
                 {
                     mData.m_objectTrackerTask = new ObjectTracker();
                     if (mData.m_objectTrackerTask->init()) // some init procedure
-                        vrc = mData.m_objectTrackerTask->createThread(); // mData->m_objectTrackerTask1 is not consumed
+                        vrc = mData.m_objectTrackerTask->createThread(); // mData->m_objectTrackerTask is not consumed
                 }
                 catch (...)
                 {
@@ -227,7 +224,7 @@ HRESULT VirtualBoxClient::init()
                         delete mData.m_objectTrackerTask;
                         mData.m_objectTrackerTask = NULL;
                     }
-                    vrc = VERR_UNEXPECTED_EXCEPTION;
+//                  vrc = VERR_UNEXPECTED_EXCEPTION;
                 }
             }
 
@@ -236,7 +233,6 @@ HRESULT VirtualBoxClient::init()
             else
                 LogRel(("Failed to start the Object tracker thread (%Rrc)\n", vrc));
         }
-#endif
 
         /* VirtualBox error return is postponed to method calls, fetch it. */
         ULONG rev;
@@ -626,7 +622,6 @@ void VirtualBoxClient::uninit()
         return;
     }
 
-#ifdef VBOX_WITH_MAIN_OBJECT_TRACKER
     if (mData.m_objectTrackerTask)
     {
         LogRel(("FRONTEND: Terminating the object tracker...\n"));
@@ -635,7 +630,6 @@ void VirtualBoxClient::uninit()
         delete mData.m_objectTrackerTask;//waiting thread termination is going in the m_objectTrackerTask destructor
         gTrackedObjectsCollector.uninit();
     }
-#endif
 
 #ifdef VBOX_WITH_MAIN_NLS
     i_unregisterEventListener();
