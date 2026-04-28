@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 114038 2026-04-28 04:53:52Z valery.portnyagin@oracle.com $
+# $Id: Makefile.kmk 114040 2026-04-28 05:22:35Z valery.portnyagin@oracle.com $
 ## @file
 # Makefile for the VBox Main module.
 #
@@ -214,10 +214,10 @@ endif
 ifdef VBOX_WITH_ARM_ON_X86_ENABLED
  VBOX_MAIN_DEFS += VBOX_WITH_ARM_ON_X86_ENABLED
 endif
+
 # Unconditionally enable Object tracker (testing)
-#ifdef VBOX_WITH_MAIN_OBJECT_TRACKER
- VBOX_MAIN_DEFS += VBOX_WITH_MAIN_OBJECT_TRACKER
-#endif
+VBOX_MAIN_DEFS += VBOX_WITH_MAIN_OBJECT_TRACKER
+
 ifdef VBOX_WITH_LIBLZMA
  VBOX_MAIN_DEFS += VBOX_WITH_LIBLZMA
 endif
@@ -636,7 +636,7 @@ if !defined(VBOX_ONLY_SDK) && !defined(VBOX_ONLY_EXTPACKS) # Note this goes on f
  	src-all/HashedPw.cpp \
  	src-all/Logging.cpp \
  	src-all/NvramStoreImpl.cpp \
- 	$(if $(VBOX_WITH_MAIN_OBJECT_TRACKER),src-all/ObjectsTracker.cpp) \
+ 	src-all/ObjectsTracker.cpp \
  	src-all/PCIDeviceAttachmentImpl.cpp \
  	src-all/ProgressImpl.cpp \
  	src-all/RecordingUtils.cpp \
@@ -1164,7 +1164,7 @@ if !defined(VBOX_ONLY_SDK) && !defined(VBOX_ONLY_EXTPACKS) # Note this goes on f
  	src-all/HashedPw.cpp \
  	src-all/Logging.cpp \
  	src-all/NvramStoreImpl.cpp \
- 	$(if $(VBOX_WITH_MAIN_OBJECT_TRACKER),src-all/ObjectsTracker.cpp) \
+ 	src-all/ObjectsTracker.cpp \
  	src-all/PCIDeviceAttachmentImpl.cpp \
  	src-all/ProgressImpl.cpp \
  	src-all/SecretKeyStore.cpp \
@@ -1386,7 +1386,7 @@ if !defined(VBOX_ONLY_SDK) && !defined(VBOX_ONLY_EXTPACKS) # Note this goes on f
   	src-all/Global.cpp \
   	src-all/GlobalStatusConversion.cpp \
   	src-all/AutoCaller.cpp \
-  	$(if $(VBOX_WITH_MAIN_OBJECT_TRACKER),src-all/ObjectsTracker.cpp) \
+  	src-all/ObjectsTracker.cpp \
   	src-all/ThreadTask.cpp \
   	src-all/VirtualBoxBase.cpp \
   	src-all/VirtualBoxErrorInfoImpl.cpp \
