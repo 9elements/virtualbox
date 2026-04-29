@@ -590,7 +590,7 @@ dtrace_program_header(dtrace_hdl_t *dtp, FILE *out, const char *fname)
 	char *mfname VBDTMSC(NULL), *p;
 
 	if (fname != NULL) {
-		if ((p = strrchr(fname, '/')) != NULL)
+		if ((p = (char *)strrchr(fname, '/')) != NULL)
 			fname = p + 1;
 
 		mfname = alloca(strlen(fname) + 1);
