@@ -1,4 +1,4 @@
-# $Id: .scm-settings 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $
+# $Id: .scm-settings 114044 2026-04-29 08:38:05Z knut.osmundsen@oracle.com $
 ## @file
 # Source code massager settings for the OS/2 guest additions.
 #
@@ -27,7 +27,7 @@
 
 # Not everything is exported here, but the default is exporting stuff.
 --svn-sync-process-export all
-/Bin/*|/VBoxGradd/*|/VBoxGrext/*|/VBoxMouse/*: --svn-sync-process-export none
+/Bin/*|/VBoxGradd/*|/VBoxMouse/*: --svn-sync-process-export none
 
 /VBoxSF/*:                      --external-copyright
 
@@ -41,9 +41,6 @@
 /VBoxGradd/*.h:                 --external-copyright --no-fix-header-guards
 /VBoxGradd/vboxioctl.c:         --no-external-copyright
 /VBoxGradd/vboxioctl.h:         --no-external-copyright
-
-/VBoxGrext/*.c:                 --external-copyright
-/VBoxGrext/*.h:                 --external-copyright --no-fix-header-guards
 
 /VBoxMouse/*.c:                 --external-copyright --no-convert-tabs
 /VBoxMouse/*.asm:               --external-copyright --no-convert-tabs
