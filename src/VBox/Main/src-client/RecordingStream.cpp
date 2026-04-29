@@ -1,4 +1,4 @@
-/* $Id: RecordingStream.cpp 113876 2026-04-15 09:30:47Z andreas.loeffler@oracle.com $ */
+/* $Id: RecordingStream.cpp 114045 2026-04-29 10:10:51Z vitali.pelenjow@oracle.com $ */
 /** @file
  * Recording stream code.
  */
@@ -1119,11 +1119,10 @@ int RecordingStream::SendCursorShape(uint8_t idCursor, PRECORDINGVIDEOFRAME pSha
     pFrame->msTimestamp = msTimestamp;
     pFrame->idStream    = this->m_uScreenID;
 
-    void *pvBuf = (PRTUINTPTR)pFrame + RT_OFFSETOF(RECORDINGFRAME, abData);
     Assert(pShape->cbBuf <= pPool->cbFrame - sizeof(RECORDINGFRAME));
 
     pFrame->u.Video = *pShape;
-    pFrame->u.Video.pau8Buf = (uint8_t *)pvBuf;
+    pFrame->u.Video.pau8Buf = &pFrame->abData[0];
     memcpy(pFrame->u.Video.pau8Buf, pShape->pau8Buf, pShape->cbBuf); /* Make a deep copy of the pixel data. */
     pFrame->u.Video.cbBuf   = pShape->cbBuf;
 
