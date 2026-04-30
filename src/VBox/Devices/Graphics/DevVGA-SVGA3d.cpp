@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA3d.cpp 114051 2026-04-30 09:28:21Z andreas.loeffler@oracle.com $ */
+/* $Id: DevVGA-SVGA3d.cpp 114056 2026-04-30 15:22:26Z vitali.pelenjow@oracle.com $ */
 /** @file
  * DevSVGA3d - VMWare SVGA device, 3D parts - Common core code.
  */
@@ -2005,7 +2005,11 @@ void vmsvga3dReset(PVGASTATECC pThisCC)
 {
     /* Deal with data from PVMSVGA3DSTATE */
     PVMSVGA3DSTATE p3dState = pThisCC->svga.p3dState;
-    if (pThisCC->svga.p3dState)
+#ifdef DEBUG_sunlover
+    Assert(p3dState);
+#endif
+
+    if (p3dState)
     {
         /* Destroy all leftover surfaces. */
         for (uint32_t i = 0; i < p3dState->cSurfaces; i++)
@@ -2061,6 +2065,9 @@ void vmsvga3dTerminate(PVGASTATECC pThisCC)
 
     /* Deal with data from PVMSVGA3DSTATE */
     PVMSVGA3DSTATE p3dState = pThisCC->svga.p3dState;
+#ifdef DEBUG_sunlover
+    Assert(p3dState);
+#endif
     if (!p3dState)
         return;
 
