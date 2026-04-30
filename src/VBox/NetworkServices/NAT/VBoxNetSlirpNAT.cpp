@@ -1,4 +1,4 @@
-/* $Id: VBoxNetSlirpNAT.cpp 113483 2026-03-20 02:22:35Z jack.doherty@oracle.com $ */
+/* $Id: VBoxNetSlirpNAT.cpp 114049 2026-04-30 08:22:00Z andreas.loeffler@oracle.com $ */
 /** @file
  * VBoxNetNAT - NAT Service for connecting to IntNet.
  */
@@ -335,9 +335,6 @@ VBoxNetSlirpNAT::VBoxNetSlirpNAT()
 
     pTimerHead = NULL;
     nsock      = 0;
-
-    polls      = (struct pollfd *)RTMemAllocZ(64 * sizeof(struct pollfd));
-    uPollCap   = 64;
 
     m_MacAddress.au8[0] = 0x52;
     m_MacAddress.au8[1] = 0x54;
