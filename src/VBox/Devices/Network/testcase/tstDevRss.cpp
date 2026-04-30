@@ -1,4 +1,4 @@
-/* $Id: tstDevRss.cpp 114025 2026-04-24 15:59:06Z aleksey.ilyushin@oracle.com $ */
+/* $Id: tstDevRss.cpp 114055 2026-04-30 15:02:49Z klaus.espenlaub@oracle.com $ */
 /** @file
  * RSS hash unit tests.
  */
@@ -88,11 +88,10 @@ struct TestPacketIPv6
 
 
 /**
- *  Entry point.
+ * Main entry point.
  */
-extern "C" DECLEXPORT(int) TrustedMain(int argc, char **argv, char **envp)
+int main(int argc, char **argv)
 {
-    RT_NOREF(envp);
     unsigned i;
     uint32_t uHash;
 
@@ -243,14 +242,3 @@ extern "C" DECLEXPORT(int) TrustedMain(int argc, char **argv, char **envp)
 
     return !!g_cErrors;
 }
-
-
-#if !defined(VBOX_WITH_HARDENING) || !defined(RT_OS_WINDOWS)
-/**
- * Main entry point.
- */
-int main(int argc, char **argv, char **envp)
-{
-    return TrustedMain(argc, argv, envp);
-}
-#endif
