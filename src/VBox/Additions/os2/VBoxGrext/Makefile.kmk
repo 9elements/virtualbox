@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 114048 2026-04-30 00:28:44Z knut.osmundsen@oracle.com $
+# $Id: Makefile.kmk 114060 2026-05-02 18:15:10Z knut.osmundsen@oracle.com $
 ## @file
 # VirtualBox OS/2 GRADD driver
 #
@@ -29,7 +29,7 @@ SUB_DEPTH = ../../../../..
 include $(KBUILD_PATH)/subheader.kmk
 
 DLLS += VBoxGrext
-VBoxGrext_TEMPLATE  = VBoxOs2Vac308
+VBoxGrext_TEMPLATE  = VBoxOs2Gradd
 VBoxGrext_SOURCES   = VBoxgrext.c
 ifndef VBOX_USE_WATCOM_FOR_OS2
  VBoxGrext_SOURCES += vboxgrext.def
