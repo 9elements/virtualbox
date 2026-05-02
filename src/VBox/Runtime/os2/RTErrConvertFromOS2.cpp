@@ -1,4 +1,4 @@
-/* $Id: RTErrConvertFromOS2.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: RTErrConvertFromOS2.cpp 114057 2026-05-02 12:45:05Z knut.osmundsen@oracle.com $ */
 /** @file
  * IPRT - Convert OS/2 error codes to iprt status codes.
  */
@@ -181,7 +181,9 @@ RTDECL(int)  RTErrConvertFromOS2(unsigned uNativeCode)
     }
 
     /* unknown error. */
+#ifndef IN_VBOXGRADD /* Hack requred by Additions/os2/VBoxGradd. */
     AssertLogRelMsgFailed(("Unhandled error %u\n", uNativeCode));
+#endif
     return VERR_UNRESOLVED_ERROR;
 }
 
