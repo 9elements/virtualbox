@@ -1663,9 +1663,7 @@
  * @remarks The regparm(0) in the X86/GNUC variant deals with -mregparm=x use in
  *          the linux kernel and potentially elsewhere (3rd party).
  */
-#if defined(_MSC_VER) || defined(__WATCOMC__)
-# define RTCALL                         __cdecl
-#elif defined(RT_OS_OS2)
+#if defined(_MSC_VER) || defined(__WATCOMC__) || defined(RT_OS_OS2)
 # define RTCALL                         __cdecl
 #elif defined(__GNUC__) && defined(RT_ARCH_X86)
 # define RTCALL                         __attribute__((__cdecl__,__regparm__(0)))
@@ -1677,7 +1675,7 @@
  * How to declare an exported function.
  * @param   a_RetType   The return type of the function declaration.
  */
-#if defined(_MSC_VER) || defined(RT_OS_OS2)
+#if defined(_MSC_VER) || (defined(RT_OS_OS2) && !defined(__IBMC__) && !defined(__IBMCPP__))
 # define DECLEXPORT(a_RetType)          __declspec(dllexport) a_RetType
 #elif defined(RT_USE_VISIBILITY_DEFAULT)
 # define DECLEXPORT(a_RetType)          __attribute__((visibility("default"))) a_RetType
@@ -2037,7 +2035,7 @@
 #elif defined(_MSC_VER)
 # define DECLINLINE(a_RetType)          DECL_NOTHROW(static _inline a_RetType)
 #elif defined(__IBMC__)
-# define DECLINLINE(a_RetType)          DECL_NOTHROW(_Inline a_RetType)
+# define DECLINLINE(a_RetType)          DECL_NOTHROW(static _Inline a_RetType)
 #else
 # define DECLINLINE(a_RetType)          DECL_NOTHROW(inline a_RetType)
 #endif
@@ -2054,7 +2052,7 @@
 #elif defined(_MSC_VER)
 # define DECL_INLINE_THROW(a_RetType)   static _inline a_RetType
 #elif defined(__IBMC__)
-# define DECL_INLINE_THROW(a_RetType)   _Inline a_RetType
+# define DECL_INLINE_THROW(a_RetType)   static _Inline a_RetType
 #else
 # define DECL_INLINE_THROW(a_RetType)   inline a_RetType
 #endif

@@ -658,7 +658,7 @@ typedef enum RTLOGDEST
 /** @def LOG_USE_C99
  * Governs the use of variadic macros.
  */
-#ifndef LOG_USE_C99
+#if (!defined(LOG_USE_C99) && !defined(LOG_DONT_USE_C99)) || defined(DOXYGEN_RUNNING)
 # define LOG_USE_C99
 #endif
 
