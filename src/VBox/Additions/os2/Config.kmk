@@ -1,4 +1,4 @@
-# $Id: Config.kmk 114043 2026-04-29 08:33:43Z knut.osmundsen@oracle.com $
+# $Id: Config.kmk 114058 2026-05-02 12:45:10Z knut.osmundsen@oracle.com $
 ## @file
 # kBuild Configuration file for the OS/2 Guest Additions.
 #
@@ -93,6 +93,7 @@ else # VBOX_USE_WATCOM_FOR_OS2
  TEMPLATE_VBoxOs2Vac308_TOOL         := OPENWATCOM
  TEMPLATE_VBoxOs2Vac308_ASTOOL       := NASM
  TEMPLATE_VBoxOs2Vac308_ARTOOL       := OPENWATCOM
+ TEMPLATE_VBoxOs2Vac308_ASFLAGS      := $(VBOX_NASM_ASFLAGS.lx.x86)
  TEMPLATE_VBoxOs2Vac308_LDTOOL       := OPENWATCOM-WL
  TEMPLATE_VBoxOs2Vac308_INST    = $(INST_ADDITIONS)
  TEMPLATE_VBoxOs2Vac308_DEFS    = RT_OS_OS2 IN_RING3  ## @todo IN_GUEST IN_GUEST_R3 IN_RT_R3
