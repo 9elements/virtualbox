@@ -1,4 +1,4 @@
-/* $Id: version.h 114012 2026-04-24 12:36:48Z vadim.galitsyn@oracle.com $ */
+/* $Id: version.h 114063 2026-05-04 14:57:45Z vitali.pelenjow@oracle.com $ */
 /** @file
  * IPRT - Linux kernel version.
  */
@@ -137,7 +137,7 @@
  * Require a minimum minor release number for the given SUSE release.
  *
  * Starting from openSUSE 16.0 (SUSE Adaptable Linux Platform X.Y) kernel versioning
- * system has been changed. We no longer can rely on CONFIG_SUSE_VERSION and CONFIG_SUSE_PATCHLEVEL 
+ * system has been changed. We no longer can rely on CONFIG_SUSE_VERSION and CONFIG_SUSE_PATCHLEVEL
  * since their values now overlap with pre-16.0 ones. Instead, let's rely on original kernel version once
  * openSUSE kernel is detected.
  *
