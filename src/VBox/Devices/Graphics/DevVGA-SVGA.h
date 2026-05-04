@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA.h 113461 2026-03-19 10:40:53Z vitali.pelenjow@oracle.com $ */
+/* $Id: DevVGA-SVGA.h 114064 2026-05-04 16:56:20Z vitali.pelenjow@oracle.com $ */
 /** @file
  * VMware SVGA device
  */
@@ -298,7 +298,7 @@ typedef struct VMSVGAOUTPUTTARGET
     RTLISTNODE              nodeOutputTarget;
 
     /* An output target is referenced by (Main) consumers(s). */
-    int32_t volatile        cExternalRefs;
+    uint64_t volatile       cCombinedRefs;
 
     /* The counter is incremented each time the output target is updated.
      * If the target was never updated then the counter value is 0.
@@ -308,11 +308,54 @@ typedef struct VMSVGAOUTPUTTARGET
     /* Description of the target which the consumers can query. */
     PDMDISPLAYOUTPUTTARGETDESC desc;
 
+    bool                    fAllocatedBuffer;
+
 #ifdef VBOX_WITH_VMSVGA3D
-    /** Pointer to the HW accelerated (3D) screen data. */
+    /* Pointer to the HW accelerated (3D) screen data. */
     R3PTRTYPE(PVMSVGAHWOUTPUTTARGET) pHwOutputTarget;
 #endif
 } VMSVGAOUTPUTTARGET;
+
+
+DECLINLINE(bool) vmsvgaOutputTargetHasExternalRefs(VMSVGAOUTPUTTARGET *pOutputTarget)
+{
+    return (pOutputTarget->cCombinedRefs & UINT64_C(0xFFFFFFFF)) > 0;
+}
+
+
+DECLINLINE(void) vmsvgaOutputTargetAddRefExternal(VMSVGAOUTPUTTARGET *pOutputTarget)
+{
+    ASMAtomicAddU64(&pOutputTarget->cCombinedRefs, UINT64_C(1));
+    Assert((pOutputTarget->cCombinedRefs & UINT64_C(0xFFFFFFFF)) < UINT64_C(0x80000000));
+}
+
+
+DECLINLINE(bool) vmsvgaOutputTargetReleaseExternal(VMSVGAOUTPUTTARGET *pOutputTarget)
+{
+    Assert(vmsvgaOutputTargetHasExternalRefs(pOutputTarget));
+    return ASMAtomicSubU64(&pOutputTarget->cCombinedRefs, UINT64_C(1)) == UINT64_C(1);
+}
+
+
+DECLINLINE(bool) vmsvgaOutputTargetHasInternalRefs(VMSVGAOUTPUTTARGET *pOutputTarget)
+{
+    return (pOutputTarget->cCombinedRefs & UINT64_C(0xFFFFFFFF00000000)) > 0;
+}
+
+
+DECLINLINE(void) vmsvgaOutputTargetAddRefInternal(VMSVGAOUTPUTTARGET *pOutputTarget)
+{
+    ASMAtomicAddU64(&pOutputTarget->cCombinedRefs, UINT64_C(0x100000000));
+    Assert((pOutputTarget->cCombinedRefs & UINT64_C(0xFFFFFFFF00000000)) < UINT64_C(0x8000000000000000));
+}
+
+
+DECLINLINE(bool) vmsvgaOutputTargetReleaseInternal(VMSVGAOUTPUTTARGET *pOutputTarget)
+{
+    Assert(vmsvgaOutputTargetHasInternalRefs(pOutputTarget));
+    return ASMAtomicSubU64(&pOutputTarget->cCombinedRefs, UINT64_C(0x100000000)) == UINT64_C(0x100000000);
+}
+
 
 /**
  * Screen object state.
@@ -340,6 +383,8 @@ typedef struct VMSVGASCREENOBJECT
     bool        fModified;
     void       *pvScreenBitmap;
 
+    /** Default output target */
+    VMSVGAOUTPUTTARGET *pScreenOutputTarget;
     /** Active output targets (VMSVGAOUTPUTTARGET) */
     RTLISTANCHOR listOutputTargets;
 
@@ -658,6 +703,9 @@ DECLCALLBACK(void) vmsvgaR3PowerOff(PPDMDEVINS pDevIns);
 void vmsvgaR3FifoWatchdogTimer(PPDMDEVINS pDevIns, PVGASTATE pThis, PVGASTATECC pThisCC);
 
 int vmsvgaR3GetUniqueOutputTargetToken(PVGASTATE pThis, PVGASTATECC pThisCC, uint64_t *pu64OutputTargetToken);
+int vmsvgaR3QueryDefaultOutputTargetToken(PVGASTATE pThis, PVGASTATECC pThisCC, uint32_t idScreen, uint64_t *pu64OutputTargetToken);
+int vmsvgaR3CreateOutputTarget(PVGASTATE pThis, PVGASTATECC pThisCC, uint32_t idScreen, PDMDISPLAYOUTPUTTARGETFORMAT enmFormat,
+                               uint32_t cWidth, uint32_t cHeight, uint32_t uFlags, uint64_t u64OutputTargetToken);
 int vmsvgaR3CreateOutputTargetAsync(PVGASTATE pThis, PVGASTATECC pThisCC, uint32_t idScreen, PDMDISPLAYOUTPUTTARGETFORMAT enmFormat,
                                     uint32_t cWidth, uint32_t cHeight, uint32_t uFlags, uint64_t u64OutputTargetToken);
 int vmsvgaR3OutputTargetDesc(PVGASTATE pThis, PVGASTATECC pThisCC, uint64_t u64OutputTargetToken, PDMDISPLAYOUTPUTTARGETDESC *pDescOut);

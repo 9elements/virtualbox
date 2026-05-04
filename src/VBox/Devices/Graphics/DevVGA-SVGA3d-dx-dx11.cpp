@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA3d-dx-dx11.cpp 113512 2026-03-23 14:59:09Z vitali.pelenjow@oracle.com $ */
+/* $Id: DevVGA-SVGA3d-dx-dx11.cpp 114064 2026-05-04 16:56:20Z vitali.pelenjow@oracle.com $ */
 /** @file
  * DevVMWare - VMWare SVGA device
  */
@@ -3872,64 +3872,6 @@ static void dxUpdateScreenEnd(DXDEVICE *pDXDevice, DXPIPELINESTATE &SavedState)
 }
 
 
-static void dxCopyStagingTextureToScreenBitmap(PVGASTATECC pThisCC, VMSVGASCREENOBJECT *pScreen, DXDEVICE *pDXDevice,
-                                               SVGASignedRect const &updateRect)
-{
-    AssertReturnVoid(pScreen->pvScreenBitmap || pScreen->offVRAM != VMSVGA_VRAM_OFFSET_SCREEN_TARGET);
-    AssertReturnVoid(pScreen->cBpp == 32);
-    const uint32_t cbPixel = 4;
-
-    VMSVGAHWSCREEN *p = pScreen->pHwScreen;
-
-    /* Copy data from staging resource to the system memory. */
-    D3D11_MAPPED_SUBRESOURCE map;
-    RT_ZERO(map);
-
-    HRESULT hr = pDXDevice->pImmediateContext->Map(p->pStagingTexture, 0, D3D11_MAP_READ, 0, &map);
-    AssertReturnVoid(SUCCEEDED(hr));
-
-    uint8_t const *pu8Src = (uint8_t *)map.pData;
-    uint8_t *pu8Dst;
-#ifndef PERMANENT_SCREEN_BITMAP
-    if (pScreen->pvScreenBitmap)
-#else
-    if (pScreen->offVRAM == VMSVGA_VRAM_OFFSET_SCREEN_TARGET)
-#endif
-        pu8Dst = (uint8_t *)pScreen->pvScreenBitmap;
-    else
-        pu8Dst = (uint8_t *)pThisCC->pbVRam + pScreen->offVRAM;
-
-    if (   updateRect.left == 0
-        && updateRect.top == 0
-        && updateRect.right == (int32_t)p->cHwScreenWidth
-        && updateRect.bottom == (int32_t)p->cHwScreenHeight
-        && p->cHwScreenWidth * cbPixel == map.RowPitch)
-    {
-        memcpy(pu8Dst, pu8Src, map.RowPitch * p->cHwScreenHeight);
-    }
-    else
-    {
-        /* 'pu8Src' points to the mapped 'srcRect'. Take the clipping box into account. */
-        uint8_t const *pu8SrcBox = pu8Src
-            + updateRect.left * cbPixel + updateRect.top * map.RowPitch;
-
-        uint8_t *pu8DstBox = pu8Dst
-            + updateRect.left * cbPixel + updateRect.top * cbPixel * p->cHwScreenWidth;
-
-        uint32_t const cbWidth = cbPixel * (updateRect.right - updateRect.left);
-        for (int32_t iRow = 0; iRow < updateRect.bottom - updateRect.top; ++iRow)
-        {
-            memcpy(pu8DstBox, pu8SrcBox, cbWidth);
-
-            pu8SrcBox += map.RowPitch;
-            pu8DstBox += cbPixel * p->cHwScreenWidth;
-        }
-    }
-
-    pDXDevice->pImmediateContext->Unmap(p->pStagingTexture, 0);
-}
-
-
 DECLINLINE(int) dxFenceCmp64(uint64_t u64FenceA, uint64_t u64FenceB)
 {
      if (   u64FenceA < u64FenceB
@@ -4001,7 +3943,6 @@ static void dxProcessPendingUpdates(PVGASTATECC pThisCC, VMSVGASCREENOBJECT *pSc
                     break;
 
                 SVGASignedRect const &updateRect = p->aUpdates[p->idxLastUpdate].rect;
-                dxCopyStagingTextureToScreenBitmap(pThisCC, pScreen, pDXDevice, updateRect);
 
                 /* Check targets. Targets are created and deleted on FIFO thread so it is ok to access them. */
                 VMSVGAOUTPUTTARGET *pOutputTarget;
@@ -4010,7 +3951,7 @@ static void dxProcessPendingUpdates(PVGASTATECC pThisCC, VMSVGASCREENOBJECT *pSc
                     VMSVGAHWOUTPUTTARGET *pHwOutputTarget = pOutputTarget->pHwOutputTarget;
                     AssertContinue(pHwOutputTarget);
 
-                    dxHwOutputTargetReadback(pOutputTarget, pDXDevice->pImmediateContext);
+                    dxHwOutputTargetReadback(pOutputTarget, pDXDevice->pImmediateContext, updateRect);
 
                     /* Increment u64UpdateSequenceNumber, skipping 0 on rollover. */
                     uint64_t u64 = pOutputTarget->u64UpdateSequenceNumber + 1;

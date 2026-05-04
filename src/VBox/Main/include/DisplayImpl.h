@@ -1,4 +1,4 @@
-/* $Id: DisplayImpl.h 113887 2026-04-15 11:58:37Z andreas.loeffler@oracle.com $ */
+/* $Id: DisplayImpl.h 114064 2026-05-04 16:56:20Z vitali.pelenjow@oracle.com $ */
 /** @file
  * VirtualBox COM class implementation
  */
@@ -483,7 +483,29 @@ private:
 
 private:
     DECLARE_CLS_COPY_CTOR_ASSIGN_NOOP(Display); /* Shuts up MSC warning C4625. */
+
+    friend class DisplaySourceBitmap;
 };
+
+/**
+ * Display driver instance data.
+ *
+ * @implements PDMIDISPLAYCONNECTOR
+ */
+typedef struct DRVMAINDISPLAY
+{
+    /** Pointer to the display object. */
+    Display                    *pDisplay;
+    /** Pointer to the driver instance structure. */
+    PPDMDRVINS                  pDrvIns;
+    /** Pointer to the display port interface of the driver/device above us. */
+    PPDMIDISPLAYPORT            pUpPort;
+    /** Our display connector interface. */
+    PDMIDISPLAYCONNECTOR        IConnector;
+} DRVMAINDISPLAY, *PDRVMAINDISPLAY;
+
+/** Converts PDMIDISPLAYCONNECTOR pointer to a DRVMAINDISPLAY pointer. */
+#define PDMIDISPLAYCONNECTOR_2_MAINDISPLAY(pInterface)  RT_FROM_MEMBER(pInterface, DRVMAINDISPLAY, IConnector)
 
 /* The legacy VBVA helpers. */
 int videoAccelConstruct(VIDEOACCEL *pVideoAccel);
@@ -546,6 +568,7 @@ private:
         DISPLAYFBINFO *pFBInfo;
 
         uint8_t *pu8Allocated;
+        uint64_t u64OutputTargetToken;
 
         uint8_t *pu8Address;
         ULONG ulWidth;

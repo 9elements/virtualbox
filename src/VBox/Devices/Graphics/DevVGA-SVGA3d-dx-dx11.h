@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA3d-dx-dx11.h 113512 2026-03-23 14:59:09Z vitali.pelenjow@oracle.com $ */
+/* $Id: DevVGA-SVGA3d-dx-dx11.h 114064 2026-05-04 16:56:20Z vitali.pelenjow@oracle.com $ */
 /** @file
  * DevSVGA - Internal DX11 backend utilities.
  */
@@ -56,6 +56,7 @@ int dxHwOutputTargetConvert(VMSVGAOUTPUTTARGET *pOutputTarget,
                             ID3D11ShaderResourceView *pSrcSrv,
                             UINT srcW, UINT srcH);
 int dxHwOutputTargetReadback(VMSVGAOUTPUTTARGET *pOutputTarget,
-                             ID3D11DeviceContext1 *pDeviceContext);
+                             ID3D11DeviceContext1 *pDeviceContext,
+                             SVGASignedRect const &updateRect);
 
 #endif /* !VBOX_INCLUDED_SRC_Graphics_DevVGA_SVGA3d_dx_dx11_h */

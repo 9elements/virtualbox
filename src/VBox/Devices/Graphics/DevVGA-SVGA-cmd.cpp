@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA-cmd.cpp 113832 2026-04-13 11:30:44Z dmitrii.grigorev@oracle.com $ */
+/* $Id: DevVGA-SVGA-cmd.cpp 114064 2026-05-04 16:56:20Z vitali.pelenjow@oracle.com $ */
 /** @file
  * VMware SVGA device - implementation of VMSVGA commands.
  */
@@ -1363,13 +1363,15 @@ int vmsvgaR3DestroyScreen(PVGASTATE pThis, PVGASTATECC pThisCC, VMSVGASCREENOBJE
     /* Notify frontend that the screen is about to be deleted. */
     vmsvgaR3ChangeMode(pThis, pThisCC);
 
-    /* Mark output targets of this screen for deletion. */
-    VMSVGAOUTPUTTARGET *pIter, *pNext;
-    RTListForEachSafe(&pScreen->listOutputTargets, pIter, pNext, VMSVGAOUTPUTTARGET, nodeOutputTarget)
+    if (pScreen->pScreenOutputTarget)
     {
-        RTListNodeRemove(&pIter->nodeOutputTarget);
-        vmsvgaR3RetireOutputTarget(pThisCC, pIter);
+        LogFunc(("OUTPUTTARGET: release internal %RU64 ref 0x%RX64\n", pScreen->pScreenOutputTarget->coreOutputTarget.Key, pScreen->pScreenOutputTarget->cCombinedRefs));
+        vmsvgaOutputTargetReleaseInternal(pScreen->pScreenOutputTarget);
+        pScreen->pScreenOutputTarget = NULL;
     }
+
+    /* Mark output targets of this screen for deletion. */
+    vmsvgaR3RetireOutputTargets(pThis, pThisCC, pScreen);
 
 #ifdef VBOX_WITH_VMSVGA3D
     if (RT_LIKELY(pThis->svga.f3DEnabled))
@@ -1395,6 +1397,8 @@ void vmsvgaR3ResetScreens(PVGASTATE pThis, PVGASTATECC pThisCC)
         if (pScreen)
             vmsvgaR3DestroyScreen(pThis, pThisCC, pScreen, false);
     }
+
+    vmsvgaR3CleanupOutputTargets(pThisCC);
 }
 
 
@@ -2584,6 +2588,9 @@ static void vmsvga3dCmdDefineGBScreenTarget(PVGASTATE pThis, PVGASTATECC pThisCC
             ("VMSVGA3D: failed to allocate memory buffer for screen target %u (%ux%u)\n",
              pCmd->stid, pCmd->width, pCmd->height));
 
+        /* Create an output target for the guest screen content. */
+        vmsvgaR3CreateScreenOutputTarget(pThis, pThisCC, pScreen, &pScreen->pScreenOutputTarget);
+
         pThis->svga.fGFBRegisters = false;
         vmsvgaR3ChangeMode(pThis, pThisCC);
 
@@ -2613,7 +2620,8 @@ static void vmsvga3dCmdDestroyGBScreenTarget(PVGASTATE pThis, PVGASTATECC pThisC
         /* Screen objects and screen targets are similar, therefore we will use the same for both. */
         /** @todo Generic screen object/target interface. */
         VMSVGASCREENOBJECT *pScreen = &pSvgaR3State->aScreens[pCmd->stid];
-        vmsvgaR3DestroyScreen(pThis, pThisCC, pScreen, true);
+        if (pScreen->fDefined)
+            vmsvgaR3DestroyScreen(pThis, pThisCC, pScreen, true);
     }
 }
 
@@ -8224,6 +8232,9 @@ void vmsvgaR3CmdDefineScreen(PVGASTATE pThis, PVGASTATECC pThisCC, SVGAFifoCmdDe
         vmsvga3dDefineScreen(pThis, pThisCC, pScreen);
 #endif
 
+    /* Create an output target for the guest screen content. */
+    vmsvgaR3CreateScreenOutputTarget(pThis, pThisCC, pScreen, &pScreen->pScreenOutputTarget);
+
     pThis->svga.fGFBRegisters = false;
     vmsvgaR3ChangeMode(pThis, pThisCC);
 
@@ -8247,7 +8258,8 @@ void vmsvgaR3CmdDestroyScreen(PVGASTATE pThis, PVGASTATECC pThisCC, SVGAFifoCmdD
 
     VMSVGASCREENOBJECT *pScreen = &pSvgaR3State->aScreens[idScreen];
     Assert(pScreen->idScreen == idScreen);
-    vmsvgaR3DestroyScreen(pThis, pThisCC, pScreen, true);
+    if (pScreen->fDefined)
+        vmsvgaR3DestroyScreen(pThis, pThisCC, pScreen, true);
 }
 
 

@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA3d-dx-dx11-output.cpp 113748 2026-04-07 13:45:35Z vitali.pelenjow@oracle.com $ */
+/* $Id: DevVGA-SVGA3d-dx-dx11-output.cpp 114064 2026-05-04 16:56:20Z vitali.pelenjow@oracle.com $ */
 /** @file
  * DevSVGA - D3D11 backend graphics output utilities
  */
@@ -55,7 +55,8 @@ typedef struct DXOUTPUTTARGETMETHODS
                                                         ID3D11ShaderResourceView *pSrcSrv,
                                                         UINT srcW, UINT srcH));
     DECLR3CALLBACKMEMBER(int, pfnDXOutputTargetReadback,(VMSVGAOUTPUTTARGET *pOutputTarget,
-                                                         ID3D11DeviceContext1 *pDeviceContext));
+                                                         ID3D11DeviceContext1 *pDeviceContext,
+                                                         SVGASignedRect const &updateRect));
 } DXOUTPUTTARGETMETHODS;
 
 /* Generic OT object with target specific data and virtual methods. */
@@ -149,7 +150,8 @@ static DECLCALLBACK(int) dxOutputTargetConvert_B8G8R8X8_I(VMSVGAOUTPUTTARGET *pO
 
 
 static DECLCALLBACK(int) dxOutputTargetReadback_B8G8R8X8_I(VMSVGAOUTPUTTARGET *pOutputTarget,
-                                                           ID3D11DeviceContext1 *pDeviceContext)
+                                                           ID3D11DeviceContext1 *pDeviceContext,
+                                                           SVGASignedRect const &updateRect)
 {
     DXOUTPUTTARGET_B8G8R8X8_I *pThis = (DXOUTPUTTARGET_B8G8R8X8_I *)pOutputTarget->pHwOutputTarget;
 
@@ -162,23 +164,35 @@ static DECLCALLBACK(int) dxOutputTargetReadback_B8G8R8X8_I(VMSVGAOUTPUTTARGET *p
 
     uint32_t const cWidth  = pOutputTarget->desc.cWidth;
     uint32_t const cHeight = pOutputTarget->desc.cHeight;
+    uint32_t const cbPixel = 4;
 
     uint8_t *pu8Dst = (uint8_t *)pOutputTarget->desc.pvOutputBuffer;
     uint8_t const *pu8Src = (uint8_t *)map.pData;
 
-    if (cWidth * 4 == map.RowPitch)
+    if (   updateRect.left == 0
+        && updateRect.top == 0
+        && updateRect.right == (int32_t)cWidth
+        && updateRect.bottom == (int32_t)cHeight
+        && cWidth * cbPixel == map.RowPitch)
     {
         memcpy(pu8Dst, pu8Src, map.RowPitch * cHeight);
     }
     else
     {
-        /** @todo sub-rect */
-        for (uint32_t iRow = 0; iRow < cHeight; ++iRow)
-        {
-            memcpy(pu8Dst, pu8Src, cWidth * 4);
+        /* 'pu8Src' points to the entire mapped resource. Take the clipping box into account. */
+        uint8_t const *pu8SrcBox = pu8Src
+            + updateRect.left * cbPixel + updateRect.top * map.RowPitch;
 
-            pu8Src += map.RowPitch;
-            pu8Dst += cWidth * 4;
+        uint8_t *pu8DstBox = pu8Dst
+            + updateRect.left * cbPixel + updateRect.top * cbPixel * cWidth;
+
+        uint32_t const cbRowWidth = cbPixel * (updateRect.right - updateRect.left);
+        for (int32_t iRow = 0; iRow < updateRect.bottom - updateRect.top; ++iRow)
+        {
+            memcpy(pu8DstBox, pu8SrcBox, cbRowWidth);
+
+            pu8SrcBox += map.RowPitch;
+            pu8DstBox += cbPixel * cWidth;
         }
     }
 
@@ -522,8 +536,11 @@ static int dxCopyPlane(ID3D11DeviceContext1 *pDeviceContext,
 
 
 static DECLCALLBACK(int) dxOutputTargetReadback_I420(VMSVGAOUTPUTTARGET *pOutputTarget,
-                                                     ID3D11DeviceContext1 *pDeviceContext)
+                                                     ID3D11DeviceContext1 *pDeviceContext,
+                                                     SVGASignedRect const &updateRect)
 {
+    RT_NOREF(updateRect);
+
     DXOUTPUTTARGET_I420 *pHwOutputTarget = (DXOUTPUTTARGET_I420 *)pOutputTarget->pHwOutputTarget;
 
     AssertReturn(pOutputTarget->desc.enmFormat == PDMDISPLAYOUTPUTTARGETFORMAT_YUVI420,
@@ -656,10 +673,17 @@ int dxHwOutputTargetConvert(VMSVGAOUTPUTTARGET *pOutputTarget,
 
 
 int dxHwOutputTargetReadback(VMSVGAOUTPUTTARGET *pOutputTarget,
-                             ID3D11DeviceContext1 *pDeviceContext)
+                             ID3D11DeviceContext1 *pDeviceContext,
+                             SVGASignedRect const &updateRect)
 {
+    SVGASignedRect clipRect = updateRect;
+    SVGASignedRect const boundRect = { 0 , 0, (int32_t)pOutputTarget->desc.cWidth, (int32_t)pOutputTarget->desc.cHeight };
+    vmsvgaR3ClipRect(&boundRect, &clipRect);
+    if (clipRect.left >= clipRect.right || clipRect.top >= clipRect.bottom)
+        return VINF_SUCCESS;
+
     VMSVGAHWOUTPUTTARGET *pHwOutputTarget = pOutputTarget->pHwOutputTarget;
     if (pHwOutputTarget->methods.pfnDXOutputTargetReadback)
-        return pHwOutputTarget->methods.pfnDXOutputTargetReadback(pOutputTarget, pDeviceContext);
+        return pHwOutputTarget->methods.pfnDXOutputTargetReadback(pOutputTarget, pDeviceContext, clipRect);
     return VINF_SUCCESS;
 }

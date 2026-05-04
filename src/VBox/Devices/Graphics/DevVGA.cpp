@@ -1,4 +1,4 @@
-/* $Id: DevVGA.cpp 114010 2026-04-24 09:17:23Z michal.necasek@oracle.com $ */
+/* $Id: DevVGA.cpp 114064 2026-05-04 16:56:20Z vitali.pelenjow@oracle.com $ */
 /** @file
  * DevVGA - VBox VGA/VESA device.
  */
@@ -5637,6 +5637,54 @@ static DECLCALLBACK(int) vgaR3PortGetUniqueOutputTargetToken(PPDMIDISPLAYPORT pI
 
 
 /**
+ * @interface_method_impl{PDMIDISPLAYPORT,pfnQueryDefaultOutputTargetToken}
+ */
+static DECLCALLBACK(int) vgaR3PortQueryDefaultOutputTargetToken(PPDMIDISPLAYPORT pInterface,
+                                                                uint32_t idScreen,
+                                                                uint64_t *pu64OutputTargetToken)
+{
+# ifdef VBOX_WITH_VMSVGA
+    PVGASTATECC pThisCC = RT_FROM_MEMBER(pInterface, VGASTATECC, IPort);
+    PVGASTATE   pThis   = PDMDEVINS_2_DATA(pThisCC->pDevIns, PVGASTATE);
+
+    if (!pThis->fVMSVGAEnabled)
+        return VERR_NOT_IMPLEMENTED;
+
+    return vmsvgaR3QueryDefaultOutputTargetToken(pThis, pThisCC, idScreen, pu64OutputTargetToken);
+# else
+    RT_NOREF(pInterface, pu64OutputTargetToken);
+    return VERR_NOT_IMPLEMENTED;
+# endif
+}
+
+
+/**
+ * @interface_method_impl{PDMIDISPLAYPORT,pfnCreateOutputTarget}
+ */
+static DECLCALLBACK(int) vgaR3PortCreateOutputTarget(PPDMIDISPLAYPORT pInterface,
+                                                     uint32_t idScreen,
+                                                     PDMDISPLAYOUTPUTTARGETFORMAT enmFormat,
+                                                     uint32_t cWidth, uint32_t cHeight,
+                                                     uint32_t uFlags,
+                                                     uint64_t u64OutputTargetToken)
+{
+# ifdef VBOX_WITH_VMSVGA
+    PVGASTATECC pThisCC = RT_FROM_MEMBER(pInterface, VGASTATECC, IPort);
+    PVGASTATE   pThis   = PDMDEVINS_2_DATA(pThisCC->pDevIns, PVGASTATE);
+
+    if (!pThis->fVMSVGAEnabled)
+        return VERR_NOT_IMPLEMENTED;
+
+    return vmsvgaR3CreateOutputTarget(pThis, pThisCC, idScreen, enmFormat, cWidth, cHeight,
+                                      uFlags, u64OutputTargetToken);
+# else
+    RT_NOREF(pInterface, idScreen, enmFormat, cWidth, cHeight, uFlags, u64OutputTargetToken);
+    return VERR_NOT_IMPLEMENTED;
+# endif
+}
+
+
+/**
  * @interface_method_impl{PDMIDISPLAYPORT,pfnCreateOutputTargetAsync}
  */
 static DECLCALLBACK(int) vgaR3PortCreateOutputTargetAsync(PPDMIDISPLAYPORT pInterface,
@@ -6817,6 +6865,8 @@ static DECLCALLBACK(int)   vgaR3Construct(PPDMDEVINS pDevIns, int iInstance, PCF
     pThisCC->IPort.pfnReportHostCursorPosition = vgaR3PortReportHostCursorPosition;
 
     pThisCC->IPort.pfnGetUniqueOutputTargetToken = vgaR3PortGetUniqueOutputTargetToken;
+    pThisCC->IPort.pfnQueryDefaultOutputTargetToken = vgaR3PortQueryDefaultOutputTargetToken;
+    pThisCC->IPort.pfnCreateOutputTarget         = vgaR3PortCreateOutputTarget;
     pThisCC->IPort.pfnCreateOutputTargetAsync    = vgaR3PortCreateOutputTargetAsync;
     pThisCC->IPort.pfnOutputTargetDesc           = vgaR3PortOutputTargetDesc;
     pThisCC->IPort.pfnRetainOutputTarget         = vgaR3PortRetainOutputTarget;
