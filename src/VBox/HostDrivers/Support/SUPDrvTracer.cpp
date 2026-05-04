@@ -1,4 +1,4 @@
-/* $Id: SUPDrvTracer.cpp 114002 2026-04-23 23:07:16Z knut.osmundsen@oracle.com $ */
+/* $Id: SUPDrvTracer.cpp 114062 2026-05-04 08:56:49Z alexander.eichner@oracle.com $ */
 /** @file
  * VBoxDrv - The VirtualBox Support Driver - Tracer Interface.
  */
@@ -2112,7 +2112,7 @@ int  VBOXCALL   supdrvIOCtl_TracerUmodRegister(PSUPDRVDEVEXT pDevExt, PSUPDRVSES
     /*
      * Lock down and map the user-mode structures.
      */
-    rc = RTR0MemObjLockUser(&pUmod->hMemObjLock, R3PtrLock, cbLock, RTMEM_PROT_READ | RTMEM_PROT_WRITE, NIL_RTR0PROCESS);
+    rc = RTR0MemObjLockUser(&pUmod->hMemObjLock, R3PtrLock, cbLock, RTMEM_PROT_READ | RTMEM_PROT_WRITE, 0 /*fFlags*/, NIL_RTR0PROCESS);
     if (RT_SUCCESS(rc))
     {
         rc = RTR0MemObjMapKernel(&pUmod->hMemObjMap, pUmod->hMemObjLock, (void *)-1, 0, RTMEM_PROT_READ | RTMEM_PROT_WRITE);

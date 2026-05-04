@@ -1,4 +1,4 @@
-/* $Id: DevVGA.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: DevVGA.cpp 114062 2026-05-04 08:56:49Z alexander.eichner@oracle.com $ */
 /** @file
  * DevVGA - VBox VGA/VESA device.
  */
@@ -6749,7 +6749,7 @@ static DECLCALLBACK(int)   vgaR3Construct(PPDMDEVINS pDevIns, int iInstance, PCF
                                               "VMSVGA", NULL /*paExtDescs*/, &pThis->hIoPortVmSvga);
             AssertRCReturn(rc, rc);
 
-            rc = PDMDevHlpPCIIORegionCreateMmio2Ex(pDevIns, pThis->pciRegions.iFIFO, pThis->svga.cbFIFO,
+            rc = PDMDevHlpPCIIORegionCreateMmio2Ex(pDevIns, pDevIns->apPciDevs[0], pThis->pciRegions.iFIFO, pThis->svga.cbFIFO,
                                                    PCI_ADDRESS_SPACE_MEM, 0 /*fFlags*/, vmsvgaR3PciIORegionFifoMapUnmap,
                                                    "VMSVGA-FIFO", (void **)&pThisCC->svga.pau32FIFO, &pThis->hMmio2VmSvgaFifo);
             AssertRCReturn(rc, PDMDevHlpVMSetError(pDevIns, rc, RT_SRC_POS,
@@ -6763,7 +6763,7 @@ static DECLCALLBACK(int)   vgaR3Construct(PPDMDEVINS pDevIns, int iInstance, PCF
     /*
      * Allocate VRAM and create a PCI region for it.
      */
-    rc = PDMDevHlpPCIIORegionCreateMmio2Ex(pDevIns, pThis->pciRegions.iVRAM, pThis->vram_size,
+    rc = PDMDevHlpPCIIORegionCreateMmio2Ex(pDevIns, pDevIns->apPciDevs[0], pThis->pciRegions.iVRAM, pThis->vram_size,
                                            PCI_ADDRESS_SPACE_MEM_PREFETCH, PGMPHYS_MMIO2_FLAGS_TRACK_DIRTY_PAGES,
                                            vgaR3PciIORegionVRamMapUnmap, "VRam", (void **)&pThisCC->pbVRam, &pThis->hMmio2VRam);
     AssertLogRelRCReturn(rc, PDMDevHlpVMSetError(pDevIns, rc, RT_SRC_POS,

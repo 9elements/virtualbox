@@ -1,4 +1,4 @@
-/* $Id: memobj-r0drv-nt.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: memobj-r0drv-nt.cpp 114062 2026-05-04 08:56:49Z alexander.eichner@oracle.com $ */
 /** @file
  * IPRT - Ring-0 Memory Objects, NT.
  */
@@ -908,9 +908,10 @@ static int rtR0MemObjNtLock(PPRTR0MEMOBJINTERNAL ppMem, void *pv, size_t cb, uin
 
 
 DECLHIDDEN(int) rtR0MemObjNativeLockUser(PPRTR0MEMOBJINTERNAL ppMem, RTR3PTR R3Ptr, size_t cb, uint32_t fAccess,
-                                         RTR0PROCESS R0Process, const char *pszTag)
+                                         uint32_t fFlags, RTR0PROCESS R0Process, const char *pszTag)
 {
     AssertMsgReturn(R0Process == RTR0ProcHandleSelf(), ("%p != %p\n", R0Process, RTR0ProcHandleSelf()), VERR_NOT_SUPPORTED);
+    RT_NOREF(fFlags);
     /* (Can use MmProbeAndLockProcessPages if we need to mess with other processes later.) */
     return rtR0MemObjNtLock(ppMem, (void *)R3Ptr, cb, fAccess, R0Process, pszTag);
 }

@@ -1,4 +1,4 @@
-/* $Id: VBoxGuestR0LibHGCMInternal.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: VBoxGuestR0LibHGCMInternal.cpp 114062 2026-05-04 08:56:49Z alexander.eichner@oracle.com $ */
 /** @file
  * VBoxGuestLib - Host-Guest Communication Manager internal functions, implemented by VBoxGuest
  */
@@ -350,7 +350,7 @@ static int vbglR0HGCMInternalPreprocessCall(PCVBGLIOCHGCMCALL pCallInfo, uint32_
                     else
                     {
 #ifndef USE_BOUNCE_BUFFERS
-                        rc = RTR0MemObjLockUser(&hObj, (RTR3PTR)pSrcParm->u.Pointer.u.linearAddr, cb, fAccess, NIL_RTR0PROCESS);
+                        rc = RTR0MemObjLockUser(&hObj, (RTR3PTR)pSrcParm->u.Pointer.u.linearAddr, cb, fAccess, 0 /*fFlags*/, NIL_RTR0PROCESS);
                         if (RT_FAILURE(rc))
                         {
                             Log(("GstHGCMCall: id=%#x fn=%u parm=%u RTR0MemObjLockUser(,%p,%#x,nil) -> %Rrc\n",

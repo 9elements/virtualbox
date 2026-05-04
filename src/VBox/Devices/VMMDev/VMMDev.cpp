@@ -1,4 +1,4 @@
-/* $Id: VMMDev.cpp 113164 2026-02-25 19:51:20Z vitali.pelenjow@oracle.com $ */
+/* $Id: VMMDev.cpp 114062 2026-05-04 08:56:49Z alexander.eichner@oracle.com $ */
 /** @file
  * VMMDev - Guest <-> VMM/Host communication device.
  */
@@ -5193,7 +5193,7 @@ static DECLCALLBACK(int) vmmdevConstruct(PPDMDEVINS pDevIns, int iInstance, PCFG
      */
     if (pThis->fHeapEnabled)
     {
-        rc = PDMDevHlpPCIIORegionCreateMmio2Ex(pDevIns, 2 /*iPciRegion*/, VMMDEV_HEAP_SIZE, PCI_ADDRESS_SPACE_MEM_PREFETCH,
+        rc = PDMDevHlpPCIIORegionCreateMmio2Ex(pDevIns, pDevIns->apPciDevs[0], 2 /*iPciRegion*/, VMMDEV_HEAP_SIZE, PCI_ADDRESS_SPACE_MEM_PREFETCH,
                                                0 /*fFlags*/, vmmdevMmio2HeapRegionMap, "VMMDev Heap",
                                                (void **)&pThisCC->pVMMDevHeapR3, &pThis->hMmio2Heap);
         if (RT_FAILURE(rc))

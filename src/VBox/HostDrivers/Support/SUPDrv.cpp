@@ -1,4 +1,4 @@
-/* $Id: SUPDrv.cpp 114002 2026-04-23 23:07:16Z knut.osmundsen@oracle.com $ */
+/* $Id: SUPDrv.cpp 114062 2026-05-04 08:56:49Z alexander.eichner@oracle.com $ */
 /** @file
  * VBoxDrv - The VirtualBox Support Driver - Common code.
  */
@@ -3575,7 +3575,7 @@ SUPR0DECL(int) SUPR0LockMem(PSUPDRVSESSION pSession, RTR3PTR pvR3, uint32_t cPag
      * Let IPRT do the job.
      */
     Mem.eType = MEMREF_TYPE_LOCKED;
-    rc = RTR0MemObjLockUser(&Mem.MemObj, pvR3, cb, RTMEM_PROT_READ | RTMEM_PROT_WRITE, NIL_RTR0PROCESS);
+    rc = RTR0MemObjLockUser(&Mem.MemObj, pvR3, cb, RTMEM_PROT_READ | RTMEM_PROT_WRITE, 0 /*fFlags*/, NIL_RTR0PROCESS);
     if (RT_SUCCESS(rc))
     {
         uint32_t iPage = cPages;

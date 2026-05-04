@@ -1,4 +1,4 @@
-/* $Id: VBoxGuest-haiku.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: VBoxGuest-haiku.h 114062 2026-05-04 08:56:49Z alexander.eichner@oracle.com $ */
 /** @file
  * VBoxGuest kernel module, Haiku Guest Additions, header.
  */
@@ -160,7 +160,7 @@ struct vboxguest_module_info
     RTHCPHYS(*_RTR0MemObjGetPagePhysAddr)(RTR0MEMOBJ MemObj, size_t iPage);
     bool (*_RTR0MemObjIsMapping)(RTR0MEMOBJ MemObj);
     int (*_RTR0MemObjLockKernelTag)(PRTR0MEMOBJ pMemObj, void *pv, size_t cb, uint32_t fAccess, const char *pszTag);
-    int (*_RTR0MemObjLockUserTag)(PRTR0MEMOBJ pMemObj, RTR3PTR R3Ptr, size_t cb, uint32_t fAccess,
+    int (*_RTR0MemObjLockUserTag)(PRTR0MEMOBJ pMemObj, RTR3PTR R3Ptr, size_t cb, uint32_t fAccess, uint32_t fFlags,
                                   RTR0PROCESS R0Process, const char *pszTag);
     int (*_RTR0MemObjMapKernelExTag)(PRTR0MEMOBJ pMemObj, RTR0MEMOBJ MemObjToMap, void *pvFixed, size_t uAlignment,
                                      unsigned fProt, size_t offSub, size_t cbSub, const char *pszTag);

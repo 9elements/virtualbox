@@ -1,4 +1,4 @@
-/* $Id: DevNVMe.cpp 113808 2026-04-10 10:23:10Z alexander.eichner@oracle.com $ */
+/* $Id: DevNVMe.cpp 114062 2026-05-04 08:56:49Z alexander.eichner@oracle.com $ */
 /** @file
  * DevNVMe - Non Volatile Memory express (previous name: NVMHCI)
  */
@@ -7404,7 +7404,7 @@ static DECLCALLBACK(int) nvmeR3Construct(PPDMDEVINS pDevIns, int iInstance, PCFG
     /* Region #3: Controller memory buffer region, optional. */
     if (pThis->cbCtrlMemBuf)
     {
-        rc = PDMDevHlpPCIIORegionCreateMmio2Ex(pDevIns, NVME_PCI_MEM_CTRL_BUF_BAR, pThis->cbCtrlMemBuf,
+        rc = PDMDevHlpPCIIORegionCreateMmio2Ex(pDevIns, pDevIns->apPciDevs[0], NVME_PCI_MEM_CTRL_BUF_BAR, pThis->cbCtrlMemBuf,
                                                PCI_ADDRESS_SPACE_MEM, 0 /*fMmio2Flags*/, nvmeR3MapUnmapCtrlMemBuf,
                                                "NVMe-MemCtrlBuf", &pThisCC->pvCtrlMemBufR3, &pThis->hMmio2);
         if (RT_FAILURE(rc))
