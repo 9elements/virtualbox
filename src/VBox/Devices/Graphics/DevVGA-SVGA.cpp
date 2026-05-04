@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA.cpp 114064 2026-05-04 16:56:20Z vitali.pelenjow@oracle.com $ */
+/* $Id: DevVGA-SVGA.cpp 114065 2026-05-04 18:09:09Z vitali.pelenjow@oracle.com $ */
 /** @file
  * VMware SVGA device.
  *
@@ -955,12 +955,8 @@ static void vmsvgaR3VBVAResize(PVGASTATE pThis, PVGASTATECC pThisCC)
             screen.u16Flags        = VBVA_SCREEN_F_DISABLED;
         }
 
-#ifndef PERMANENT_SCREEN_BITMAP
-        void *pvVRAM = pScreen->pvScreenBitmap ? pScreen->pvScreenBitmap : pThisCC->pbVRam;
-#else
         /* No VRAM pointer for screen targets. Main will use OutputTarget interface to access the screen image. */
         void *pvVRAM = pScreen->offVRAM == VMSVGA_VRAM_OFFSET_SCREEN_TARGET ? NULL : pThisCC->pbVRam;
-#endif
         rc = pThisCC->pDrv->pfnVBVAResize(pThisCC->pDrv, &view, &screen, pvVRAM, /*fResetInputMapping=*/ true);
         AssertRC(rc);
     }
@@ -1699,12 +1695,6 @@ int vmsvgaR3ChangeMode(PVGASTATE pThis, PVGASTATECC pThisCC)
             return VINF_SUCCESS;
         }
 
-#ifndef PERMANENT_SCREEN_BITMAP
-        /* Remember screen bitmap buffers to be freed. */
-        void * apvOldScreenBitmap[RT_ELEMENTS(pSVGAState->aScreens)];
-        RT_ZERO(apvOldScreenBitmap);
-#endif
-
         pScreen->fDefined  = true;
         pScreen->fModified = true;
         pScreen->fuScreen  = SVGA_SCREEN_MUST_BE_SET | SVGA_SCREEN_IS_PRIMARY;
@@ -1716,12 +1706,6 @@ int vmsvgaR3ChangeMode(PVGASTATE pThis, PVGASTATECC pThisCC)
         pScreen->cHeight   = pThis->svga.uHeight;
         pScreen->cBpp      = pThis->svga.uBpp;
         pScreen->cDpi      = 0; /* GFB mode does not support dpi. */
-#ifndef PERMANENT_SCREEN_BITMAP
-        /* GFB mode uses the guest VRAM. The screen bitmap must be deallocated after 'vmsvgaR3VBVAResize'. */
-        apvOldScreenBitmap[0] = pScreen->pvScreenBitmap;
-        /* Set pvScreenBitmap to zero because if it is not, then vmsvgaR3VBVAResize uses it as VRAM address. */
-        pScreen->pvScreenBitmap = 0;
-#endif
 
         for (unsigned iScreen = 1; iScreen < RT_ELEMENTS(pSVGAState->aScreens); ++iScreen)
         {
@@ -1736,20 +1720,10 @@ int vmsvgaR3ChangeMode(PVGASTATE pThis, PVGASTATECC pThisCC)
                 if (RT_LIKELY(pThis->svga.f3DEnabled))
                     vmsvga3dDestroyScreen(pThisCC, pScreen);
 #endif
-#ifndef PERMANENT_SCREEN_BITMAP
-                apvOldScreenBitmap[iScreen] = pScreen->pvScreenBitmap;
-                pScreen->pvScreenBitmap = 0;
-#endif
             }
         }
 
         vmsvgaR3VBVAResize(pThis, pThisCC);
-
-#ifndef PERMANENT_SCREEN_BITMAP
-        /* Deallocate screen bitmaps for all screens because GFB mode uses the guest VRAM. */
-        for (unsigned iScreen = 0; iScreen < RT_ELEMENTS(apvOldScreenBitmap); ++iScreen)
-            RTMemFree(apvOldScreenBitmap[iScreen]);
-#endif
     }
     else
     {
@@ -7215,11 +7189,7 @@ static int vmsvgaR3LoadExecFifo(PCPDMDEVHLPR3 pHlp, PVGASTATE pThis, PVGASTATECC
                     if (u32)
                     {
                         /** @todo Simplify and read directly to pScreen->pScreenOutputTarget->desc.pvOutputBuffer. */
-#ifndef PERMANENT_SCREEN_BITMAP
-                        pScreen->pvScreenBitmap = RTMemAlloc(u32);
-#else
                         pScreen->pvScreenBitmap = RTMemAllocZ(pThis->svga.u32MaxWidth * pThis->svga.u32MaxHeight * 4);
-#endif
                         AssertPtrReturn(pScreen->pvScreenBitmap, VERR_NO_MEMORY);
 
                         pHlp->pfnSSMGetMem(pSSM, pScreen->pvScreenBitmap, u32);
@@ -7638,11 +7608,7 @@ static int vmsvgaR3SaveExecFifo(PCPDMDEVHLPR3 pHlp, PVGASTATECC pThisCC, PSSMHAN
         /*
          * VGA_SAVEDSTATE_VERSION_VMSVGA_DX
          */
-#ifndef PERMANENT_SCREEN_BITMAP
-        if (pScreen->pvScreenBitmap)
-#else
         if (pScreen->offVRAM == VMSVGA_VRAM_OFFSET_SCREEN_TARGET)
-#endif
         {
             if (pScreen->pScreenOutputTarget)
             {

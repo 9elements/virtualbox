@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA.h 114064 2026-05-04 16:56:20Z vitali.pelenjow@oracle.com $ */
+/* $Id: DevVGA-SVGA.h 114065 2026-05-04 18:09:09Z vitali.pelenjow@oracle.com $ */
 /** @file
  * VMware SVGA device
  */
@@ -280,11 +280,6 @@ typedef struct VMSVGAHWOUTPUTTARGET *PVMSVGAHWOUTPUTTARGET;
 #endif
 
 #define VMSVGA_VRAM_OFFSET_SCREEN_TARGET UINT32_C(0xFFFFFFFF)
-
-/* Allocates VMSVGASCREENOBJECT::pvScreenBitmap with maximum possible size
- * (pThis->svga.u32MaxWidth x pThis->svga.u32MaxHeight)
- * in order to avoid reallocation of the memory on video mode change. */
-#define PERMANENT_SCREEN_BITMAP
 
 /* Output target, i.e. guest screen image in a particular format. */
 typedef struct VMSVGAOUTPUTTARGET

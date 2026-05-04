@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA-cmd.cpp 114064 2026-05-04 16:56:20Z vitali.pelenjow@oracle.com $ */
+/* $Id: DevVGA-SVGA-cmd.cpp 114065 2026-05-04 18:09:09Z vitali.pelenjow@oracle.com $ */
 /** @file
  * VMware SVGA device - implementation of VMSVGA commands.
  */
@@ -2566,24 +2566,14 @@ static void vmsvga3dCmdDefineGBScreenTarget(PVGASTATE pThis, PVGASTATECC pThisCC
         pScreen->cBpp    = 32;
         pScreen->cDpi    = pCmd->dpi;
 
-#ifndef PERMANENT_SCREEN_BITMAP
-        /* The screen bitmap must be deallocated after 'vmsvgaR3ChangeMode'. */
-        void *pvOldScreenBitmap = pScreen->pvScreenBitmap;
-        pScreen->pvScreenBitmap = 0;
-#endif
-
         if (RT_LIKELY(pThis->svga.f3DEnabled))
             vmsvga3dDefineScreen(pThis, pThisCC, pScreen);
 
         /* Always allocate a system memory buffer for screen targets.
          * D3D11 backend copies the screen target surface content to this buffer asynchronously.
          */
-#ifndef PERMANENT_SCREEN_BITMAP
-        pScreen->pvScreenBitmap = RTMemAllocZ(pScreen->cHeight * pScreen->cbPitch);
-#else
         if (!pScreen->pvScreenBitmap)
             pScreen->pvScreenBitmap = RTMemAllocZ(pThis->svga.u32MaxWidth * pThis->svga.u32MaxHeight * 4);
-#endif
         AssertLogRelMsg(pScreen->pvScreenBitmap,
             ("VMSVGA3D: failed to allocate memory buffer for screen target %u (%ux%u)\n",
              pCmd->stid, pCmd->width, pCmd->height));
@@ -2593,10 +2583,6 @@ static void vmsvga3dCmdDefineGBScreenTarget(PVGASTATE pThis, PVGASTATECC pThisCC
 
         pThis->svga.fGFBRegisters = false;
         vmsvgaR3ChangeMode(pThis, pThisCC);
-
-#ifndef PERMANENT_SCREEN_BITMAP
-        RTMemFree(pvOldScreenBitmap);
-#endif
     }
 }
 
@@ -8195,15 +8181,9 @@ void vmsvgaR3CmdDefineScreen(PVGASTATE pThis, PVGASTATECC pThisCC, SVGAFifoCmdDe
 
     pScreen->cDpi      = 0; /* SVGAFifoCmdDefineScreen does not support dpi. */
 
-#ifndef PERMANENT_SCREEN_BITMAP
-    /* SVGAFifoCmdDefineScreen uses the guest VRAM. The screen bitmap must be deallocated after 'vmsvgaR3ChangeMode'. */
-    void *pvOldScreenBitmap = pScreen->pvScreenBitmap;
-    pScreen->pvScreenBitmap = 0;
-#else
     /* The screen is not a screen target anymore. */
     if (pScreen->offVRAM == VMSVGA_VRAM_OFFSET_SCREEN_TARGET)
         pScreen->offVRAM = uScreenOffset;
-#endif
 
     pScreen->fDefined  = true;
     pScreen->fModified = true;
@@ -8237,10 +8217,6 @@ void vmsvgaR3CmdDefineScreen(PVGASTATE pThis, PVGASTATECC pThisCC, SVGAFifoCmdDe
 
     pThis->svga.fGFBRegisters = false;
     vmsvgaR3ChangeMode(pThis, pThisCC);
-
-#ifndef PERMANENT_SCREEN_BITMAP
-    RTMemFree(pvOldScreenBitmap);
-#endif
 }
 
 
