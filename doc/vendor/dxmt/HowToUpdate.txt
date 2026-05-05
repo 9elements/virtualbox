@@ -13,7 +13,7 @@ For general information about vendor branches, see:
 Updating the vendor branch
 --------------------------
 
-The goal here is to make vendor/dxmt/current an exact replica of the 
+The goal here is to make vendor/dxmt/current an exact replica of the
 current dxmt tarball.  We use diff to find files and directories that
 are added and removed.  There are other ways.
 
@@ -34,7 +34,7 @@ Steps (y.y.y = previous version, x.x.x = new version):
 
     3. Apply the patch to vendor/dxmt/current:
            svn patch /tmp/y.y.y-x.x.x.diff
-           
+
     4. Check that the tarball and 'current' matches, copy over and add any
        missing files (typically binaries):
            cd current
@@ -79,7 +79,7 @@ Variant I (y.y.y = previous version, x.x.x = new version):
                "^/vendor/dxmt/current" \
                "^/trunk/src/libs/dxmt-x.x.x"
            svn up src/libs
-   
+
     2. Apply our changes:
            cd src/libs/dxmt-x.x.x
            svn merge  "^/vendor/dxmt/y.y.y" "^/trunk/src/libs/dxmt-y.y.y" .

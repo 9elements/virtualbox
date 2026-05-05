@@ -1,4 +1,4 @@
-# $Id: .scm-settings 113991 2026-04-23 14:01:44Z knut.osmundsen@oracle.com $
+# $Id: .scm-settings 114070 2026-05-05 08:54:18Z alexander.eichner@oracle.com $
 ## @file
 # Source code massager settings for the docs.
 #
@@ -62,6 +62,10 @@
 /tools/*.patch|/tools/*.diff: --treat-as plaintext --del-action force-native-eol --no-convert-eol \
         --no-strip-trailing-blanks --dont-set-svn-keywords --no-fix-todos --no-force-final-eol --strip-no-trailing-lines
 /tools/common/dita-ot/dita-ot-bld.sh: --no-convert-tabs
+
+# The license has some invalid UTF-8 encoding
+--filter-out-files "/vendor/edk2/LICENSE_AFL3.txt"
+/vendor/edk2/svn_load_dirs.pl: --no-convert-tabs --strip-no-trailing-lines --no-strip-trailing-blanks --external-copyright
 
 ## @todo export: probably not.
 /VBox-7.1-thoughts-on-ARM.txt:      --svn-sync-process-export none

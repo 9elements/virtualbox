@@ -34,7 +34,7 @@ Steps (y.y.y = previous version, x.x.x = new version):
 
     3. Apply the patch to vendor/dxvk/current:
            svn patch /tmp/y.y.y-x.x.x.diff
-           
+
     4. Check that the tarball and 'current' matches, copy over and add any
        missing files (typically binaries):
            cd current
@@ -79,7 +79,7 @@ Variant I (y.y.y = previous version, x.x.x = new version):
                "^/vendor/dxvk/current" \
                "^/trunk/src/libs/dxvk-x.x.x"
            svn up src/libs
-   
+
     2. Apply our changes:
            cd src/libs/dxvk-x.x.x
            svn merge  "^/vendor/dxvk/y.y.y" "^/trunk/src/libs/dxvk-y.y.y" .
