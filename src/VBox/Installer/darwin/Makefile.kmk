@@ -1,4 +1,4 @@
-# $Id: Makefile.kmk 114034 2026-04-27 10:41:17Z alexander.eichner@oracle.com $
+# $Id: Makefile.kmk 114071 2026-05-05 08:55:37Z alexander.eichner@oracle.com $
 ## @file
 # Install misc stuff and create dist packages for Mac OS X.
 #
@@ -403,7 +403,7 @@ VBOX_INSTALL_LANG_LPROJ  := $(addsuffix .lproj,$(VBOX_APPROVED_GUI_LANGUAGES))
 #
 
 VBOX_DI_VBAPP_PROGS_HARDENED = \
- 	Resources/VBoxHeadless.app/Contents/MacOS/VBoxHeadless \
+	Resources/VBoxHeadless.app/Contents/MacOS/VBoxHeadless \
 	MacOS/VBoxNetDHCP \
 	MacOS/VBoxNetNAT \
 	MacOS/VBoxVMMPreload
