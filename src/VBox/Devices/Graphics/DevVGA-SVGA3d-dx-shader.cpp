@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA3d-dx-shader.cpp 114075 2026-05-05 17:22:52Z vitali.pelenjow@oracle.com $ */
+/* $Id: DevVGA-SVGA3d-dx-shader.cpp 114076 2026-05-05 17:34:50Z vitali.pelenjow@oracle.com $ */
 /** @file
  * DevVMWare - VMWare SVGA device - VGPU10+ (DX) shader utilities.
  */
@@ -2238,12 +2238,14 @@ int DXShaderParse(void const *pvShaderCode, uint32_t cbShaderCode, DXShaderInfo 
 
     if (RT_FAILURE(rc))
     {
+        dxbcByteWriterReset(w);
         return rc;
     }
 
     rc = dxbcOutputFinalize(&outctx, w);
     if (RT_FAILURE(rc))
     {
+        dxbcByteWriterReset(w);
         return rc;
     }
 
