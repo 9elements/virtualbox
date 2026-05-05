@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA3d-dx-shader.cpp 106320 2024-10-15 12:08:41Z klaus.espenlaub@oracle.com $ */
+/* $Id: DevVGA-SVGA3d-dx-shader.cpp 114078 2026-05-05 17:59:21Z vitali.pelenjow@oracle.com $ */
 /** @file
  * DevVMWare - VMWare SVGA device - VGPU10+ (DX) shader utilities.
  */
@@ -1395,6 +1395,7 @@ DECLINLINE(void) dxbcByteWriterFetchData(DXBCByteWriter *w, void **ppv, uint32_t
 static int dxbcParseOperand(DXBCTokenReader *r, VGPUOperand *paOperand, uint32_t *pcOperandRemain)
 {
     ASSERT_GUEST_RETURN(*pcOperandRemain > 0, VERR_NOT_SUPPORTED);
+    *pcOperandRemain -= 1;
 
     ASSERT_GUEST_RETURN(dxbcTokenReaderCanRead(r, 1), VERR_INVALID_PARAMETER);
 
@@ -1539,8 +1540,7 @@ static int dxbcParseOperand(DXBCTokenReader *r, VGPUOperand *paOperand, uint32_t
 
     paOperand->cOperandToken = dxbcTokenReaderPtr(r) - paOperand->paOperandToken;
 
-    *pcOperandRemain -= 1;
-    return VINF_SUCCESS;
+    return rc;
 }
 
 
@@ -2027,7 +2027,7 @@ static int dxbcOutputOpcode(DXBCOUTPUTCTX *pOutctx, DXBCByteWriter *w, VGPUOpcod
             dxbcByteWriterAddTokens(w, &pOpcode->paOpcodeToken[1], 2);
             uint32_t const returnType = 0x5555; /* float */
             dxbcByteWriterAddTokens(w, &returnType, 1);
-            return VINF_SUCCESS;
+            return w->rc;
         }
     }
     else if (pOpcode->opcodeType == VGPU10_OPCODE_VMWARE)
@@ -2049,7 +2049,7 @@ static int dxbcOutputOpcode(DXBCOUTPUTCTX *pOutctx, DXBCByteWriter *w, VGPUOpcod
 
     /* Just emit the unmodified instruction. */
     dxbcByteWriterAddTokens(w, pOpcode->paOpcodeToken, pOpcode->cOpcodeToken);
-    return VINF_SUCCESS;
+    return w->rc;
 }
 
 
@@ -2238,12 +2238,14 @@ int DXShaderParse(void const *pvShaderCode, uint32_t cbShaderCode, DXShaderInfo 
 
     if (RT_FAILURE(rc))
     {
+        dxbcByteWriterReset(w);
         return rc;
     }
 
     rc = dxbcOutputFinalize(&outctx, w);
     if (RT_FAILURE(rc))
     {
+        dxbcByteWriterReset(w);
         return rc;
     }
 
@@ -2351,44 +2353,6 @@ void DXShaderFree(DXShaderInfo *pInfo)
     RTMemFree(pInfo->pvBytecode);
     RT_ZERO(*pInfo);
 }
-
-
-#if 0 // Unused. Replaced with dxbcSemanticInfo.
-static char const *dxbcSemanticName(SVGA3dDXSignatureSemanticName enmSemanticName)
-{
-    /* https://docs.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-semantics#system-value-semantics */
-    switch (enmSemanticName)
-    {
-        case SVGADX_SIGNATURE_SEMANTIC_NAME_POSITION:                          return "SV_Position";
-        case SVGADX_SIGNATURE_SEMANTIC_NAME_CLIP_DISTANCE:                     return "SV_ClipDistance";
-        case SVGADX_SIGNATURE_SEMANTIC_NAME_CULL_DISTANCE:                     return "SV_CullDistance";
-        case SVGADX_SIGNATURE_SEMANTIC_NAME_RENDER_TARGET_ARRAY_INDEX:         return "SV_RenderTargetArrayIndex";
-        case SVGADX_SIGNATURE_SEMANTIC_NAME_VIEWPORT_ARRAY_INDEX:              return "SV_ViewportArrayIndex";
-        case SVGADX_SIGNATURE_SEMANTIC_NAME_VERTEX_ID:                         return "SV_VertexID";
-        case SVGADX_SIGNATURE_SEMANTIC_NAME_PRIMITIVE_ID:                      return "SV_PrimitiveID";
-        case SVGADX_SIGNATURE_SEMANTIC_NAME_INSTANCE_ID:                       return "SV_InstanceID";
-        case SVGADX_SIGNATURE_SEMANTIC_NAME_IS_FRONT_FACE:                     return "SV_IsFrontFace";
-        case SVGADX_SIGNATURE_SEMANTIC_NAME_SAMPLE_INDEX:                      return "SV_SampleIndex";
-        case SVGADX_SIGNATURE_SEMANTIC_NAME_FINAL_QUAD_U_EQ_0_EDGE_TESSFACTOR: return "SV_FinalQuadUeq0EdgeTessFactor";
-        case SVGADX_SIGNATURE_SEMANTIC_NAME_FINAL_QUAD_V_EQ_0_EDGE_TESSFACTOR: return "SV_FinalQuadVeq0EdgeTessFactor";
-        case SVGADX_SIGNATURE_SEMANTIC_NAME_FINAL_QUAD_U_EQ_1_EDGE_TESSFACTOR: return "SV_FinalQuadUeq1EdgeTessFactor";
-        case SVGADX_SIGNATURE_SEMANTIC_NAME_FINAL_QUAD_V_EQ_1_EDGE_TESSFACTOR: return "SV_FinalQuadVeq1EdgeTessFactor";
-        case SVGADX_SIGNATURE_SEMANTIC_NAME_FINAL_QUAD_U_INSIDE_TESSFACTOR:    return "SV_FinalQuadUInsideTessFactor";
-        case SVGADX_SIGNATURE_SEMANTIC_NAME_FINAL_QUAD_V_INSIDE_TESSFACTOR:    return "SV_FinalQuadVInsideTessFactor";
-        case SVGADX_SIGNATURE_SEMANTIC_NAME_FINAL_TRI_U_EQ_0_EDGE_TESSFACTOR:  return "SV_FinalTriUeq0EdgeTessFactor";
-        case SVGADX_SIGNATURE_SEMANTIC_NAME_FINAL_TRI_V_EQ_0_EDGE_TESSFACTOR:  return "SV_FinalTriVeq0EdgeTessFactor";
-        case SVGADX_SIGNATURE_SEMANTIC_NAME_FINAL_TRI_W_EQ_0_EDGE_TESSFACTOR:  return "SV_FinalTriWeq0EdgeTessFactor";
-        case SVGADX_SIGNATURE_SEMANTIC_NAME_FINAL_TRI_INSIDE_TESSFACTOR:       return "SV_FinalTriInsideTessFactor";
-        case SVGADX_SIGNATURE_SEMANTIC_NAME_FINAL_LINE_DETAIL_TESSFACTOR:      return "SV_FinalLineDetailTessFactor";
-        case SVGADX_SIGNATURE_SEMANTIC_NAME_FINAL_LINE_DENSITY_TESSFACTOR:     return "SV_FinalLineDensityTessFactor";
-        default:
-            Assert(enmSemanticName == SVGADX_SIGNATURE_SEMANTIC_NAME_UNDEFINED);
-            break;
-    }
-    /* Generic. Arbitrary name. It does not have any meaning. */
-    return "ATTRIB";
-}
-#endif
 
 
 /* https://docs.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-semantics#system-value-semantics
