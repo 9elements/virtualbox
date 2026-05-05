@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA.cpp 114065 2026-05-04 18:09:09Z vitali.pelenjow@oracle.com $ */
+/* $Id: DevVGA-SVGA.cpp 114073 2026-05-05 09:57:55Z vitali.pelenjow@oracle.com $ */
 /** @file
  * VMware SVGA device.
  *
@@ -934,10 +934,7 @@ static void vmsvgaR3VBVAResize(PVGASTATE pThis, PVGASTATECC pThisCC)
             screen.i32OriginX      = pScreen->xOrigin;
             screen.i32OriginY      = pScreen->yOrigin;
             if (pScreen->offVRAM == VMSVGA_VRAM_OFFSET_SCREEN_TARGET)
-            {
-                Assert(pScreen->pvScreenBitmap);
                 screen.u32StartOffset  = 0;
-            }
             else
                 screen.u32StartOffset  = pScreen->offVRAM;
             screen.u32LineSize     = pScreen->cbPitch;
@@ -1689,8 +1686,7 @@ int vmsvgaR3ChangeMode(PVGASTATE pThis, PVGASTATECC pThisCC)
             || pScreen->cBpp    == VMSVGA_VAL_UNINITIALIZED)
         {
             /* Do not apply the change if the guest has not finished updating registers.
-             * This is necessary in order to make a full mode change, including freeing
-             * pvScreenBitmap buffers for screen 0 if necessary.
+             * This is necessary in order to make a full mode change.
              */
             return VINF_SUCCESS;
         }
@@ -7188,22 +7184,11 @@ static int vmsvgaR3LoadExecFifo(PCPDMDEVHLPR3 pHlp, PVGASTATE pThis, PVGASTATECC
                     AssertLogRelRCReturn(rc, rc);
                     if (u32)
                     {
-                        /** @todo Simplify and read directly to pScreen->pScreenOutputTarget->desc.pvOutputBuffer. */
-                        pScreen->pvScreenBitmap = RTMemAllocZ(pThis->svga.u32MaxWidth * pThis->svga.u32MaxHeight * 4);
-                        AssertPtrReturn(pScreen->pvScreenBitmap, VERR_NO_MEMORY);
+                        AssertLogRelMsgReturn(pScreen->pScreenOutputTarget->desc.cbOutputBuffer == u32,
+                                              ("cbOutputBuffer=%RU32, saved buffer size=%RU32\n", pScreen->pScreenOutputTarget->desc.cbOutputBuffer, u32),
+                                              VERR_SSM_DATA_UNIT_FORMAT_CHANGED);
 
-                        pHlp->pfnSSMGetMem(pSSM, pScreen->pvScreenBitmap, u32);
-
-                        /* Older versions did not use VMSVGA_VRAM_OFFSET_SCREEN_TARGET to mark screen target
-                         * backed screens and offVRAM was 0 for such screens. However these versions always
-                         * stored pvScreenBitmap for them. Adjust the value.
-                         */
-                        if (pScreen->offVRAM == 0)
-                            pScreen->offVRAM = VMSVGA_VRAM_OFFSET_SCREEN_TARGET;
-
-                        Assert(pScreen->pScreenOutputTarget->desc.cbOutputBuffer == u32);
-                        memcpy(pScreen->pScreenOutputTarget->desc.pvOutputBuffer, pScreen->pvScreenBitmap,
-                               RT_MIN(pScreen->pScreenOutputTarget->desc.cbOutputBuffer, u32));
+                        pHlp->pfnSSMGetMem(pSSM, pScreen->pScreenOutputTarget->desc.pvOutputBuffer, u32);
                     }
                 }
             }

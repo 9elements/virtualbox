@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA-internal.h 114064 2026-05-04 16:56:20Z vitali.pelenjow@oracle.com $ */
+/* $Id: DevVGA-SVGA-internal.h 114073 2026-05-05 09:57:55Z vitali.pelenjow@oracle.com $ */
 /** @file
  * VMWare SVGA device - internal header for DevVGA-SVGA* source files.
  */
@@ -303,7 +303,7 @@ DECLCALLBACK(int) vmsvgaR3ResetGmrHandlers(PVGASTATE pThis);
 DECLCALLBACK(int) vmsvgaR3DeregisterGmr(PPDMDEVINS pDevIns, uint32_t gmrId);
 #endif
 
-int vmsvgaR3DestroyScreen(PVGASTATE pThis, PVGASTATECC pThisCC, VMSVGASCREENOBJECT *pScreen, bool fRecreating);
+int vmsvgaR3DestroyScreen(PVGASTATE pThis, PVGASTATECC pThisCC, VMSVGASCREENOBJECT *pScreen);
 
 int vmsvgaR3CreateScreenOutputTarget(PVGASTATE pThis, PVGASTATECC pThisCC,
                                      VMSVGASCREENOBJECT *pScreen,

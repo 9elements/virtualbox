@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA.h 114065 2026-05-04 18:09:09Z vitali.pelenjow@oracle.com $ */
+/* $Id: DevVGA-SVGA.h 114073 2026-05-05 09:57:55Z vitali.pelenjow@oracle.com $ */
 /** @file
  * VMware SVGA device
  */
@@ -376,7 +376,6 @@ typedef struct VMSVGASCREENOBJECT
     uint32_t    cDpi;
     bool        fDefined;
     bool        fModified;
-    void       *pvScreenBitmap;
 
     /** Default output target */
     VMSVGAOUTPUTTARGET *pScreenOutputTarget;

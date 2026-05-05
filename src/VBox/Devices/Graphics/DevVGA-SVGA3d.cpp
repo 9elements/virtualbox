@@ -1,4 +1,4 @@
-/* $Id: DevVGA-SVGA3d.cpp 114065 2026-05-04 18:09:09Z vitali.pelenjow@oracle.com $ */
+/* $Id: DevVGA-SVGA3d.cpp 114073 2026-05-05 09:57:55Z vitali.pelenjow@oracle.com $ */
 /** @file
  * DevSVGA3d - VMWare SVGA device, 3D parts - Common core code.
  */
@@ -1070,7 +1070,8 @@ static int vmsvga3dScreenUpdate(PVGASTATECC pThisCC, VMSVGASCREENOBJECT *pScreen
     /* Update the screen from a surface. */
     /* Screen which is associated with a screen target must have a system buffer, because this function
      * writes to system memory. */
-    AssertReturn(pScreen->pvScreenBitmap || pScreen->offVRAM != VMSVGA_VRAM_OFFSET_SCREEN_TARGET, VERR_INVALID_PARAMETER);
+    AssertReturn(   (pScreen->pScreenOutputTarget && pScreen->pScreenOutputTarget->desc.pvOutputBuffer)
+                 || pScreen->offVRAM != VMSVGA_VRAM_OFFSET_SCREEN_TARGET, VERR_INVALID_PARAMETER);
 
     uint32_t const cbScreenPixel = (pScreen->cBpp + 7) / 8;
     ASSERT_GUEST_RETURN(cbScreenPixel == pSurface->cbBlock,
@@ -1147,12 +1148,7 @@ static int vmsvga3dScreenUpdate(PVGASTATECC pThisCC, VMSVGASCREENOBJECT *pScreen
         uint32_t const cbDst = pScreen->cHeight * pScreen->cbPitch;
         uint8_t *pu8Dst;
         if (pScreen->offVRAM == VMSVGA_VRAM_OFFSET_SCREEN_TARGET)
-        {
-            AssertReturnStmt(pScreen->pScreenOutputTarget,
-                             vmsvga3dSurfaceUnmap(pThisCC, &srcImage, &srcMap, /* fWritten =  */ false),
-                             VERR_INVALID_STATE);
             pu8Dst = (uint8_t *)pScreen->pScreenOutputTarget->desc.pvOutputBuffer;
-        }
         else
             pu8Dst = (uint8_t *)pThisCC->pbVRam + pScreen->offVRAM;
 
