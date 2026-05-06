@@ -1,4 +1,4 @@
-/* $Id: regops.c 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: regops.c 114086 2026-05-06 09:33:39Z vadim.galitsyn@oracle.com $ */
 /** @file
  * vboxsf - VBox Linux Shared Folders VFS, regular file inode and file operations.
  */
@@ -3257,7 +3257,9 @@ static loff_t vbsf_reg_llseek(struct file *file, loff_t off, int whence)
  || (defined(CONFIG_SUSE_KERNEL) && RTLNX_VER_MIN(3,0,101) /** @todo figure when exactly */)
 static int vbsf_reg_fsync(struct file *file, loff_t start, loff_t end, int datasync)
 {
-# if RTLNX_VER_MIN(3,16,0)
+# if RTLNX_VER_MIN(7,1,0)
+    return simple_fsync_noflush(file, start, end, datasync);
+# elif RTLNX_VER_MIN(3,16,0)
     return __generic_file_fsync(file, start, end, datasync);
 # else
     return generic_file_fsync(file, start, end, datasync);
