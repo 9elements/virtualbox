@@ -1,4 +1,4 @@
-# $Id: .scm-settings 114044 2026-04-29 08:38:05Z knut.osmundsen@oracle.com $
+# $Id: .scm-settings 114080 2026-05-06 01:26:51Z knut.osmundsen@oracle.com $
 ## @file
 # Source code massager settings for the OS/2 guest additions.
 #
@@ -34,13 +34,6 @@
 /Bin/*.sys:                     --treat-as binary
 
 /*/makefile:                    --external-copyright --dont-set-svn-keywords
-
-/VBoxGradd/*.c:                 --external-copyright
-/VBoxGradd/*.asm:               --external-copyright --no-convert-tabs
-/VBoxGradd/*.inc:               --external-copyright --no-convert-tabs
-/VBoxGradd/*.h:                 --external-copyright --no-fix-header-guards
-/VBoxGradd/vboxioctl.c:         --no-external-copyright
-/VBoxGradd/vboxioctl.h:         --no-external-copyright
 
 /VBoxMouse/*.c:                 --external-copyright --no-convert-tabs
 /VBoxMouse/*.asm:               --external-copyright --no-convert-tabs
