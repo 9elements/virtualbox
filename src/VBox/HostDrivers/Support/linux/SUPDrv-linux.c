@@ -1,4 +1,4 @@
-/* $Id: SUPDrv-linux.c 113777 2026-04-09 07:44:00Z alexander.eichner@oracle.com $ */
+/* $Id: SUPDrv-linux.c 114087 2026-05-06 09:34:17Z vadim.galitsyn@oracle.com $ */
 /** @file
  * VBoxDrv - The VirtualBox Support Driver - Linux specifics.
  */
@@ -80,7 +80,7 @@
 # include <iprt/asm-amd64-x86.h>
 #endif
 
-#if RTLNX_VER_MIN(6,16,0) && defined(CONFIG_MODULES) && defined(CONFIG_KVM_GENERIC_HARDWARE_ENABLING) && defined(VBOX_WITH_HOST_VMX)
+#if RTLNX_VER_RANGE(6,16,0, 7,1,0) && defined(CONFIG_MODULES) && defined(CONFIG_KVM_GENERIC_HARDWARE_ENABLING) && defined(VBOX_WITH_HOST_VMX)
 # if defined(RT_ARCH_AMD64) || defined(RT_ARCH_X86)
 #  include <linux/kvm_host.h>
 #  define SUPDRV_LINUX_HAS_KVM_HWVIRT_API
