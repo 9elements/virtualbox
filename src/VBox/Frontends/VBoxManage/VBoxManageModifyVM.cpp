@@ -1,4 +1,4 @@
-/* $Id: VBoxManageModifyVM.cpp 114090 2026-05-06 15:38:01Z andreas.loeffler@oracle.com $ */
+/* $Id: VBoxManageModifyVM.cpp 114091 2026-05-06 15:48:09Z andreas.loeffler@oracle.com $ */
 /** @file
  * VBoxManage - Implementation of modifyvm command.
  */
@@ -2253,7 +2253,7 @@ RTEXITCODE handleModifyVM(HandlerArg *a)
                     ITERATE_TO_NEXT_TERM(ch);
                     pszGuestPort = RTStrStrip(ch);
 
-                    NATProtocol_T enmProto;
+                    NATProtocol_T enmProto = NATProtocol_TCP; /* Shut up MSVC. */
                     if (RTStrICmp(pszProto, "udp") == 0)
                         enmProto = NATProtocol_UDP;
                     else if (RTStrICmp(pszProto, "tcp") == 0)
