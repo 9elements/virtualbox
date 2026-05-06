@@ -1,4 +1,4 @@
-/* $Id: wayland-helper.h 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: wayland-helper.h 114084 2026-05-06 09:28:40Z vadim.galitsyn@oracle.com $ */
 /** @file
  * Guest Additions - Definitions for Wayland helpers.
  */
@@ -421,5 +421,7 @@ RTDECL(int) vbcl_wayland_thread_start(PRTTHREAD pThread, PFNRTTHREAD pfnThread, 
 extern const VBCLWAYLANDHELPER g_WaylandHelperGtk;
 /** Wayland helper which uses Data Control Protocol. */
 extern const VBCLWAYLANDHELPER g_WaylandHelperDcp;
+/** Wayland helper which uses Ext Data Control Protocol. */
+extern const VBCLWAYLANDHELPER g_WaylandHelperEdcp;
 
 #endif /* !GA_INCLUDED_SRC_x11_VBoxClient_wayland_helper_h */

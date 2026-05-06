@@ -368,10 +368,6 @@ static struct VBCONVERTERFMTTABLE
     { "image/x-MS-bmp",                 VBOX_SHCL_FMT_BITMAP,       vbConvertBmpToVBox,       vbConvertVBoxToBmp,     NULL, 0, },
 };
 
-/** Access lock to mapping table cache. */
-static RTCRITSECT g_vboxMimeConvCacheLock;
-
-
 RTDECL(void) VBoxMimeConvEnumerateMimeById(const SHCLFORMAT uFmtVBox, PFNVBFMTCONVMIMEBYID pfnCb, void *pvData)
 {
     for (unsigned i = 0; i < RT_ELEMENTS(g_aConverterFormats); i++)
@@ -415,79 +411,154 @@ RTDECL(int) VBoxMimeConvNativeToVBox(const char *pcszMimeType, void *pvBufIn, in
     return VERR_NOT_FOUND;
 }
 
-
-
-RTDECL(int) VBoxMimeConvInitCache(void)
-{
-    AssertReturn(!RTCritSectIsInitialized(&g_vboxMimeConvCacheLock), VERR_ACCESS_DENIED);
-
-    return RTCritSectInit(&g_vboxMimeConvCacheLock);
-}
-
-RTDECL(int) VBoxMimeConvClearCache(void)
+RTDECL(int) VBoxMimeConvInitCache(vbox_mime_conv_cache_t *pCache)
 {
     int rc;
 
-    AssertReturn(RTCritSectIsInitialized(&g_vboxMimeConvCacheLock), VERR_ACCESS_DENIED);
+    AssertPtrReturn(pCache, VERR_INVALID_PARAMETER);
+    AssertReturn(!RTCritSectIsInitialized(&pCache->CritSect), VERR_ACCESS_DENIED);
 
-    rc = RTCritSectEnter(&g_vboxMimeConvCacheLock);
+    rc = RTCritSectInit(&pCache->CritSect);
     if (RT_SUCCESS(rc))
     {
-        for (unsigned i = 0; i < RT_ELEMENTS(g_aConverterFormats); i++)
+        const size_t cbCache = sizeof(struct VBCONVERTERFMTTABLE) * RT_ELEMENTS(g_aConverterFormats);
+        pCache->pvCache = RTMemAllocZ(cbCache);
+        if (RT_VALID_PTR(pCache->pvCache))
         {
-            g_aConverterFormats[i].pvBuf = NULL;
-            g_aConverterFormats[i].cbBuf = 0;
+            memcpy(pCache->pvCache, &g_aConverterFormats, cbCache);
+            pCache->iCacheElements = RT_ELEMENTS(g_aConverterFormats);
         }
-
-        RTCritSectLeave(&g_vboxMimeConvCacheLock);
+        else
+            rc = VERR_NO_MEMORY;
     }
 
     return rc;
 }
 
-RTDECL(int) VBoxMimeConvSetCacheByMime(const char *pcszMimeType, void *pvBuf, int cbBuf)
+RTDECL(int) VBoxMimeConvDestroyCache(vbox_mime_conv_cache_t *pCache)
 {
     int rc;
 
-    AssertReturn(RTCritSectIsInitialized(&g_vboxMimeConvCacheLock), VERR_ACCESS_DENIED);
+    AssertPtrReturn(pCache, VERR_INVALID_PARAMETER);
+    AssertReturn(RTCritSectIsInitialized(&pCache->CritSect), VERR_ACCESS_DENIED);
 
-    rc = RTCritSectEnter(&g_vboxMimeConvCacheLock);
+    rc = RTCritSectEnter(&pCache->CritSect);
     if (RT_SUCCESS(rc))
     {
-        for (unsigned i = 0; i < RT_ELEMENTS(g_aConverterFormats); i++)
+        AssertPtr(pCache->pvCache);
+
+        RTMemFree(pCache->pvCache);
+        pCache->pvCache = NULL;
+        pCache->iCacheElements = 0;
+
+        RTCritSectLeave(&pCache->CritSect);
+    }
+
+    return rc;
+}
+
+/**
+ * A helper function that validates if mime-type cache handle was initialized..
+ *
+ * @returns IPRT status code.
+ * @param   pCache      Cache handle.
+ */
+static int vboxMimeConvValidateCache(vbox_mime_conv_cache_t *pCache)
+{
+    AssertPtrReturn(pCache, VERR_INVALID_PARAMETER);
+    AssertReturn(RTCritSectIsInitialized(&pCache->CritSect), VERR_ACCESS_DENIED);
+    AssertPtrReturn(pCache->pvCache, VERR_INVALID_PARAMETER);
+    AssertReturn(pCache->iCacheElements == RT_ELEMENTS(g_aConverterFormats), VERR_INVALID_PARAMETER);
+
+    return VINF_SUCCESS;
+}
+
+RTDECL(int) VBoxMimeConvClearCache(vbox_mime_conv_cache_t *pCache)
+{
+    int rc;
+
+    rc = vboxMimeConvValidateCache(pCache);
+
+    if (RT_SUCCESS(rc))
+        rc = RTCritSectEnter(&pCache->CritSect);
+
+    if (RT_SUCCESS(rc))
+    {
+        struct VBCONVERTERFMTTABLE *pLocalCache = (struct VBCONVERTERFMTTABLE *)pCache->pvCache;
+        for (unsigned i = 0; i < pCache->iCacheElements; i++)
         {
-            if (RTStrNCmp(g_aConverterFormats[i].pcszMimeType, pcszMimeType, VBOX_WAYLAND_MIME_TYPE_NAME_MAX) == 0)
+            pLocalCache[i].pvBuf = NULL;
+            pLocalCache[i].cbBuf = 0;
+        }
+
+        RTCritSectLeave(&pCache->CritSect);
+    }
+
+    return rc;
+}
+
+RTDECL(int) VBoxMimeConvSetCacheByMime(vbox_mime_conv_cache_t *pCache, const char *pcszMimeType, void *pvBuf, int cbBuf)
+{
+    int rc;
+
+    AssertPtrReturn(pcszMimeType, VERR_INVALID_PARAMETER);
+    AssertPtrReturn(pvBuf, VERR_INVALID_PARAMETER);
+    AssertReturn(cbBuf > 0, VERR_INVALID_PARAMETER);
+
+    rc = vboxMimeConvValidateCache(pCache);
+
+    if (RT_SUCCESS(rc))
+        rc = RTCritSectEnter(&pCache->CritSect);
+
+    if (RT_SUCCESS(rc))
+    {
+        struct VBCONVERTERFMTTABLE *pLocalCache = (struct VBCONVERTERFMTTABLE *)pCache->pvCache;
+        bool fFound = false;
+
+        for (unsigned i = 0; i < pCache->iCacheElements; i++)
+        {
+            if (RTStrNCmp(pLocalCache[i].pcszMimeType, pcszMimeType, VBOX_WAYLAND_MIME_TYPE_NAME_MAX) == 0)
             {
-                g_aConverterFormats[i].pvBuf = pvBuf;
-                g_aConverterFormats[i].cbBuf = cbBuf;
+                pLocalCache[i].pvBuf = pvBuf;
+                pLocalCache[i].cbBuf = cbBuf;
+                fFound = true;
             }
         }
 
-        RTCritSectLeave(&g_vboxMimeConvCacheLock);
+        rc = fFound ? VINF_SUCCESS : VERR_NOT_FOUND;
+
+        RTCritSectLeave(&pCache->CritSect);
     }
 
     return rc;
 }
 
-RTDECL(int) VBoxMimeConvGetCacheByMime(const char *pcszMimeType, void **ppvBufOut, size_t *pcbBufOut)
+RTDECL(int) VBoxMimeConvGetCacheByMime(vbox_mime_conv_cache_t *pCache, const char *pcszMimeType, void **ppvBufOut, size_t *pcbBufOut)
 {
     int rc;
 
-    AssertReturn(RTCritSectIsInitialized(&g_vboxMimeConvCacheLock), VERR_ACCESS_DENIED);
+    AssertPtrReturn(pcszMimeType, VERR_INVALID_PARAMETER);
+    AssertPtrReturn(ppvBufOut, VERR_INVALID_PARAMETER);
+    AssertPtrReturn(pcbBufOut, VERR_INVALID_PARAMETER);
 
-    rc = RTCritSectEnter(&g_vboxMimeConvCacheLock);
+    rc = vboxMimeConvValidateCache(pCache);
+
+    if (RT_SUCCESS(rc))
+        rc = RTCritSectEnter(&pCache->CritSect);
+
     if (RT_SUCCESS(rc))
     {
+        struct VBCONVERTERFMTTABLE *pLocalCache = (struct VBCONVERTERFMTTABLE *)pCache->pvCache;
         bool fFound = false;
 
-        for (unsigned i = 0; i < RT_ELEMENTS(g_aConverterFormats); i++)
+        for (unsigned i = 0; i < pCache->iCacheElements; i++)
         {
-            if (   RTStrNCmp(g_aConverterFormats[i].pcszMimeType, pcszMimeType, VBOX_WAYLAND_MIME_TYPE_NAME_MAX) == 0
-                && RT_VALID_PTR(g_aConverterFormats[i].pvBuf)
-                && g_aConverterFormats[i].cbBuf > 0)
+            if (   RTStrNCmp(pLocalCache[i].pcszMimeType, pcszMimeType, VBOX_WAYLAND_MIME_TYPE_NAME_MAX) == 0
+                && RT_VALID_PTR(pLocalCache[i].pvBuf)
+                && pLocalCache[i].cbBuf > 0)
             {
-                *ppvBufOut = g_aConverterFormats[i].pvBuf;
-                *pcbBufOut = g_aConverterFormats[i].cbBuf;
+                *ppvBufOut = pLocalCache[i].pvBuf;
+                *pcbBufOut = pLocalCache[i].cbBuf;
                 fFound = true;
 
                 break;
@@ -496,31 +567,37 @@ RTDECL(int) VBoxMimeConvGetCacheByMime(const char *pcszMimeType, void **ppvBufOu
 
         rc = fFound ? VINF_SUCCESS : VERR_NOT_FOUND;
 
-        RTCritSectLeave(&g_vboxMimeConvCacheLock);
+        RTCritSectLeave(&pCache->CritSect);
     }
 
     return rc;
 }
 
-RTDECL(int) VBoxMimeConvGetCacheById(const SHCLFORMAT uFmtVBox, void **ppvBufOut, size_t *pcbBufOut)
+RTDECL(int) VBoxMimeConvGetCacheById(vbox_mime_conv_cache_t *pCache, const SHCLFORMAT uFmtVBox, void **ppvBufOut, size_t *pcbBufOut)
 {
     int rc;
 
-    AssertReturn(RTCritSectIsInitialized(&g_vboxMimeConvCacheLock), VERR_ACCESS_DENIED);
+    AssertPtrReturn(ppvBufOut, VERR_INVALID_PARAMETER);
+    AssertPtrReturn(pcbBufOut, VERR_INVALID_PARAMETER);
 
-    rc = RTCritSectEnter(&g_vboxMimeConvCacheLock);
+    rc = vboxMimeConvValidateCache(pCache);
+
+    if (RT_SUCCESS(rc))
+        rc = RTCritSectEnter(&pCache->CritSect);
+
     if (RT_SUCCESS(rc))
     {
+        struct VBCONVERTERFMTTABLE *pLocalCache = (struct VBCONVERTERFMTTABLE *)pCache->pvCache;
         bool fFound = false;
 
-        for (unsigned i = 0; i < RT_ELEMENTS(g_aConverterFormats); i++)
+        for (unsigned i = 0; i < pCache->iCacheElements; i++)
         {
-            if (   uFmtVBox == g_aConverterFormats[i].uFmtVBox
-                && RT_VALID_PTR(g_aConverterFormats[i].pvBuf)
-                && g_aConverterFormats[i].cbBuf > 0)
+            if (   uFmtVBox == pLocalCache[i].uFmtVBox
+                && RT_VALID_PTR(pLocalCache[i].pvBuf)
+                && pLocalCache[i].cbBuf > 0)
             {
-                *ppvBufOut = g_aConverterFormats[i].pvBuf;
-                *pcbBufOut = g_aConverterFormats[i].cbBuf;
+                *ppvBufOut = pLocalCache[i].pvBuf;
+                *pcbBufOut = pLocalCache[i].cbBuf;
                 fFound = true;
 
                 break;
@@ -529,7 +606,7 @@ RTDECL(int) VBoxMimeConvGetCacheById(const SHCLFORMAT uFmtVBox, void **ppvBufOut
 
         rc = fFound ? VINF_SUCCESS : VERR_NOT_FOUND;
 
-        RTCritSectLeave(&g_vboxMimeConvCacheLock);
+        RTCritSectLeave(&pCache->CritSect);
     }
 
     return rc;

@@ -1,4 +1,4 @@
-/* $Id: wayland-helper-xdcp-common.cpp 114082 2026-05-06 09:25:39Z vadim.galitsyn@oracle.com $ */
+/* $Id: wayland-helper-xdcp-common.cpp 114084 2026-05-06 09:28:40Z vadim.galitsyn@oracle.com $ */
 /** @file
  * Guest Additions - Common code for Data Control Protocol (DCP) family helper for Wayland.
  */
@@ -359,16 +359,18 @@ RTDECL(int) vbcl_wayland_xdcp_next_event(vbox_wl_xdcp_base_ctx_t *pCtx)
 /**
  * Release session resources.
  *
- * @param   pSession        Session data.
+ * @param   pCtx            Context data.
  */
-static void vbcl_wayland_xdcp_session_release(vbox_wl_dcp_session_t *pSession)
+static void vbcl_wayland_xdcp_session_release(vbox_wl_xdcp_base_ctx_t *pCtx)
 {
     int rc;
     void *pvData;
 
-    AssertPtrReturnVoid(pSession);
+    AssertPtrReturnVoid(pCtx);
 
-    rc = VBoxMimeConvClearCache();
+    vbox_wl_dcp_session_t *pSession = &pCtx->Session;
+
+    rc = VBoxMimeConvClearCache(&pCtx->Cache);
     if (RT_FAILURE(rc))
         VBClLogVerbose(5, "unable to clear clipboard cache, rc=%Rrc", rc);
 
@@ -406,12 +408,12 @@ static void vbcl_wayland_xdcp_session_init(vbox_wl_dcp_session_t *pSession)
     pSession->clip.cbDataBuf.init(0, VBCL_WAYLAND_DATA_WAIT_TIMEOUT_MS);
 }
 
-RTDECL(void) vbcl_wayland_xdcp_session_prepare(vbox_wl_dcp_session_t *pSession)
+RTDECL(void) vbcl_wayland_xdcp_session_prepare(vbox_wl_xdcp_base_ctx_t *pCtx)
 {
-    AssertPtrReturnVoid(pSession);
+    AssertPtrReturnVoid(pCtx);
 
-    vbcl_wayland_xdcp_session_release(pSession);
-    vbcl_wayland_xdcp_session_init(pSession);
+    vbcl_wayland_xdcp_session_release(pCtx);
+    vbcl_wayland_xdcp_session_init(&pCtx->Session);
 }
 
 RTDECL(int) vbcl_wayland_xdcp_add_fmt(struct vbcl_wl_dcp_enumerate_ctx *pEnmCtx)
@@ -455,6 +457,8 @@ RTDECL(int) vbcl_wayland_xdcp_add_fmt(struct vbcl_wl_dcp_enumerate_ctx *pEnmCtx)
 
 RTDECL(void) vbcl_wayland_xdcp_reset_ctx(vbox_wl_xdcp_base_ctx_t *pCtx, bool fShutdown)
 {
+    int rc;
+
     AssertPtrReturnVoid(pCtx);
 
     pCtx->Thread = NIL_RTTHREAD;
@@ -466,8 +470,20 @@ RTDECL(void) vbcl_wayland_xdcp_reset_ctx(vbox_wl_xdcp_base_ctx_t *pCtx, bool fSh
     pCtx->pRegistry = NULL;
     pCtx->pSeat = NULL;
 
-    if (fShutdown)
-        vbcl_wayland_xdcp_session_release(&pCtx->Session);
+    if (!fShutdown)
+    {
+        rc = VBoxMimeConvInitCache(&pCtx->Cache);
+        if (RT_FAILURE(rc))
+            VBClLogVerbose(1, "Unable to init cache, rc=%Rrc\n", rc);
+    }
+    else
+    {
+        vbcl_wayland_xdcp_session_release(pCtx);
+
+        rc = VBoxMimeConvDestroyCache(&pCtx->Cache);
+        if (RT_FAILURE(rc))
+            VBClLogVerbose(1, "Unable to destroy cache, rc=%Rrc\n", rc);
+    }
 
     vbcl_wayland_xdcp_session_init(&pCtx->Session);
 }
@@ -496,7 +512,7 @@ RTDECL(int) vbcl_wayland_xdcp_get_guest_clipboard(int fd, vbox_wl_xdcp_base_ctx_
             pCtx->Session.clip.pvDataBuf.set((uint64_t)pvBufOut);
             pCtx->Session.clip.cbDataBuf.set((uint64_t)cbBufOut);
 
-            rc = VBoxMimeConvSetCacheByMime(pszMimeType, pvBufOut, cbBufOut);
+            rc = VBoxMimeConvSetCacheByMime(&pCtx->Cache, pszMimeType, pvBufOut, cbBufOut);
             VBClLogVerbose(5, "Put %u bytes into cache for mime-type: %s\n", cbBufOut, pszMimeType);
         }
 
@@ -598,7 +614,7 @@ RTDECL(int) vbcl_wayland_xdcp_set_host_clipboard(vbox_wl_xdcp_base_ctx_t *pCtx, 
     AssertPtrReturn(pCtx, VERR_INVALID_PARAMETER);
 
     /* Take data from cache. */
-    rc = VBoxMimeConvGetCacheById(uFmt, &pvData, &cbData);
+    rc = VBoxMimeConvGetCacheById(&pCtx->Cache, uFmt, &pvData, &cbData);
     if (RT_SUCCESS(rc))
     {
         /* Send clipboard data to the host. */

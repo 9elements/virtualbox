@@ -244,7 +244,7 @@ enum ext_data_control_device_v1_error {
 	/**
 	 * source given to set_selection or set_primary_selection was already used before
 	 */
-	EXT_DATA_CONTROL_DEVICE_V1_ERROR_USED_SOURCE = 1,
+	EXT_DATA_CONTROL_DEVICE_V1_ERROR_USED_SOURCE = 1
 };
 #endif /* EXT_DATA_CONTROL_DEVICE_V1_ERROR_ENUM */
 
@@ -448,7 +448,7 @@ enum ext_data_control_source_v1_error {
 	/**
 	 * offer sent after ext_data_control_device.set_selection
 	 */
-	EXT_DATA_CONTROL_SOURCE_V1_ERROR_INVALID_OFFER = 1,
+	EXT_DATA_CONTROL_SOURCE_V1_ERROR_INVALID_OFFER = 1
 };
 #endif /* EXT_DATA_CONTROL_SOURCE_V1_ERROR_ENUM */
 

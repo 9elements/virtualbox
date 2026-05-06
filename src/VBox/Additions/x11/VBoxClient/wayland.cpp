@@ -1,4 +1,4 @@
-/* $Id: wayland.cpp 111747 2025-11-14 16:43:28Z klaus.espenlaub@oracle.com $ */
+/* $Id: wayland.cpp 114084 2026-05-06 09:28:40Z vadim.galitsyn@oracle.com $ */
 /** @file
  * Guest Additions - Wayland Desktop Environment assistant.
  */
@@ -44,7 +44,8 @@
 /** List of available Wayland Desktop Environment helpers. Sorted in order of preference. */
 static const VBCLWAYLANDHELPER *g_apWaylandHelpers[] =
 {
-    &g_WaylandHelperDcp,    /* Device Control Protocol helper. */
+    &g_WaylandHelperEdcp,   /* Ext Data Control Protocol helper. */
+    &g_WaylandHelperDcp,    /* Data Control Protocol helper. */
     &g_WaylandHelperGtk,    /* GTK helper. */
     NULL,                   /* Terminate list. */
 };
