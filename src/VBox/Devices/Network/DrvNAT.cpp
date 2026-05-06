@@ -1,4 +1,4 @@
-/* $Id: DrvNAT.cpp 112403 2026-01-11 19:29:08Z knut.osmundsen@oracle.com $ */
+/* $Id: DrvNAT.cpp 114092 2026-05-06 16:19:50Z andreas.loeffler@oracle.com $ */
 /** @file
  * DrvNATlibslirp - NATlibslirp network transport driver.
  */
@@ -1724,8 +1724,9 @@ static DECLCALLBACK(int) drvNATConstruct(PPDMDRVINS pDrvIns, PCFGMNODE pCfg, uin
     if (uTmpMtu < IPV4_MIN_MTU || uTmpMtu > IPV4_MAX_MTU)
         return PDMDrvHlpVMSetError(pDrvIns, VERR_INVALID_PARAMETER, RT_SRC_POS,
                                     N_("NAT#%d: Configuration error: MTU is not a valid length. "
-                                        "Ensure that the MTU is at above the IPv4 minimum of 68 bytes "
-                                        "and at or below the maximum of 65521.\n"), pDrvIns->iInstance);
+                                        "Ensure that the MTU is at above the IPv4 minimum of %u bytes "
+                                        "and at or below the maximum of %u.\n"),
+                                    pDrvIns->iInstance, IPV4_MIN_MTU, IPV4_MAX_MTU);
     slirpCfg.if_mtu = (size_t)uTmpMtu;
 
     /** @todo r=jack: make this configurable with the right cfgm key, currently just using MTU */
@@ -1735,8 +1736,9 @@ static DECLCALLBACK(int) drvNATConstruct(PPDMDRVINS pDrvIns, PCFGMNODE pCfg, uin
     if (uTmpMru < IPV4_MIN_MTU || uTmpMru > IPV4_MAX_MTU)
         return PDMDrvHlpVMSetError(pDrvIns, VERR_INVALID_PARAMETER, RT_SRC_POS,
                                     N_("NAT#%d: Configuration error: MRU is not a valid length. "
-                                        "Ensure that the MRU is at above the IPv4 minimum of 68 bytes "
-                                        "and at or below the maximum of 65521.\n"), pDrvIns->iInstance);
+                                        "Ensure that the MRU is at above the IPv4 minimum of %u bytes "
+                                        "and at or below the maximum of %u.\n"),
+                                    pDrvIns->iInstance, IPV4_MIN_MTU, IPV4_MAX_MTU);
     slirpCfg.if_mru = uTmpMru;
 
     rc = pDrvIns->pHlpR3->pfnCFGMQueryBoolDef(pCfg, "LocalhostReachable", &slirpCfg.disable_host_loopback, false);
