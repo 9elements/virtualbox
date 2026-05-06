@@ -1,4 +1,4 @@
-/** $Id: VBoxGradd.c 114081 2026-05-06 01:29:22Z knut.osmundsen@oracle.com $ */
+/** $Id: VBoxGradd.c 114088 2026-05-06 13:44:56Z knut.osmundsen@oracle.com $ */
 /** @file
  * VBoxGradd - OS/2 GRADD driver for VirtualBox (replaces gengradd).
  */
@@ -182,10 +182,10 @@ static void         VBoxDPrintf(char *pszFormat, ...);
 #endif
 
 /* VBoxGradd-begin.asm: */
-void                StartOfCode();
+DECLASM(void)       StartOfCode();
 
 /* VBoxGradd-end.asm: */
-void                EndOfCode();
+DECLASM(void)       EndOfCode();
 DECLASM(int)        VBoxBitTest(unsigned char *ptr, unsigned long bit);
 DECLASM(unsigned)   VBoxGetCpl(void);
 DECLASM(unsigned)   VBoxGetIopl(void);
