@@ -1,4 +1,4 @@
-/* $Id: VBoxManageModifyVM.cpp 114003 2026-04-24 06:30:09Z aleksey.ilyushin@oracle.com $ */
+/* $Id: VBoxManageModifyVM.cpp 114090 2026-05-06 15:38:01Z andreas.loeffler@oracle.com $ */
 /** @file
  * VBoxManage - Implementation of modifyvm command.
  */
@@ -2180,34 +2180,38 @@ RTEXITCODE handleModifyVM(HandlerArg *a)
 
             case MODIFYVM_NATSETTINGS:
             {
-                ComPtr<INetworkAdapter> nic;
-                ComPtr<INATEngine> engine;
-                char *strMtu;
-                char *strSockSnd;
-                char *strSockRcv;
-                char *strTcpSnd;
-                char *strTcpRcv;
-                char *strRaw = RTStrDup(ValueUnion.psz);
-                char *ch = strRaw;
-                strMtu = RTStrStrip(ch);
-                ITERATE_TO_NEXT_TERM(ch);
-                strSockSnd = RTStrStrip(ch);
-                ITERATE_TO_NEXT_TERM(ch);
-                strSockRcv = RTStrStrip(ch);
-                ITERATE_TO_NEXT_TERM(ch);
-                strTcpSnd = RTStrStrip(ch);
-                ITERATE_TO_NEXT_TERM(ch);
-                strTcpRcv = RTStrStrip(ch);
-
                 if (!parseNum(GetOptState.uIndex, NetworkAdapterCount, "NIC"))
                     break;
 
+                ComPtr<INetworkAdapter> nic;
+                ComPtr<INATEngine> engine;
                 CHECK_ERROR_BREAK(sessionMachine, GetNetworkAdapter(GetOptState.uIndex - 1, nic.asOutParam()));
-                ASSERT(nic);
+
+                char *pszMTU;
+                char *pszSockSnd;
+                char *pszSockRcv;
+                char *pszTcpSnd;
+                char *pszTcpRcv;
+                char *pszRaw = RTStrDup(ValueUnion.psz);
+                AssertPtrBreakStmt(pszRaw, hrc = E_OUTOFMEMORY);
+                char *ch = pszRaw;
+
+                pszMTU = RTStrStrip(ch);
+                ITERATE_TO_NEXT_TERM(ch);
+                pszSockSnd = RTStrStrip(ch);
+                ITERATE_TO_NEXT_TERM(ch);
+                pszSockRcv = RTStrStrip(ch);
+                ITERATE_TO_NEXT_TERM(ch);
+                pszTcpSnd = RTStrStrip(ch);
+                ITERATE_TO_NEXT_TERM(ch);
+                pszTcpRcv = RTStrStrip(ch);
 
                 CHECK_ERROR(nic, COMGETTER(NATEngine)(engine.asOutParam()));
-                CHECK_ERROR(engine, SetNetworkSettings(RTStrToUInt32(strMtu), RTStrToUInt32(strSockSnd), RTStrToUInt32(strSockRcv),
-                                    RTStrToUInt32(strTcpSnd), RTStrToUInt32(strTcpRcv)));
+                CHECK_ERROR(engine, SetNetworkSettings(RTStrToUInt32(pszMTU), RTStrToUInt32(pszSockSnd), RTStrToUInt32(pszSockRcv),
+                                    RTStrToUInt32(pszTcpSnd), RTStrToUInt32(pszTcpRcv)));
+
+                RTStrFree(pszRaw);
+                pszRaw = NULL;
                 break;
             }
 
@@ -2224,44 +2228,51 @@ RTEXITCODE handleModifyVM(HandlerArg *a)
                 ComPtr<INATEngine> engine;
                 CHECK_ERROR(nic, COMGETTER(NATEngine)(engine.asOutParam()));
 
-                /* format name:proto:hostip:hostport:guestip:guestport*/
+                /* format name:proto:hostip:hostport:guestip:guestport */
                 if (RTStrCmp(ValueUnion.psz, "delete") != 0)
                 {
-                    char *strName;
-                    char *strProto;
-                    char *strHostIp;
-                    char *strHostPort;
-                    char *strGuestIp;
-                    char *strGuestPort;
-                    char *strRaw = RTStrDup(ValueUnion.psz);
-                    char *ch = strRaw;
-                    strName = RTStrStrip(ch);
+                    char *pszName;
+                    char *pszProto;
+                    char *pszHostIp;
+                    char *pszHostPort;
+                    char *pszGuestIp;
+                    char *pszGuestPort;
+                    char *pszRaw = RTStrDup(ValueUnion.psz);
+                    AssertPtrBreakStmt(pszRaw, hrc = E_OUTOFMEMORY);
+                    char *ch = pszRaw;
+
+                    pszName = RTStrStrip(ch);
                     ITERATE_TO_NEXT_TERM(ch);
-                    strProto = RTStrStrip(ch);
+                    pszProto = RTStrStrip(ch);
                     ITERATE_TO_NEXT_TERM(ch);
-                    strHostIp = RTStrStrip(ch);
+                    pszHostIp = RTStrStrip(ch);
                     ITERATE_TO_NEXT_TERM(ch);
-                    strHostPort = RTStrStrip(ch);
+                    pszHostPort = RTStrStrip(ch);
                     ITERATE_TO_NEXT_TERM(ch);
-                    strGuestIp = RTStrStrip(ch);
+                    pszGuestIp = RTStrStrip(ch);
                     ITERATE_TO_NEXT_TERM(ch);
-                    strGuestPort = RTStrStrip(ch);
-                    NATProtocol_T proto;
-                    if (RTStrICmp(strProto, "udp") == 0)
-                        proto = NATProtocol_UDP;
-                    else if (RTStrICmp(strProto, "tcp") == 0)
-                        proto = NATProtocol_TCP;
+                    pszGuestPort = RTStrStrip(ch);
+
+                    NATProtocol_T enmProto;
+                    if (RTStrICmp(pszProto, "udp") == 0)
+                        enmProto = NATProtocol_UDP;
+                    else if (RTStrICmp(pszProto, "tcp") == 0)
+                        enmProto = NATProtocol_TCP;
                     else
                     {
                         errorArgument(ModifyVM::tr("Invalid proto '%s' specfied for NIC %u"), ValueUnion.psz, GetOptState.uIndex);
                         hrc = E_FAIL;
-                        break;
                     }
-                    CHECK_ERROR(engine, AddRedirect(Bstr(strName).raw(), proto,
-                                        Bstr(strHostIp).raw(),
-                                        RTStrToUInt16(strHostPort),
-                                        Bstr(strGuestIp).raw(),
-                                        RTStrToUInt16(strGuestPort)));
+
+                    if (SUCCEEDED(hrc))
+                        CHECK_ERROR(engine, AddRedirect(Bstr(pszName).raw(), enmProto,
+                                            Bstr(pszHostIp).raw(),
+                                            RTStrToUInt16(pszHostPort),
+                                            Bstr(pszGuestIp).raw(),
+                                            RTStrToUInt16(pszGuestPort)));
+
+                    RTStrFree(pszRaw);
+                    pszRaw = NULL;
                 }
                 else
                 {
