@@ -1,4 +1,4 @@
-# $Id: Config.kmk 114061 2026-05-02 20:47:50Z knut.osmundsen@oracle.com $
+# $Id: Config.kmk 114079 2026-05-06 00:59:20Z knut.osmundsen@oracle.com $
 ## @file
 # kBuild Configuration file for the OS/2 Guest Additions.
 #
@@ -54,7 +54,7 @@ TEMPLATE_VBoxOs2Gradd_ASFLAGS          = $(VBOX_NASM_ASFLAGS.lx.x86)
 TEMPLATE_VBoxOs2Gradd_DEFS            := RT_OS_OS2 IN_RING3 LOG_DONT_USE_C99 IN_GUEST IN_GUEST_R3 IN_RT_R3
 TEMPLATE_VBoxOs2Gradd_BLD_TRG         := os2
 TEMPLATE_VBoxOs2Gradd_BLD_TRG_ARCH    := x86
-ifdef VBOX_USE_WATCOM_FOR_OS2
+ifndef VBOX_USE_WATCOM_FOR_OS2
  TEMPLATE_VBoxOs2Gradd_TOOL           := VAC308
  TEMPLATE_VBoxOs2Gradd_ARTOOL         := GCC3OMF
  TEMPLATE_VBoxOs2Gradd_DEFS           += VBOXGRADD_COMPILED_WITH_VAC308
@@ -86,7 +86,7 @@ ifdef VBOX_USE_WATCOM_FOR_OS2
  TEMPLATE_VBoxOs2Gradd_LDFLAGS        += -B"/NoDefaultLibrarySearch"
  TEMPLATE_VBoxOs2Gradd_LDFLAGS        += -B"/Optfunc"          # remove unreachable functions
  TEMPLATE_VBoxOs2Gradd_LDFLAGS        := $(strip $(TEMPLATE_VBoxOs2Gradd_LDFLAGS))
-else # VBOX_USE_WATCOM_FOR_OS2
+else  # VBOX_USE_WATCOM_FOR_OS2
  TEMPLATE_VBoxOs2Gradd_TOOL           := OPENWATCOM
  TEMPLATE_VBoxOs2Gradd_ARTOOL         := OPENWATCOM
  TEMPLATE_VBoxOs2Gradd_LDTOOL         := OPENWATCOM-WL
@@ -106,11 +106,42 @@ else # VBOX_USE_WATCOM_FOR_OS2
  TEMPLATE_VBoxOs2Gradd_LDFLAGS        += option NODefaultlibs, internalrelocs, togglerelocs
  TEMPLATE_VBoxOs2Gradd_LDFLAGS        += debug codeview all
  TEMPLATE_VBoxOs2Gradd_LDFLAGS        += option symfile=$(outbase).sym
-endif
+endif # VBOX_USE_WATCOM_FOR_OS2
 TEMPLATE_VBoxOs2Gradd_INCS             = \
 	$(PATH_DDKVIDEO)/rel/os2c/include/base/os2 \
 	$(PATH_DDKVIDEO)/rel/os2c/include/base/os2/16bit
 
 TEMPLATE_VBoxOs2Gradd_LATE_LIBS        = \
 	$(PATH_DDKVIDEO)/rel/os2c/lib/os2/os2386.lib
+
+
+#
+# Template for 16-bit NE DLL using OW.
+#
+TEMPLATE_VBoxOs2NeDll                 := Template for Gradd
+TEMPLATE_VBoxOs2NeDll_INST             = $(INST_ADDITIONS)
+TEMPLATE_VBoxOs2NeDll_ASTOOL          := NASM
+TEMPLATE_VBoxOs2NeDll_ASFLAGS          = $(VBOX_NASM_ASFLAGS.lx.x86)
+TEMPLATE_VBoxOs2NeDll_DEFS            := RT_OS_OS2 IN_RING3 LOG_DONT_USE_C99 IN_GUEST IN_GUEST_R3 IN_RT_R3
+TEMPLATE_VBoxOs2NeDll_BLD_TRG         := os2
+TEMPLATE_VBoxOs2NeDll_BLD_TRG_ARCH    := x86
+TEMPLATE_VBoxOs2NeDll_TOOL            := OPENWATCOM
+TEMPLATE_VBoxOs2NeDll_ARTOOL          := OPENWATCOM
+TEMPLATE_VBoxOs2NeDll_LDTOOL          := OPENWATCOM-WL
+TEMPLATE_VBoxOs2NeDll_DEFS            += VBOXGRADD_COMPILED_WITH_WATCOM
+
+TEMPLATE_VBoxOs2NeDll_CFLAGS          += -zl                # Do not generate default libraries in object.
+TEMPLATE_VBoxOs2NeDll_CFLAGS          += -Zp1               # Pack aggregate members on 1 byte alignment.
+TEMPLATE_VBoxOs2NeDll_CFLAGS          += -d2 -hc            # Generate codeview debugging information.
+TEMPLATE_VBoxOs2NeDll_CFLAGS          += -ox                # Optimize generated code.
+TEMPLATE_VBoxOs2NeDll_CFLAGS          += -of+               # always generate stack frames
+TEMPLATE_VBoxOs2NeDll_CFLAGS          += -oie               # Turn on function inlining.
+TEMPLATE_VBoxOs2NeDll_CFLAGS          += -w=4               # Warning level 4?
+TEMPLATE_VBoxOs2NeDll_CFLAGS          := $(strip $(TEMPLATE_VBoxOs2NeDll_CFLAGS))
+TEMPLATE_VBoxOs2NeDll_CXXFLAGS         = $(VBoxGradd_CFLAGS)
+
+TEMPLATE_VBoxOs2NeDll_LDFLAGS          = form os2 dll
+TEMPLATE_VBoxOs2NeDll_LDFLAGS         += option NODefaultlibs
+TEMPLATE_VBoxOs2NeDll_LDFLAGS         += debug codeview all
+TEMPLATE_VBoxOs2NeDll_LDFLAGS         += option symfile=$(outbase).sym
 
