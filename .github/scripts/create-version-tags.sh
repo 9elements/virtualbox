@@ -20,33 +20,53 @@
 # commit for each version wins.
 #
 # Usage:
-#   create-version-tags.sh [--dry-run] [--push]
+#   create-version-tags.sh [--dry-run] [--push] [--output FILE]
 #
 # Options:
-#   --dry-run   Print what tags would be created without creating them
-#   --push      Push new tags to origin after creating them
+#   --dry-run     Print what tags would be created without creating them
+#   --push        Push new tags to origin after creating them
+#   --output FILE Write newly-created tag names, one per line
 
 set -euo pipefail
 shopt -s extglob
 
 DRY_RUN=false
 PUSH=false
+OUTPUT_FILE=""
 
-for arg in "$@"; do
-	case "$arg" in
-	--dry-run) DRY_RUN=true ;;
-	--push) PUSH=true ;;
+while [[ $# -gt 0 ]]; do
+	case "$1" in
+	--dry-run)
+		DRY_RUN=true
+		shift
+		;;
+	--push)
+		PUSH=true
+		shift
+		;;
+	--output)
+		if [[ $# -lt 2 || -z "$2" ]]; then
+			echo "error: --output requires a file path" >&2
+			exit 1
+		fi
+		OUTPUT_FILE="$2"
+		shift 2
+		;;
 	-h | --help)
 		sed -n '2,/^[^#]/{ /^#/s/^# \?//p }' "$0"
 		exit 0
 		;;
 	*)
-		echo "error: unknown option: $arg" >&2
-		echo "usage: $0 [--dry-run] [--push]" >&2
+		echo "error: unknown option: $1" >&2
+		echo "usage: $0 [--dry-run] [--push] [--output FILE]" >&2
 		exit 1
 		;;
 	esac
 done
+
+if [[ -n "$OUTPUT_FILE" ]]; then
+	: >"$OUTPUT_FILE"
+fi
 
 # ---------------------------------------------------------------------------
 # Collect existing tags for fast lookup
@@ -99,6 +119,7 @@ done < <(git log --all --reverse --format='%H %s' -- Version.kmk)
 # ---------------------------------------------------------------------------
 created=0
 skipped=0
+declare -a created_tags=()
 
 for tag in "${tag_order[@]}"; do
 	hash="${tag_map[$tag]}"
@@ -113,8 +134,13 @@ for tag in "${tag_order[@]}"; do
 		git tag "$tag" "$hash"
 		echo "created tag $tag -> ${hash:0:12}"
 	fi
+	created_tags+=("$tag")
 	created=$((created + 1))
 done
+
+if [[ -n "$OUTPUT_FILE" ]]; then
+	printf '%s\n' "${created_tags[@]}" >"$OUTPUT_FILE"
+fi
 
 echo ""
 echo "summary: $created new, $skipped already existed, ${#tag_map[@]} total detected"
@@ -123,8 +149,10 @@ echo "summary: $created new, $skipped already existed, ${#tag_map[@]} total dete
 # Push if requested
 # ---------------------------------------------------------------------------
 if [[ "$PUSH" == true && "$DRY_RUN" == false && "$created" -gt 0 ]]; then
-	git push origin --tags
-	echo "pushed tags to origin"
+	for tag in "${created_tags[@]}"; do
+		git push origin "refs/tags/$tag"
+	done
+	echo "pushed $created tag(s) to origin"
 elif [[ "$PUSH" == true && "$created" -eq 0 ]]; then
 	echo "no new tags to push"
 fi
