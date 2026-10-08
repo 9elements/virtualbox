@@ -1,4 +1,4 @@
-/* $Id: APICInternal.h 115357 2026-09-28 11:39:44Z knut.osmundsen@oracle.com $ */
+/* $Id: APICInternal.h 115361 2026-10-08 09:58:15Z aleksey.ilyushin@oracle.com $ */
 /** @file
  * APIC - Advanced Programmable Interrupt Controller, Internal header.
  */
@@ -425,6 +425,10 @@ typedef struct APICCPU
     STAMCOUNTER                 StatEoiWrite;
     /** Number of times the EOI is written in the fast path. */
     STAMCOUNTER                 StatEoiWriteFast;
+    /** Number of times EOI for edge-triggered interrupts is processed. */
+    STAMCOUNTER                 StatEoiEdge;
+    /** Number of times EOI for level-sensitive interrupts is processed. */
+    STAMCOUNTER                 StatEoiLevel;
     /** Number of times TPR masks an interrupt in apicGetInterrupt(). */
     STAMCOUNTER                 StatMaskedByTpr;
     /** Number of times PPR masks an interrupt in apicGetInterrupt(). */

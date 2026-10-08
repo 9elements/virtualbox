@@ -1,4 +1,4 @@
-/* $Id: APICAll-x86.cpp 115353 2026-09-28 08:22:43Z aleksey.ilyushin@oracle.com $ */
+/* $Id: APICAll-x86.cpp 115361 2026-10-08 09:58:15Z aleksey.ilyushin@oracle.com $ */
 /** @file
  * APIC - Advanced Programmable Interrupt Controller - All Contexts.
  */
@@ -1012,6 +1012,7 @@ static void apicProcessEoi(PVMCPUCC pVCpu, uint8_t uVector)
     bool const fLevelTriggered = apicTestVectorInReg(&pXApicPage->tmr, uVector);
     if (fLevelTriggered)
     {
+        STAM_COUNTER_INC(&pVCpu->apic.s.StatEoiLevel);
         PDMIoApicBroadcastEoi(pVCpu->CTX_SUFF(pVM), uVector);
 
         /*
@@ -1039,6 +1040,8 @@ static void apicProcessEoi(PVMCPUCC pVCpu, uint8_t uVector)
 
         Log2(("APIC%u: apicSetEoi: Cleared level triggered interrupt from TMR. uVector=%#x\n", pVCpu->idCpu, uVector));
     }
+    else
+        STAM_COUNTER_INC(&pVCpu->apic.s.StatEoiEdge);
 
     /*
     * Mark interrupt as serviced, update the PPR and signal pending interrupts.
